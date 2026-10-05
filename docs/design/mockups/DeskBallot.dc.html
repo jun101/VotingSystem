@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Vote sur ordinateur : bulletin</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1E3A8A}a:hover{color:#172B66}
+</style>
+</helmet>
+<div style="display: flex; flex-direction: column; min-height: 800px; background: #F3F5F9; color: #111B33; font-family: 'Public Sans', sans-serif">
+<header style="display: flex; align-items: center; gap: 12px; padding: 14px clamp(20px, 5vw, 64px); background: #FFFFFF; border-bottom: 1px solid #D8DEE9">
+<div style="width: 40px; height: 40px; border-radius: 10px; background: #1E3A8A; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px">CE</div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 1px"><span style="font-size: 13px; color: #4A556B">Collège Étoile du Matin</span><span style="font-size: 16px; font-weight: 600">Conseil des élèves 2026</span></div>
+<span style="font-size: 15px; color: #4A556B">Wideline Joseph · 4e année</span>
+</header>
+<div style="flex-grow: 1; display: flex; flex-wrap: wrap; align-items: stretch; box-sizing: border-box; width: 100%; max-width: 1280px; margin: 0 auto">
+<nav aria-label="Étapes du vote" style="flex: 1 1 260px; min-width: 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; padding: 36px 24px 24px clamp(20px, 5vw, 64px)">
+<span style="font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #4A556B">Vos 3 postes</span>
+<div style="display: flex; align-items: center; gap: 12px; padding: 14px; border: 2px solid #1E3A8A; border-radius: 12px; background: #FFFFFF"><span style="flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%; background: #1E3A8A; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">1</span><span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 16px; font-weight: 700">Président(e)</span><span style="font-size: 13px; color: #1E3A8A; font-weight: 600">En cours</span></span></div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 15px"><span style="flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%; background: #E7EBF2; color: #36425F; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">2</span><span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 16px; font-weight: 600">Secrétaire</span><span style="font-size: 13px; color: #4A556B">À venir</span></span></div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 15px"><span style="flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%; background: #E7EBF2; color: #36425F; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">3</span><span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 16px; font-weight: 600">Délégué(e) de classe</span><span style="font-size: 13px; color: #4A556B">4e année · à venir</span></span></div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 15px"><span style="flex-shrink: 0; width: 30px; height: 30px; box-sizing: border-box; border-radius: 50%; border: 2px solid #B9C2D3"></span><span style="font-size: 16px; font-weight: 600; color: #4A556B">Vérification</span></div>
+<div style="flex-grow: 1"></div>
+<p style="margin: 0; font-size: 13px; line-height: 1.4; color: #4A556B">Rien n'est enregistré avant la confirmation finale.</p>
+</nav>
+<main style="flex: 999 1 600px; min-width: 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px; padding: 36px clamp(20px, 5vw, 64px) 0 12px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h1 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 44px; line-height: 1.05; font-weight: 700">Président(e)</h1>
+<p style="margin: 0; font-size: 18px; color: #4A556B">Choisissez 1 candidat. Cliquez sur une carte.</p>
+</div>
+<fieldset style="flex-grow: 1; margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 16px">
+<legend style="position: absolute; clip: rect(0 0 0 0)">Candidats au poste de Président(e)</legend>
+<div style="flex-grow: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px">
+<label style="display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 23px 16px 19px; background: #FFFFFF; border: 2px solid #1E3A8A; border-radius: 18px; box-shadow: 0 0 0 5px #E6ECFA; text-align: center">
+<svg viewBox="0 0 48 48" width="120" height="120" aria-hidden="true" style="border-radius: 50%; background: #FFE8D6"><path d="M13 24c-2-11 4-17 11-17s13 6 11 17l2 9H11z" fill="#5B2109"/><circle cx="24" cy="20" r="8" fill="#B4531F"/><path d="M7 48c1-11 8-16 17-16s16 5 17 16z" fill="#B4531F"/></svg>
+<span style="font-size: 21px; font-weight: 700; line-height: 1.2">Nadège Pierre-Louis</span>
+<span style="display: flex; align-items: center; gap: 7px; font-size: 14px; font-weight: 600; color: #4A556B"><span style="width: 11px; height: 11px; border-radius: 3px; background: #C2410C"></span>Avenir Étudiant</span>
+<span style="flex-grow: 1; font-size: 15px; line-height: 1.35; color: #4A556B">« Une école qui nous écoute »</span>
+<span style="display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 700; color: #1E3A8A"><input type="radio" name="president" checked style="width: 26px; height: 26px; accent-color: #1E3A8A">Mon choix</span>
+</label>
+<label style="display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 24px 17px 20px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 18px; text-align: center">
+<span style="width: 120px; height: 120px; border-radius: 50%; background: #D8DEE9; color: #4A556B; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600">Photo</span>
+<span style="font-size: 21px; font-weight: 700; line-height: 1.2">Jean-Marc Désir</span>
+<span style="display: flex; align-items: center; gap: 7px; font-size: 14px; font-weight: 600; color: #4A556B"><span style="width: 11px; height: 11px; border-radius: 3px; background: #0F766E"></span>Ensemble</span>
+<span style="flex-grow: 1; font-size: 15px; line-height: 1.35; color: #4A556B">« Plus de sport, plus de clubs »</span>
+<span style="display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 600; color: #4A556B"><input type="radio" name="president" style="width: 26px; height: 26px; accent-color: #1E3A8A">Choisir</span>
+</label>
+<label style="display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 24px 17px 20px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 18px; text-align: center">
+<svg viewBox="0 0 48 48" width="120" height="120" aria-hidden="true" style="border-radius: 50%; background: #E6ECFA"><circle cx="24" cy="19" r="8" fill="#1E3A8A"/><path d="M7 48c1-11 8-16 17-16s16 5 17 16z" fill="#1E3A8A"/></svg>
+<span style="font-size: 21px; font-weight: 700; line-height: 1.2">Ricardo Saint-Fleur</span>
+<span style="font-size: 14px; font-weight: 600; color: #4A556B">Indépendant</span>
+<span style="flex-grow: 1; font-size: 15px; line-height: 1.35; color: #4A556B">« Des idées simples, tenues »</span>
+<span style="display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 600; color: #4A556B"><input type="radio" name="president" style="width: 26px; height: 26px; accent-color: #1E3A8A">Choisir</span>
+</label>
+</div>
+<label style="display: flex; align-items: center; gap: 14px; min-height: 60px; padding: 0 20px; border: 1px dashed #8E99AE; border-radius: 14px">
+<input type="radio" name="president" style="width: 26px; height: 26px; accent-color: #1E3A8A">
+<span style="font-size: 17px; font-weight: 600">Vote blanc</span>
+<span style="font-size: 15px; color: #4A556B">Je ne choisis aucun candidat pour ce poste</span>
+</label>
+</fieldset>
+<footer style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 16px 0 28px">
+<a href="DeskIdentity.dc.html" style="display: flex; align-items: center; justify-content: center; height: 58px; padding: 0 26px; border: 1px solid #B9C2D3; border-radius: 12px; background: #FFFFFF; color: #111B33; font-size: 17px; font-weight: 600; text-decoration: none">Retour</a>
+<span style="flex-grow: 1"></span>
+<a href="DeskReview.dc.html" style="display: flex; align-items: center; justify-content: center; gap: 10px; height: 58px; padding: 0 32px; border-radius: 12px; background: #1E3A8A; color: #FFFFFF; font-size: 18px; font-weight: 600; text-decoration: none">Suivant : Secrétaire
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+</a>
+</footer>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

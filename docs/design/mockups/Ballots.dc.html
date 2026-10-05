@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Postes et candidats</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1E3A8A}a:hover{color:#172B66}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 1000px; background: #F3F5F9; color: #111B33; font-family: 'Public Sans', sans-serif">
+<div style="flex: 1 1 272px; min-width: 0; background: #111B33"><dc-import name="Sidebar" active="ballots" stage="draft" hint-size="272px,940px"></dc-import></div>
+<div style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column">
+<header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 28px; background: #FFFFFF; border-bottom: 1px solid #D8DEE9">
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 12px; font-weight: 600; color: #4A556B">Conseil des élèves 2026 · Brouillon</span>
+<h1 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 24px; font-weight: 700">Postes et candidats</h1>
+</div>
+<button style="height: 44px; padding: 0 16px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600">Ajouter un parti</button>
+<button style="height: 44px; padding: 0 16px; border: 0; border-radius: 10px; background: #1E3A8A; color: #FFFFFF; font: inherit; font-size: 14px; font-weight: 600">Ajouter un poste</button>
+</header>
+<main style="flex-grow: 1; display: flex; flex-direction: column; gap: 16px; padding: 22px 28px 28px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 18px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 14px">
+<span style="font-size: 14px; font-weight: 700">Partis</span>
+<button style="display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 14px; border: 1px solid #D8DEE9; border-radius: 999px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600"><span style="width: 12px; height: 12px; border-radius: 4px; background: #C2410C"></span>Avenir Étudiant · 3</button>
+<button style="display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 14px; border: 1px solid #D8DEE9; border-radius: 999px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600"><span style="width: 12px; height: 12px; border-radius: 4px; background: #0F766E"></span>Ensemble · 3</button>
+<span style="font-size: 14px; color: #4A556B">Indépendants · 3</span>
+<span style="flex-grow: 1"></span>
+<span style="font-size: 13px; color: #4A556B">Glissez un poste ou un candidat pour changer l'ordre.</span>
+</div>
+<div style="flex-grow: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 16px">
+<section style="display: flex; flex-direction: column; gap: 14px; padding: 20px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 16px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+<h2 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 21px; font-weight: 700">Président(e)</h2>
+<span style="padding: 3px 10px; border-radius: 999px; background: #E6ECFA; color: #172B66; font-size: 13px; font-weight: 600">Toute l'école · 300</span>
+<span style="flex-grow: 1"></span>
+<button style="height: 44px; padding: 0 12px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600">Modifier</button>
+</div>
+<span style="font-size: 13px; color: #4A556B">1 siège · vote blanc autorisé</span>
+<div style="flex-grow: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px">
+<a href="Candidate.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 8px; border: 1px solid #D8DEE9; border-radius: 12px; color: #111B33; text-align: center; text-decoration: none">
+<svg viewBox="0 0 48 48" width="56" height="56" aria-hidden="true" style="border-radius: 50%; background: #FFE8D6"><path d="M13 24c-2-11 4-17 11-17s13 6 11 17l2 9H11z" fill="#5B2109"/><circle cx="24" cy="20" r="8" fill="#B4531F"/><path d="M7 48c1-11 8-16 17-16s16 5 17 16z" fill="#B4531F"/></svg>
+<span style="font-size: 14px; font-weight: 700; line-height: 1.2">Nadège Pierre-Louis</span>
+<span style="display: flex; align-items: center; gap: 5px; font-size: 12px; color: #4A556B"><span style="width: 9px; height: 9px; border-radius: 3px; background: #C2410C"></span>Avenir Étudiant</span>
+</a>
+<a href="Candidate.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 8px; border: 1px solid #D8DEE9; border-radius: 12px; color: #111B33; text-align: center; text-decoration: none">
+<span style="width: 56px; height: 56px; border-radius: 50%; background: #D8DEE9; color: #4A556B; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600">Photo</span>
+<span style="font-size: 14px; font-weight: 700; line-height: 1.2">Jean-Marc Désir</span>
+<span style="display: flex; align-items: center; gap: 5px; font-size: 12px; color: #4A556B"><span style="width: 9px; height: 9px; border-radius: 3px; background: #0F766E"></span>Ensemble</span>
+</a>
+<a href="Candidate.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 8px; border: 1px solid #D8DEE9; border-radius: 12px; color: #111B33; text-align: center; text-decoration: none">
+<svg viewBox="0 0 48 48" width="56" height="56" aria-hidden="true" style="border-radius: 50%; background: #E6ECFA"><circle cx="24" cy="19" r="8" fill="#1E3A8A"/><path d="M7 48c1-11 8-16 17-16s16 5 17 16z" fill="#1E3A8A"/></svg>
+<span style="font-size: 14px; font-weight: 700; line-height: 1.2">Ricardo Saint-Fleur</span>
+<span style="font-size: 12px; color: #4A556B">Indépendant</span>
+</a>
+<a href="Candidate.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 14px 8px; border: 2px dashed #8E99AE; border-radius: 12px; color: #1E3A8A; font-size: 14px; font-weight: 600; text-align: center; text-decoration: none">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Candidat
+</a>
+</div>
+</section>
+<section style="display: flex; flex-direction: column; gap: 14px; padding: 20px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 16px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+<h2 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 21px; font-weight: 700">Secrétaire</h2>
+<span style="padding: 3px 10px; border-radius: 999px; background: #E6ECFA; color: #172B66; font-size: 13px; font-weight: 600">Toute l'école · 300</span>
+<span style="flex-grow: 1"></span>
+<button style="height: 44px; padding: 0 12px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600">Modifier</button>
+</div>
+<span style="font-size: 13px; color: #4A556B">1 siège · vote blanc autorisé</span>
+<div style="flex-grow: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px">
+<a href="Candidate.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 8px; border: 1px solid #D8DEE9; border-radius: 12px; color: #111B33; text-align: center; text-decoration: none">
+<svg viewBox="0 0 48 48" width="56" height="56" aria-hidden="true" style="border-radius: 50%; background: #E6ECFA"><circle cx="24" cy="19" r="8" fill="#1E3A8A"/><path d="M7 48c1-11 8-16 17-16s16 5 17 16z" fill="#1E3A8A"/></svg>
+<span style="font-size: 14px; font-weight: 700; line-height: 1.2">Stanley Augustin</span>
+<span style="display: flex; align-items: center; gap: 5px; font-size: 12px; color: #4A556B"><span style="width: 9px; height: 9px; border-radius: 3px; background: #0F766E"></span>Ensemble</span>
+</a>
+<a href="Candidate.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 8px; border: 1px solid #D8DEE9; border-radius: 12px; color: #111B33; text-align: center; text-decoration: none">
+<span style="width: 56px; height: 56px; border-radius: 50%; background: #D8DEE9; color: #4A556B; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600">Photo</span>
+<span style="font-size: 14px; font-weight: 700; line-height: 1.2">Fabiola Charles</span>
+<span style="display: flex; align-items: center; gap: 5px; font-size: 12px; color: #4A556B"><span style="width: 9px; height: 9px; border-radius: 3px; background: #C2410C"></span>Avenir Étudiant</span>
+</a>
+<a href="Candidate.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 14px 8px; border: 2px dashed #8E99AE; border-radius: 12px; color: #1E3A8A; font-size: 14px; font-weight: 600; text-align: center; text-decoration: none">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Candidat
+</a>
+</div>
+</section>
+<section style="display: flex; flex-direction: column; gap: 14px; padding: 20px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 16px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+<h2 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 21px; font-weight: 700">Délégué(e) de classe</h2>
+<span style="padding: 3px 10px; border-radius: 999px; background: #FFE8D6; color: #6B2408; font-size: 13px; font-weight: 600">Réservé : 4e année · 38</span>
+<span style="flex-grow: 1"></span>
+<button style="height: 44px; padding: 0 12px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600">Modifier</button>
+</div>
+<span style="font-size: 13px; color: #4A556B">1 siège · vote blanc autorisé</span>
+<div style="flex-grow: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px">
+<a href="Candidate.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 8px; border: 1px solid #D8DEE9; border-radius: 12px; color: #111B33; text-align: center; text-decoration: none">
+<svg viewBox="0 0 48 48" width="56" height="56" aria-hidden="true" style="border-radius: 50%; background: #FFE8D6"><path d="M13 24c-2-11 4-17 11-17s13 6 11 17l2 9H11z" fill="#5B2109"/><circle cx="24" cy="20" r="8" fill="#B4531F"/><path d="M7 48c1-11 8-16 17-16s16 5 17 16z" fill="#B4531F"/></svg>
+<span style="font-size: 14px; font-weight: 700; line-height: 1.2">Christelle Bazile</span>
+<span style="font-size: 12px; color: #4A556B">Indépendante</span>
+</a>
+<a href="Candidate.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 8px; border: 1px solid #D8DEE9; border-radius: 12px; color: #111B33; text-align: center; text-decoration: none">
+<svg viewBox="0 0 48 48" width="56" height="56" aria-hidden="true" style="border-radius: 50%; background: #E6ECFA"><circle cx="24" cy="19" r="8" fill="#1E3A8A"/><path d="M7 48c1-11 8-16 17-16s16 5 17 16z" fill="#1E3A8A"/></svg>
+<span style="font-size: 14px; font-weight: 700; line-height: 1.2">Kervens Noël</span>
+<span style="font-size: 12px; color: #4A556B">Indépendant</span>
+</a>
+<a href="Candidate.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 14px 8px; border: 2px dashed #8E99AE; border-radius: 12px; color: #1E3A8A; font-size: 14px; font-weight: 600; text-align: center; text-decoration: none">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Candidat
+</a>
+</div>
+</section>
+<section style="display: flex; flex-direction: column; gap: 14px; padding: 20px; background: #FFFFFF; border: 2px solid #C2410C; border-radius: 16px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+<h2 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 21px; font-weight: 700">Délégué(e) de classe</h2>
+<span style="padding: 3px 10px; border-radius: 999px; background: #FFE8D6; color: #6B2408; font-size: 13px; font-weight: 600">Réservé : 5e année · 40</span>
+<span style="flex-grow: 1"></span>
+<button style="height: 44px; padding: 0 12px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600">Modifier</button>
+</div>
+<span style="font-size: 13px; font-weight: 600; color: #6B2408">Attention : un seul candidat pour ce poste.</span>
+<div style="flex-grow: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px">
+<a href="Candidate.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 8px; border: 1px solid #D8DEE9; border-radius: 12px; color: #111B33; text-align: center; text-decoration: none">
+<svg viewBox="0 0 48 48" width="56" height="56" aria-hidden="true" style="border-radius: 50%; background: #FFE8D6"><path d="M13 24c-2-11 4-17 11-17s13 6 11 17l2 9H11z" fill="#5B2109"/><circle cx="24" cy="20" r="8" fill="#B4531F"/><path d="M7 48c1-11 8-16 17-16s16 5 17 16z" fill="#B4531F"/></svg>
+<span style="font-size: 14px; font-weight: 700; line-height: 1.2">Daphney Estimé</span>
+<span style="display: flex; align-items: center; gap: 5px; font-size: 12px; color: #4A556B"><span style="width: 9px; height: 9px; border-radius: 3px; background: #C2410C"></span>Avenir Étudiant</span>
+</a>
+<a href="Candidate.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 14px 8px; border: 2px dashed #C2410C; border-radius: 12px; background: #FFF4EA; color: #6B2408; font-size: 14px; font-weight: 600; text-align: center; text-decoration: none">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Ajouter un 2e candidat
+</a>
+</div>
+</section>
+</div>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1000}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

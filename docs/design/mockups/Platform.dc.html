@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Administration de la plateforme</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1E3A8A}a:hover{color:#172B66}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 900px; background: #F3F5F9; color: #111B33; font-family: 'Public Sans', sans-serif">
+<aside style="flex: 1 1 272px; min-width: 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px; padding: 18px 14px 16px; background: #2A1810; color: #FFFFFF">
+<div style="display: flex; align-items: center; gap: 10px; padding: 0 6px 12px">
+<span style="flex-shrink: 0; width: 38px; height: 38px; border-radius: 10px; background: #C2410C; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px">VS</span>
+<span style="display: flex; flex-direction: column; gap: 1px"><span style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 17px; font-weight: 700">VoteSystem</span><span style="font-size: 12px; color: #F1C9A8">Plateforme</span></span>
+</div>
+<div style="display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 10px; border: 1px solid #5B3A28; border-radius: 10px; background: #3A2318">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F1C9A8" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+<label for="p-goto" style="position: absolute; clip: rect(0 0 0 0)">Chercher un établissement</label>
+<input id="p-goto" type="search" placeholder="Chercher un établissement" style="flex-grow: 1; min-width: 0; height: 40px; border: 0; background: transparent; color: #FFFFFF; font: inherit; font-size: 14px">
+</div>
+<span style="padding: 12px 10px 4px; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #E0B08C">Plateforme</span>
+<a href="#etablissements" style="display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 10px; border-radius: 8px; background: #C2410C; color: #FFFFFF; font-size: 14px; font-weight: 600; text-decoration: none"><span style="flex-grow: 1">Établissements</span><span style="padding: 2px 7px; border-radius: 999px; background: #FFFFFF; color: #6B2408; font-size: 12px; font-weight: 700">4</span></a>
+<a href="#statistiques" style="display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 10px; border-radius: 8px; color: #F1C9A8; font-size: 14px; font-weight: 600; text-decoration: none">Statistiques</a>
+<a href="#courriels" style="display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 10px; border-radius: 8px; color: #F1C9A8; font-size: 14px; font-weight: 600; text-decoration: none">Envoi de courriels</a>
+<a href="#sante" style="display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 10px; border-radius: 8px; color: #F1C9A8; font-size: 14px; font-weight: 600; text-decoration: none"><span style="flex-grow: 1">État du service</span><span style="width: 10px; height: 10px; border-radius: 50%; background: #34D399" aria-label="Tout fonctionne" role="img"></span></a>
+<div style="display: flex; flex-direction: column; gap: 6px; margin-top: 12px; padding: 12px; border: 1px solid #5B3A28; border-radius: 12px; background: #3A2318">
+<span style="font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #E0B08C">En ce moment</span>
+<span style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 26px; line-height: 1; font-weight: 700">1 vote ouvert</span>
+<span style="font-size: 12px; line-height: 1.35; color: #F1C9A8">Collège Étoile du Matin · 300 électeurs</span>
+</div>
+<div style="flex-grow: 1; min-height: 16px"></div>
+<div style="display: flex; align-items: center; gap: 10px; padding: 12px 6px 0; border-top: 1px solid #5B3A28">
+<span style="flex-shrink: 0; width: 38px; height: 38px; border-radius: 50%; background: #FFFFFF; color: #2A1810; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">JF</span>
+<span style="display: flex; flex-direction: column; gap: 1px"><span style="font-size: 14px; font-weight: 600">Administrateur</span><span style="font-size: 12px; color: #F1C9A8">Plateforme</span></span>
+</div>
+</aside>
+<div style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column">
+<header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 28px; background: #FFFFFF; border-bottom: 1px solid #D8DEE9">
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 12px; font-weight: 600; color: #4A556B">Plateforme · aucun accès aux votes, aux codes ni aux coordonnées des électeurs</span>
+<h1 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 24px; font-weight: 700">Établissements</h1>
+</div>
+</header>
+<main style="flex-grow: 1; display: flex; flex-direction: column; gap: 16px; padding: 22px 28px 28px">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 4px; padding: 16px 18px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 14px"><span style="font-size: 13px; font-weight: 600; color: #4A556B">Établissements</span><span style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 34px; font-weight: 700">4</span><span style="font-size: 13px; color: #4A556B">1 inscrit ce mois-ci</span></div>
+<div style="display: flex; flex-direction: column; gap: 4px; padding: 16px 18px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 14px"><span style="font-size: 13px; font-weight: 600; color: #4A556B">Élections ouvertes</span><span style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 34px; font-weight: 700">1</span><span style="font-size: 13px; color: #4A556B">9 élections au total</span></div>
+<div style="display: flex; flex-direction: column; gap: 4px; padding: 16px 18px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 14px"><span style="font-size: 13px; font-weight: 600; color: #4A556B">Courriels ce mois-ci</span><span style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 34px; font-weight: 700">20</span><span style="font-size: 13px; color: #4A556B">Tous remis</span></div>
+<div style="display: flex; flex-direction: column; gap: 4px; padding: 16px 18px; background: #FFF4EA; border: 1px solid #F1C9A8; border-radius: 14px"><span style="font-size: 13px; font-weight: 600; color: #6B2408">À regarder</span><span style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 34px; font-weight: 700">2</span><span style="font-size: 13px; color: #6B2408">1 suspendu · 1 courriel non vérifié</span></div>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+<button style="height: 44px; padding: 0 14px; border: 0; border-radius: 999px; background: #111B33; color: #FFFFFF; font: inherit; font-size: 14px; font-weight: 600">Tous · 4</button>
+<button style="height: 44px; padding: 0 14px; border: 1px solid #B9C2D3; border-radius: 999px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600">Actifs · 2</button>
+<button style="height: 44px; padding: 0 14px; border: 1px solid #B9C2D3; border-radius: 999px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600">Courriel non vérifié · 1</button>
+<button style="height: 44px; padding: 0 14px; border: 1px solid #B9C2D3; border-radius: 999px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600">Suspendus · 1</button>
+</div>
+<div style="flex-grow: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-auto-rows: 1fr; gap: 16px">
+<article style="display: flex; flex-direction: column; gap: 12px; padding: 20px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 16px">
+<div style="display: flex; align-items: center; gap: 12px"><span style="flex-shrink: 0; width: 48px; height: 48px; border-radius: 12px; background: #1E3A8A; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700">CE</span><span style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 17px; font-weight: 700">Collège Étoile du Matin</span><span style="font-size: 13px; color: #4A556B">École · Port-au-Prince</span></span><span style="padding: 3px 10px; border-radius: 999px; background: #D9F2EE; color: #0B5750; font-size: 13px; font-weight: 600">Actif</span></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; font-size: 13px"><span style="display: flex; flex-direction: column; gap: 2px; padding: 9px 11px; border-radius: 8px; background: #F3F5F9"><span style="color: #4A556B">Élections</span><strong style="font-size: 16px">5</strong></span><span style="display: flex; flex-direction: column; gap: 2px; padding: 9px 11px; border-radius: 8px; background: #D9F2EE; color: #0B5750"><span>Ouvertes</span><strong style="font-size: 16px">1</strong></span><span style="display: flex; flex-direction: column; gap: 2px; padding: 9px 11px; border-radius: 8px; background: #F3F5F9"><span style="color: #4A556B">Utilisateurs</span><strong style="font-size: 16px">2</strong></span></div>
+<div style="flex-grow: 1"></div>
+<div style="display: flex; align-items: center; gap: 10px"><span style="flex-grow: 1; font-size: 13px; color: #4A556B">Inscrit le 28 août 2025</span><button style="height: 44px; padding: 0 14px; border: 1px solid #E9B8A8; border-radius: 10px; background: #FFFFFF; color: #9A2A0A; font: inherit; font-size: 14px; font-weight: 600">Suspendre</button></div>
+</article>
+<article style="display: flex; flex-direction: column; gap: 12px; padding: 20px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 16px">
+<div style="display: flex; align-items: center; gap: 12px"><span style="flex-shrink: 0; width: 48px; height: 48px; border-radius: 12px; background: #0F766E; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700">LH</span><span style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 17px; font-weight: 700">Lycée Horizon</span><span style="font-size: 13px; color: #4A556B">École · Cap-Haïtien</span></span><span style="padding: 3px 10px; border-radius: 999px; background: #D9F2EE; color: #0B5750; font-size: 13px; font-weight: 600">Actif</span></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; font-size: 13px"><span style="display: flex; flex-direction: column; gap: 2px; padding: 9px 11px; border-radius: 8px; background: #F3F5F9"><span style="color: #4A556B">Élections</span><strong style="font-size: 16px">3</strong></span><span style="display: flex; flex-direction: column; gap: 2px; padding: 9px 11px; border-radius: 8px; background: #F3F5F9"><span style="color: #4A556B">Ouvertes</span><strong style="font-size: 16px">0</strong></span><span style="display: flex; flex-direction: column; gap: 2px; padding: 9px 11px; border-radius: 8px; background: #F3F5F9"><span style="color: #4A556B">Utilisateurs</span><strong style="font-size: 16px">3</strong></span></div>
+<div style="flex-grow: 1"></div>
+<div style="display: flex; align-items: center; gap: 10px"><span style="flex-grow: 1; font-size: 13px; color: #4A556B">Inscrit le 14 janv. 2026</span><button style="height: 44px; padding: 0 14px; border: 1px solid #E9B8A8; border-radius: 10px; background: #FFFFFF; color: #9A2A0A; font: inherit; font-size: 14px; font-weight: 600">Suspendre</button></div>
+</article>
+<article style="display: flex; flex-direction: column; gap: 12px; padding: 19px; background: #FFF4EA; border: 2px solid #C2410C; border-radius: 16px">
+<div style="display: flex; align-items: center; gap: 12px"><span style="flex-shrink: 0; width: 48px; height: 48px; border-radius: 12px; background: #C2410C; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700">AJ</span><span style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 17px; font-weight: 700">Association des Jeunes de Jacmel</span><span style="font-size: 13px; color: #6B2408">Association · Jacmel</span></span><span style="padding: 3px 10px; border-radius: 999px; background: #C2410C; color: #FFFFFF; font-size: 13px; font-weight: 600">Suspendu</span></div>
+<span style="font-size: 14px; line-height: 1.4; color: #6B2408">Suspendu le 20 sept. 2026. Ses résultats déjà publiés restent visibles.</span>
+<div style="flex-grow: 1"></div>
+<div style="display: flex; align-items: center; gap: 10px"><span style="flex-grow: 1; font-size: 13px; color: #6B2408">Inscrit le 2 sept. 2026 · 1 élection</span><button style="height: 44px; padding: 0 14px; border: 0; border-radius: 10px; background: #1E3A8A; color: #FFFFFF; font: inherit; font-size: 14px; font-weight: 600">Réactiver</button></div>
+</article>
+<article style="display: flex; flex-direction: column; gap: 12px; padding: 20px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 16px">
+<div style="display: flex; align-items: center; gap: 12px"><span style="flex-shrink: 0; width: 48px; height: 48px; border-radius: 12px; background: #8E99AE; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700">IP</span><span style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 17px; font-weight: 700">Institut Les Palmiers</span><span style="font-size: 13px; color: #4A556B">École · Les Cayes</span></span><span style="padding: 3px 10px; border-radius: 999px; background: #E7EBF2; color: #36425F; font-size: 13px; font-weight: 600">Courriel non vérifié</span></div>
+<span style="font-size: 14px; line-height: 1.4; color: #4A556B">Ne peut ouvrir aucune élection tant que le courriel n'est pas vérifié.</span>
+<div style="flex-grow: 1"></div>
+<div style="display: flex; align-items: center; gap: 10px"><span style="flex-grow: 1; font-size: 13px; color: #4A556B">Inscrit le 1 oct. 2026 · aucune élection</span><button style="height: 44px; padding: 0 14px; border: 1px solid #E9B8A8; border-radius: 10px; background: #FFFFFF; color: #9A2A0A; font: inherit; font-size: 14px; font-weight: 600">Suspendre</button></div>
+</article>
+</div>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

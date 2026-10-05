@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Nouvelle élection</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1E3A8A}a:hover{color:#172B66}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 960px; background: #F3F5F9; color: #111B33; font-family: 'Public Sans', sans-serif">
+<div style="flex: 1 1 272px; min-width: 0; background: #111B33"><dc-import name="Sidebar" active="elections" stage="draft" hint-size="272px,940px"></dc-import></div>
+<div style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column">
+<header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 28px; background: #FFFFFF; border-bottom: 1px solid #D8DEE9">
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 12px; font-weight: 600; color: #4A556B">Élections</span>
+<h1 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 24px; font-weight: 700">Nouvelle élection</h1>
+</div>
+<a href="Elections.dc.html" style="display: flex; align-items: center; justify-content: center; height: 44px; padding: 0 16px; border: 1px solid #B9C2D3; border-radius: 10px; color: #111B33; font-size: 14px; font-weight: 600; text-decoration: none">Annuler</a>
+<a href="Overview.dc.html" style="display: flex; align-items: center; justify-content: center; height: 44px; padding: 0 16px; border-radius: 10px; background: #1E3A8A; color: #FFFFFF; font-size: 14px; font-weight: 600; text-decoration: none">Créer le brouillon</a>
+</header>
+<main style="flex-grow: 1; display: flex; flex-wrap: wrap; align-items: stretch; gap: 16px; padding: 22px 28px 28px">
+<form style="flex: 2 1 480px; min-width: 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 18px; padding: 24px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 16px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="n-title" style="font-size: 14px; font-weight: 600">Titre</label>
+<input id="n-title" type="text" value="Conseil des élèves 2026" style="box-sizing: border-box; width: 100%; height: 52px; padding: 0 14px; border: 2px solid #1E3A8A; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 18px; font-weight: 600">
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="n-desc" style="font-size: 14px; font-weight: 600">Description <span style="font-weight: 400; color: #4A556B">(facultatif, visible par les électeurs)</span></label>
+<textarea id="n-desc" rows="2" style="box-sizing: border-box; width: 100%; padding: 12px 14px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 15px; line-height: 1.4; resize: vertical">Élection annuelle des représentants des élèves.</textarea>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="n-start" style="font-size: 14px; font-weight: 600">Début du vote</label>
+<input id="n-start" type="datetime-local" value="2026-10-12T08:00" style="box-sizing: border-box; width: 100%; height: 48px; padding: 0 14px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 15px">
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="n-end" style="font-size: 14px; font-weight: 600">Fin du vote</label>
+<input id="n-end" type="datetime-local" value="2026-10-16T15:00" style="box-sizing: border-box; width: 100%; height: 48px; padding: 0 14px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 15px">
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="n-tz" style="font-size: 14px; font-weight: 600">Fuseau horaire</label>
+<select id="n-tz" style="box-sizing: border-box; width: 100%; height: 48px; padding: 0 12px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 15px"><option>Haïti (America/Port-au-Prince)</option></select>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="n-lang" style="font-size: 14px; font-weight: 600">Langue du vote</label>
+<select id="n-lang" style="box-sizing: border-box; width: 100%; height: 48px; padding: 0 12px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 15px"><option>Français</option><option>English</option></select>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px">
+<fieldset style="margin: 0; padding: 16px; border: 1px solid #D8DEE9; border-radius: 12px; display: flex; flex-direction: column; gap: 2px">
+<legend style="padding: 0 6px; font-size: 14px; font-weight: 600">Ordre des candidats</legend>
+<label style="display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 15px"><input type="radio" name="order" checked style="width: 20px; height: 20px; accent-color: #1E3A8A">Ordre que je choisis</label>
+<label style="display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 15px"><input type="radio" name="order" style="width: 20px; height: 20px; accent-color: #1E3A8A">Mélangé pour chaque électeur</label>
+</fieldset>
+<fieldset style="margin: 0; padding: 16px; border: 1px solid #D8DEE9; border-radius: 12px; display: flex; flex-direction: column; gap: 2px">
+<legend style="padding: 0 6px; font-size: 14px; font-weight: 600">Page publique des résultats</legend>
+<label style="display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 15px"><input type="radio" name="pub" checked style="width: 20px; height: 20px; accent-color: #1E3A8A">Tous les chiffres</label>
+<label style="display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 15px"><input type="radio" name="pub" style="width: 20px; height: 20px; accent-color: #1E3A8A">Élus et participation seulement</label>
+</fieldset>
+</div>
+<div style="flex-grow: 1"></div>
+<section style="display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 12px; background: #E6ECFA">
+<h2 style="margin: 0; font-size: 16px; font-weight: 700; color: #172B66">Gagner du temps : reprendre une élection passée</h2>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+<label for="n-copy" style="position: absolute; clip: rect(0 0 0 0)">Élection à reprendre</label>
+<select id="n-copy" style="flex: 1 1 220px; box-sizing: border-box; height: 46px; padding: 0 12px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 15px"><option>Conseil des élèves 2025</option><option>Délégués de classe 2025</option><option>Ne rien reprendre</option></select>
+<label style="display: flex; align-items: center; gap: 8px; min-height: 44px; font-size: 14px; color: #172B66"><input type="checkbox" checked style="width: 20px; height: 20px; accent-color: #1E3A8A">Les postes</label>
+<label style="display: flex; align-items: center; gap: 8px; min-height: 44px; font-size: 14px; color: #172B66"><input type="checkbox" checked style="width: 20px; height: 20px; accent-color: #1E3A8A">Les 288 électeurs</label>
+<label style="display: flex; align-items: center; gap: 8px; min-height: 44px; font-size: 14px; color: #172B66"><input type="checkbox" style="width: 20px; height: 20px; accent-color: #1E3A8A">Les candidats</label>
+</div>
+</section>
+</form>
+<div style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<section style="display: flex; flex-direction: column; gap: 14px; padding: 20px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 16px">
+<h2 style="margin: 0; font-size: 17px; font-weight: 700">Calendrier</h2>
+<div style="display: flex; gap: 12px"><span style="flex-shrink: 0; width: 12px; height: 12px; margin-top: 4px; border-radius: 50%; background: #0F766E"></span><span style="font-size: 14px; line-height: 1.4"><strong>Ouverture automatique</strong><br>Lundi 12 octobre 2026 à 08 h 00</span></div>
+<div style="display: flex; gap: 12px"><span style="flex-shrink: 0; width: 12px; height: 12px; margin-top: 4px; border-radius: 50%; background: #111B33"></span><span style="font-size: 14px; line-height: 1.4"><strong>Clôture automatique</strong><br>Vendredi 16 octobre 2026 à 15 h 00</span></div>
+<div style="padding: 12px 14px; border-radius: 10px; background: #F3F5F9; font-size: 14px; line-height: 1.4"><strong>4 jours et 7 heures</strong> de vote, heure d'Haïti. Vous pourrez prolonger pendant le vote.</div>
+</section>
+<section style="flex-grow: 1; display: flex; flex-direction: column; gap: 4px; padding: 20px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 16px">
+<h2 style="margin: 0 0 8px; font-size: 17px; font-weight: 700">Ensuite</h2>
+<div style="display: flex; align-items: center; gap: 12px; min-height: 48px; font-size: 14px"><span style="flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: #1E3A8A; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700">1</span><span><strong>Postes et candidats</strong> : pour toute l'école ou une classe</span></div>
+<div style="display: flex; align-items: center; gap: 12px; min-height: 48px; font-size: 14px"><span style="flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: #E6ECFA; color: #172B66; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700">2</span><span><strong>Électeurs</strong> : import Excel ou reprise</span></div>
+<div style="display: flex; align-items: center; gap: 12px; min-height: 48px; font-size: 14px"><span style="flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: #E6ECFA; color: #172B66; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700">3</span><span><strong>Planifier</strong> : les postes sont verrouillés</span></div>
+<div style="display: flex; align-items: center; gap: 12px; min-height: 48px; font-size: 14px"><span style="flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: #E6ECFA; color: #172B66; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700">4</span><span><strong>Codes d'accès</strong> : coupons, courriel ou fichier</span></div>
+<div style="flex-grow: 1"></div>
+<p style="margin: 0; font-size: 13px; line-height: 1.4; color: #4A556B">Tout reste modifiable tant que l'élection est un brouillon.</p>
+</section>
+</div>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":960}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>
