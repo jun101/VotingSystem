@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Bulletin : Président(e)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1E3A8A}a:hover{color:#172B66}
+</style>
+</helmet>
+<div style="width: 390px; height: 900px; box-sizing: border-box; display: flex; flex-direction: column; background: #F3F5F9; color: #111B33; font-family: 'Public Sans', sans-serif">
+<header style="display: flex; flex-direction: column; gap: 12px; padding: 16px 20px 18px; background: #FFFFFF; border-bottom: 1px solid #D8DEE9">
+<div style="display: flex; align-items: center; gap: 8px">
+<span style="flex-grow: 1; font-size: 13px; font-weight: 600; color: #4A556B">Poste 1 sur 3</span>
+<span style="font-size: 13px; color: #4A556B">Wideline Joseph · 4e année</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px" role="img" aria-label="Étape 1 sur 3">
+<span style="height: 6px; border-radius: 3px; background: #1E3A8A"></span>
+<span style="height: 6px; border-radius: 3px; background: #D8DEE9"></span>
+<span style="height: 6px; border-radius: 3px; background: #D8DEE9"></span>
+</div>
+<h1 style="margin: 4px 0 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 30px; line-height: 1.1; font-weight: 700">Président(e)</h1>
+<p style="margin: 0; font-size: 15px; color: #4A556B">Choisissez 1 candidat.</p>
+</header>
+<fieldset style="flex-grow: 1; margin: 0; border: 0; display: flex; flex-direction: column; gap: 12px; padding: 18px 20px">
+<legend style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Candidats au poste de Président(e)</legend>
+<label style="display: flex; align-items: center; gap: 14px; padding: 14px; background: #FFFFFF; border: 2px solid #1E3A8A; border-radius: 16px; box-shadow: 0 0 0 4px #E6ECFA">
+<svg viewBox="0 0 48 48" width="60" height="60" aria-hidden="true" style="flex-shrink: 0; border-radius: 50%; background: #FFE8D6"><path d="M13 24c-2-11 4-17 11-17s13 6 11 17l2 9H11z" fill="#5B2109"/><circle cx="24" cy="20" r="8" fill="#B4531F"/><path d="M7 48c1-11 8-16 17-16s16 5 17 16z" fill="#B4531F"/></svg>
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 5px">
+<span style="font-size: 18px; font-weight: 700; line-height: 1.2">Nadège Pierre-Louis</span>
+<span style="align-self: flex-start; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #4A556B"><span style="width: 10px; height: 10px; border-radius: 3px; background: #C2410C"></span>Avenir Étudiant</span>
+<span style="font-size: 14px; line-height: 1.35; color: #4A556B">« Une école qui nous écoute »</span>
+</span>
+<input type="radio" name="president" checked style="flex-shrink: 0; width: 26px; height: 26px; accent-color: #1E3A8A">
+</label>
+<label style="display: flex; align-items: center; gap: 14px; padding: 15px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 16px">
+<div style="flex-shrink: 0; width: 60px; height: 60px; border-radius: 50%; background: #D8DEE9; color: #4A556B; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600">Photo</div>
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 5px">
+<span style="font-size: 18px; font-weight: 700; line-height: 1.2">Jean-Marc Désir</span>
+<span style="align-self: flex-start; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #4A556B"><span style="width: 10px; height: 10px; border-radius: 3px; background: #0F766E"></span>Ensemble</span>
+<span style="font-size: 14px; line-height: 1.35; color: #4A556B">« Plus de sport, plus de clubs »</span>
+</span>
+<input type="radio" name="president" style="flex-shrink: 0; width: 26px; height: 26px; accent-color: #1E3A8A">
+</label>
+<label style="display: flex; align-items: center; gap: 14px; padding: 15px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 16px">
+<svg viewBox="0 0 48 48" width="60" height="60" aria-hidden="true" style="flex-shrink: 0; border-radius: 50%; background: #E6ECFA"><circle cx="24" cy="19" r="8" fill="#1E3A8A"/><path d="M7 48c1-11 8-16 17-16s16 5 17 16z" fill="#1E3A8A"/></svg>
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 5px">
+<span style="font-size: 18px; font-weight: 700; line-height: 1.2">Ricardo Saint-Fleur</span>
+<span style="font-size: 13px; font-weight: 600; color: #4A556B">Indépendant</span>
+<span style="font-size: 14px; line-height: 1.35; color: #4A556B">« Des idées simples, tenues »</span>
+</span>
+<input type="radio" name="president" style="flex-shrink: 0; width: 26px; height: 26px; accent-color: #1E3A8A">
+</label>
+<label style="display: flex; align-items: center; gap: 14px; min-height: 56px; padding: 0 15px; background: transparent; border: 1px dashed #8E99AE; border-radius: 16px">
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 16px; font-weight: 600">Vote blanc</span>
+<span style="font-size: 13px; color: #4A556B">Je ne choisis aucun candidat</span>
+</span>
+<input type="radio" name="president" style="flex-shrink: 0; width: 26px; height: 26px; accent-color: #1E3A8A">
+</label>
+</fieldset>
+<footer style="display: flex; gap: 10px; padding: 14px 20px 20px; background: #FFFFFF; border-top: 1px solid #D8DEE9">
+<a href="Identity.dc.html" style="display: flex; align-items: center; justify-content: center; width: 110px; height: 54px; border: 1px solid #B9C2D3; border-radius: 12px; color: #111B33; font-size: 16px; font-weight: 600; text-decoration: none">Retour</a>
+<a href="Review.dc.html" style="flex-grow: 1; display: flex; align-items: center; justify-content: center; gap: 8px; height: 54px; border-radius: 12px; background: #1E3A8A; color: #FFFFFF; font-size: 17px; font-weight: 600; text-decoration: none">Suivant : Secrétaire
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+</a>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

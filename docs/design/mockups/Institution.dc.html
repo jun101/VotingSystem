@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Établissement et utilisateurs</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1E3A8A}a:hover{color:#172B66}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 960px; background: #F3F5F9; color: #111B33; font-family: 'Public Sans', sans-serif">
+<div style="flex: 1 1 272px; min-width: 0; background: #111B33"><dc-import name="Sidebar" active="institution" stage="open" hint-size="272px,940px"></dc-import></div>
+<div style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column">
+<header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 28px; background: #FFFFFF; border-bottom: 1px solid #D8DEE9">
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 12px; font-weight: 600; color: #4A556B">Établissement</span>
+<h1 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 24px; font-weight: 700">Profil et utilisateurs</h1>
+</div>
+<button style="height: 44px; padding: 0 16px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600">Voir la page publique</button>
+<button style="height: 44px; padding: 0 18px; border: 0; border-radius: 10px; background: #1E3A8A; color: #FFFFFF; font: inherit; font-size: 14px; font-weight: 600">Enregistrer</button>
+</header>
+<main style="flex-grow: 1; display: flex; flex-wrap: wrap; align-items: stretch; gap: 16px; padding: 22px 28px 28px">
+<form style="flex: 3 1 460px; min-width: 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 18px; padding: 24px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 16px">
+<h2 style="margin: 0; font-size: 18px; font-weight: 700">Profil public</h2>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 18px; padding: 16px; border-radius: 12px; background: #F3F5F9">
+<span style="flex-shrink: 0; width: 84px; height: 84px; border-radius: 16px; background: #1E3A8A; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', sans-serif; font-size: 30px; font-weight: 700">CE</span>
+<div style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 6px">
+<label for="i-logo" style="font-size: 14px; font-weight: 600">Logo</label>
+<input id="i-logo" type="file" accept="image/jpeg,image/png,image/webp" style="font: inherit; font-size: 14px; min-height: 44px">
+<span style="font-size: 13px; color: #4A556B">Affiché sur le vote, les coupons et les résultats. Sans logo : vos initiales.</span>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="i-name" style="font-size: 14px; font-weight: 600">Nom</label>
+<input id="i-name" type="text" value="Collège Étoile du Matin" style="box-sizing: border-box; width: 100%; height: 48px; padding: 0 14px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 15px">
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="i-type" style="font-size: 14px; font-weight: 600">Type</label>
+<select id="i-type" style="box-sizing: border-box; width: 100%; height: 48px; padding: 0 12px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 15px"><option>École</option><option>Université</option><option>Association</option><option>Autre</option></select>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="i-city" style="font-size: 14px; font-weight: 600">Ville</label>
+<input id="i-city" type="text" value="Port-au-Prince" style="box-sizing: border-box; width: 100%; height: 48px; padding: 0 14px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 15px">
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="i-phone" style="font-size: 14px; font-weight: 600">Téléphone</label>
+<input id="i-phone" type="tel" placeholder="[TÉLÉPHONE]" style="box-sizing: border-box; width: 100%; height: 48px; padding: 0 14px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 15px">
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="i-tz" style="font-size: 14px; font-weight: 600">Fuseau horaire par défaut</label>
+<select id="i-tz" style="box-sizing: border-box; width: 100%; height: 48px; padding: 0 12px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 15px"><option>Haïti (America/Port-au-Prince)</option></select>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="i-lang" style="font-size: 14px; font-weight: 600">Langue par défaut</label>
+<select id="i-lang" style="box-sizing: border-box; width: 100%; height: 48px; padding: 0 12px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 15px"><option>Français</option><option>English</option></select>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="i-desc" style="font-size: 14px; font-weight: 600">Présentation courte</label>
+<textarea id="i-desc" rows="2" style="box-sizing: border-box; width: 100%; padding: 12px 14px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 15px; line-height: 1.4; resize: vertical"></textarea>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="i-slug" style="font-size: 14px; font-weight: 600">Adresse de la page publique</label>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+<span style="font-size: 15px; color: #4A556B">[ADRESSE DU SITE] /</span>
+<input id="i-slug" type="text" value="college-etoile-du-matin" style="flex: 1 1 220px; box-sizing: border-box; height: 48px; padding: 0 14px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 15px">
+</div>
+</div>
+<div style="flex-grow: 1"></div>
+</form>
+<div style="flex: 2 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<section style="display: flex; flex-direction: column; gap: 12px; padding: 20px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 16px">
+<div style="display: flex; align-items: center; gap: 10px">
+<h2 style="flex-grow: 1; margin: 0; font-size: 18px; font-weight: 700">Utilisateurs</h2>
+<button style="height: 44px; padding: 0 14px; border: 0; border-radius: 10px; background: #E6ECFA; color: #172B66; font: inherit; font-size: 14px; font-weight: 700">Inviter</button>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid #D8DEE9; border-radius: 12px">
+<span style="flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%; background: #C2410C; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">MJ</span>
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 3px"><span style="font-size: 15px; font-weight: 700">Marie-Claire Jean <span style="font-weight: 400; color: #4A556B">(vous)</span></span><span style="font-size: 13px; color: #4A556B">Propriétaire · double authentification activée</span></span>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid #D8DEE9; border-radius: 12px">
+<span style="flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%; background: #0F766E; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">PL</span>
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 3px"><span style="font-size: 15px; font-weight: 700">Patrick Lafleur</span><span style="font-size: 13px; color: #6B2408">Gestionnaire · sans double authentification</span></span>
+<button style="height: 44px; padding: 0 12px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600">Gérer</button>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px dashed #8E99AE; border-radius: 12px">
+<span style="flex-shrink: 0; width: 44px; height: 44px; box-sizing: border-box; border-radius: 50%; border: 1px dashed #8E99AE"></span>
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 3px"><span style="font-size: 15px; font-weight: 700; color: #4A556B">Invitation envoyée</span><span style="font-size: 13px; color: #4A556B">Gestionnaire · en attente depuis 2 jours</span></span>
+<button style="height: 44px; padding: 0 12px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600">Annuler</button>
+</div>
+<p style="margin: 0; font-size: 13px; line-height: 1.4; color: #4A556B">Un gestionnaire gère les élections, les électeurs et les codes. Seul un propriétaire gère les utilisateurs et ce profil.</p>
+</section>
+<section style="flex-grow: 1; display: flex; flex-direction: column; gap: 12px; padding: 20px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 16px">
+<h2 style="margin: 0; font-size: 18px; font-weight: 700">Votre page publique</h2>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 12px; background: #111B33; color: #FFFFFF">
+<div style="display: flex; align-items: center; gap: 10px"><span style="width: 36px; height: 36px; border-radius: 8px; background: #FFFFFF; color: #111B33; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">CE</span><span style="display: flex; flex-direction: column; gap: 1px"><span style="font-size: 15px; font-weight: 700">Collège Étoile du Matin</span><span style="font-size: 12px; color: #C9D3EA">École · Port-au-Prince</span></span></div>
+<div style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 10px; background: #1B2747; font-size: 13px"><span style="flex-grow: 1; font-weight: 600">Délégués de classe 2025</span><span style="color: #C9D3EA">83 %</span></div>
+<div style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 10px; background: #1B2747; font-size: 13px"><span style="flex-grow: 1; font-weight: 600">Conseil des élèves 2025</span><span style="color: #C9D3EA">87 %</span></div>
+<div style="flex-grow: 1"></div>
+<span style="font-size: 12px; color: #C9D3EA">2 résultats publiés. Les élections en cours n'y figurent pas.</span>
+</div>
+</section>
+</div>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":960}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,371 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-10-05T18:40:00Z"
+ },
+ "title": "VoteSystem Mockups",
+ "launch": {
+  "view": "canvas",
+  "page": "desk"
+ },
+ "pages": [
+  {
+   "id": "mobile",
+   "name": "Votant et mobile"
+  },
+  {
+   "id": "desk",
+   "name": "Votant bureau"
+  },
+  {
+   "id": "admin",
+   "name": "Admin bureau"
+  }
+ ],
+ "boards": {
+  "Main.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "1 · Code d'accès",
+   "is_interactive": true
+  },
+  "Identity.dc.html": {
+   "x": 470,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "2 · Confirmation d'identité",
+   "is_interactive": true
+  },
+  "Ballot.dc.html": {
+   "x": 940,
+   "y": 0,
+   "w": 390,
+   "h": 900,
+   "title": "3 · Bulletin",
+   "is_interactive": true
+  },
+  "Review.dc.html": {
+   "x": 1410,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "4 · Vérification",
+   "is_interactive": true
+  },
+  "Done.dc.html": {
+   "x": 1880,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "5 · Vote enregistré",
+   "is_interactive": true
+  },
+  "Dashboard.dc.html": {
+   "x": 0,
+   "y": 1400,
+   "w": 390,
+   "h": 960,
+   "title": "Admin · Élection en cours"
+  },
+  "Credentials.dc.html": {
+   "x": 470,
+   "y": 1400,
+   "w": 390,
+   "h": 1040,
+   "title": "Admin · Distribuer les codes"
+  },
+  "Results.dc.html": {
+   "x": 940,
+   "y": 1400,
+   "w": 390,
+   "h": 1360,
+   "title": "Public · Résultats"
+  },
+  "Sidebar.dc.html": {
+   "x": -400,
+   "y": 0,
+   "w": 272,
+   "h": 940,
+   "title": "Menu latéral (partagé)",
+   "page": "admin"
+  },
+  "Register.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 860,
+   "title": "01 · Inscription de l'établissement",
+   "page": "admin",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Home.dc.html": {
+   "x": 1360,
+   "y": 0,
+   "w": 1280,
+   "h": 960,
+   "title": "02 · Tableau de bord",
+   "page": "admin",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Elections.dc.html": {
+   "x": 2720,
+   "y": 0,
+   "w": 1280,
+   "h": 960,
+   "title": "03 · Élections et historique",
+   "page": "admin",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "ElectionNew.dc.html": {
+   "x": 4080,
+   "y": 0,
+   "w": 1280,
+   "h": 960,
+   "title": "04 · Nouvelle élection",
+   "page": "admin",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Overview.dc.html": {
+   "x": 0,
+   "y": 1160,
+   "w": 1280,
+   "h": 960,
+   "title": "05 · Aperçu (brouillon)",
+   "page": "admin",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Ballots.dc.html": {
+   "x": 1360,
+   "y": 1160,
+   "w": 1280,
+   "h": 1000,
+   "title": "06 · Postes et candidats",
+   "page": "admin",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Candidate.dc.html": {
+   "x": 2720,
+   "y": 1160,
+   "w": 1280,
+   "h": 960,
+   "title": "07 · Fiche candidat",
+   "page": "admin",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Voters.dc.html": {
+   "x": 4080,
+   "y": 1160,
+   "w": 1280,
+   "h": 960,
+   "title": "08 · Électeurs (liste et fiche)",
+   "page": "admin",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Import.dc.html": {
+   "x": 0,
+   "y": 2360,
+   "w": 1280,
+   "h": 960,
+   "title": "09 · Import : modèle et fichier",
+   "page": "admin",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "ImportCheck.dc.html": {
+   "x": 1360,
+   "y": 2360,
+   "w": 1280,
+   "h": 1000,
+   "title": "10 · Import : vérifier avant d'importer",
+   "page": "admin",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Codes.dc.html": {
+   "x": 2720,
+   "y": 2360,
+   "w": 1280,
+   "h": 1000,
+   "title": "11 · Codes d'accès",
+   "page": "admin",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Turnout.dc.html": {
+   "x": 4080,
+   "y": 2360,
+   "w": 1280,
+   "h": 960,
+   "title": "12 · Participation en direct",
+   "page": "admin",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "AdminResults.dc.html": {
+   "x": 0,
+   "y": 3560,
+   "w": 1280,
+   "h": 1040,
+   "title": "13 · Résultats et publication",
+   "page": "admin",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Institution.dc.html": {
+   "x": 1360,
+   "y": 3560,
+   "w": 1280,
+   "h": 960,
+   "title": "14 · Établissement et utilisateurs",
+   "page": "admin",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Audit.dc.html": {
+   "x": 2720,
+   "y": 3560,
+   "w": 1280,
+   "h": 960,
+   "title": "15 · Journal d'audit",
+   "page": "admin",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Platform.dc.html": {
+   "x": 4080,
+   "y": 3560,
+   "w": 1280,
+   "h": 900,
+   "title": "16 · Administration de la plateforme",
+   "page": "admin",
+   "expand": "fill"
+  },
+  "DeskCode.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 800,
+   "title": "1 · Code d'accès",
+   "page": "desk",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "DeskIdentity.dc.html": {
+   "x": 1360,
+   "y": 0,
+   "w": 1280,
+   "h": 800,
+   "title": "2 · Confirmation d'identité",
+   "page": "desk",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "DeskBallot.dc.html": {
+   "x": 2720,
+   "y": 0,
+   "w": 1280,
+   "h": 800,
+   "title": "3 · Bulletin",
+   "page": "desk",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "DeskReview.dc.html": {
+   "x": 4080,
+   "y": 0,
+   "w": 1280,
+   "h": 800,
+   "title": "4 · Vérification",
+   "page": "desk",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "DeskDone.dc.html": {
+   "x": 5440,
+   "y": 0,
+   "w": 1280,
+   "h": 800,
+   "title": "5 · Vote enregistré",
+   "page": "desk",
+   "expand": "fill",
+   "is_interactive": true
+  }
+ },
+ "order": [
+  "Main.dc.html",
+  "Identity.dc.html",
+  "Ballot.dc.html",
+  "Review.dc.html",
+  "Done.dc.html",
+  "Dashboard.dc.html",
+  "Credentials.dc.html",
+  "Results.dc.html",
+  "Sidebar.dc.html",
+  "Register.dc.html",
+  "Home.dc.html",
+  "Elections.dc.html",
+  "ElectionNew.dc.html",
+  "Overview.dc.html",
+  "Ballots.dc.html",
+  "Candidate.dc.html",
+  "Voters.dc.html",
+  "Import.dc.html",
+  "ImportCheck.dc.html",
+  "Codes.dc.html",
+  "Turnout.dc.html",
+  "AdminResults.dc.html",
+  "Institution.dc.html",
+  "Audit.dc.html",
+  "Platform.dc.html",
+  "DeskCode.dc.html",
+  "DeskIdentity.dc.html",
+  "DeskBallot.dc.html",
+  "DeskReview.dc.html",
+  "DeskDone.dc.html"
+ ],
+ "notes": {
+  "t1": {
+   "x": 0,
+   "y": -300,
+   "text": "Parcours du votant",
+   "kind": "title1",
+   "maxW": 2270
+  },
+  "t2": {
+   "x": 0,
+   "y": 1100,
+   "text": "Administration et résultats publics",
+   "kind": "title1",
+   "maxW": 1330
+  },
+  "t3": {
+   "x": 0,
+   "y": -300,
+   "text": "Administration sur ordinateur",
+   "kind": "title1",
+   "maxW": 5360,
+   "page": "admin"
+  },
+  "t4": {
+   "x": 0,
+   "y": -300,
+   "text": "Vote sur ordinateur",
+   "kind": "title1",
+   "maxW": 6720,
+   "page": "desk"
+  }
+ },
+ "designSystems": []
+}

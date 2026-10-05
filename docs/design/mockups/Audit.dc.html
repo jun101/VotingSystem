@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Journal d'audit</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1E3A8A}a:hover{color:#172B66}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 960px; background: #F3F5F9; color: #111B33; font-family: 'Public Sans', sans-serif">
+<div style="flex: 1 1 272px; min-width: 0; background: #111B33"><dc-import name="Sidebar" active="audit" stage="open" hint-size="272px,940px"></dc-import></div>
+<div style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column">
+<header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 28px; background: #FFFFFF; border-bottom: 1px solid #D8DEE9">
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 12px; font-weight: 600; color: #4A556B">Établissement · rien ne peut être modifié ni effacé</span>
+<h1 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 24px; font-weight: 700">Journal d'audit</h1>
+</div>
+<button style="height: 44px; padding: 0 16px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600">Exporter (CSV)</button>
+</header>
+<main style="flex-grow: 1; display: flex; flex-direction: column; gap: 14px; padding: 18px 28px 28px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+<button style="height: 44px; padding: 0 14px; border: 0; border-radius: 999px; background: #111B33; color: #FFFFFF; font: inherit; font-size: 14px; font-weight: 600">Tout · 42</button>
+<button style="height: 44px; padding: 0 14px; border: 1px solid #B9C2D3; border-radius: 999px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600">Codes d'accès · 9</button>
+<button style="height: 44px; padding: 0 14px; border: 1px solid #B9C2D3; border-radius: 999px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600">Électeurs · 11</button>
+<button style="height: 44px; padding: 0 14px; border: 1px solid #B9C2D3; border-radius: 999px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600">Statut de l'élection · 4</button>
+<button style="height: 44px; padding: 0 14px; border: 1px solid #B9C2D3; border-radius: 999px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600">Connexions · 18</button>
+<span style="flex-grow: 1"></span>
+<label for="a-el" style="position: absolute; clip: rect(0 0 0 0)">Élection</label>
+<select id="a-el" style="height: 44px; padding: 0 12px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px"><option>Conseil des élèves 2026</option><option>Toutes les élections</option></select>
+<label for="a-user" style="position: absolute; clip: rect(0 0 0 0)">Utilisateur</label>
+<select id="a-user" style="height: 44px; padding: 0 12px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px"><option>Tous les utilisateurs</option><option>Marie-Claire Jean</option><option>Patrick Lafleur</option></select>
+</div>
+<div style="flex-grow: 1; display: flex; flex-wrap: wrap; align-items: stretch; gap: 16px">
+<div style="flex: 3 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+<h2 style="margin: 4px 0 0; font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #4A556B">Aujourd'hui, mercredi 14 octobre</h2>
+<article style="display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 14px">
+<span style="flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background: #0F766E; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">PL</span>
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 3px"><span style="font-size: 15px"><strong>Code réémis</strong> pour l'électrice E-2251, 4e année</span><span style="font-size: 13px; color: #4A556B">Patrick Lafleur · l'ancien code a été désactivé</span></span>
+<span style="flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 3px"><span style="font-size: 14px; font-weight: 600">10 h 31</span><span style="font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #4A556B">203.0.113.24</span></span>
+</article>
+<article style="display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 14px">
+<span style="flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background: #0F766E; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">PL</span>
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 3px"><span style="font-size: 15px"><strong>Connexion</strong> à l'espace d'administration</span><span style="font-size: 13px; color: #4A556B">Patrick Lafleur</span></span>
+<span style="flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 3px"><span style="font-size: 14px; font-weight: 600">10 h 28</span><span style="font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #4A556B">203.0.113.24</span></span>
+</article>
+<h2 style="margin: 8px 0 0; font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #4A556B">Lundi 12 octobre</h2>
+<article style="display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 14px">
+<span style="flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background: #E7EBF2; color: #36425F; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span>
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 3px"><span style="font-size: 15px"><strong>Élection ouverte</strong> automatiquement à l'heure prévue</span><span style="font-size: 13px; color: #4A556B">Système</span></span>
+<span style="flex-shrink: 0; font-size: 14px; font-weight: 600">08 h 00</span>
+</article>
+<h2 style="margin: 8px 0 0; font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #4A556B">Vendredi 9 octobre</h2>
+<article style="display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 14px">
+<span style="flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background: #C2410C; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">MJ</span>
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 3px"><span style="font-size: 15px"><strong>20 courriels envoyés</strong>, 20 remis</span><span style="font-size: 13px; color: #4A556B">Marie-Claire Jean</span></span>
+<span style="flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 3px"><span style="font-size: 14px; font-weight: 600">16 h 12</span><span style="font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #4A556B">203.0.113.8</span></span>
+</article>
+<article style="display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 14px">
+<span style="flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background: #C2410C; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">MJ</span>
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 3px"><span style="font-size: 15px"><strong>PDF de coupons téléchargé</strong> : 280 coupons, 8 groupes</span><span style="font-size: 13px; color: #4A556B">Marie-Claire Jean</span></span>
+<span style="flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 3px"><span style="font-size: 14px; font-weight: 600">15 h 47</span><span style="font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #4A556B">203.0.113.8</span></span>
+</article>
+<article style="display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 14px">
+<span style="flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background: #C2410C; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">MJ</span>
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 3px"><span style="font-size: 15px"><strong>Élection planifiée</strong> : du 12 oct. 08 h 00 au 16 oct. 15 h 00</span><span style="font-size: 13px; color: #4A556B">Marie-Claire Jean · postes et candidats verrouillés</span></span>
+<span style="flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 3px"><span style="font-size: 14px; font-weight: 600">15 h 30</span><span style="font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #4A556B">203.0.113.8</span></span>
+</article>
+<div style="flex-grow: 1"></div>
+<button style="height: 44px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600">36 actions plus anciennes</button>
+</div>
+<div style="flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<section style="display: flex; flex-direction: column; gap: 12px; padding: 20px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 16px">
+<h2 style="margin: 0; font-size: 17px; font-weight: 700">Cette élection en bref</h2>
+<div style="display: flex; align-items: center; gap: 10px; font-size: 14px"><span style="flex-grow: 1">Codes générés</span><strong>300</strong></div>
+<div style="display: flex; align-items: center; gap: 10px; font-size: 14px"><span style="flex-grow: 1">Codes réémis</span><strong>1</strong></div>
+<div style="display: flex; align-items: center; gap: 10px; font-size: 14px"><span style="flex-grow: 1">Téléchargements de coupons</span><strong>3</strong></div>
+<div style="display: flex; align-items: center; gap: 10px; font-size: 14px"><span style="flex-grow: 1">Électeurs modifiés</span><strong>4</strong></div>
+<div style="display: flex; align-items: center; gap: 10px; font-size: 14px"><span style="flex-grow: 1">Changements d'horaire</span><strong>0</strong></div>
+</section>
+<section style="flex-grow: 1; display: flex; flex-direction: column; gap: 12px; padding: 20px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 16px">
+<h2 style="margin: 0; font-size: 17px; font-weight: 700">Par utilisateur</h2>
+<div style="display: flex; align-items: center; gap: 12px"><span style="flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%; background: #C2410C; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700">MJ</span><span style="flex-grow: 1; font-size: 14px; font-weight: 600">Marie-Claire Jean</span><span style="font-size: 14px; color: #4A556B">27 actions</span></div>
+<div style="display: flex; align-items: center; gap: 12px"><span style="flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%; background: #0F766E; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700">PL</span><span style="flex-grow: 1; font-size: 14px; font-weight: 600">Patrick Lafleur</span><span style="font-size: 14px; color: #4A556B">13 actions</span></div>
+<div style="display: flex; align-items: center; gap: 12px"><span style="flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%; background: #E7EBF2"></span><span style="flex-grow: 1; font-size: 14px; font-weight: 600">Système</span><span style="font-size: 14px; color: #4A556B">2 actions</span></div>
+<div style="flex-grow: 1"></div>
+<p style="margin: 0; font-size: 13px; line-height: 1.4; color: #4A556B">Le journal ne contient jamais de code d'accès ni de choix de vote.</p>
+</section>
+</div>
+</div>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":960}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

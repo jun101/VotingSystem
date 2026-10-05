@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Électeurs</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1E3A8A}a:hover{color:#172B66}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 960px; background: #F3F5F9; color: #111B33; font-family: 'Public Sans', sans-serif">
+<div style="flex: 1 1 272px; min-width: 0; background: #111B33"><dc-import name="Sidebar" active="voters" stage="open" hint-size="272px,940px"></dc-import></div>
+<div style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column">
+<header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 28px; background: #FFFFFF; border-bottom: 1px solid #D8DEE9">
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 12px; font-weight: 600; color: #4A556B">Conseil des élèves 2026 · Ouvert</span>
+<h1 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 24px; font-weight: 700">Électeurs</h1>
+</div>
+<button style="height: 44px; padding: 0 16px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600">Reprendre d'une élection</button>
+<button style="height: 44px; padding: 0 16px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600">Ajouter un électeur</button>
+<a href="Import.dc.html" style="display: flex; align-items: center; justify-content: center; height: 44px; padding: 0 16px; border-radius: 10px; background: #1E3A8A; color: #FFFFFF; font-size: 14px; font-weight: 600; text-decoration: none">Importer un fichier Excel</a>
+</header>
+<main style="flex-grow: 1; display: flex; flex-direction: column; gap: 14px; padding: 18px 28px 28px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+<button style="height: 44px; padding: 0 14px; border: 0; border-radius: 999px; background: #111B33; color: #FFFFFF; font: inherit; font-size: 14px; font-weight: 600">Tous · 300</button>
+<button style="height: 44px; padding: 0 14px; border: 1px solid #B9C2D3; border-radius: 999px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600">3e · 36</button>
+<button style="height: 44px; padding: 0 14px; border: 0; border-radius: 999px; background: #E6ECFA; color: #172B66; font: inherit; font-size: 14px; font-weight: 700">4e · 38</button>
+<button style="height: 44px; padding: 0 14px; border: 1px solid #B9C2D3; border-radius: 999px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600">5e · 40</button>
+<button style="height: 44px; padding: 0 14px; border: 1px solid #B9C2D3; border-radius: 999px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600">6e · 37</button>
+<button style="height: 44px; padding: 0 14px; border: 1px solid #B9C2D3; border-radius: 999px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600">7e · 39</button>
+<button style="height: 44px; padding: 0 14px; border: 1px solid #B9C2D3; border-radius: 999px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600">8e · 38</button>
+<button style="height: 44px; padding: 0 14px; border: 1px solid #B9C2D3; border-radius: 999px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600">9e · 36</button>
+<button style="height: 44px; padding: 0 14px; border: 1px solid #B9C2D3; border-radius: 999px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600">NS1 · 36</button>
+<span style="flex-grow: 1"></span>
+<button style="height: 44px; padding: 0 14px; border: 1px solid #B9C2D3; border-radius: 999px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600">N'ont pas voté · 9</button>
+</div>
+<div style="flex-grow: 1; display: flex; flex-wrap: wrap; align-items: stretch; gap: 16px">
+<section style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+<label for="v-search" style="position: absolute; clip: rect(0 0 0 0)">Rechercher un électeur</label>
+<input id="v-search" type="search" placeholder="Nom, matricule ou courriel" style="box-sizing: border-box; width: 100%; height: 48px; padding: 0 14px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 15px">
+<a href="Voters.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 12px; color: #111B33; text-decoration: none">
+<span style="flex-shrink: 0; width: 42px; height: 42px; border-radius: 50%; background: #D9F2EE; color: #0B5750; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">CB</span>
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 700">Bazile, Christelle</span><span style="font-size: 13px; color: #4A556B">4e année · E-2244</span></span>
+<span style="padding: 3px 9px; border-radius: 999px; background: #D9F2EE; color: #0B5750; font-size: 12px; font-weight: 600">A voté</span>
+</a>
+<a href="Voters.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 12px; color: #111B33; text-decoration: none">
+<span style="flex-shrink: 0; width: 42px; height: 42px; border-radius: 50%; background: #FFE8D6; color: #6B2408; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">RD</span>
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 700">Dorval, Ruth</span><span style="font-size: 13px; color: #4A556B">4e année · E-2247</span></span>
+<span style="padding: 3px 9px; border-radius: 999px; background: #E7EBF2; color: #36425F; font-size: 12px; font-weight: 600">Pas encore</span>
+</a>
+<a href="Voters.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 11px 13px; background: #FFFFFF; border: 2px solid #1E3A8A; border-radius: 12px; box-shadow: 0 0 0 4px #E6ECFA; color: #111B33; text-decoration: none">
+<span style="flex-shrink: 0; width: 42px; height: 42px; border-radius: 50%; background: #1E3A8A; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">WJ</span>
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 700">Joseph, Wideline</span><span style="font-size: 13px; color: #4A556B">4e année · E-2251</span></span>
+<span style="padding: 3px 9px; border-radius: 999px; background: #D9F2EE; color: #0B5750; font-size: 12px; font-weight: 600">A voté</span>
+</a>
+<a href="Voters.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 12px; color: #111B33; text-decoration: none">
+<span style="flex-shrink: 0; width: 42px; height: 42px; border-radius: 50%; background: #E6ECFA; color: #172B66; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">KN</span>
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 700">Noël, Kervens</span><span style="font-size: 13px; color: #4A556B">4e année · E-2260 · courriel</span></span>
+<span style="padding: 3px 9px; border-radius: 999px; background: #D9F2EE; color: #0B5750; font-size: 12px; font-weight: 600">A voté</span>
+</a>
+<a href="Voters.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 12px; color: #111B33; text-decoration: none">
+<span style="flex-shrink: 0; width: 42px; height: 42px; border-radius: 50%; background: #E7EBF2; color: #36425F; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">MP</span>
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 700">Pierre, Mackenson</span><span style="font-size: 13px; color: #4A556B">4e année · E-2263</span></span>
+<span style="padding: 3px 9px; border-radius: 999px; background: #E7EBF2; color: #36425F; font-size: 12px; font-weight: 600">Pas encore</span>
+</a>
+<a href="Voters.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 12px; color: #111B33; text-decoration: none">
+<span style="flex-shrink: 0; width: 42px; height: 42px; border-radius: 50%; background: #D9F2EE; color: #0B5750; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">SV</span>
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 700">Valcin, Sarah</span><span style="font-size: 13px; color: #4A556B">4e année · E-2270</span></span>
+<span style="padding: 3px 9px; border-radius: 999px; background: #D9F2EE; color: #0B5750; font-size: 12px; font-weight: 600">A voté</span>
+</a>
+<div style="flex-grow: 1"></div>
+<button style="height: 44px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600">32 de plus dans la 4e année</button>
+</section>
+<section style="flex: 2 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; flex-direction: column; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 16px">
+<div style="height: 56px; border-radius: 15px 15px 0 0; background: #1E3A8A"></div>
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px; padding: 0 22px 20px">
+<span style="flex-shrink: 0; width: 84px; height: 84px; margin-top: -32px; box-sizing: border-box; border: 4px solid #FFFFFF; border-radius: 50%; background: #1E3A8A; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', sans-serif; font-size: 28px; font-weight: 700">WJ</span>
+<div style="flex: 1 1 200px; display: flex; flex-direction: column; gap: 6px; padding-top: 12px">
+<h2 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 24px; font-weight: 700">Wideline Joseph</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 6px"><span style="padding: 3px 10px; border-radius: 999px; background: #FFE8D6; color: #6B2408; font-size: 13px; font-weight: 600">4e année</span><span style="padding: 3px 10px; border-radius: 999px; background: #D9F2EE; color: #0B5750; font-size: 13px; font-weight: 600">A voté</span></div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<button disabled style="height: 46px; padding: 0 16px; border: 1px solid #D8DEE9; border-radius: 10px; background: #F3F5F9; color: #4A556B; font: inherit; font-size: 14px; font-weight: 600">Nouveau code</button>
+<button style="height: 46px; padding: 0 16px; border: 1px solid #B9C2D3; border-radius: 10px; background: #FFFFFF; color: #111B33; font: inherit; font-size: 14px; font-weight: 600">Modifier</button>
+</div>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 14px"><span style="font-size: 12px; font-weight: 600; color: #4A556B">Matricule</span><span style="font-size: 18px; font-weight: 700">E-2251</span></div>
+<div style="display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 14px"><span style="font-size: 12px; font-weight: 600; color: #4A556B">Courriel</span><span style="font-size: 18px; font-weight: 700; color: #4A556B">Aucun</span></div>
+<div style="display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 14px"><span style="font-size: 12px; font-weight: 600; color: #4A556B">Code d'accès</span><span style="font-size: 18px; font-weight: 700">Coupon, 2e code</span></div>
+<div style="display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 14px"><span style="font-size: 12px; font-weight: 600; color: #4A556B">A voté le</span><span style="font-size: 18px; font-weight: 700">14 oct. 10 h 42</span></div>
+</div>
+<div style="flex-grow: 1; display: flex; flex-wrap: wrap; align-items: stretch; gap: 14px">
+<div style="flex: 1 1 240px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; padding: 18px 20px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 16px">
+<h3 style="margin: 0; font-size: 16px; font-weight: 700">Ses 3 postes</h3>
+<div style="display: flex; align-items: center; gap: 10px; font-size: 14px"><span style="flex-grow: 1; font-weight: 600">Président(e)</span><span style="color: #4A556B">Toute l'école</span></div>
+<div style="display: flex; align-items: center; gap: 10px; font-size: 14px"><span style="flex-grow: 1; font-weight: 600">Secrétaire</span><span style="color: #4A556B">Toute l'école</span></div>
+<div style="display: flex; align-items: center; gap: 10px; font-size: 14px"><span style="flex-grow: 1; font-weight: 600">Délégué(e) de classe</span><span style="color: #6B2408; font-weight: 600">4e année</span></div>
+<div style="flex-grow: 1"></div>
+<div style="display: flex; gap: 10px; padding: 10px 12px; border-radius: 10px; background: #E6ECFA; color: #172B66; font-size: 13px; line-height: 1.35">Ses choix ne sont visibles par personne.</div>
+</div>
+<div style="flex: 1 1 240px; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px; padding: 18px 20px; background: #FFFFFF; border: 1px solid #D8DEE9; border-radius: 16px">
+<h3 style="margin: 0; font-size: 16px; font-weight: 700">Historique</h3>
+<div style="display: flex; gap: 10px; font-size: 14px; line-height: 1.35"><span style="flex-shrink: 0; width: 10px; height: 10px; margin-top: 5px; border-radius: 50%; background: #0F766E"></span><span><strong>A voté</strong><br><span style="color: #4A556B">14 oct. à 10 h 42</span></span></div>
+<div style="display: flex; gap: 10px; font-size: 14px; line-height: 1.35"><span style="flex-shrink: 0; width: 10px; height: 10px; margin-top: 5px; border-radius: 50%; background: #C2410C"></span><span><strong>Nouveau code créé</strong>, coupon perdu<br><span style="color: #4A556B">14 oct. à 10 h 31, par Patrick Lafleur</span></span></div>
+<div style="display: flex; gap: 10px; font-size: 14px; line-height: 1.35"><span style="flex-shrink: 0; width: 10px; height: 10px; margin-top: 5px; border-radius: 50%; background: #8E99AE"></span><span><strong>Coupon imprimé</strong><br><span style="color: #4A556B">9 oct. à 15 h 47</span></span></div>
+<div style="display: flex; gap: 10px; font-size: 14px; line-height: 1.35"><span style="flex-shrink: 0; width: 10px; height: 10px; margin-top: 5px; border-radius: 50%; background: #8E99AE"></span><span><strong>Importée</strong> depuis eleves-2026.xlsx<br><span style="color: #4A556B">8 oct. à 11 h 02</span></span></div>
+</div>
+</div>
+</section>
+</div>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":960}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>
