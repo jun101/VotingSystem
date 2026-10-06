@@ -58,3 +58,41 @@ it('answers 500 without any detail of the fault [NFR-OPS-04]', function () {
         ->and($response->getContent())->not->toContain('RuntimeException')
         ->and($response->getContent())->not->toContain('.php');
 });
+
+it('answers in the error shape on the bare /api path too [NFR-SEC-01]', function (string $path) {
+    $response = $this->get($path, ['Accept' => 'text/html']);
+
+    $response->assertStatus(404)->assertJsonPath('error.code', 'not_found');
+
+    expect($response->headers->get('Content-Type'))->toContain('application/json');
+})->with(['/api', '/api/', '/api/v1', '/api/v1/']);
+
+it('answers a malformed Host header without any detail of the fault [NFR-OPS-04]', function (string $path) {
+    config(['app.debug' => true]); // Even in debug mode nothing leaks.
+
+    $response = $this->get($path, ['Host' => 'bad_host$', 'Accept' => 'text/html']);
+
+    $response->assertStatus(400)->assertJsonPath('error.code', 'malformed_request');
+
+    expect(array_keys($response->json()))->toBe(['error'])
+        ->and(array_keys($response->json('error')))->toEqualCanonicalizing(['code', 'message'])
+        ->and($response->getContent())->not->toContain('Exception')
+        ->and($response->getContent())->not->toContain('.php')
+        ->and($response->getContent())->not->toContain('vendor');
+})->with(['/api/', '/api/v1/health']);
+
+it('allows no other origin to read the API [NFR-SEC-04]', function () {
+    $simple = $this->getJson('/api/v1/health', ['Origin' => 'https://other.example']);
+
+    $preflight = $this->call('OPTIONS', '/api/v1/health', server: [
+        'HTTP_ORIGIN' => 'https://other.example',
+        'HTTP_ACCESS_CONTROL_REQUEST_METHOD' => 'POST',
+        'HTTP_ACCESS_CONTROL_REQUEST_HEADERS' => 'x-test',
+    ]);
+
+    foreach ([$simple, $preflight] as $response) {
+        expect($response->headers->has('Access-Control-Allow-Origin'))->toBeFalse()
+            ->and($response->headers->has('Access-Control-Allow-Methods'))->toBeFalse()
+            ->and($response->headers->has('Access-Control-Allow-Headers'))->toBeFalse();
+    }
+});

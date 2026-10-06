@@ -31,7 +31,7 @@ is down.
 | 1 | The database and Redis answer | 200 | | `answers 200 with the state of the database and Redis` |
 | 2 | The database does not answer | 503 | `dependency_unavailable` | `answers 503 when the database does not answer` |
 | 3 | Redis does not answer | 503 | `dependency_unavailable` | `answers 503 when Redis does not answer` |
-| 4 | Another method than GET or HEAD | 405 | `method_not_allowed` | `answers 405 to another method` |
+| 4 | Another method than GET or HEAD, `OPTIONS` included | 405 | `method_not_allowed` | `answers 405 to another method`, `answers 405 to OPTIONS as to any other method` |
 | 5 | More than 60 requests in a minute from one address | 429 | `too_many_attempts` | `answers 429 above the rate limit` |
 
 ## Responses

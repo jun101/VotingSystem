@@ -69,6 +69,14 @@ it('answers 405 to another method [NFR-OPS-01]', function () {
     expect($response->headers->get('Allow'))->toContain('GET');
 });
 
+it('answers 405 to OPTIONS as to any other method [NFR-SEC-01]', function () {
+    $response = $this->call('OPTIONS', '/api/v1/health');
+
+    $response->assertStatus(405)->assertJsonPath('error.code', 'method_not_allowed');
+
+    expect($response->headers->get('Content-Type'))->toContain('application/json');
+});
+
 it('answers 429 above the rate limit [NFR-SEC-05]', function () {
     for ($i = 0; $i < 60; $i++) {
         $this->getJson('/api/v1/health')->assertOk();
