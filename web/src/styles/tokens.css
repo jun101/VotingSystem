@@ -1,0 +1,95 @@
+/*
+ * Design tokens (docs/design/frontend.md section 4), defined once.
+ *
+ * `@theme static` makes Tailwind emit every variable on :root, used or not, and expose
+ * it as a utility (`bg-primary`, `text-ink-soft`, `rounded-lg`, `text-lg`). Components
+ * use these names and never a raw value. The default Tailwind palette is switched off,
+ * so a raw colour class (`bg-white`, `text-blue-500`) does not exist.
+ */
+@theme static {
+  --color-*: initial;
+
+  /* Text and surfaces */
+  --color-ink: #111b33;
+  --color-ink-2: #36425f;
+  --color-ink-soft: #4a556b;
+  --color-ink-muted: #8e99ae;
+  --color-canvas: #f3f5f9;
+  --color-surface: #ffffff;
+  --color-surface-alt: #fafbfd;
+
+  /* Lines */
+  --color-line: #d8dee9;
+  --color-line-soft: #e7ebf2;
+  --color-line-strong: #b9c2d3;
+
+  /* Primary */
+  --color-primary: #1e3a8a;
+  --color-primary-hover: #172b66;
+  --color-primary-soft: #e6ecfa;
+  --color-primary-line: #c9d3ea;
+
+  /* Side menu */
+  --color-navy: #111b33;
+  --color-navy-raised: #1b2747;
+
+  /* Warm: warnings, things to do */
+  --color-warm: #c2410c;
+  --color-warm-ink: #6b2408;
+  --color-warm-soft: #ffe8d6;
+  --color-warm-softer: #fff4ea;
+
+  /* Teal: open, live, done */
+  --color-teal: #0f766e;
+  --color-teal-ink: #0b5750;
+  --color-teal-soft: #d9f2ee;
+
+  /* Valid rows of the import */
+  --color-ok-ink: #0b4a2a;
+  --color-ok-soft: #ddefe2;
+
+  /* Destructive */
+  --color-danger: #9a2a0a;
+  --color-danger-line: #e9b8a8;
+
+  /* Fonts: served from our own origin (see app/layout.tsx) */
+  --font-display: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Public Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+
+  /* Type steps */
+  --text-xs: 12px;
+  --text-xs--line-height: 16px;
+  --text-sm: 13px;
+  --text-sm--line-height: 18px;
+  --text-base: 14px;
+  --text-base--line-height: 20px;
+  --text-md: 15px;
+  --text-md--line-height: 22px;
+  --text-lg: 17px;
+  --text-lg--line-height: 24px;
+  --text-xl: 18px;
+  --text-xl--line-height: 26px;
+  --text-2xl: 24px;
+  --text-2xl--line-height: 30px;
+  --text-3xl: 32px;
+  --text-3xl--line-height: 38px;
+  --text-4xl: 44px;
+  --text-4xl--line-height: 50px;
+
+  /* Shape */
+  --radius-*: initial;
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-full: 999px;
+
+  /* Breakpoints */
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+
+  /* No shadows: depth comes from borders and background */
+  --shadow-*: initial;
+}

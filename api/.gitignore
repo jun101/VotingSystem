@@ -1,0 +1,8 @@
+*.log
+.DS_Store
+.env
+.phpunit.cache
+.phpunit.result.cache
+/vendor
+/storage/*.key
+/storage/pail

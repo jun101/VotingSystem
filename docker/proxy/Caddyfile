@@ -1,0 +1,22 @@
+{
+	admin off
+	auto_https off
+}
+
+:8080 {
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		# No header names the software or its version.
+		-Server
+		-X-Powered-By
+	}
+
+	handle /api/* {
+		reverse_proxy api:8000
+	}
+
+	handle {
+		reverse_proxy web:3000
+	}
+}
