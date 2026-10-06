@@ -12,7 +12,7 @@ folder, is generated from the code and never edited by hand.
 | Subject | Rule |
 |---|---|
 | Base path | `/api/v1` |
-| Format | JSON in and out, UTF-8. `Accept: application/json` is required. File uploads use `multipart/form-data`; file downloads return the file |
+| Format | JSON in and out, UTF-8. Every answer under `/api` is JSON, whatever the `Accept` header says, errors included. File uploads use `multipart/form-data`; file downloads return the file |
 | Identifiers | Every identifier is a random UUID, in a field named `id`. The database's numeric keys never appear (SPEC NFR-SEC-08) |
 | Related records | Named by UUID: `"ballot": "0b0e…"` in a request, a nested object or a UUID in a response. Never a `*_id` number |
 | Dates | ISO 8601 in UTC with `Z`: `2026-11-20T13:00:00Z`. An election also returns its `timezone` so the screen can show local time |
@@ -73,6 +73,9 @@ An error, always this shape:
 - `code` is stable and is what the front end and the tests rely on.
 - `message` is for a person and may change.
 - `fields` is present only on a validation error: field name → list of rule codes.
+- `reference` is present only on a 500 and a 503: the value of the `X-Request-Id`
+  header, for the person to quote. Nothing else about the fault is ever returned: no
+  exception name, no file, no trace, whatever the debug setting.
 
 ## 4. Status codes
 
@@ -89,6 +92,7 @@ returns a code that is not in this table.
 | **401** Unauthorized | Not signed in, or the session or voter session has ended | `unauthenticated`, `voter_session_expired` |
 | **403** Forbidden | Signed in, but the role does not allow it; email not verified; institution suspended | `forbidden`, `email_not_verified`, `institution_suspended` |
 | **404** Not Found | The record does not exist **or belongs to another institution**. The two cases give the same answer on purpose | `not_found` |
+| **405** Method Not Allowed | The path exists but not with this method; the `Allow` header lists the accepted ones | `method_not_allowed` |
 | **409** Conflict | The request is valid but the record's state refuses it | `election_not_editable`, `already_voted`, `last_owner`, … |
 | **410** Gone | It existed and has expired: an invitation, a reset link, a generated file | `expired` |
 | **413** Content Too Large | Upload above the limit | `file_too_large` |
@@ -96,8 +100,8 @@ returns a code that is not in this table.
 | **419** | CSRF token missing or wrong | `csrf_mismatch` |
 | **422** Unprocessable Content | Validation failed; `fields` says where | `validation_failed` |
 | **429** Too Many Requests | Rate limit; `Retry-After` header gives the seconds | `too_many_attempts` |
-| **500** Internal Server Error | A fault on the server; the body holds only the code and a request id | `server_error` |
-| **503** Service Unavailable | Maintenance | `maintenance` |
+| **500** Internal Server Error | A fault on the server; the body holds only the code, a message and a `reference` | `server_error` |
+| **503** Service Unavailable | Maintenance, or a service the API depends on is down | `maintenance`, `dependency_unavailable` |
 
 Choosing between the close ones:
 
@@ -111,7 +115,7 @@ Choosing between the close ones:
 
 | Header | Direction | Use |
 |---|---|---|
-| `X-Request-Id` | Response | Identifies the request in the logs; shown on error screens |
+| `X-Request-Id` | Response | A random UUID set by the server on every answer; identifies the request in the logs. A value sent by the client is ignored |
 | `Retry-After` | Response, with 429 and 503 | Seconds to wait |
 | `X-XSRF-TOKEN` | Request | CSRF token |
 | `Accept-Language` | Request | `fr` or `en` |
@@ -122,6 +126,7 @@ Choosing between the close ones:
 docs/api/
   README.md                         this file
   openapi.json                      generated
+  system/                           GET-health.md
   auth/                             POST-auth-register.md, POST-auth-login.md, …
   institution/
   users/
@@ -223,4 +228,4 @@ Filled slice by slice: each slice adds its endpoints here with a link to their f
 
 | Area | Endpoint | Slice | File |
 |---|---|---|---|
-| | | | |
+| System | `GET /health` | 01 | [system/GET-health.md](system/GET-health.md) |
