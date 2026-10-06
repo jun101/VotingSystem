@@ -1,0 +1,51 @@
+{
+  "app": {
+    "name": "New Voting System"
+  },
+  "home": {
+    "status": {
+      "title": "État du système",
+      "api": "API",
+      "database": "Base de données",
+      "redis": "Redis",
+      "time": "Heure de la base de données",
+      "online": "En ligne",
+      "offline": "Hors ligne",
+      "unavailable": "Indisponible",
+      "unknown": "Inconnu"
+    }
+  },
+  "notFound": {
+    "title": "Page introuvable",
+    "text": "L’adresse demandée n’existe pas ou n’existe plus.",
+    "home": "Retour à l’accueil"
+  },
+  "dev": {
+    "components": {
+      "title": "Composants de base",
+      "buttons": "Boutons",
+      "inputs": "Champs",
+      "cards": "Cartes",
+      "pills": "Pastilles",
+      "primary": "Principal",
+      "secondary": "Secondaire",
+      "danger": "Supprimer",
+      "quiet": "Discret",
+      "voter": "Voter",
+      "disabled": "Désactivé",
+      "loading": "Envoi en cours",
+      "inputLabel": "Prénom",
+      "inputHelp": "Tel qu’il figure sur la liste.",
+      "errorLabel": "Courriel",
+      "errorMessage": "Saisissez une adresse de courriel valide.",
+      "cardTitle": "Titre de la carte",
+      "cardText": "Contenu de la carte, sans ombre ni dégradé.",
+      "cardAction": "Action",
+      "neutral": "Neutre",
+      "tonePrimary": "Principal",
+      "teal": "Ouvert",
+      "warm": "À faire",
+      "toneDanger": "Fermé"
+    }
+  }
+}

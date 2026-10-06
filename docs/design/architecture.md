@@ -1,6 +1,6 @@
 # New Voting System — Architecture
 
-Version 1.0 · 2026-10-06 · goes with [SPEC.md](../SPEC.md) 1.2,
+Version 1.0 · 2026-10-06 · goes with [SPEC.md](../SPEC.md) 1.3,
 [database.md](database.md), [frontend.md](frontend.md) and
 [the API conventions](../api/README.md).
 
@@ -28,8 +28,8 @@ One Compose file for development (`compose.yaml`) and an override for production
 | Service | Image built from | Role |
 |---|---|---|
 | `proxy` | Caddy | Terminates HTTPS (automatic certificates in production), routes by path, serves `/media`, sets the security headers |
-| `api` | `api/` (PHP 8.4, Laravel) | The REST API |
-| `queue` | same image as `api` | Background jobs: imports, PDF generation, emails (NFR-PERF-03) |
+| `api` | `api/` (PHP 8.4, Laravel Octane on FrankenPHP) | The REST API. Plain HTTP on the internal network only |
+| `queue` | same image as `api`, plain command line, no Octane | Background jobs: imports, PDF generation, emails (NFR-PERF-03) |
 | `scheduler` | same image as `api` | Runs the scheduled commands every minute (NFR-OPS-03) |
 | `web` | `web/` (Node, Next.js standalone build) | Pages |
 | `db` | MariaDB | Data |
@@ -72,7 +72,25 @@ Makefile             make up, make check, make test, ...
 | API resources | The JSON shape of a record | Never output `id` or a `*_id` column |
 | Jobs | Background work | Safe to run twice |
 
-### 4.2 Four kinds of caller
+### 4.2 A long-running application
+
+The API runs under Laravel Octane with the FrankenPHP server: the application is loaded
+once and stays in memory, and each worker serves many requests. It answers faster, and it
+changes one rule: **nothing that belongs to a request may outlive it.**
+
+- No request data in a singleton, a static property or a service built once: not the
+  signed-in user, not the institution, not the voter, not the language, not the request
+  id.
+- The tenant scope reads the institution from the current request each time; it never
+  remembers it.
+- Workers are recycled after a fixed number of requests.
+- A test in every slice that adds per-request state shows that two requests in a row,
+  from two different callers, do not see each other's data.
+
+The separate `proxy` service stays in front of it: it is the only public entry, so the
+API can be restarted without taking the pages or the certificates down.
+
+### 4.3 Four kinds of caller
 
 | Caller | Routes | Identified by |
 |---|---|---|
@@ -84,7 +102,7 @@ Makefile             make up, make check, make test, ...
 Sign-up, email verification, password reset and two-factor authentication use the
 framework's headless authentication package rather than hand-written flows.
 
-### 4.3 Tenant isolation (FR-INST-05, NFR-SEC-03)
+### 4.4 Tenant isolation (FR-INST-05, NFR-SEC-03)
 
 Three layers, each enough on its own:
 
@@ -100,14 +118,14 @@ A test suite written in slice 03 creates two institutions and checks every route
 first against a user of the second. A test added to that suite fails if a new route is
 not covered.
 
-### 4.4 Identifiers (NFR-SEC-08)
+### 4.5 Identifiers (NFR-SEC-08)
 
 No numeric `id` leaves the server: not in a URL, a body, a header, a cookie, a file name,
 an email, a PDF, an export, an error message or a page. Enforced by construction (API
 resources, route binding), by an automated test that calls every route and scans the
 response, and by review.
 
-### 4.5 Errors
+### 4.6 Errors
 
 Every error has a stable machine code; the front end translates it. Shapes and status
 codes are in [the API conventions](../api/README.md).
@@ -179,7 +197,7 @@ names.
 | Variable | Protects |
 |---|---|
 | `APP_KEY` | Sessions, the framework's encrypted columns, encrypted files |
-| `VOTE_AUDIT_KEY` | The vote audit records (FR-SEC-08). 64 hex characters. Production has its own, backed up apart from the database (NFR-SEC-09) |
+| `VOTE_AUDIT_PUBLIC_KEY` | Encrypts the vote audit records (FR-SEC-08). 64 hex characters. Not a secret: it cannot decrypt. The matching private key is never given to the server (NFR-SEC-09) |
 | `CREDENTIAL_HASH_KEY` | The keyed hash of access codes (NFR-SEC-02) |
 | `DB_*`, `REDIS_*`, `MAIL_*` | Service passwords |
 

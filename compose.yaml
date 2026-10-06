@@ -1,0 +1,258 @@
+# Development stack (NFR-OPS-01): `make up`, then http://localhost:8080.
+# The production override (compose.prod.yaml) comes in slice 20.
+name: votesystem
+
+x-api: &api
+  build:
+    context: .
+    dockerfile: docker/api/Dockerfile
+  image: votesystem-api:dev
+  # Files written in the source folders belong to the person who runs the stack.
+  user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+  volumes:
+    - ./api:/var/www/html
+    - ./docs/api:/var/www/docs/api
+  environment: &api-environment
+    APP_NAME: ${APP_NAME:-New Voting System}
+    # Production values when nothing is set; .env.example sets the development ones.
+    APP_ENV: ${APP_ENV:-production}
+    APP_DEBUG: ${APP_DEBUG:-false}
+    APP_URL: ${APP_URL:-http://localhost:8080}
+    APP_KEY: ${APP_KEY:?run make setup}
+    VOTE_AUDIT_PUBLIC_KEY: ${VOTE_AUDIT_PUBLIC_KEY:?run make setup}
+    CREDENTIAL_HASH_KEY: ${CREDENTIAL_HASH_KEY:?run make setup}
+    LOG_CHANNEL: stderr
+    LOG_LEVEL: ${LOG_LEVEL:-info}
+    DB_HOST: db
+    DB_DATABASE: ${DB_DATABASE:-votesystem}
+    # The serving containers know the `app` account only. The `migrator` password is given
+    # to the one-off `migrate` and `test` services below, and to nothing that serves.
+    DB_USERNAME: app
+    DB_PASSWORD: ${DB_PASSWORD:?run make setup}
+    REDIS_HOST: redis
+    REDIS_PASSWORD: ${REDIS_PASSWORD:?run make setup}
+    MAIL_HOST: mailpit
+    MAIL_PORT: "1025"
+    MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-no-reply@localhost}
+  depends_on:
+    db:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+
+services:
+  proxy:
+    image: caddy:2.11.7-alpine
+    # Only this port (and Mailpit's web page) is published, on this computer only.
+    ports:
+      - "127.0.0.1:${HTTP_PORT:-8080}:8080"
+    volumes:
+      - ./docker/proxy/Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      api:
+        condition: service_healthy
+      web:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/api/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  api:
+    <<: *api
+    # Octane on FrankenPHP, worker mode, plain HTTP on the internal network only.
+    # Workers are recycled after 500 requests. Code changes are not watched (the image
+    # has no Node): run `make restart-api` after editing the API.
+    command:
+      - php
+      - artisan
+      - octane:start
+      - --server=frankenphp
+      - --host=0.0.0.0
+      - --port=8000
+      - --workers=2
+      - --max-requests=500
+      # Passes the worker's standard error through as it is, one JSON line per log record
+      # (without it Octane rewrites every line it cannot read as a server message).
+      - --log-level=warn
+    healthcheck:
+      # Healthy when the API answers at all: 200, or 503 when a service it needs is down.
+      test: ["CMD-SHELL", "curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/api/v1/health | grep -qE '^(200|503)$'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+  queue:
+    <<: *api
+    command: ["php", "artisan", "queue:work", "--sleep=3", "--tries=3", "--max-time=3600"]
+    # A real check rather than a disabled one: some Compose versions refuse to wait
+    # (`up --wait`) for a service whose health check is disabled.
+    healthcheck:
+      test: ["CMD-SHELL", "kill -0 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+
+  scheduler:
+    <<: *api
+    command: ["php", "artisan", "schedule:work"]
+    # A real check rather than a disabled one: some Compose versions refuse to wait
+    # (`up --wait`) for a service whose health check is disabled.
+    healthcheck:
+      test: ["CMD-SHELL", "kill -0 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+
+  # One-off, never started with the stack: `docker compose run --rm migrate` (make setup).
+  # Runs the migrations as `migrator` (the one account that may change the schema and
+  # grant rights), then gives `app` its rights table by table (php artisan db:grant-app).
+  migrate: &migrate
+    <<: *api
+    profiles: ["tools"]
+    environment: &migrate-environment
+      <<: *api-environment
+      DB_USERNAME: migrator
+      DB_PASSWORD: ${DB_MIGRATOR_PASSWORD:?run make setup}
+      DB_APP_USERNAME: app
+    command: ["sh", "-c", "php artisan migrate --force && php artisan db:grant-app"]
+    healthcheck:
+      disable: true
+
+  # The same for the test database (its name is the database's, with `_test`).
+  migrate-test:
+    <<: *migrate
+    environment:
+      <<: *migrate-environment
+      DB_DATABASE: ${DB_DATABASE:-votesystem}_test
+
+  # One-off: the API tests (make test-api). Besides the `app` connection, it holds the
+  # `migrator` account, which the test of the table rights needs to create its own tables
+  # in the test database. Never started with the stack.
+  test:
+    <<: *api
+    profiles: ["tools"]
+    environment:
+      <<: *api-environment
+      DB_MIGRATOR_USERNAME: migrator
+      DB_MIGRATOR_PASSWORD: ${DB_MIGRATOR_PASSWORD:?run make setup}
+    command: ["vendor/bin/pest"]
+    healthcheck:
+      disable: true
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/web/Dockerfile
+      target: dev
+    image: votesystem-web:dev
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    working_dir: /app
+    volumes:
+      - ./web:/app
+      - ./docs/api:/docs/api
+    environment:
+      # Server-side calls reach the API through the internal network.
+      API_INTERNAL_URL: http://api:8000
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      # Healthy when the server answers at all, whatever the page.
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/robots.txt').then(()=>process.exit(0),()=>process.exit(1))"]
+      interval: 10s
+      timeout: 10s
+      retries: 6
+      start_period: 40s
+    restart: unless-stopped
+
+  db:
+    image: mariadb:12.3.3
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?run make setup}
+      # `root` exists for the database container itself (set-up scripts, maintenance
+      # through `docker compose exec`), not for the other containers.
+      MARIADB_ROOT_HOST: localhost
+      DB_DATABASE: ${DB_DATABASE:-votesystem}
+      DB_PASSWORD: ${DB_PASSWORD:?run make setup}
+      DB_MIGRATOR_PASSWORD: ${DB_MIGRATOR_PASSWORD:?run make setup}
+    volumes:
+      - db_data:/var/lib/mysql
+      # Runs once, when the volume is empty: creates `app`, `migrator` and the test database.
+      - ./docker/db/init.sh:/docker-entrypoint-initdb.d/init.sh:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    restart: unless-stopped
+
+  redis:
+    image: redis:8.10.2
+    # The password is in a configuration file, not on the command line (where `ps` would
+    # show it).
+    command: ["redis-server", "/etc/redis-auth.conf", "--appendonly", "yes"]
+    configs:
+      - source: redis_auth
+        target: /etc/redis-auth.conf
+        mode: 0444
+    environment:
+      REDISCLI_AUTH: ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  mailpit:
+    image: axllent/mailpit:v1.31.4
+    ports:
+      - "127.0.0.1:${MAILPIT_PORT:-8025}:8025"
+    healthcheck:
+      test: ["CMD", "/mailpit", "readyz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Browser tests (make e2e). Not part of the stack: started on demand. It joins the
+  # Compose network and reaches the proxy by its name, like a visitor; it sees no other
+  # service of the machine.
+  e2e:
+    profiles: ["tools"]
+    image: mcr.microsoft.com/playwright:v1.63.0-noble
+    depends_on:
+      proxy:
+        condition: service_healthy
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    working_dir: /app
+    volumes:
+      - ./web:/app
+    environment:
+      HOME: /tmp
+      BASE_URL: http://proxy:8080
+      CI: ${CI:-}
+    command: ["npx", "playwright", "test"]
+
+configs:
+  redis_auth:
+    content: |
+      requirepass ${REDIS_PASSWORD:?run make setup}
+
+volumes:
+  db_data:
+  redis_data:

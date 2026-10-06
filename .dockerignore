@@ -1,0 +1,14 @@
+.git
+# Environment files, at any depth (a local web/.env.local or api/.env must never reach an
+# image layer); the example and the test settings are not secret.
+**/.env
+**/.env.*
+!**/.env.example
+!api/.env.testing
+**/node_modules
+web/.next
+web/playwright-report
+web/test-results
+api/vendor
+api/storage/logs
+docs

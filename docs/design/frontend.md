@@ -1,6 +1,6 @@
 # New Voting System — Front-end design
 
-Version 1.0 · 2026-10-06 · goes with [SPEC.md](../SPEC.md) 1.2,
+Version 1.2 · 2026-10-06 (adds the showcase gradient, the bright accent, motion and the composition rules) · goes with [SPEC.md](../SPEC.md) 1.3,
 [architecture.md](architecture.md) and the approved mockups in [mockups/](mockups/).
 
 Stack: Next.js (App Router), TypeScript in strict mode, Tailwind CSS.
@@ -126,50 +126,119 @@ values; a component never writes a raw colour.
 | `ok-ink` / `ok-soft` | `#0B4A2A` / `#DDEFE2` | Valid rows and matched columns in the import |
 | `danger` | `#9A2A0A` | Destructive actions, required mark |
 | `danger-line` | `#E9B8A8` | Border of a destructive button |
+| `navy-deep` | `#061A3D` | Darkest surfaces on a showcase background; text on `accent` |
+| `hero-from`, `hero-mid`, `hero-to` | `#09295B`, `#0D3A7A`, `#1A4A8A` | The showcase gradient, at 135°, with the middle stop at 60 % |
+| `accent` | `#FF8603` | Highlights and the main call to action on a showcase surface |
+| `accent-light` | `#FFB45A` | Second stop of the accent gradient, shimmer |
 
-Every text and background pair used must reach WCAG AA contrast (NFR-UX-03); the pairs
-are checked by a test in slice 01.
+**Showcase surfaces.** The gradient is the background of the surfaces that present the
+product, and only of those: the voter's code entry screen, the sign-in and register
+pages, the header of the public results, the admin side menu. Working surfaces (ballots,
+lists, forms, records) stay on `canvas` and `surface`, so text and candidate photos stay
+easy to read. On a showcase surface, text is white and cards are `surface`.
 
-A party's own colour (FR-CAND-01) is data, not a token: it is used only as a small
-swatch next to a name, never as a text or background colour, so contrast does not depend
-on what an institution picks.
+**The bright accent.** `accent` is the background of the one main action of a screen, on
+any surface, and of highlights on a showcase surface. Text on `accent` is always
+`navy-deep`, never white: white on this orange does not reach AA contrast. `warm` stays
+the colour of warnings and of text on a light background; `accent` is never used for
+text on a light background.
 
-### Type
+### Composition
 
-| Token | Value |
-|---|---|
-| Display font | Bricolage Grotesque, weights 600 and 700: headings, large figures |
-| Text font | Public Sans, weights 400, 500, 600, 700: everything else |
-| Code font | The system monospace: access codes, identifiers |
-| Hosting | Both fonts are served from our own origin, subset to Latin. No request to a font service (privacy, CSP, weight) |
+Approved on two animated reference mockups, kept with the others:
+[motion-results.html](mockups/motion-results.html) (public results) and
+[motion-vote.html](mockups/motion-vote.html) (voting flow). The earlier mockups keep
+their content and their screens; their look follows these rules.
 
-| Step | Size | Use |
-|---|---|---|
-| `xs` | 12 px | Labels on pills, table captions |
-| `sm` | 13 px | Secondary text |
-| `base` | 14 px | Admin body text |
-| `md` | 15 px | Voter body text |
-| `lg` | 17 px | Card titles |
-| `xl` | 18 px | Candidate names |
-| `2xl` | 24 px | Admin page titles |
-| `3xl` | 30–34 px | Voter screen titles, key figures |
-| `4xl` | 40–48 px | The big figure on the turnout and done screens |
+1. **Every screen opens with a full-width showcase hero, and its content climbs onto
+   it.** The hero (gradient, white text) answers "where am I and what matters here": a
+   pill, a short label, a large title, the state, three key figures. On a desktop it has
+   two tilted cards on its right that restate the essential (the winner, the current
+   choice). The content below is light; its first row of cards overlaps the bottom of the
+   hero by about 50 px. A hero-on-the-left, task-on-the-right split of the whole screen
+   was tried for the voting flow and rejected.
+2. **A section opens with its own showcase element**, never with a bare title on white:
+   a full panel for the main item of the page, a band (a strip of the same gradient with
+   an avatar, a name and one figure) for the others.
+3. **Fill the width.** On a desktop a row is never one narrow column in an empty page.
+   Compositions, in order of preference: a split card (panel and body), a pair of cards,
+   a stack beside a taller card, a grid of small tiles. A long list of bars becomes a grid
+   of tiles.
+4. **Key figures sit in glass tiles** on the showcase surface: a translucent white tile
+   with a thin light border, a large figure in the display font, a short label under it.
+   Three per row.
+5. **One figure per band, in `accent-light`**: the lead, the score, the count that
+   matters. Everything else on the panel is white or the soft white.
+6. **Status has a colour of its own on a band.** The gradient is the normal state; a tie
+   or a warning uses the warm gradient; success uses teal on the working area.
+7. **A page ends with a showcase band** that carries the next action (share, continue,
+   create), so the bottom of a page is never an empty margin.
+8. **The main action is the accent button**, one per screen, at the bottom right on a
+   desktop and full width at the bottom on a phone. Other actions are plain.
+9. **In the voting flow the hero is the voter's memory**: the institution, their name
+   and class, the ballot's title, the step bar, and a "your choice" card that updates the
+   moment a candidate is picked.
+10. **On a ballot the candidates are the screen.** The hero shrinks to a compact header
+    (the voter, the ballot's title, the step bar, one line for the current choice): no
+    figures and no decorative cards there. Each candidate is a tall photo tile, the
+    photo first (4:5) and the name and party under it; two tiles per row on a phone,
+    one row of up to four on a desktop. A candidate without a photo gets the default
+    avatar at the same size.
+11. **Choosing goes through a focus sheet.** Touching a tile opens one candidate large:
+    the photo, the name, the party, the slogan, a short presentation, and the accent
+    button "Choose <first name>". It rises from the bottom on a phone and is centred on a
+    desktop; it is a native `dialog`. Back on the ballot, the chosen tile is lifted, ringed
+    in `primary` and marked with the accent check; the others are dimmed but stay
+    usable. The blank vote is a wide dashed button under the tiles and uses the same
+    sheet.
+12. **The main action lives in a bar fixed to the bottom of the screen**, with a one-line
+    reminder of the current choice on its left, so it is always reachable without
+    scrolling.
 
-Text in a form field is never under 16 px on a phone, so the browser does not zoom.
+### Motion
 
-### Shape and space
+The interface moves: it should feel alive, never slow.
 
 | Token | Value | Use |
 |---|---|---|
-| `radius-sm` | 6 px | Small tags, swatches |
-| `radius` | 10 px | Buttons, inputs, tiles |
-| `radius-md` | 12 px | Small cards |
-| `radius-lg` | 16 px | Cards, candidate rows |
-| `radius-full` | 999 px | Pills, avatars |
-| Space | A 4 px scale: 4, 8, 12, 16, 20, 24, 32, 40 | |
-| Touch target | 44 px high at least; 48 to 56 px for the main action of a voter screen | |
-| Selection | 2 px `primary` border plus a 4 px `primary-soft` ring | Selected candidate, focused field |
-| Shadows | None. Depth comes from borders and background, as in the mockups | |
+| `duration-fast` | 150 ms | Hover, press, colour changes |
+| `duration-base` | 250 ms | Selection, panels, toasts, moving between steps |
+| `duration-reveal` | 750 ms | Content appearing on load or on scroll |
+| `ease-out-soft` | `cubic-bezier(0.16, 1, 0.3, 1)` | Everything that arrives |
+| `ease-spring` | A short overshoot | The selected candidate, the check mark |
+
+| Effect | What it does | Where |
+|---|---|---|
+| Reveal | Fades in and rises 16 px, once, when it enters the screen; siblings follow each other 60 ms apart, eight at most | Admin, public pages, sign-in |
+| Count up | A figure counts from zero to its value | Dashboard, turnout, results |
+| Grow | A bar grows from zero to its value | Turnout, results |
+| Live dot | A dot that pulses, or sends out a ring | An open election, live turnout |
+| Shimmer | A light sweeps across | Loading placeholders; the accent button on a showcase surface |
+| Float | Drifts up and down a few pixels over 5 to 6 seconds, slightly tilted | Decorative cards of the sign-in and public hero only |
+| Slide | Enters from the side | Panels, toasts, the next ballot |
+| Select | The ring springs out around the choice | Candidates, cards, fields |
+| Check | The mark draws itself, with one ring pulse | Vote recorded, import done, saved |
+
+Rules:
+
+1. **Only movement and fading are animated** (`transform` and `opacity`), in CSS. No
+   animation library. This keeps the voting flow inside its weight budget and smooth on a
+   low-end phone.
+2. **Reduced motion is respected.** With the device's "reduce motion" setting, every
+   effect above is replaced by an instant change; nothing is lost but the movement
+   (NFR-UX-03).
+3. **Nothing waits for an animation.** A control can be used the moment it is on screen;
+   content is never hidden behind an effect that has not run.
+4. **The voting flow moves only on purpose**: select, the step bar, the slide between
+   ballots, the check at the end. Nothing loops and nothing floats on a ballot: a target
+   that moves causes a wrong tap. The drifting light and the live dot run on the code
+   entry and confirmation screens only; the sweep of light on the accent button runs on
+   the code entry screen only.
+7. **Feedback is immediate and small**: a control answers a press within 150 ms (a
+   slight shrink), the main action gives one short nudge when it becomes available, and
+   only the element that changed moves.
+5. **A reveal runs once.** Scrolling back does not replay it.
+6. **Loops are few**: at most one looping effect in view at a time outside the hero.
 
 ### Breakpoints
 

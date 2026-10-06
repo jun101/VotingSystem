@@ -1,0 +1,12 @@
+{
+    "preset": "laravel",
+    "exclude": [
+        "tests/Acceptance",
+        "tests/Support",
+        "bootstrap/cache"
+    ],
+    "notPath": [
+        "tests/TestCase.php",
+        "tests/Pest.php"
+    ]
+}

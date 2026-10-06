@@ -1,0 +1,11 @@
+# Generated
+src/lib/api/schema.d.ts
+.next
+node_modules
+next-env.d.ts
+package-lock.json
+# Browser acceptance tests and their configuration are fixed by the slice's harness
+e2e
+playwright.config.ts
+playwright-report
+test-results

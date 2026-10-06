@@ -1,0 +1,77 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "New Voting System",
+        "version": "1.0.0",
+        "description": "API of the New Voting System. Conventions: docs/api/README.md."
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8080/api",
+            "description": "Same origin"
+        }
+    ],
+    "paths": {
+        "/v1/health": {
+            "get": {
+                "operationId": "health",
+                "description": "Says whether the database and Redis answer, and returns the database server's clock.\nPublic. Limited to 60 requests per minute per IP address.",
+                "summary": "State of the API and of the services it depends on",
+                "tags": [
+                    "Health"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "const": "ok"
+                                                },
+                                                "checks": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "database": {
+                                                            "type": "string",
+                                                            "const": "ok"
+                                                        },
+                                                        "redis": {
+                                                            "type": "string",
+                                                            "const": "ok"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "database",
+                                                        "redis"
+                                                    ]
+                                                },
+                                                "time": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "status",
+                                                "checks",
+                                                "time"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

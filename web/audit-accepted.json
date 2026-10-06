@@ -1,0 +1,9 @@
+[
+  {
+    "id": "GHSA-vfj7-8cjw-p6xm",
+    "package": "braces, through eslint-config-next > @next/eslint-plugin-next > fast-glob > micromatch",
+    "reason": "A development tool (the linter) can be slowed by a deeply nested glob pattern. It never runs in production and no input of ours reaches it. npm's only suggested fix installs eslint-config-next 14, which does not work with Next.js 16.",
+    "accepted": "2026-10-06",
+    "review_by": "2026-11-06"
+  }
+]

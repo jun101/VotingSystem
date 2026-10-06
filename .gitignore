@@ -8,3 +8,6 @@ docs/PLAN.md
 .env
 .env.*
 !.env.example
+
+# The api's test settings file holds no secret
+!api/.env.testing

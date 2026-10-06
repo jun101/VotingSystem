@@ -1,0 +1,51 @@
+{
+  "app": {
+    "name": "New Voting System"
+  },
+  "home": {
+    "status": {
+      "title": "System status",
+      "api": "API",
+      "database": "Database",
+      "redis": "Redis",
+      "time": "Database time",
+      "online": "Online",
+      "offline": "Offline",
+      "unavailable": "Unavailable",
+      "unknown": "Unknown"
+    }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "text": "The address you asked for does not exist or no longer exists.",
+    "home": "Back to the home page"
+  },
+  "dev": {
+    "components": {
+      "title": "Base components",
+      "buttons": "Buttons",
+      "inputs": "Fields",
+      "cards": "Cards",
+      "pills": "Pills",
+      "primary": "Primary",
+      "secondary": "Secondary",
+      "danger": "Delete",
+      "quiet": "Quiet",
+      "voter": "Vote",
+      "disabled": "Disabled",
+      "loading": "Sending",
+      "inputLabel": "First name",
+      "inputHelp": "As it appears on the list.",
+      "errorLabel": "Email",
+      "errorMessage": "Enter a valid email address.",
+      "cardTitle": "Card title",
+      "cardText": "Card content, with no shadow or gradient.",
+      "cardAction": "Action",
+      "neutral": "Neutral",
+      "tonePrimary": "Primary",
+      "teal": "Open",
+      "warm": "To do",
+      "toneDanger": "Closed"
+    }
+  }
+}
