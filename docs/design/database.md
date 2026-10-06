@@ -1,6 +1,6 @@
 # New Voting System — Database design
 
-Version 1.0 · 2026-10-06 · goes with [SPEC.md](../SPEC.md) 1.2 and
+Version 1.0 · 2026-10-06 · goes with [SPEC.md](../SPEC.md) 1.3 and
 [architecture.md](architecture.md).
 
 Database: MariaDB (current LTS), InnoDB, `utf8mb4`. All date-times are stored in UTC.
@@ -273,7 +273,7 @@ Primary key: `(vote_uuid, candidate_id)`. Index: `(candidate_id)` for counting.
 | Column | Type | Notes |
 |---|---|---|
 | uuid | UUID | Primary key. Version 4, random, unrelated to the vote's |
-| election_id | fk | Restrict. In clear, to find or delete an election's records |
+| election_id | fk | Restrict. In clear, to find an election's records |
 | payload | varbinary(255) | Encrypted (section 4.2) |
 
 Nothing else readable: no voter, no vote, no numeric id, no timestamp.
@@ -336,14 +336,16 @@ if two requests ever got past step 4 together, the second commit fails.
 
 | Item | Choice |
 |---|---|
-| Content | The vote's `uuid`, the voter's `uuid`, the ballot's `uuid`, the time to the second, a format version |
+| Content | A format version, the record's own `uuid`, the election's `uuid`, the vote's `uuid`, the voter's `uuid`, the ballot's `uuid`, the time to the second |
 | Encoding | Fixed-length binary, so every payload has the same size |
-| Cipher | XChaCha20-Poly1305 (libsodium, bundled with PHP), a fresh random 24-byte nonce per record |
-| Key | `VOTE_AUDIT_KEY`, 32 bytes given as 64 hex characters in the environment |
-| Bound to | The record's own `uuid` and the election's `uuid` as associated data, so a payload moved to another row or election fails to decrypt |
-| Stored as | nonce followed by ciphertext and tag |
+| Cipher | A libsodium sealed box (X25519 and XSalsa20-Poly1305; libsodium is bundled with PHP). Each record is encrypted to the public key with a fresh one-time key |
+| Public key | `VOTE_AUDIT_PUBLIC_KEY`, 32 bytes given as 64 hex characters in the server's environment. It can only encrypt |
+| Private key | 32 bytes, held by the platform operator, never on the server |
+| Bound to | The record's own `uuid` and the election's `uuid` are inside the payload; the reading tool refuses a payload found in another row or election |
+| Stored as | The sealed box: 48 bytes more than the content |
 
-Reading is done only by the command-line tool of FR-SEC-09.
+The server cannot read what it has written. Reading is done only by the command-line
+tool of FR-SEC-09, which is given the private key for one use.
 
 ### 4.3 What the database cannot hide
 
@@ -357,7 +359,9 @@ by operations, not by the schema:
   one transaction. It is not reachable by SQL; reading it needs the raw data files, that
   is, full control of the server.
 
-Both need access to the server itself, where the key also lives.
+Both need full control of the server. The private key is not there, so the audit records
+themselves stay unreadable even then; these two traces are the reason the binary log
+setting matters.
 
 ## 5. Stored files
 
@@ -380,8 +384,7 @@ So a bug or an injection in the application cannot change or remove a vote, a
 participation or an audit entry. Deleting a draft election still works, since a draft has
 none of these rows.
 
-## 7. Open point
+## 7. Keeping the audit records
 
-How long `vote_audit` rows are kept (SPEC section 12). The table is ready for either
-answer: `election_id` is in clear so an election's records can be deleted in one
-statement by the `migrator` account.
+`vote_audit` rows are kept as long as their election exists (FR-SEC-10). No job deletes
+them.

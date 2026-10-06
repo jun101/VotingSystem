@@ -44,13 +44,14 @@ components, accessibility checks).
 
 | Item | Requirement |
 |---|---|
-| Framework | Laravel, current stable, PHP 8.4. Only what is needed: no front-end scaffolding, no token authentication package yet |
+| Framework | Laravel, current stable, PHP 8.4, served by Laravel Octane on FrankenPHP in worker mode, with a limit of requests per worker. `queue` and `scheduler` run plain commands. Only what is needed: no front-end scaffolding, no token authentication package yet |
 | Routes | Prefix `/api/v1`. One endpoint: [GET /health](../api/system/GET-health.md) |
 | Error rendering | Every answer under `/api` is JSON in the shape of the API conventions, for every status in its table, whatever the debug setting and the `Accept` header. `reference` on 500 and 503 |
 | Request id | A global middleware (it also covers routes outside the `api` group) sets a random version 4 UUID in `X-Request-Id` on every answer, ignores a value sent by the client, and adds it to every log line of the request |
 | Language | `Accept-Language` `fr` or `en` selects the language of `error.message`; `fr` by default |
 | Logs | JSON on standard output, with the request id. A processor that removes fields named like a secret (password, code, token, key, vote) |
 | A service being down | A failure to reach MariaDB or Redis anywhere in the request, including in a middleware, is answered with 503 `dependency_unavailable`, never 500 |
+| Per-request state | The request id, the language and the log context are reset for each request; a test shows that one request's values do not reach the next (architecture.md section 4.2) |
 | Rate limit | 60 per minute per IP address on `/health`; the limiter is declared by name so later slices add theirs the same way |
 | Base classes for later slices | A base API resource that never outputs `id` or `*_id` and outputs the record's `uuid` as `id`; a model trait that gives a model a random version 4 `uuid` on creation and makes it the route key. No model uses them yet; each has unit tests |
 | Tests | `api/tests/Acceptance` registered as a test suite next to `Feature` and `Unit`. The test configuration uses the real MariaDB test database and the real Redis |

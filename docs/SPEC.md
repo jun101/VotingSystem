@@ -1,7 +1,8 @@
 # New Voting System — Functional Specification
 
-Version 1.2 (1.0 approved 2026-10-05; 1.1 adds what the approved mockups introduced;
-1.2, 2026-10-06, adds the encrypted vote audit record and UUID public addresses)
+Version 1.3 (1.0 approved 2026-10-05; 1.1 adds what the approved mockups introduced;
+1.2, 2026-10-06, adds the encrypted vote audit record and UUID public addresses;
+1.3, 2026-10-06, encrypts the audit record with a key pair and settles how long it is kept)
 
 Requirement IDs (`FR-…`, `NFR-…`) are stable. Design documents, code, reviews and tests
 refer to them. Items marked **[ASSUMPTION]** are choices made without confirmation; they are
@@ -22,8 +23,8 @@ results on a public page that can be shared on social media.
 - A voter can vote in under a minute on a cheap phone and a slow connection.
 - Nobody can find out how a given voter voted through the application: not the
   institution, not a platform admin signed in to it. One encrypted audit record links
-  each vote to its voter; only the platform operator, holding a key kept outside the
-  database, can read it (FR-SEC-08).
+  each vote to its voter; only the platform operator, holding a private key that is
+  never on the server, can read it (FR-SEC-08).
 - Each voter votes at most once per election.
 - Distributing credentials costs the institution nothing if it chooses paper.
 
@@ -235,15 +236,19 @@ randomness.
   encrypted audit record of FR-SEC-08.
 - **FR-SEC-08** For each vote the system writes one audit record holding the vote, the
   voter and the exact time of the vote. These three values are encrypted before they are
-  stored, with authenticated encryption and a 256-bit key (`VOTE_AUDIT_KEY`) that comes
-  from the environment and is never in the database, the repository or a backup of the
-  database. The stored row carries nothing readable that could match it to a voter: no
+  stored, with a key pair. The server holds only the public key
+  (`VOTE_AUDIT_PUBLIC_KEY`, from the environment): it can write audit records and cannot
+  read them. The private key is held by the platform operator and is never on the
+  server, in the database, in the repository or in a backup. The stored row carries nothing readable that could match it to a voter: no
   voter identifier, no timestamp, no sequence number. It is written in the same
   transaction as the vote (FR-SEC-02).
 - **FR-SEC-09** No screen, API endpoint, export or log gives access to the audit records.
-  They are read only by the platform operator, on the server, with a command-line tool
-  that needs the key; each use of the tool is written to a log that names the operator,
-  the election and the reason. The audit records are never used to compute results.
+  They are read only by the platform operator, with a command-line tool that is given
+  the private key for that one use and does not store it; each use of the tool is
+  written to a log that names the operator, the election and the reason. The audit
+  records are never used to compute results.
+- **FR-SEC-10** Audit records are kept as long as their election exists. They are not
+  deleted on a schedule.
 - **FR-SEC-02** Both are written in a single database transaction: it commits only if
   every write succeeded and rolls back entirely on any error, so a vote is never partly
   recorded. A voter cannot vote twice even with simultaneous requests, through three
@@ -340,10 +345,11 @@ randomness.
 - **NFR-SEC-08** Every identifier that appears in a URL, a link, a file name or an API
   response is a random UUID (version 4). Internal numeric identifiers never leave the
   server.
-- **NFR-SEC-09** Production uses its own `VOTE_AUDIT_KEY`, generated on the server and
-  different from any development key. The key is backed up separately from the database.
-  If it is lost, the audit records can no longer be read; votes and results are not
-  affected.
+- **NFR-SEC-09** Production uses its own audit key pair, different from any development
+  pair and generated on the operator's machine, not on the server. Only the public key is
+  sent to the server. The operator keeps the private key and a backup of it away from
+  the server and from the database backups. If it is lost, the audit records can no
+  longer be read; votes and results are not affected.
 
 ### Performance and reach
 
@@ -470,7 +476,8 @@ current, supported versions before it is merged.
 | Connection drops during submission | Submission is atomic and safe to retry; the voter is told clearly whether the vote was recorded. |
 | The institution distrusts the result | Integrity check (FR-SEC-05), audit log, turnout by group, official PDF report. |
 | Emails land in spam | Paper is the default channel; the self-distribution file is a fallback. |
-| The audit key leaks, or someone with access to the server reads how students voted | The key is only in the server's environment, never in the database or its backups; the read tool logs every use (FR-SEC-09); production has its own key (NFR-SEC-09). |
+| Someone with access to the server reads how students voted | The server holds only the public key and cannot decrypt the audit records (FR-SEC-08). |
+| The private audit key leaks or is lost | It is kept by the operator alone, off the server, with a separate backup; the read tool logs every use (FR-SEC-09); production has its own pair (NFR-SEC-09). |
 
 ---
 
@@ -495,10 +502,11 @@ current, supported versions before it is merged.
 
 | Subject | Decision |
 |---|---|
-| Vote audit | Each vote is linked to its voter and time in an encrypted record, for audit only, readable only by the platform operator with a key from the environment (FR-SEC-08, 09). Never shown in the admin interface. |
+| Vote audit | Each vote is linked to its voter and time in an encrypted record, for audit only (FR-SEC-08, 09). Never shown in the admin interface. |
+| Audit key | A key pair: the public key on the server, the private key with the platform operator only (FR-SEC-08, NFR-SEC-09). |
+| Audit retention | Kept as long as the election exists (FR-SEC-10). |
 | Public addresses | Every public link and every identifier leaving the server is a random UUID; slugs are dropped (NFR-SEC-08, FR-RES-04, FR-RES-07). |
 
 ### Open
 
-- How long the vote audit records are kept: deleted a set time after publication (for
-  example 30 days) or kept as long as the election exists.
+None.

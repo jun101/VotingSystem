@@ -1,6 +1,6 @@
 # New Voting System — API conventions
 
-Version 1.0 · 2026-10-06 · goes with [SPEC.md](../SPEC.md) 1.2 and
+Version 1.0 · 2026-10-06 · goes with [SPEC.md](../SPEC.md) 1.3 and
 [architecture.md](../design/architecture.md).
 
 This folder is the API contract. Every endpoint has its own file, written before the

@@ -1,6 +1,6 @@
 # New Voting System — Front-end design
 
-Version 1.0 · 2026-10-06 · goes with [SPEC.md](../SPEC.md) 1.2,
+Version 1.0 · 2026-10-06 · goes with [SPEC.md](../SPEC.md) 1.3,
 [architecture.md](architecture.md) and the approved mockups in [mockups/](mockups/).
 
 Stack: Next.js (App Router), TypeScript in strict mode, Tailwind CSS.
