@@ -15,7 +15,7 @@ hex() { head -c "$1" /dev/urandom | od -An -tx1 | tr -d ' \n'; }
 generate() {
   case "$1" in
     APP_KEY) echo "base64:$(head -c 32 /dev/urandom | base64)" ;;
-    VOTE_AUDIT_KEY | CREDENTIAL_HASH_KEY) hex 32 ;;
+    CREDENTIAL_HASH_KEY) hex 32 ;;
     DB_ROOT_PASSWORD | DB_PASSWORD | DB_MIGRATOR_PASSWORD | REDIS_PASSWORD) hex 24 ;;
     HOST_UID) id -u ;;
     HOST_GID) id -g ;;

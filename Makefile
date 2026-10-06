@@ -17,6 +17,7 @@ help: ## List the commands
 
 setup: ## Create .env, generate missing secrets, build, install dependencies, migrate
 	docker run --rm --user $$(id -u):$$(id -g) -v "$(CURDIR)":/work -w /work alpine:3.24.2 sh docker/scripts/setup-env.sh
+	sh docker/scripts/audit-keypair.sh
 	$(COMPOSE) build
 	$(API_BARE) composer install --no-interaction --prefer-dist
 	$(WEB_BARE) npm ci

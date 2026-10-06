@@ -18,7 +18,7 @@ x-api: &api
     APP_DEBUG: ${APP_DEBUG:-true}
     APP_URL: ${APP_URL:-http://localhost:8080}
     APP_KEY: ${APP_KEY:?run make setup}
-    VOTE_AUDIT_KEY: ${VOTE_AUDIT_KEY:?run make setup}
+    VOTE_AUDIT_PUBLIC_KEY: ${VOTE_AUDIT_PUBLIC_KEY:?run make setup}
     CREDENTIAL_HASH_KEY: ${CREDENTIAL_HASH_KEY:?run make setup}
     LOG_CHANNEL: stdout
     LOG_LEVEL: ${LOG_LEVEL:-debug}
