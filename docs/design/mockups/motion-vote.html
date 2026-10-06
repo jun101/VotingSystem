@@ -1,0 +1,337 @@
+<title>Vote Flow Mockup</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one voting card. A navy showcase panel carries the context (where am I, who am I,
+   what did I pick); a light working area carries the task. Side by side on a desktop,
+   stacked on a phone. One look on purpose: the product's own palette. */
+:root {
+  --ink: #111B33; --ink-soft: #4A556B; --ink-muted: #8E99AE;
+  --canvas: #F3F5F9; --surface: #FFFFFF; --line: #D8DEE9; --line-soft: #E7EBF2; --line-strong: #B9C2D3;
+  --primary: #1E3A8A; --primary-soft: #E6ECFA;
+  --navy-deep: #061A3D; --hero-from: #09295B; --hero-mid: #0D3A7A; --hero-to: #1A4A8A;
+  --accent: #FF8603; --accent-light: #FFB45A;
+  --warm: #C2410C; --warm-ink: #6B2408; --warm-soft: #FFE8D6;
+  --teal: #0F766E; --teal-ink: #0B5750; --teal-soft: #D9F2EE;
+  --on-hero: #FFFFFF; --on-hero-soft: #C6D3EC; --glass: rgba(255,255,255,.10); --glass-line: rgba(255,255,255,.22);
+  --display: 'Bricolage Grotesque', 'Trebuchet MS', system-ui, sans-serif;
+  --text: 'Public Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: ui-monospace, 'SF Mono', Menlo, monospace;
+  --fast: 150ms; --base: 250ms;
+  --soft: cubic-bezier(.16, 1, .3, 1); --spring: cubic-bezier(.34, 1.56, .64, 1);
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--canvas); color: var(--ink); font-family: var(--text); font-size: 15px; line-height: 1.45; }
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; }
+button { font: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.page { min-height: 100%; display: grid; grid-template-rows: auto 1fr; }
+.demo { background: var(--navy-deep); color: var(--on-hero-soft); font-size: 13px; }
+.demo div { max-width: 1080px; margin-inline: auto; padding: 10px 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.demo span { flex: 1 1 220px; min-width: 0; }
+.demo button { font-weight: 600; color: var(--on-hero); background: var(--glass); border: 1px solid var(--glass-line); border-radius: 999px; padding: 8px 16px; min-height: 36px; cursor: pointer; }
+
+.app { width: 100%; max-width: 1080px; margin-inline: auto; display: grid; grid-template-rows: auto 1fr; background: var(--surface); }
+
+/* ---------- showcase panel ---------- */
+.panel { position: relative; overflow: hidden; color: var(--on-hero); padding: 20px 20px 22px; display: grid; gap: 14px; align-content: start; background: linear-gradient(135deg, var(--hero-from), var(--hero-mid) 60%, var(--hero-to)); }
+.panel::after { content: ""; position: absolute; width: 380px; height: 380px; right: -170px; top: -190px; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,180,90,.22), transparent); pointer-events: none; }
+.panel.live::after { animation: drift 14s ease-in-out infinite; }
+.panel > * { position: relative; z-index: 1; }
+.top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+.pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; background: var(--glass); border: 1px solid var(--glass-line); }
+.dot { position: relative; width: 8px; height: 8px; border-radius: 50%; background: #34D399; flex: none; }
+.panel.live .dot::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: inherit; animation: ping 2.4s var(--soft) infinite; }
+.eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--on-hero-soft); }
+.panel h1 { font-size: clamp(28px, 6vw, 40px); line-height: 1.04; font-weight: 700; }
+.panel h1 em { font-style: normal; color: var(--accent-light); }
+.panel .lede { color: var(--on-hero-soft); max-width: 40ch; }
+.steps { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 6px; }
+.steps i { height: 6px; border-radius: 3px; background: rgba(255,255,255,.2); overflow: hidden; }
+.steps i::after { content: ""; display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent), var(--accent-light)); transform-origin: left center; transform: scaleX(0); transition: transform .5s var(--soft); }
+.steps i.on::after { transform: scaleX(1); }
+.steps i.now::after { transition: none; }
+.glassrow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.glass { padding: 10px 12px; border-radius: 12px; background: var(--glass); border: 1px solid var(--glass-line); min-width: 0; }
+.glass b { display: block; font-family: var(--display); font-size: 20px; line-height: 1.1; }
+.glass span { font-size: 12px; color: var(--on-hero-soft); }
+.picked { display: flex; align-items: center; gap: 12px; }
+.picked .av { box-shadow: 0 0 0 3px rgba(255,255,255,.18); }
+.picked b { font-size: 17px; font-family: var(--display); }
+.picked.pop { animation: pop .45s var(--spring); }
+.extra { display: none; }
+
+/* ---------- working area ---------- */
+.work { display: grid; grid-template-rows: 1fr auto; min-width: 0; min-height: 0; background: var(--canvas); }
+.screen { padding: 20px; display: grid; gap: 16px; align-content: start; min-width: 0; }
+.screen.fwd { animation: inRight .32s var(--soft) both; }
+.screen.back { animation: inLeft .32s var(--soft) both; }
+.screen h2 { font-size: 24px; line-height: 1.1; }
+.screen h2:focus { outline: none; }
+.hint { color: var(--ink-soft); }
+.actions { display: flex; gap: 10px; padding: 14px 20px calc(14px + env(safe-area-inset-bottom, 0px)); background: var(--surface); border-top: 1px solid var(--line); }
+.btn { min-height: 52px; padding: 0 22px; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); transition: transform var(--fast), background var(--fast), border-color var(--fast); }
+.btn:active { transform: scale(.97); }
+.btn.go { position: relative; overflow: hidden; flex: 1; border: 0; color: var(--navy-deep); background: linear-gradient(135deg, var(--accent), var(--accent-light)); display: inline-flex; align-items: center; justify-content: center; gap: 10px; transition: transform var(--base) var(--spring), filter var(--fast); }
+.btn.go:hover:not(:disabled) { transform: translateY(-1px); }
+.btn.go svg { transition: transform var(--base) var(--spring); }
+.btn.go:hover:not(:disabled) svg { transform: translateX(4px); }
+.btn.go:disabled { background: var(--line); color: var(--ink-muted); cursor: not-allowed; }
+.btn.go.ready { animation: nudge .5s var(--spring); }
+.btn.go.sweep::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.55) 50%, transparent 65%); transform: translateX(-120%); animation: sweep 3.2s var(--soft) infinite; }
+
+/* code entry */
+.code { width: 100%; min-height: 64px; padding: 0 16px; border-radius: 14px; border: 2px solid var(--line-strong); background: var(--surface); font: 700 26px var(--mono); letter-spacing: .12em; text-align: center; text-transform: uppercase; color: var(--ink); transition: border-color var(--fast), box-shadow var(--base) var(--spring); }
+.code::placeholder { color: var(--line-strong); }
+.code:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-soft); }
+.code.ok { border-color: var(--teal); box-shadow: 0 0 0 4px var(--teal-soft); }
+.link { background: none; border: 0; padding: 8px 0; color: var(--primary); font-weight: 600; text-decoration: underline; cursor: pointer; justify-self: start; min-height: 44px; }
+.info { display: grid; gap: 10px; }
+.info div { display: flex; gap: 12px; align-items: center; padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; font-size: 14px; }
+.ico { width: 36px; height: 36px; border-radius: 10px; flex: none; display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); font-weight: 700; }
+
+/* identity */
+.me { display: flex; align-items: center; gap: 16px; padding: 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; }
+.me .av { width: 64px; height: 64px; font-size: 22px; }
+.me b { display: block; font-family: var(--display); font-size: 22px; line-height: 1.1; }
+
+/* candidates */
+fieldset { margin: 0; padding: 0; border: 0; display: grid; gap: 12px; min-width: 0; }
+.cand { position: relative; display: grid; grid-template-columns: 56px minmax(0, 1fr) 28px; gap: 14px; align-items: center; padding: 14px; background: var(--surface); border: 2px solid var(--line); border-radius: 16px; cursor: pointer; transition: border-color var(--fast), box-shadow var(--base) var(--spring), transform var(--base) var(--spring); }
+.cand:hover { border-color: var(--line-strong); }
+.cand:active { transform: scale(.985); }
+.cand input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+.cand:has(input:focus-visible) { outline: 3px solid var(--accent); outline-offset: 2px; }
+.cand:has(input:checked) { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-soft); }
+.cand:has(input:checked) .av { animation: pop .45s var(--spring); }
+.av { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 18px; background: var(--primary-soft); color: var(--primary); flex: none; }
+.av.w { background: var(--warm-soft); color: var(--warm-ink); }
+.av.t { background: var(--teal-soft); color: var(--teal-ink); }
+.av.n { background: var(--line-soft); color: var(--ink-soft); }
+.cand b { display: block; font-size: 18px; line-height: 1.2; }
+.cand .party { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-soft); }
+.cand .party::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--sw, var(--ink-muted)); }
+.cand q { display: block; quotes: "« " " »"; font-size: 14px; color: var(--ink-soft); margin-top: 2px; }
+.radio { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--line-strong); display: grid; place-items: center; color: #fff; transition: background var(--fast), border-color var(--fast), transform var(--base) var(--spring); }
+.radio svg { width: 16px; height: 16px; }
+.radio path, .bigtick path { fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 16; stroke-dashoffset: 16; }
+.cand:has(input:checked) .radio { background: var(--primary); border-color: var(--primary); transform: scale(1.08); }
+.cand:has(input:checked) .radio path { stroke-dashoffset: 0; transition: stroke-dashoffset .28s ease-out .08s; }
+
+/* review */
+.rev { display: grid; gap: 10px; }
+.rev div { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; animation: rise .5s var(--soft) both; animation-delay: calc(var(--i) * 70ms); }
+.rev .av { width: 44px; height: 44px; font-size: 15px; }
+.rev small { display: block; font-size: 12px; color: var(--ink-soft); }
+.rev b { font-size: 16px; }
+.rev button { min-height: 44px; }
+.note { padding: 12px 14px; border-radius: 12px; background: #FFF4EA; color: var(--warm-ink); font-size: 14px; }
+
+/* done */
+.done { justify-items: center; text-align: center; padding-block: 36px; }
+.seal { position: relative; width: 96px; height: 96px; border-radius: 50%; background: var(--teal); color: #fff; display: grid; place-items: center; animation: pop .6s var(--spring) both; }
+.seal::before, .seal::after { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--teal); opacity: 0; animation: ringOut 1.4s var(--soft) .5s 1; }
+.seal::after { animation-delay: .8s; }
+.bigtick { width: 46px; height: 46px; }
+.bigtick path { animation: draw .5s ease-out .45s forwards; }
+.done h2 { font-size: 30px; }
+.when { font-family: var(--mono); font-size: 14px; color: var(--ink-soft); }
+.timer { width: min(100%, 320px); height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.timer i { display: block; height: 100%; background: var(--primary); transform-origin: left center; animation: empty 10s linear forwards; }
+
+@keyframes ping { 0% { transform: scale(1); opacity: .7; } 80%, 100% { transform: scale(2.8); opacity: 0; } }
+@keyframes drift { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-30px, 24px); } }
+@keyframes sweep { 0%, 55% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
+@keyframes inRight { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+@keyframes inLeft { from { opacity: 0; transform: translateX(-28px); } to { opacity: 1; transform: none; } }
+@keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes pop { 0% { transform: scale(.7); } 100% { transform: scale(1); } }
+@keyframes nudge { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+@keyframes ringOut { 0% { transform: scale(1); opacity: .7; } 100% { transform: scale(1.9); opacity: 0; } }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes empty { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
+@media (min-width: 860px) {
+  body { background: #E9EDF4; }
+  .page { padding-bottom: 32px; }
+  .app { margin-top: 32px; grid-template-rows: none; grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr); border-radius: 24px; overflow: hidden; border: 1px solid var(--line); min-height: 640px; align-self: start; }
+  .panel { padding: 36px 32px; gap: 20px; align-content: center; }
+  .extra { display: grid; }
+  .screen { padding: 32px; gap: 18px; }
+  .actions { padding: 18px 32px; }
+  .btn.go { flex: 0 1 280px; margin-left: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .radio path, .bigtick path { stroke-dashoffset: 0; }
+  .timer i { transform: scaleX(1); }
+}
+</style>
+
+<div class="page">
+  <div class="demo"><div>
+    <span>Maquette animée · parcours de vote · données fictives</span>
+    <button type="button" id="restart">↻ Recommencer</button>
+  </div></div>
+
+  <div class="app">
+    <aside class="panel live" id="panel"></aside>
+    <section class="work">
+      <div id="screen" class="screen" aria-live="polite"></div>
+      <div class="actions" id="actions"></div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function () {
+  var voter = { name: 'Rose-Merline Étienne', group: '4e année', initials: 'RÉ' };
+  var ballots = [
+    { id: 'p', title: 'Président(e)', scope: "Toute l'école", cands: [
+      { id: 'np', n: 'Nadège Pierre-Louis', i: 'NP', tone: 'w', party: 'Avenir Solidaire', sw: '#C2410C', slogan: 'Une école qui écoute chaque élève.' },
+      { id: 'jd', n: 'Jean-Robert Désir', i: 'JD', tone: '', party: 'Élan Jeunesse', sw: '#1E3A8A', slogan: 'Plus de sport, plus de clubs.' },
+      { id: 'wj', n: 'Wideline Joseph', i: 'WJ', tone: 't', party: 'Indépendante', sw: '', slogan: 'Des idées, pas des promesses.' } ] },
+    { id: 's', title: 'Secrétaire', scope: "Toute l'école", cands: [
+      { id: 'mc', n: 'Mackenson Charles', i: 'MC', tone: '', party: 'Élan Jeunesse', sw: '#1E3A8A', slogan: 'Des comptes rendus clairs, chaque mois.' },
+      { id: 'fa', n: 'Fabiola Augustin', i: 'FA', tone: 'w', party: 'Avenir Solidaire', sw: '#C2410C', slogan: 'Votre voix, bien notée.' } ] },
+    { id: 'd', title: 'Délégué(e) de classe', scope: '4e année', cands: [
+      { id: 'sb', n: 'Stanley Brutus', i: 'SB', tone: 't', party: '', sw: '', slogan: 'Toujours disponible pour la classe.' },
+      { id: 'rm', n: 'Roseline Milfort', i: 'RM', tone: 'w', party: '', sw: '', slogan: 'Une classe unie.' } ] }
+  ];
+  var BLANK = { id: 'blank', n: 'Vote blanc', i: '–', tone: 'n', party: '', sw: '', slogan: 'Je ne choisis aucun candidat.' };
+  var steps = ['code', 'me', 'b0', 'b1', 'b2', 'review', 'done'];
+  var state = { step: 0, picks: {}, code: '' };
+
+  var panel = document.getElementById('panel'), screen = document.getElementById('screen'), actions = document.getElementById('actions');
+  var tick = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.8"/></svg>';
+  var arrow = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+
+  function cand(b, id) { return id === 'blank' ? BLANK : b.cands.filter(function (c) { return c.id === id; })[0]; }
+  function av(c) { return '<span class="av ' + c.tone + '">' + c.i + '</span>'; }
+  var lastDone = 0;
+  // Segments already filled stay filled; only the newly reached one animates.
+  function stepsBar(done) {
+    var kept = Math.min(done, lastDone);
+    var html = '<div class="steps" role="img" aria-label="Poste ' + Math.min(done + 1, 3) + ' sur 3">' +
+      ballots.map(function (_, k) { return '<i class="' + (k < kept ? 'on now' : k < done ? 'next' : '') + '"></i>'; }).join('') + '</div>';
+    lastDone = done;
+    requestAnimationFrame(function () { requestAnimationFrame(function () {
+      [].forEach.call(panel.querySelectorAll('.steps i.next'), function (el) { el.classList.add('on'); });
+    }); });
+    return html;
+  }
+  function who() { return '<span class="pill">' + voter.name + ' · ' + voter.group + '</span>'; }
+
+  function renderPanel() {
+    var s = steps[state.step], html = '<div class="top"><span class="pill"><span class="dot"></span>Collège Les Flamboyants</span>';
+    panel.classList.toggle('live', s === 'code' || s === 'done');
+    if (s === 'code') {
+      html += '</div><p class="eyebrow">Conseil des élèves 2026</p><h1>Votre voix <em>compte</em>.</h1>' +
+        '<p class="lede">Le vote est ouvert jusqu\'au 20 novembre à 15 h 00.</p>' +
+        '<div class="glassrow"><div class="glass"><b>1 min</b><span>pour voter</span></div><div class="glass"><b>Secret</b><span>personne ne voit vos choix</span></div><div class="glass"><b>1 fois</b><span>un seul vote</span></div></div>';
+    } else if (s === 'me') {
+      html += '</div><p class="eyebrow">Conseil des élèves 2026</p><h1>Vérifions que c\'est bien <em>vous</em>.</h1><p class="lede">Le code que vous avez saisi appartient à un seul élève.</p>';
+    } else if (s === 'done') {
+      html += who() + '</div><p class="eyebrow">Conseil des élèves 2026</p><h1>Merci d\'avoir <em>voté</em>.</h1><p class="lede">Les résultats seront publiés après la clôture, le 20 novembre.</p>' + stepsBar(3);
+    } else {
+      var k = s === 'review' ? 3 : +s.charAt(1), b = ballots[Math.min(k, 2)];
+      html += who() + '</div>';
+      if (s === 'review') {
+        html += '<p class="eyebrow">Dernière étape</p><h1>Vérifiez vos <em>choix</em>.</h1>' + stepsBar(3) +
+          '<p class="lede">Rien n\'est encore enregistré. Vous pouvez encore modifier chaque poste.</p>';
+      } else {
+        var pick = state.picks[b.id] && cand(b, state.picks[b.id]);
+        html += '<p class="eyebrow">Poste ' + (k + 1) + ' sur 3 · ' + b.scope + '</p><h1>' + b.title + '</h1>' + stepsBar(k + (pick ? 1 : 0)) +
+          '<div class="glass" id="choice"><span>Votre choix</span>' +
+          (pick ? '<div class="picked pop">' + av(pick) + '<b>' + pick.n + '</b></div>' : '<b>Pas encore choisi</b>') + '</div>' +
+          '<div class="glassrow extra"><div class="glass"><b>1</b><span>siège à pourvoir</span></div><div class="glass"><b>' + b.cands.length + '</b><span>candidats</span></div><div class="glass"><b>Blanc</b><span>possible</span></div></div>';
+      }
+    }
+    panel.innerHTML = html;
+  }
+
+  function goButton(label, enabled, sweep) {
+    return '<button class="btn go' + (sweep ? ' sweep' : '') + '" type="button" id="go"' + (enabled ? '' : ' disabled') + '>' + label + arrow + '</button>';
+  }
+
+  function renderScreen(dir) {
+    var s = steps[state.step], html = '', act = '';
+    screen.className = 'screen ' + (dir < 0 ? 'back' : 'fwd') + (s === 'done' ? ' done' : '');
+    if (s === 'code') {
+      html = '<h2 tabindex="-1">Entrez votre code de vote</h2><p class="hint">Il est écrit sur votre bulletin papier : 10 caractères.</p>' +
+        '<label class="sr" for="code">Code de vote</label><input class="code" id="code" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="11" placeholder="XXXXX-XXXXX" value="' + state.code + '">' +
+        '<button class="link" type="button" id="sample">Utiliser un code d\'exemple</button>' +
+        '<div class="info"><div><span class="ico">1</span>Entrez votre code, puis confirmez votre nom.</div><div><span class="ico">2</span>Choisissez un candidat pour chaque poste.</div><div><span class="ico">3</span>Vérifiez, puis confirmez. C\'est terminé.</div></div>';
+      act = goButton('Continuer', state.code.length === 11, true);
+    } else if (s === 'me') {
+      html = '<h2 tabindex="-1">Est-ce bien vous ?</h2><div class="me"><span class="av">' + voter.initials + '</span><div><b>' + voter.name + '</b><span class="hint">' + voter.group + '</span></div></div>' +
+        '<p class="hint">Si ce n\'est pas votre nom, rendez ce bulletin à votre professeur.</p>';
+      act = '<button class="btn" type="button" id="back">Ce n\'est pas moi</button>' + goButton('Oui, c\'est moi', true);
+    } else if (s.charAt(0) === 'b') {
+      var b = ballots[+s.charAt(1)], cur = state.picks[b.id];
+      html = '<h2 tabindex="-1">Choisissez 1 candidat</h2><fieldset><legend class="sr">Candidats au poste : ' + b.title + '</legend>' +
+        b.cands.concat([BLANK]).map(function (c) {
+          return '<label class="cand"><input type="radio" name="c" value="' + c.id + '"' + (cur === c.id ? ' checked' : '') + '>' + av(c) +
+            '<span><b>' + c.n + '</b>' + (c.party ? '<span class="party" style="--sw:' + (c.sw || '#8E99AE') + '">' + c.party + '</span>' : '') + '<q>' + c.slogan + '</q></span>' +
+            '<span class="radio">' + tick + '</span></label>';
+        }).join('') + '</fieldset>';
+      act = '<button class="btn" type="button" id="back">Retour</button>' + goButton(state.step === 4 ? 'Vérifier mes choix' : 'Poste suivant', !!cur);
+    } else if (s === 'review') {
+      html = '<h2 tabindex="-1">Vos 3 choix</h2><div class="rev">' + ballots.map(function (b, k) {
+        var c = cand(b, state.picks[b.id]);
+        return '<div style="--i:' + k + '">' + av(c) + '<span><small>' + b.title + '</small><b>' + c.n + '</b></span><button class="link" type="button" data-edit="' + k + '">Modifier</button></div>';
+      }).join('') + '</div><p class="note">Après confirmation, votre vote est définitif. Il ne pourra plus être modifié.</p>';
+      act = '<button class="btn" type="button" id="back">Retour</button>' + goButton('Confirmer mon vote', true);
+    } else {
+      html = '<span class="seal"><svg class="bigtick" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.8"/></svg></span>' +
+        '<h2 tabindex="-1">Vote enregistré</h2><p class="when">20 nov. 2026 · 10 h 42</p>' +
+        '<p class="hint">Vos choix ne sont pas affichés ici, pour que personne ne puisse les voir.</p>' +
+        '<div class="timer" aria-hidden="true"><i></i></div><p class="hint">Cet écran se ferme tout seul pour l\'élève suivant.</p>';
+      act = goButton('Terminer', true);
+    }
+    screen.innerHTML = html; actions.innerHTML = act;
+    wire();
+    var h = screen.querySelector('h2'); if (h && state.step > 0) h.focus({ preventScroll: true });
+  }
+
+  function go(to, dir) { state.step = to; renderPanel(); renderScreen(dir); if (window.innerWidth < 860) window.scrollTo(0, 0); }
+  function reset() { state = { step: 0, picks: {}, code: '' }; lastDone = 0; go(0, -1); }
+
+  function wire() {
+    var s = steps[state.step], goBtn = document.getElementById('go'), back = document.getElementById('back');
+    if (goBtn) goBtn.addEventListener('click', function () { s === 'done' ? reset() : go(state.step + 1, 1); });
+    if (back) back.addEventListener('click', function () { s === 'me' ? reset() : go(state.step - 1, -1); });
+    [].forEach.call(screen.querySelectorAll('[data-edit]'), function (el) {
+      el.addEventListener('click', function () { go(2 + +el.dataset.edit, -1); });
+    });
+    var code = document.getElementById('code');
+    if (code) {
+      var fmt = function () {
+        var v = code.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10);
+        code.value = v.length > 5 ? v.slice(0, 5) + '-' + v.slice(5) : v;
+        state.code = code.value;
+        var ok = v.length === 10, was = !goBtn.disabled;
+        code.classList.toggle('ok', ok); goBtn.disabled = !ok;
+        if (ok && !was) { goBtn.classList.remove('ready'); void goBtn.offsetWidth; goBtn.classList.add('ready'); }
+      };
+      code.addEventListener('input', fmt);
+      document.getElementById('sample').addEventListener('click', function () { code.value = 'K7MPQ4XWRT'; fmt(); goBtn.focus(); });
+    }
+    [].forEach.call(screen.querySelectorAll('input[type=radio]'), function (r) {
+      r.addEventListener('change', function () {
+        var b = ballots[+s.charAt(1)], first = !state.picks[b.id];
+        state.picks[b.id] = r.value; renderPanel();
+        goBtn.disabled = false;
+        if (first) { goBtn.classList.remove('ready'); void goBtn.offsetWidth; goBtn.classList.add('ready'); }
+      });
+    });
+  }
+
+  document.getElementById('restart').addEventListener('click', reset);
+  renderPanel(); renderScreen(1);
+})();
+</script>
