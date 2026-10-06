@@ -70,7 +70,15 @@ it('answers in the error shape on the bare /api path too [NFR-SEC-01]', function
 it('answers a malformed Host header without any detail of the fault [NFR-OPS-04]', function (string $path) {
     config(['app.debug' => true]); // Even in debug mode nothing leaks.
 
-    $response = $this->get($path, ['Host' => 'bad_host$', 'Accept' => 'text/html']);
+    // The test client cannot send such a header (it takes the host from the URL and
+    // refuses a malformed one), so the request is built by hand and given to the kernel.
+    $request = Illuminate\Http\Request::create($path, 'GET', server: ['HTTP_ACCEPT' => 'text/html']);
+    $request->headers->set('Host', 'bad_host$');
+    $request->server->set('HTTP_HOST', 'bad_host$');
+
+    $response = Illuminate\Testing\TestResponse::fromBaseResponse(
+        app(Illuminate\Contracts\Http\Kernel::class)->handle($request)
+    );
 
     $response->assertStatus(400)->assertJsonPath('error.code', 'malformed_request');
 
