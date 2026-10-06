@@ -178,11 +178,20 @@ their content and their screens; their look follows these rules.
 9. **In the voting flow the hero is the voter's memory**: the institution, their name
    and class, the ballot's title, the step bar, and a "your choice" card that updates the
    moment a candidate is picked.
-10. **A candidate is a small showcase card**: a gradient band with the photo or avatar,
-    then the name, the party and the slogan on white, and a "choose" pill. Candidates sit
-    in a grid that fills the row on a desktop and stack as horizontal cards on a phone.
-    The blank vote is a full-width card under them, in a grey band.
-11. **The main action lives in a bar fixed to the bottom of the screen**, with a one-line
+10. **On a ballot the candidates are the screen.** The hero shrinks to a compact header
+    (the voter, the ballot's title, the step bar, one line for the current choice): no
+    figures and no decorative cards there. Each candidate is a tall photo tile, the
+    photo first (4:5) and the name and party under it; two tiles per row on a phone,
+    one row of up to four on a desktop. A candidate without a photo gets the default
+    avatar at the same size.
+11. **Choosing goes through a focus sheet.** Touching a tile opens one candidate large:
+    the photo, the name, the party, the slogan, a short presentation, and the accent
+    button "Choose <first name>". It rises from the bottom on a phone and is centred on a
+    desktop; it is a native `dialog`. Back on the ballot, the chosen tile is lifted, ringed
+    in `primary` and marked with the accent check; the others are dimmed but stay
+    usable. The blank vote is a wide dashed button under the tiles and uses the same
+    sheet.
+12. **The main action lives in a bar fixed to the bottom of the screen**, with a one-line
     reminder of the current choice on its left, so it is always reachable without
     scrolling.
 

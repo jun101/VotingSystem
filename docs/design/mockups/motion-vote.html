@@ -103,32 +103,53 @@ button { font: inherit; }
 .me .av { width: 76px; height: 76px; font-size: 26px; }
 .me b { display: block; font-family: var(--display); font-size: 26px; line-height: 1.1; }
 
-/* candidates: each one is a small showcase card */
-fieldset { margin: 0; padding: 0; border: 0; min-width: 0; display: grid; gap: 14px; }
-.cand { position: relative; display: grid; grid-template-columns: 96px minmax(0, 1fr); background: var(--surface); border: 2px solid var(--line); border-radius: 18px; overflow: hidden; cursor: pointer; box-shadow: 0 18px 36px -28px rgba(6,26,61,.5); transition: border-color var(--fast), box-shadow var(--base) var(--spring), transform var(--base) var(--spring); animation: rise .55s var(--soft) both; animation-delay: calc(var(--i, 0) * 70ms); }
-.cand:hover { transform: translateY(-3px); border-color: var(--line-strong); }
-.cand:active { transform: scale(.985); }
-.cand input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; z-index: 2; }
-.cand:has(input:focus-visible) { outline: 3px solid var(--accent); outline-offset: 3px; }
-.cand:has(input:checked) { border-color: var(--primary); box-shadow: 0 0 0 5px var(--primary-soft), 0 18px 36px -24px rgba(6,26,61,.55); transform: translateY(-3px); }
-.cband { position: relative; display: grid; place-items: center; padding: 16px 10px; background: linear-gradient(135deg, var(--hero-from), var(--hero-mid) 60%, var(--hero-to)); }
-.cband .av { width: 60px; height: 60px; font-size: 20px; box-shadow: 0 0 0 3px rgba(255,255,255,.2), 0 0 0 7px rgba(255,255,255,.07); }
-.cand:has(input:checked) .cband .av { animation: pop .45s var(--spring); }
-.badge { position: absolute; top: 8px; right: 8px; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--navy-deep); transform: scale(0); transition: transform .4s var(--spring); }
-.badge svg { width: 15px; height: 15px; }
-.badge path, .bigtick path { fill: none; stroke: currentColor; stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 16; stroke-dashoffset: 16; }
-.cand:has(input:checked) .badge { transform: scale(1); }
-.cand:has(input:checked) .badge path { stroke-dashoffset: 0; transition: stroke-dashoffset .28s ease-out .15s; }
-.cbody { padding: 14px 16px; display: grid; gap: 4px; align-content: center; min-width: 0; }
-.cbody b { font-family: var(--display); font-size: 20px; line-height: 1.15; }
+/* ballot: a compact header, then the candidates take the screen */
+.hero.compact .wrap { grid-template-columns: minmax(0, 1fr); gap: 0; padding-block: 18px 58px; }
+.hero.compact .stage { display: none; }
+.hero.compact .htext { gap: 10px; }
+.hero.compact h1 { font-size: clamp(28px, 5.5vw, 42px); }
+.hero.compact .steps { max-width: 360px; }
+.pick { color: var(--on-hero-soft); font-size: 15px; }
+.pick b { color: var(--on-hero); }
+
+.tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.tile { position: relative; display: grid; grid-template-rows: auto 1fr; padding: 0; text-align: left; border: 0; border-radius: 18px; overflow: hidden; background: var(--surface); color: var(--ink); cursor: pointer; box-shadow: 0 18px 36px -24px rgba(6,26,61,.55); transition: transform var(--base) var(--spring), box-shadow var(--base), opacity var(--base); animation: rise .55s var(--soft) both; animation-delay: calc(var(--i, 0) * 70ms); }
+.tile .ph { display: block; overflow: hidden; aspect-ratio: 4 / 5; }
+.tile .ph svg { display: block; width: 100%; height: 100%; transition: transform .6s var(--soft); }
+.tile:hover { transform: translateY(-4px); }
+.tile:hover .ph svg { transform: scale(1.05); }
+.tile:active { transform: scale(.98); }
+.tile .nm { display: grid; gap: 3px; padding: 12px 14px 14px; align-content: start; }
+.tile .nm b { font-family: var(--display); font-size: 18px; line-height: 1.15; }
 .party { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--ink-soft); }
-.party::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--sw, var(--ink-muted)); }
-.cbody q { quotes: "« " " »"; font-size: 14px; color: var(--ink-soft); }
-.choose { margin-top: 8px; justify-self: start; padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 700; background: var(--primary-soft); color: var(--primary); transition: background var(--fast), color var(--fast); }
-.choose::before { content: "Choisir"; }
-.cand:has(input:checked) .choose { background: var(--primary); color: #fff; }
-.cand:has(input:checked) .choose::before { content: "Choisi"; }
-.cand.blank .cband { background: linear-gradient(135deg, #46526B, #6B7890); }
+.party::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--sw, var(--ink-muted)); flex: none; }
+.badge { position: absolute; top: 10px; right: 10px; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--navy-deep); box-shadow: 0 0 0 3px #fff; transform: scale(0); transition: transform .45s var(--spring); }
+.badge svg { width: 19px; height: 19px; }
+.badge path, .bigtick path { fill: none; stroke: currentColor; stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 16; stroke-dashoffset: 16; }
+.tile.sel { box-shadow: 0 0 0 4px var(--primary), 0 0 0 9px var(--primary-soft), 0 18px 36px -22px rgba(6,26,61,.6); transform: translateY(-4px); }
+.tile.sel .badge { transform: scale(1); }
+.tile.sel .badge path { stroke-dashoffset: 0; transition: stroke-dashoffset .28s ease-out .18s; }
+.tiles.has .tile:not(.sel) { opacity: .62; }
+.tiles.has .tile:not(.sel):hover, .tiles.has .tile:not(.sel):focus-visible { opacity: 1; }
+.blankbtn { width: 100%; min-height: 56px; padding: 12px 18px; border-radius: 16px; border: 2px dashed var(--line-strong); background: transparent; color: var(--ink-soft); font-weight: 600; cursor: pointer; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 10px; transition: border-color var(--fast), background var(--fast), color var(--fast); }
+.blankbtn:hover { border-color: var(--ink-soft); color: var(--ink); }
+.blankbtn.sel { border-style: solid; border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+/* the focus sheet: one candidate, large */
+dialog.sheet { width: 100%; max-width: 520px; max-height: 100%; margin: auto auto 0; padding: 0; border: 0; border-radius: 26px 26px 0 0; overflow: hidden auto; background: var(--surface); color: var(--ink); }
+dialog.sheet::backdrop { background: rgba(6, 26, 61, .62); backdrop-filter: blur(4px); }
+dialog.sheet[open] { animation: sheetUp .42s var(--soft) both; }
+dialog.sheet[open]::backdrop { animation: fade .3s ease both; }
+.sheet .big { position: relative; display: block; aspect-ratio: 1 / 1; max-height: 52vh; width: 100%; overflow: hidden; }
+.sheet .big svg { display: block; width: 100%; height: 100%; animation: zoom .9s var(--soft) both; }
+.sheet .close { position: absolute; top: 12px; left: 12px; width: 44px; height: 44px; border-radius: 50%; border: 0; background: rgba(6,26,61,.55); color: #fff; font-size: 22px; line-height: 1; cursor: pointer; }
+.sheet .in { display: grid; gap: 10px; padding: 20px 22px calc(22px + env(safe-area-inset-bottom, 0px)); text-align: center; justify-items: center; }
+.sheet .in > * { animation: rise .5s var(--soft) both; }
+.sheet .in > :nth-child(2) { animation-delay: 60ms; } .sheet .in > :nth-child(3) { animation-delay: 120ms; } .sheet .in > :nth-child(4) { animation-delay: 180ms; } .sheet .in > :nth-child(5) { animation-delay: 240ms; }
+.sheet h2 { font-size: 30px; line-height: 1.05; }
+.sheet q { quotes: "« " " »"; font-size: 17px; color: var(--ink); font-weight: 500; }
+.sheet p { color: var(--ink-soft); max-width: 44ch; }
+.sheet .btn.go { width: 100%; flex: none; margin-top: 6px; min-height: 56px; font-size: 17px; }
 .av { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 18px; background: var(--primary-soft); color: var(--primary); flex: none; }
 .av.w { background: var(--warm-soft); color: var(--warm-ink); }
 .av.t { background: var(--teal-soft); color: var(--teal-ink); }
@@ -137,6 +158,11 @@ fieldset { margin: 0; padding: 0; border: 0; min-width: 0; display: grid; gap: 1
 /* review: one band card per ballot, as on the results page */
 .pairs { display: grid; gap: 14px; }
 .rev { padding: 0; overflow: hidden; }
+.rev .ph { display: block; aspect-ratio: 16 / 10; overflow: hidden; }
+.rev .ph svg { display: block; width: 100%; height: 100%; }
+.rev .lbl { padding: 12px 18px 0; display: grid; gap: 2px; }
+.rev .lbl small { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); }
+.rev .lbl b { font-family: var(--display); font-size: 20px; line-height: 1.15; }
 .band { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 14px; padding: 16px 18px; color: var(--on-hero); background: linear-gradient(135deg, var(--hero-from), var(--hero-mid) 60%, var(--hero-to)); }
 .band .av { box-shadow: 0 0 0 3px rgba(255,255,255,.18); }
 .band div { flex: 1 1 140px; min-width: 0; }
@@ -184,6 +210,9 @@ fieldset { margin: 0; padding: 0; border: 0; min-width: 0; display: grid; gap: 1
 @keyframes draw { to { stroke-dashoffset: 0; } }
 @keyframes empty { from { transform: scaleX(1); } to { transform: scaleX(0); } }
 
+@keyframes sheetUp { from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: none; } }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes zoom { from { transform: scale(1.12); } to { transform: scale(1); } }
 @keyframes shimmer { to { background-position: -200% center; } }
 @keyframes floatA { 0%, 100% { transform: translateY(0) rotate(-2.5deg); } 50% { transform: translateY(-9px) rotate(-2.5deg); } }
 @keyframes floatB { 0%, 100% { transform: translateY(0) rotate(2deg); } 50% { transform: translateY(-7px) rotate(2deg); } }
@@ -197,14 +226,15 @@ fieldset { margin: 0; padding: 0; border: 0; min-width: 0; display: grid; gap: 1
   .btn.go { flex: 0 1 300px; }
   .pairs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
-@media (min-width: 760px) {
-  fieldset.grid { grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); }
-  .cand:not(.blank) { grid-template-columns: none; grid-template-rows: auto 1fr; }
-  .cand:not(.blank) .cband { padding: 26px 16px; }
-  .cand:not(.blank) .cband .av { width: 84px; height: 84px; font-size: 28px; }
-  .cand:not(.blank) .cbody { padding: 18px; text-align: center; justify-items: center; }
-  .cand:not(.blank) .choose { justify-self: center; }
-  .cand.blank { grid-column: 1 / -1; }
+@media (min-width: 620px) {
+  .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  dialog.sheet { margin: auto; border-radius: 26px; }
+}
+@media (min-width: 900px) {
+  .tiles { grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); max-width: calc(var(--n, 3) * 280px); margin-inline: auto; width: 100%; gap: 20px; }
+  .tile .nm { padding: 16px 18px 18px; }
+  .tile .nm b { font-size: 21px; }
+  .blankbtn { max-width: calc(var(--n, 3) * 280px); margin-inline: auto; }
 }
 @media (min-width: 860px) {
   .hero .wrap { grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); align-items: center; padding-block: 52px 96px; }
@@ -217,6 +247,7 @@ fieldset { margin: 0; padding: 0; border: 0; min-width: 0; display: grid; gap: 1
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .badge path, .bigtick path { stroke-dashoffset: 0; }
+  .tile.sel .badge { transform: scale(1); }
   .timer i { transform: scaleX(1); }
 }
 </style>
@@ -232,6 +263,7 @@ fieldset { margin: 0; padding: 0; border: 0; min-width: 0; display: grid; gap: 1
   </div></header>
   <main class="content"><div class="wrap"><div id="screen" class="screen" aria-live="polite"></div></div></main>
   <div class="bar"><div class="wrap" id="actions"></div></div>
+  <dialog class="sheet" id="sheet" aria-labelledby="sheet-name"></dialog>
 </div>
 
 <script>
@@ -239,17 +271,17 @@ fieldset { margin: 0; padding: 0; border: 0; min-width: 0; display: grid; gap: 1
   var voter = { name: 'Rose-Merline Étienne', group: '4e année', initials: 'RÉ' };
   var ballots = [
     { id: 'p', title: 'Président(e)', scope: "Toute l'école", cands: [
-      { id: 'np', n: 'Nadège Pierre-Louis', i: 'NP', tone: 'w', party: 'Avenir Solidaire', sw: '#C2410C', slogan: 'Une école qui écoute chaque élève.' },
-      { id: 'jd', n: 'Jean-Robert Désir', i: 'JD', tone: '', party: 'Élan Jeunesse', sw: '#1E3A8A', slogan: 'Plus de sport, plus de clubs.' },
-      { id: 'wj', n: 'Wideline Joseph', i: 'WJ', tone: 't', party: 'Indépendante', sw: '#8E99AE', slogan: 'Des idées, pas des promesses.' } ] },
+      { id: 'np', n: 'Nadège Pierre-Louis', i: 'NP', tone: 'w', party: 'Avenir Solidaire', sw: '#C2410C', slogan: 'Une école qui écoute chaque élève.', bio: '6e année. Déléguée de classe depuis deux ans, capitaine de l\'équipe de volley.', look: ['#FFD9B0', '#FF8603', '#5B2109', '#8A4B22', '#C2410C', 'long'] },
+      { id: 'jd', n: 'Jean-Robert Désir', i: 'JD', tone: '', party: 'Élan Jeunesse', sw: '#1E3A8A', slogan: 'Plus de sport, plus de clubs.', bio: '5e année. Fondateur du club de débat, membre de la chorale.', look: ['#C6D8FF', '#3B6BE0', '#1B120C', '#6B3E22', '#1E3A8A', 'short'] },
+      { id: 'wj', n: 'Wideline Joseph', i: 'WJ', tone: 't', party: 'Indépendante', sw: '#8E99AE', slogan: 'Des idées, pas des promesses.', bio: '6e année. Rédactrice du journal de l\'école.', look: ['#C9F2EC', '#0F9E92', '#2A1810', '#A5633A', '#0B5750', 'bun'] } ] },
     { id: 's', title: 'Secrétaire', scope: "Toute l'école", cands: [
-      { id: 'mc', n: 'Mackenson Charles', i: 'MC', tone: '', party: 'Élan Jeunesse', sw: '#1E3A8A', slogan: 'Des comptes rendus clairs, chaque mois.' },
-      { id: 'fa', n: 'Fabiola Augustin', i: 'FA', tone: 'w', party: 'Avenir Solidaire', sw: '#C2410C', slogan: 'Votre voix, bien notée.' } ] },
+      { id: 'mc', n: 'Mackenson Charles', i: 'MC', tone: '', party: 'Élan Jeunesse', sw: '#1E3A8A', slogan: 'Des comptes rendus clairs, chaque mois.', bio: '5e année. Trésorier du club de sciences.', look: ['#C6D8FF', '#3B6BE0', '#1B120C', '#7A4526', '#172B66', 'short'] },
+      { id: 'fa', n: 'Fabiola Augustin', i: 'FA', tone: 'w', party: 'Avenir Solidaire', sw: '#C2410C', slogan: 'Votre voix, bien notée.', bio: '4e année. Première de sa classe en français.', look: ['#FFD9B0', '#FF8603', '#3A2318', '#9A5A32', '#9A2A0A', 'bun'] } ] },
     { id: 'd', title: 'Délégué(e) de classe', scope: '4e année', cands: [
-      { id: 'sb', n: 'Stanley Brutus', i: 'SB', tone: 't', party: 'Sans liste', sw: '#8E99AE', slogan: 'Toujours disponible pour la classe.' },
-      { id: 'rm', n: 'Roseline Milfort', i: 'RM', tone: 'w', party: 'Sans liste', sw: '#8E99AE', slogan: 'Une classe unie.' } ] }
+      { id: 'sb', n: 'Stanley Brutus', i: 'SB', tone: 't', party: 'Sans liste', sw: '#8E99AE', slogan: 'Toujours disponible pour la classe.', bio: '4e année. Gardien de l\'équipe de football.', look: ['#C9F2EC', '#0F9E92', '#1B120C', '#6B3E22', '#0F766E', 'short'] },
+      { id: 'rm', n: 'Roseline Milfort', i: 'RM', tone: 'w', party: 'Sans liste', sw: '#8E99AE', slogan: 'Une classe unie.', bio: '4e année. Organise le soutien scolaire entre élèves.', look: ['#FFE1CC', '#F0714A', '#2A1810', '#8A4B22', '#6B2408', 'long'] } ] }
   ];
-  var BLANK = { id: 'blank', n: 'Vote blanc', i: '–', tone: 'n', party: '', sw: '', slogan: 'Je ne choisis aucun candidat pour ce poste.' };
+  var BLANK = { id: 'blank', n: 'Vote blanc', i: '–', tone: 'n', party: '', sw: '', slogan: 'Je ne choisis aucun candidat pour ce poste.', bio: 'Votre vote blanc est compté dans la participation.', look: null };
   var steps = ['code', 'me', 'b0', 'b1', 'b2', 'review', 'done'];
   var state = { step: 0, picks: {}, code: '' }, lastDone = 0;
 
@@ -259,6 +291,21 @@ fieldset { margin: 0; padding: 0; border: 0; min-width: 0; display: grid; gap: 1
   var arrow = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
 
   function cand(b, id) { return id === 'blank' ? BLANK : b.cands.filter(function (c) { return c.id === id; })[0]; }
+  var uid = 0;
+  // A drawn portrait stands in for the candidate's photo.
+  function portrait(c) {
+    var id = 'g' + (uid++);
+    if (!c.look) return '<svg viewBox="0 0 200 250" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="200" height="250" fill="#E7EBF2"/><rect x="62" y="70" width="76" height="100" rx="8" fill="#fff" stroke="#B9C2D3" stroke-width="4"/><path d="M78 100h44M78 120h44M78 140h26" stroke="#B9C2D3" stroke-width="5" stroke-linecap="round"/></svg>';
+    var l = c.look, hair = '';
+    if (l[5] === 'long') hair = '<ellipse cx="100" cy="128" rx="56" ry="70" fill="' + l[2] + '"/>';
+    if (l[5] === 'bun') hair = '<circle cx="100" cy="50" r="22" fill="' + l[2] + '"/>';
+    return '<svg viewBox="0 0 200 250" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="' + id + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + l[0] + '"/><stop offset="1" stop-color="' + l[1] + '"/></linearGradient></defs>' +
+      '<rect width="200" height="250" fill="url(#' + id + ')"/><circle cx="160" cy="40" r="60" fill="#fff" opacity=".18"/>' + hair +
+      '<path d="M14 250C14 196 58 172 100 172s86 24 86 78z" fill="' + l[4] + '"/><path d="M78 176c8 14 36 14 44 0l-6-8H84z" fill="#fff" opacity=".9"/>' +
+      '<rect x="85" y="140" width="30" height="42" rx="12" fill="' + l[3] + '"/><ellipse cx="100" cy="112" rx="38" ry="46" fill="' + l[3] + '"/>' +
+      '<path d="M61 108C56 54 144 54 139 108C128 82 72 82 61 108z" fill="' + l[2] + '"/>' +
+      '<path d="M86 132q14 10 28 0" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".85"/></svg>';
+  }
   function av(c) { return '<span class="av ' + c.tone + '">' + c.i + '</span>'; }
   function stat(b, s) { return '<div class="stat"><b>' + b + '</b><span>' + s + '</span></div>'; }
   // Segments already filled stay filled; only the newly reached one animates.
@@ -308,18 +355,24 @@ fieldset { margin: 0; padding: 0; border: 0; min-width: 0; display: grid; gap: 1
         '<p class="lede">Rien n\'est encore enregistré. Vous pouvez encore modifier chaque poste.</p>';
       g = '<div class="float a"><small>Avant de confirmer</small><div class="line"><span class="av w">!</span><span><strong>Vote définitif</strong><span>Il ne pourra plus être modifié</span></span></div></div>' + progressCard();
     } else {
-      var k = +s.charAt(1), b = ballots[k];
+      var k = +s.charAt(1), b = ballots[k], pick = state.picks[b.id] && cand(b, state.picks[b.id]);
       t = top(true) + '<p class="eyebrow">Poste ' + (k + 1) + ' sur 3 · ' + b.scope + '</p><h1>' + b.title + '</h1>' + stepsBar(filled()) +
-        '<div class="stats">' + stat('1', 'siège à pourvoir') + stat(String(b.cands.length), 'candidats') + stat('Blanc', 'vote possible') + '</div>';
-      g = choiceCard(b, popping) + progressCard();
+        '<p class="pick" id="pick">' + pickLine(pick) + '</p>';
+      g = '';
     }
+    hero.classList.toggle('compact', s.charAt(0) === 'b');
     if (swap) { htext.classList.remove('swap'); void htext.offsetWidth; htext.classList.add('swap'); htext.innerHTML = t; }
     else {
       // Same screen: only the step bar and the stage change, the title does not move.
       var bar = htext.querySelector('.steps'); if (bar) bar.outerHTML = stepsBar(filled());
+      var line = document.getElementById('pick'), cb = ballots[+s.charAt(1)];
+      if (line && cb) line.innerHTML = pickLine(state.picks[cb.id] && cand(cb, state.picks[cb.id]));
+      return;
     }
     stage.innerHTML = g;
   }
+
+  function pickLine(pick) { return pick ? 'Votre choix : <b>' + pick.n + '</b>' : 'Touchez une photo pour voir le candidat, puis choisissez.'; }
 
   function goButton(label, enabled, sweep) {
     return '<button class="btn go' + (sweep ? ' sweep' : '') + '" type="button" id="go"' + (enabled ? '' : ' disabled') + '>' + label + arrow + '</button>';
@@ -344,18 +397,19 @@ fieldset { margin: 0; padding: 0; border: 0; min-width: 0; display: grid; gap: 1
       act = '<button class="btn" type="button" id="back">Ce n\'est pas moi</button>' + summary('') + goButton('Oui, c\'est moi', true);
     } else if (s.charAt(0) === 'b') {
       var b = ballots[+s.charAt(1)], cur = state.picks[b.id];
-      html = '<fieldset class="grid" style="--n:' + b.cands.length + '"><legend class="sr">Choisissez 1 candidat au poste : ' + b.title + '</legend><h2 class="sr" tabindex="-1">Choisissez 1 candidat</h2>' +
-        b.cands.concat([BLANK]).map(function (c, k) {
-          return '<label class="cand' + (c.id === 'blank' ? ' blank' : '') + '" style="--i:' + k + '"><input type="radio" name="c" value="' + c.id + '"' + (cur === c.id ? ' checked' : '') + '>' +
-            '<span class="cband">' + av(c) + '<span class="badge">' + tick + '</span></span>' +
-            '<span class="cbody"><b>' + c.n + '</b>' + (c.party ? '<span class="party" style="--sw:' + c.sw + '">' + c.party + '</span>' : '') + '<q>' + c.slogan + '</q><span class="choose"></span></span></label>';
-        }).join('') + '</fieldset>';
+      html = '<h2 class="sr" tabindex="-1">Choisissez 1 candidat au poste : ' + b.title + '</h2>' +
+        '<div class="tiles' + (cur ? ' has' : '') + '" id="tiles" style="--n:' + b.cands.length + '">' + b.cands.map(function (c, k) {
+          return '<button type="button" class="tile' + (cur === c.id ? ' sel' : '') + '" data-c="' + c.id + '" aria-pressed="' + (cur === c.id) + '" style="--i:' + k + '">' +
+            '<span class="ph">' + portrait(c) + '</span><span class="nm"><b>' + c.n + '</b><span class="party" style="--sw:' + c.sw + '">' + c.party + '</span></span>' +
+            '<span class="badge">' + tick + '</span></button>';
+        }).join('') + '</div>' +
+        '<button type="button" class="blankbtn' + (cur === 'blank' ? ' sel' : '') + '" data-c="blank" style="--i:' + b.cands.length + ';--n:' + b.cands.length + '" aria-pressed="' + (cur === 'blank') + '"><b>Vote blanc</b><span>Je ne choisis aucun candidat</span></button>';
       act = '<button class="btn" type="button" id="back">Retour</button>' + summary(cur ? 'Votre choix : <b>' + cand(b, cur).n + '</b>' : 'Choisissez 1 candidat') +
         goButton(state.step === 4 ? 'Vérifier mes choix' : 'Poste suivant', !!cur);
     } else if (s === 'review') {
       html = '<h2 class="sr" tabindex="-1">Vos 3 choix</h2><div class="pairs">' + ballots.map(function (b, k) {
         var c = cand(b, state.picks[b.id]);
-        return '<div class="card rev" style="--i:' + k + '"><div class="band">' + av(c) + '<div><small>' + b.title + '</small><b>' + c.n + '</b></div></div>' +
+        return '<div class="card rev" style="--i:' + k + '"><span class="ph">' + portrait(c) + '</span><div class="lbl"><small>' + b.title + '</small><b>' + c.n + '</b></div>' +
           '<footer><span>' + (c.party || 'Aucun candidat') + '</span><button class="link" type="button" data-edit="' + k + '">Modifier</button></footer></div>';
       }).join('') + '</div><p class="note" style="--i:3">Après confirmation, votre vote est définitif. Il ne pourra plus être modifié.</p>';
       act = '<button class="btn" type="button" id="back">Retour</button>' + summary('<b>3 postes</b> remplis') + goButton('Confirmer mon vote', true);
@@ -395,16 +449,37 @@ fieldset { margin: 0; padding: 0; border: 0; min-width: 0; display: grid; gap: 1
       code.addEventListener('input', fmt);
       document.getElementById('sample').addEventListener('click', function () { code.value = 'K7MPQ4XWRT'; fmt(); goBtn.focus(); });
     }
-    [].forEach.call(screen.querySelectorAll('input[type=radio]'), function (r) {
-      r.addEventListener('change', function () {
-        var b = ballots[+s.charAt(1)], first = !state.picks[b.id];
-        state.picks[b.id] = r.value;
-        renderHero(false, true);
-        var sum = actions.querySelector('.summary'); if (sum) sum.innerHTML = 'Votre choix : <b>' + cand(b, r.value).n + '</b>';
-        goBtn.disabled = false; if (first) nudge(goBtn);
-      });
+    [].forEach.call(screen.querySelectorAll('[data-c]'), function (el) {
+      el.addEventListener('click', function () { openSheet(ballots[+s.charAt(1)], el.dataset.c, el); });
     });
   }
+
+  var sheet = document.getElementById('sheet');
+  function openSheet(b, id, opener) {
+    var c = cand(b, id), chosen = state.picks[b.id] === id, first = c.n.split(' ')[0];
+    sheet.innerHTML = '<span class="big">' + portrait(c) + '<button type="button" class="close" aria-label="Fermer">×</button></span>' +
+      '<div class="in"><h2 id="sheet-name">' + c.n + '</h2>' + (c.party ? '<span class="party" style="--sw:' + c.sw + '">' + c.party + ' · ' + b.title + '</span>' : '<span class="party">' + b.title + '</span>') +
+      '<q>' + c.slogan + '</q><p>' + c.bio + '</p>' +
+      '<button type="button" class="btn go" id="choose">' + (chosen ? 'Garder ce choix' : id === 'blank' ? 'Voter blanc' : 'Choisir ' + first) + arrow + '</button>' +
+      '<button type="button" class="link" id="other">Voir les autres candidats</button></div>';
+    var close = function () { sheet.close(); if (opener) opener.focus(); };
+    sheet.querySelector('.close').addEventListener('click', close);
+    sheet.querySelector('#other').addEventListener('click', close);
+    sheet.querySelector('#choose').addEventListener('click', function () {
+      var wasEmpty = !state.picks[b.id];
+      state.picks[b.id] = id; sheet.close();
+      var tiles = document.getElementById('tiles'); tiles.classList.add('has');
+      [].forEach.call(screen.querySelectorAll('[data-c]'), function (el) {
+        var on = el.dataset.c === id; el.classList.toggle('sel', on); el.setAttribute('aria-pressed', on);
+      });
+      renderHero(false, true);
+      var sum = actions.querySelector('.summary'); if (sum) sum.innerHTML = 'Votre choix : <b>' + c.n + '</b>';
+      var goBtn = document.getElementById('go'); goBtn.disabled = false; if (wasEmpty) nudge(goBtn);
+      goBtn.focus({ preventScroll: true });
+    });
+    sheet.showModal();
+  }
+  sheet.addEventListener('click', function (e) { if (e.target === sheet) sheet.close(); });
 
   document.getElementById('restart').addEventListener('click', reset);
   renderHero(true, false); renderScreen(1);
