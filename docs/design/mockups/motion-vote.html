@@ -29,119 +29,148 @@ button { font: inherit; }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-.page { min-height: 100%; display: grid; grid-template-rows: auto 1fr; }
+.wrap { max-width: 1120px; margin-inline: auto; padding-inline: 20px; }
+.page { min-height: 100%; display: grid; grid-template-rows: auto auto 1fr auto; }
 .demo { background: var(--navy-deep); color: var(--on-hero-soft); font-size: 13px; }
-.demo div { max-width: 1080px; margin-inline: auto; padding: 10px 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.demo .wrap { padding-block: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
 .demo span { flex: 1 1 220px; min-width: 0; }
 .demo button { font-weight: 600; color: var(--on-hero); background: var(--glass); border: 1px solid var(--glass-line); border-radius: 999px; padding: 8px 16px; min-height: 36px; cursor: pointer; }
 
-.app { width: 100%; max-width: 1080px; margin-inline: auto; display: grid; grid-template-rows: auto 1fr; background: var(--surface); }
-
-/* ---------- showcase panel ---------- */
-.panel { position: relative; overflow: hidden; color: var(--on-hero); padding: 20px 20px 22px; display: grid; gap: 14px; align-content: start; background: linear-gradient(135deg, var(--hero-from), var(--hero-mid) 60%, var(--hero-to)); }
-.panel::after { content: ""; position: absolute; width: 380px; height: 380px; right: -170px; top: -190px; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,180,90,.22), transparent); pointer-events: none; }
-.panel.live::after { animation: drift 14s ease-in-out infinite; }
-.panel > * { position: relative; z-index: 1; }
+/* ---------- hero: the same header as the results page ---------- */
+.hero { position: relative; overflow: hidden; color: var(--on-hero); background: linear-gradient(135deg, var(--hero-from), var(--hero-mid) 60%, var(--hero-to)); }
+.hero::before, .hero::after { content: ""; position: absolute; border-radius: 50%; pointer-events: none; background: radial-gradient(closest-side, rgba(255,180,90,.20), transparent); }
+.hero::before { width: 520px; height: 520px; right: -160px; top: -220px; }
+.hero::after { width: 420px; height: 420px; left: -180px; bottom: -240px; background: radial-gradient(closest-side, rgba(120,170,255,.22), transparent); }
+.hero.live::before { animation: drift 14s ease-in-out infinite; }
+.hero.live::after { animation: drift 18s ease-in-out infinite reverse; }
+.hero .wrap { position: relative; z-index: 1; display: grid; gap: 22px; padding-block: 26px 62px; }
+.htext { display: grid; gap: 12px; align-content: center; min-width: 0; }
+.htext.swap > * { animation: rise .5s var(--soft) both; }
+.htext.swap > :nth-child(2) { animation-delay: 60ms; } .htext.swap > :nth-child(3) { animation-delay: 120ms; }
+.htext.swap > :nth-child(4) { animation-delay: 180ms; } .htext.swap > :nth-child(5) { animation-delay: 240ms; }
 .top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
-.pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; background: var(--glass); border: 1px solid var(--glass-line); }
+.pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; background: var(--glass); border: 1px solid var(--glass-line); }
 .dot { position: relative; width: 8px; height: 8px; border-radius: 50%; background: #34D399; flex: none; }
-.panel.live .dot::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: inherit; animation: ping 2.4s var(--soft) infinite; }
-.eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--on-hero-soft); }
-.panel h1 { font-size: clamp(28px, 6vw, 40px); line-height: 1.04; font-weight: 700; }
-.panel h1 em { font-style: normal; color: var(--accent-light); }
-.panel .lede { color: var(--on-hero-soft); max-width: 40ch; }
-.steps { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 6px; }
+.hero.live .dot::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: inherit; animation: ping 2.4s var(--soft) infinite; }
+.eyebrow { font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--on-hero-soft); }
+.hero h1 { font-size: clamp(32px, 7vw, 54px); line-height: 1.02; font-weight: 700; }
+.hero h1 em { font-style: normal; background: linear-gradient(100deg, var(--accent) 0%, var(--accent-light) 45%, var(--accent) 90%); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero.live h1 em { animation: shimmer 4s linear infinite; }
+.lede { color: var(--on-hero-soft); font-size: 16px; max-width: 44ch; }
+.steps { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 6px; max-width: 460px; }
 .steps i { height: 6px; border-radius: 3px; background: rgba(255,255,255,.2); overflow: hidden; }
 .steps i::after { content: ""; display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent), var(--accent-light)); transform-origin: left center; transform: scaleX(0); transition: transform .5s var(--soft); }
 .steps i.on::after { transform: scaleX(1); }
 .steps i.now::after { transition: none; }
-.glassrow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.glass { padding: 10px 12px; border-radius: 12px; background: var(--glass); border: 1px solid var(--glass-line); min-width: 0; }
-.glass b { display: block; font-family: var(--display); font-size: 20px; line-height: 1.1; }
-.glass span { font-size: 12px; color: var(--on-hero-soft); }
-.picked { display: flex; align-items: center; gap: 12px; }
-.picked .av { box-shadow: 0 0 0 3px rgba(255,255,255,.18); }
-.picked b { font-size: 17px; font-family: var(--display); }
-.picked.pop { animation: pop .45s var(--spring); }
-.extra { display: none; }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; max-width: 460px; }
+.stat { padding: 10px 14px; border-radius: 14px; background: var(--glass); border: 1px solid var(--glass-line); min-width: 0; }
+.stat b { display: block; font-family: var(--display); font-size: 24px; line-height: 1.1; }
+.stat span { font-size: 12px; color: var(--on-hero-soft); }
+.stage { display: none; gap: 14px; align-content: center; }
+.float { background: var(--surface); color: var(--ink); border-radius: 18px; padding: 16px 18px; box-shadow: 0 24px 48px -24px rgba(3,12,32,.75); transform: rotate(-2.5deg); }
+.float.b { background: var(--navy-deep); color: var(--on-hero); border: 1px solid var(--glass-line); justify-self: end; width: min(100%, 250px); transform: rotate(2deg); }
+.hero.live .float.a { animation: floatA 5s ease-in-out infinite; }
+.hero.live .float.b { animation: floatB 6s ease-in-out infinite; }
+.float small { display: block; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-muted); }
+.float.b small { color: var(--on-hero-soft); }
+.float .line { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+.float strong { display: block; font-family: var(--display); font-size: 20px; line-height: 1.15; }
+.float .line span span { font-size: 13px; color: var(--ink-soft); }
+.float.b strong { font-size: 26px; } .float.b .line span span { color: var(--on-hero-soft); }
+.float.pop { animation: popTilt .5s var(--spring); }
+.slip { font: 700 22px var(--mono); letter-spacing: .1em; margin-top: 8px; }
 
-/* ---------- working area ---------- */
-.work { display: grid; grid-template-rows: 1fr auto; min-width: 0; min-height: 0; background: var(--canvas); }
-.screen { padding: 20px; display: grid; gap: 16px; align-content: start; min-width: 0; }
-.screen.fwd { animation: inRight .32s var(--soft) both; }
-.screen.back { animation: inLeft .32s var(--soft) both; }
-.screen h2 { font-size: 24px; line-height: 1.1; }
-.screen h2:focus { outline: none; }
+/* ---------- content: cards that climb onto the hero ---------- */
+.content { position: relative; z-index: 2; margin-top: -40px; padding-bottom: 28px; }
+.screen { display: grid; gap: 16px; }
+.screen > * { animation: rise .55s var(--soft) both; animation-delay: calc(var(--i, 0) * 70ms); }
+.screen.back > * { animation-name: riseBack; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 20px; box-shadow: 0 18px 36px -28px rgba(6,26,61,.5); }
+.card h2 { font-size: 22px; line-height: 1.15; }
+.card h2:focus { outline: none; }
 .hint { color: var(--ink-soft); }
-.actions { display: flex; gap: 10px; padding: 14px 20px calc(14px + env(safe-area-inset-bottom, 0px)); background: var(--surface); border-top: 1px solid var(--line); }
-.btn { min-height: 52px; padding: 0 22px; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); transition: transform var(--fast), background var(--fast), border-color var(--fast); }
-.btn:active { transform: scale(.97); }
-.btn.go { position: relative; overflow: hidden; flex: 1; border: 0; color: var(--navy-deep); background: linear-gradient(135deg, var(--accent), var(--accent-light)); display: inline-flex; align-items: center; justify-content: center; gap: 10px; transition: transform var(--base) var(--spring), filter var(--fast); }
-.btn.go:hover:not(:disabled) { transform: translateY(-1px); }
-.btn.go svg { transition: transform var(--base) var(--spring); }
-.btn.go:hover:not(:disabled) svg { transform: translateX(4px); }
-.btn.go:disabled { background: var(--line); color: var(--ink-muted); cursor: not-allowed; }
-.btn.go.ready { animation: nudge .5s var(--spring); }
-.btn.go.sweep::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.55) 50%, transparent 65%); transform: translateX(-120%); animation: sweep 3.2s var(--soft) infinite; }
-
-/* code entry */
-.code { width: 100%; min-height: 64px; padding: 0 16px; border-radius: 14px; border: 2px solid var(--line-strong); background: var(--surface); font: 700 26px var(--mono); letter-spacing: .12em; text-align: center; text-transform: uppercase; color: var(--ink); transition: border-color var(--fast), box-shadow var(--base) var(--spring); }
+.entry { display: grid; gap: 14px; }
+.code { width: 100%; min-height: 66px; padding: 0 16px; border-radius: 14px; border: 2px solid var(--line-strong); background: var(--surface); font: 700 26px var(--mono); letter-spacing: .12em; text-align: center; text-transform: uppercase; color: var(--ink); transition: border-color var(--fast), box-shadow var(--base) var(--spring); }
 .code::placeholder { color: var(--line-strong); }
 .code:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-soft); }
 .code.ok { border-color: var(--teal); box-shadow: 0 0 0 4px var(--teal-soft); }
 .link { background: none; border: 0; padding: 8px 0; color: var(--primary); font-weight: 600; text-decoration: underline; cursor: pointer; justify-self: start; min-height: 44px; }
-.info { display: grid; gap: 10px; }
-.info div { display: flex; gap: 12px; align-items: center; padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; font-size: 14px; }
-.ico { width: 36px; height: 36px; border-radius: 10px; flex: none; display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); font-weight: 700; }
+.how { display: grid; gap: 12px; }
+.how .card { display: flex; gap: 14px; align-items: center; padding: 16px; }
+.ico { width: 44px; height: 44px; border-radius: 12px; flex: none; display: grid; place-items: center; font: 700 18px var(--display); color: var(--on-hero); background: linear-gradient(135deg, var(--hero-from), var(--hero-to)); }
+.how b { display: block; font-size: 16px; }
+.me { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; }
+.me .av { width: 76px; height: 76px; font-size: 26px; }
+.me b { display: block; font-family: var(--display); font-size: 26px; line-height: 1.1; }
 
-/* identity */
-.me { display: flex; align-items: center; gap: 16px; padding: 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; }
-.me .av { width: 64px; height: 64px; font-size: 22px; }
-.me b { display: block; font-family: var(--display); font-size: 22px; line-height: 1.1; }
-
-/* candidates */
-fieldset { margin: 0; padding: 0; border: 0; display: grid; gap: 12px; min-width: 0; }
-.cand { position: relative; display: grid; grid-template-columns: 56px minmax(0, 1fr) 28px; gap: 14px; align-items: center; padding: 14px; background: var(--surface); border: 2px solid var(--line); border-radius: 16px; cursor: pointer; transition: border-color var(--fast), box-shadow var(--base) var(--spring), transform var(--base) var(--spring); }
-.cand:hover { border-color: var(--line-strong); }
+/* candidates: each one is a small showcase card */
+fieldset { margin: 0; padding: 0; border: 0; min-width: 0; display: grid; gap: 14px; }
+.cand { position: relative; display: grid; grid-template-columns: 96px minmax(0, 1fr); background: var(--surface); border: 2px solid var(--line); border-radius: 18px; overflow: hidden; cursor: pointer; box-shadow: 0 18px 36px -28px rgba(6,26,61,.5); transition: border-color var(--fast), box-shadow var(--base) var(--spring), transform var(--base) var(--spring); animation: rise .55s var(--soft) both; animation-delay: calc(var(--i, 0) * 70ms); }
+.cand:hover { transform: translateY(-3px); border-color: var(--line-strong); }
 .cand:active { transform: scale(.985); }
-.cand input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
-.cand:has(input:focus-visible) { outline: 3px solid var(--accent); outline-offset: 2px; }
-.cand:has(input:checked) { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-soft); }
-.cand:has(input:checked) .av { animation: pop .45s var(--spring); }
+.cand input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; z-index: 2; }
+.cand:has(input:focus-visible) { outline: 3px solid var(--accent); outline-offset: 3px; }
+.cand:has(input:checked) { border-color: var(--primary); box-shadow: 0 0 0 5px var(--primary-soft), 0 18px 36px -24px rgba(6,26,61,.55); transform: translateY(-3px); }
+.cband { position: relative; display: grid; place-items: center; padding: 16px 10px; background: linear-gradient(135deg, var(--hero-from), var(--hero-mid) 60%, var(--hero-to)); }
+.cband .av { width: 60px; height: 60px; font-size: 20px; box-shadow: 0 0 0 3px rgba(255,255,255,.2), 0 0 0 7px rgba(255,255,255,.07); }
+.cand:has(input:checked) .cband .av { animation: pop .45s var(--spring); }
+.badge { position: absolute; top: 8px; right: 8px; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--navy-deep); transform: scale(0); transition: transform .4s var(--spring); }
+.badge svg { width: 15px; height: 15px; }
+.badge path, .bigtick path { fill: none; stroke: currentColor; stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 16; stroke-dashoffset: 16; }
+.cand:has(input:checked) .badge { transform: scale(1); }
+.cand:has(input:checked) .badge path { stroke-dashoffset: 0; transition: stroke-dashoffset .28s ease-out .15s; }
+.cbody { padding: 14px 16px; display: grid; gap: 4px; align-content: center; min-width: 0; }
+.cbody b { font-family: var(--display); font-size: 20px; line-height: 1.15; }
+.party { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--ink-soft); }
+.party::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--sw, var(--ink-muted)); }
+.cbody q { quotes: "« " " »"; font-size: 14px; color: var(--ink-soft); }
+.choose { margin-top: 8px; justify-self: start; padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 700; background: var(--primary-soft); color: var(--primary); transition: background var(--fast), color var(--fast); }
+.choose::before { content: "Choisir"; }
+.cand:has(input:checked) .choose { background: var(--primary); color: #fff; }
+.cand:has(input:checked) .choose::before { content: "Choisi"; }
+.cand.blank .cband { background: linear-gradient(135deg, #46526B, #6B7890); }
 .av { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 18px; background: var(--primary-soft); color: var(--primary); flex: none; }
 .av.w { background: var(--warm-soft); color: var(--warm-ink); }
 .av.t { background: var(--teal-soft); color: var(--teal-ink); }
 .av.n { background: var(--line-soft); color: var(--ink-soft); }
-.cand b { display: block; font-size: 18px; line-height: 1.2; }
-.cand .party { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-soft); }
-.cand .party::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--sw, var(--ink-muted)); }
-.cand q { display: block; quotes: "« " " »"; font-size: 14px; color: var(--ink-soft); margin-top: 2px; }
-.radio { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--line-strong); display: grid; place-items: center; color: #fff; transition: background var(--fast), border-color var(--fast), transform var(--base) var(--spring); }
-.radio svg { width: 16px; height: 16px; }
-.radio path, .bigtick path { fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 16; stroke-dashoffset: 16; }
-.cand:has(input:checked) .radio { background: var(--primary); border-color: var(--primary); transform: scale(1.08); }
-.cand:has(input:checked) .radio path { stroke-dashoffset: 0; transition: stroke-dashoffset .28s ease-out .08s; }
 
-/* review */
-.rev { display: grid; gap: 10px; }
-.rev div { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; animation: rise .5s var(--soft) both; animation-delay: calc(var(--i) * 70ms); }
-.rev .av { width: 44px; height: 44px; font-size: 15px; }
-.rev small { display: block; font-size: 12px; color: var(--ink-soft); }
-.rev b { font-size: 16px; }
-.rev button { min-height: 44px; }
-.note { padding: 12px 14px; border-radius: 12px; background: #FFF4EA; color: var(--warm-ink); font-size: 14px; }
+/* review: one band card per ballot, as on the results page */
+.pairs { display: grid; gap: 14px; }
+.rev { padding: 0; overflow: hidden; }
+.band { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 14px; padding: 16px 18px; color: var(--on-hero); background: linear-gradient(135deg, var(--hero-from), var(--hero-mid) 60%, var(--hero-to)); }
+.band .av { box-shadow: 0 0 0 3px rgba(255,255,255,.18); }
+.band div { flex: 1 1 140px; min-width: 0; }
+.band small { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--on-hero-soft); }
+.band b { display: block; font-family: var(--display); font-size: 20px; line-height: 1.15; }
+.rev footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 18px; font-size: 13px; color: var(--ink-soft); }
+.note { padding: 14px 16px; border-radius: 14px; background: #FFF4EA; color: var(--warm-ink); border: 1px solid #F1C9A8; }
 
 /* done */
-.done { justify-items: center; text-align: center; padding-block: 36px; }
+.donecard { display: grid; justify-items: center; text-align: center; gap: 14px; padding: 36px 20px; }
 .seal { position: relative; width: 96px; height: 96px; border-radius: 50%; background: var(--teal); color: #fff; display: grid; place-items: center; animation: pop .6s var(--spring) both; }
 .seal::before, .seal::after { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--teal); opacity: 0; animation: ringOut 1.4s var(--soft) .5s 1; }
 .seal::after { animation-delay: .8s; }
 .bigtick { width: 46px; height: 46px; }
 .bigtick path { animation: draw .5s ease-out .45s forwards; }
-.done h2 { font-size: 30px; }
+.donecard h2 { font-size: 30px; }
 .when { font-family: var(--mono); font-size: 14px; color: var(--ink-soft); }
 .timer { width: min(100%, 320px); height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
 .timer i { display: block; height: 100%; background: var(--primary); transform-origin: left center; animation: empty 10s linear forwards; }
+
+/* ---------- action bar ---------- */
+.bar { position: sticky; bottom: 0; z-index: 5; background: rgba(255,255,255,.92); backdrop-filter: blur(10px); border-top: 1px solid var(--line); }
+.bar .wrap { display: flex; align-items: center; gap: 10px; padding-block: 12px calc(12px + env(safe-area-inset-bottom, 0px)); }
+.summary { display: none; flex: 1 1 auto; min-width: 0; font-size: 14px; color: var(--ink-soft); }
+.summary b { color: var(--ink); }
+.btn { min-height: 52px; padding: 0 22px; border-radius: 999px; font-weight: 700; font-size: 16px; cursor: pointer; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); transition: transform var(--fast), background var(--fast); }
+.btn:active { transform: scale(.97); }
+.btn.go { position: relative; overflow: hidden; flex: 1; border: 0; color: var(--navy-deep); background: linear-gradient(135deg, var(--accent), var(--accent-light)); display: inline-flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 10px 24px -12px rgba(255,134,3,.9); transition: transform var(--base) var(--spring); }
+.btn.go:hover:not(:disabled) { transform: translateY(-2px) scale(1.02); }
+.btn.go svg { transition: transform var(--base) var(--spring); }
+.btn.go:hover:not(:disabled) svg { transform: translateX(4px); }
+.btn.go:disabled { background: var(--line); color: var(--ink-muted); cursor: not-allowed; box-shadow: none; }
+.btn.go.ready { animation: nudge .5s var(--spring); }
+.btn.go.sweep::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.55) 50%, transparent 65%); transform: translateX(-120%); animation: sweep 3.2s var(--soft) infinite; }
 
 @keyframes ping { 0% { transform: scale(1); opacity: .7; } 80%, 100% { transform: scale(2.8); opacity: 0; } }
 @keyframes drift { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-30px, 24px); } }
@@ -155,36 +184,54 @@ fieldset { margin: 0; padding: 0; border: 0; display: grid; gap: 12px; min-width
 @keyframes draw { to { stroke-dashoffset: 0; } }
 @keyframes empty { from { transform: scaleX(1); } to { transform: scaleX(0); } }
 
+@keyframes shimmer { to { background-position: -200% center; } }
+@keyframes floatA { 0%, 100% { transform: translateY(0) rotate(-2.5deg); } 50% { transform: translateY(-9px) rotate(-2.5deg); } }
+@keyframes floatB { 0%, 100% { transform: translateY(0) rotate(2deg); } 50% { transform: translateY(-7px) rotate(2deg); } }
+@keyframes riseBack { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: none; } }
+@keyframes popTilt { 0% { transform: rotate(-2.5deg) scale(.9); } 100% { transform: rotate(-2.5deg) scale(1); } }
+
+@media (min-width: 620px) {
+  .how { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .how .card { flex-direction: column; align-items: flex-start; }
+  .summary { display: block; }
+  .btn.go { flex: 0 1 300px; }
+  .pairs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (min-width: 760px) {
+  fieldset.grid { grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); }
+  .cand:not(.blank) { grid-template-columns: none; grid-template-rows: auto 1fr; }
+  .cand:not(.blank) .cband { padding: 26px 16px; }
+  .cand:not(.blank) .cband .av { width: 84px; height: 84px; font-size: 28px; }
+  .cand:not(.blank) .cbody { padding: 18px; text-align: center; justify-items: center; }
+  .cand:not(.blank) .choose { justify-self: center; }
+  .cand.blank { grid-column: 1 / -1; }
+}
 @media (min-width: 860px) {
-  body { background: #E9EDF4; }
-  .page { padding-bottom: 32px; }
-  .app { margin-top: 32px; grid-template-rows: none; grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr); border-radius: 24px; overflow: hidden; border: 1px solid var(--line); min-height: 640px; align-self: start; }
-  .panel { padding: 36px 32px; gap: 20px; align-content: center; }
-  .extra { display: grid; }
-  .screen { padding: 32px; gap: 18px; }
-  .actions { padding: 18px 32px; }
-  .btn.go { flex: 0 1 280px; margin-left: auto; }
+  .hero .wrap { grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); align-items: center; padding-block: 52px 96px; }
+  .stage { display: grid; padding-left: 24px; }
+  .float.a { margin-right: 36px; }
+  .content { margin-top: -56px; }
+  .card { padding: 26px; }
+  .entry { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 28px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
-  .radio path, .bigtick path { stroke-dashoffset: 0; }
+  .badge path, .bigtick path { stroke-dashoffset: 0; }
   .timer i { transform: scaleX(1); }
 }
 </style>
 
 <div class="page">
-  <div class="demo"><div>
+  <div class="demo"><div class="wrap">
     <span>Maquette animée · parcours de vote · données fictives</span>
     <button type="button" id="restart">↻ Recommencer</button>
   </div></div>
-
-  <div class="app">
-    <aside class="panel live" id="panel"></aside>
-    <section class="work">
-      <div id="screen" class="screen" aria-live="polite"></div>
-      <div class="actions" id="actions"></div>
-    </section>
-  </div>
+  <header class="hero live" id="hero"><div class="wrap">
+    <div class="htext" id="htext"></div>
+    <div class="stage" id="stage" aria-hidden="true"></div>
+  </div></header>
+  <main class="content"><div class="wrap"><div id="screen" class="screen" aria-live="polite"></div></div></main>
+  <div class="bar"><div class="wrap" id="actions"></div></div>
 </div>
 
 <script>
@@ -194,112 +241,139 @@ fieldset { margin: 0; padding: 0; border: 0; display: grid; gap: 12px; min-width
     { id: 'p', title: 'Président(e)', scope: "Toute l'école", cands: [
       { id: 'np', n: 'Nadège Pierre-Louis', i: 'NP', tone: 'w', party: 'Avenir Solidaire', sw: '#C2410C', slogan: 'Une école qui écoute chaque élève.' },
       { id: 'jd', n: 'Jean-Robert Désir', i: 'JD', tone: '', party: 'Élan Jeunesse', sw: '#1E3A8A', slogan: 'Plus de sport, plus de clubs.' },
-      { id: 'wj', n: 'Wideline Joseph', i: 'WJ', tone: 't', party: 'Indépendante', sw: '', slogan: 'Des idées, pas des promesses.' } ] },
+      { id: 'wj', n: 'Wideline Joseph', i: 'WJ', tone: 't', party: 'Indépendante', sw: '#8E99AE', slogan: 'Des idées, pas des promesses.' } ] },
     { id: 's', title: 'Secrétaire', scope: "Toute l'école", cands: [
       { id: 'mc', n: 'Mackenson Charles', i: 'MC', tone: '', party: 'Élan Jeunesse', sw: '#1E3A8A', slogan: 'Des comptes rendus clairs, chaque mois.' },
       { id: 'fa', n: 'Fabiola Augustin', i: 'FA', tone: 'w', party: 'Avenir Solidaire', sw: '#C2410C', slogan: 'Votre voix, bien notée.' } ] },
     { id: 'd', title: 'Délégué(e) de classe', scope: '4e année', cands: [
-      { id: 'sb', n: 'Stanley Brutus', i: 'SB', tone: 't', party: '', sw: '', slogan: 'Toujours disponible pour la classe.' },
-      { id: 'rm', n: 'Roseline Milfort', i: 'RM', tone: 'w', party: '', sw: '', slogan: 'Une classe unie.' } ] }
+      { id: 'sb', n: 'Stanley Brutus', i: 'SB', tone: 't', party: 'Sans liste', sw: '#8E99AE', slogan: 'Toujours disponible pour la classe.' },
+      { id: 'rm', n: 'Roseline Milfort', i: 'RM', tone: 'w', party: 'Sans liste', sw: '#8E99AE', slogan: 'Une classe unie.' } ] }
   ];
-  var BLANK = { id: 'blank', n: 'Vote blanc', i: '–', tone: 'n', party: '', sw: '', slogan: 'Je ne choisis aucun candidat.' };
+  var BLANK = { id: 'blank', n: 'Vote blanc', i: '–', tone: 'n', party: '', sw: '', slogan: 'Je ne choisis aucun candidat pour ce poste.' };
   var steps = ['code', 'me', 'b0', 'b1', 'b2', 'review', 'done'];
-  var state = { step: 0, picks: {}, code: '' };
+  var state = { step: 0, picks: {}, code: '' }, lastDone = 0;
 
-  var panel = document.getElementById('panel'), screen = document.getElementById('screen'), actions = document.getElementById('actions');
+  var hero = document.getElementById('hero'), htext = document.getElementById('htext'), stage = document.getElementById('stage');
+  var screen = document.getElementById('screen'), actions = document.getElementById('actions');
   var tick = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.8"/></svg>';
   var arrow = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
 
   function cand(b, id) { return id === 'blank' ? BLANK : b.cands.filter(function (c) { return c.id === id; })[0]; }
   function av(c) { return '<span class="av ' + c.tone + '">' + c.i + '</span>'; }
-  var lastDone = 0;
+  function stat(b, s) { return '<div class="stat"><b>' + b + '</b><span>' + s + '</span></div>'; }
   // Segments already filled stay filled; only the newly reached one animates.
   function stepsBar(done) {
     var kept = Math.min(done, lastDone);
-    var html = '<div class="steps" role="img" aria-label="Poste ' + Math.min(done + 1, 3) + ' sur 3">' +
+    var html = '<div class="steps" role="img" aria-label="' + Math.min(done, 3) + ' poste(s) sur 3 remplis">' +
       ballots.map(function (_, k) { return '<i class="' + (k < kept ? 'on now' : k < done ? 'next' : '') + '"></i>'; }).join('') + '</div>';
     lastDone = done;
     requestAnimationFrame(function () { requestAnimationFrame(function () {
-      [].forEach.call(panel.querySelectorAll('.steps i.next'), function (el) { el.classList.add('on'); });
+      [].forEach.call(htext.querySelectorAll('.steps i.next'), function (el) { el.classList.add('on'); });
     }); });
     return html;
   }
-  function who() { return '<span class="pill">' + voter.name + ' · ' + voter.group + '</span>'; }
+  function top(withVoter) {
+    return '<div class="top"><span class="pill"><span class="dot"></span>Collège Les Flamboyants</span>' +
+      (withVoter ? '<span class="pill">' + voter.name + ' · ' + voter.group + '</span>' : '') + '</div>';
+  }
+  function filled() { return ballots.filter(function (b) { return state.picks[b.id]; }).length; }
 
-  function renderPanel() {
-    var s = steps[state.step], html = '<div class="top"><span class="pill"><span class="dot"></span>Collège Les Flamboyants</span>';
-    panel.classList.toggle('live', s === 'code' || s === 'done');
+  function choiceCard(b, popping) {
+    var pick = state.picks[b.id] && cand(b, state.picks[b.id]);
+    return '<div class="float a' + (popping ? ' pop' : '') + '"><small>Votre choix · ' + b.title + '</small><div class="line">' +
+      (pick ? av(pick) + '<span><strong>' + pick.n + '</strong><span>' + (pick.party || 'Aucun candidat') + '</span></span>'
+            : '<span class="av n">?</span><span><strong>Pas encore choisi</strong><span>Touchez un candidat</span></span>') + '</div></div>';
+  }
+  function progressCard() {
+    return '<div class="float b"><small>Votre bulletin</small><div class="line"><span><strong>' + filled() + ' / 3</strong><span>postes remplis</span></span></div></div>';
+  }
+
+  function renderHero(swap, popping) {
+    var s = steps[state.step], t = '', g = '';
+    hero.classList.toggle('live', s === 'code' || s === 'done');
     if (s === 'code') {
-      html += '</div><p class="eyebrow">Conseil des élèves 2026</p><h1>Votre voix <em>compte</em>.</h1>' +
-        '<p class="lede">Le vote est ouvert jusqu\'au 20 novembre à 15 h 00.</p>' +
-        '<div class="glassrow"><div class="glass"><b>1 min</b><span>pour voter</span></div><div class="glass"><b>Secret</b><span>personne ne voit vos choix</span></div><div class="glass"><b>1 fois</b><span>un seul vote</span></div></div>';
+      t = top(false) + '<p class="eyebrow">Conseil des élèves 2026</p><h1>Votre voix <em>compte</em>.</h1>' +
+        '<p class="lede">Le vote est ouvert jusqu\'au 20 novembre à 15 h 00. Munissez-vous de votre bulletin papier.</p>' +
+        '<div class="stats">' + stat('1 min', 'pour voter') + stat('Secret', 'personne ne voit vos choix') + stat('1 fois', 'un seul vote par élève') + '</div>';
+      g = '<div class="float a"><small>Votre bulletin papier</small><div class="slip">K7MPQ-4XWRT</div><div class="line"><span><span>Le code est écrit ici, sous votre nom.</span></span></div></div>' +
+          '<div class="float b"><small>À remplir</small><div class="line"><span><strong>3 postes</strong><span>Président(e), secrétaire, délégué(e)</span></span></div></div>';
     } else if (s === 'me') {
-      html += '</div><p class="eyebrow">Conseil des élèves 2026</p><h1>Vérifions que c\'est bien <em>vous</em>.</h1><p class="lede">Le code que vous avez saisi appartient à un seul élève.</p>';
+      t = top(false) + '<p class="eyebrow">Conseil des élèves 2026</p><h1>Est-ce bien <em>vous</em> ?</h1><p class="lede">Chaque code appartient à un seul élève. Vérifiez le nom avant de continuer.</p>';
+      g = '<div class="float a"><small>Code accepté</small><div class="slip">' + (state.code || 'K7MPQ-4XWRT') + '</div></div>' + progressCard();
     } else if (s === 'done') {
-      html += who() + '</div><p class="eyebrow">Conseil des élèves 2026</p><h1>Merci d\'avoir <em>voté</em>.</h1><p class="lede">Les résultats seront publiés après la clôture, le 20 novembre.</p>' + stepsBar(3);
+      t = top(true) + '<p class="eyebrow">Conseil des élèves 2026</p><h1>Merci d\'avoir <em>voté</em>.</h1><p class="lede">Les résultats seront publiés après la clôture, le 20 novembre à 15 h 00.</p>' + stepsBar(3);
+      g = '<div class="float a"><small>Reçu</small><div class="line"><span class="av t">✓</span><span><strong>Vote enregistré</strong><span>20 nov. 2026 · 10 h 42</span></span></div></div>' + progressCard();
+    } else if (s === 'review') {
+      t = top(true) + '<p class="eyebrow">Dernière étape</p><h1>Vérifiez vos <em>choix</em>.</h1>' + stepsBar(3) +
+        '<p class="lede">Rien n\'est encore enregistré. Vous pouvez encore modifier chaque poste.</p>';
+      g = '<div class="float a"><small>Avant de confirmer</small><div class="line"><span class="av w">!</span><span><strong>Vote définitif</strong><span>Il ne pourra plus être modifié</span></span></div></div>' + progressCard();
     } else {
-      var k = s === 'review' ? 3 : +s.charAt(1), b = ballots[Math.min(k, 2)];
-      html += who() + '</div>';
-      if (s === 'review') {
-        html += '<p class="eyebrow">Dernière étape</p><h1>Vérifiez vos <em>choix</em>.</h1>' + stepsBar(3) +
-          '<p class="lede">Rien n\'est encore enregistré. Vous pouvez encore modifier chaque poste.</p>';
-      } else {
-        var pick = state.picks[b.id] && cand(b, state.picks[b.id]);
-        html += '<p class="eyebrow">Poste ' + (k + 1) + ' sur 3 · ' + b.scope + '</p><h1>' + b.title + '</h1>' + stepsBar(k + (pick ? 1 : 0)) +
-          '<div class="glass" id="choice"><span>Votre choix</span>' +
-          (pick ? '<div class="picked pop">' + av(pick) + '<b>' + pick.n + '</b></div>' : '<b>Pas encore choisi</b>') + '</div>' +
-          '<div class="glassrow extra"><div class="glass"><b>1</b><span>siège à pourvoir</span></div><div class="glass"><b>' + b.cands.length + '</b><span>candidats</span></div><div class="glass"><b>Blanc</b><span>possible</span></div></div>';
-      }
+      var k = +s.charAt(1), b = ballots[k];
+      t = top(true) + '<p class="eyebrow">Poste ' + (k + 1) + ' sur 3 · ' + b.scope + '</p><h1>' + b.title + '</h1>' + stepsBar(filled()) +
+        '<div class="stats">' + stat('1', 'siège à pourvoir') + stat(String(b.cands.length), 'candidats') + stat('Blanc', 'vote possible') + '</div>';
+      g = choiceCard(b, popping) + progressCard();
     }
-    panel.innerHTML = html;
+    if (swap) { htext.classList.remove('swap'); void htext.offsetWidth; htext.classList.add('swap'); htext.innerHTML = t; }
+    else {
+      // Same screen: only the step bar and the stage change, the title does not move.
+      var bar = htext.querySelector('.steps'); if (bar) bar.outerHTML = stepsBar(filled());
+    }
+    stage.innerHTML = g;
   }
 
   function goButton(label, enabled, sweep) {
     return '<button class="btn go' + (sweep ? ' sweep' : '') + '" type="button" id="go"' + (enabled ? '' : ' disabled') + '>' + label + arrow + '</button>';
   }
+  function summary(text) { return '<span class="summary">' + text + '</span>'; }
 
   function renderScreen(dir) {
     var s = steps[state.step], html = '', act = '';
-    screen.className = 'screen ' + (dir < 0 ? 'back' : 'fwd') + (s === 'done' ? ' done' : '');
+    screen.className = 'screen' + (dir < 0 ? ' back' : '');
     if (s === 'code') {
-      html = '<h2 tabindex="-1">Entrez votre code de vote</h2><p class="hint">Il est écrit sur votre bulletin papier : 10 caractères.</p>' +
-        '<label class="sr" for="code">Code de vote</label><input class="code" id="code" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="11" placeholder="XXXXX-XXXXX" value="' + state.code + '">' +
-        '<button class="link" type="button" id="sample">Utiliser un code d\'exemple</button>' +
-        '<div class="info"><div><span class="ico">1</span>Entrez votre code, puis confirmez votre nom.</div><div><span class="ico">2</span>Choisissez un candidat pour chaque poste.</div><div><span class="ico">3</span>Vérifiez, puis confirmez. C\'est terminé.</div></div>';
-      act = goButton('Continuer', state.code.length === 11, true);
+      html = '<div class="card entry" style="--i:0"><div><h2 tabindex="-1">Entrez votre code de vote</h2><p class="hint">10 caractères, écrits sur votre bulletin papier.</p></div>' +
+        '<div><label class="sr" for="code">Code de vote</label><input class="code" id="code" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="11" placeholder="XXXXX-XXXXX" value="' + state.code + '">' +
+        '<button class="link" type="button" id="sample">Utiliser un code d\'exemple</button></div></div>' +
+        '<div class="how" style="--i:1">' +
+        '<div class="card"><span class="ico">1</span><div><b>Votre code</b><span class="hint">Entrez-le, puis confirmez votre nom.</span></div></div>' +
+        '<div class="card"><span class="ico">2</span><div><b>Vos choix</b><span class="hint">Un candidat pour chaque poste.</span></div></div>' +
+        '<div class="card"><span class="ico">3</span><div><b>Confirmation</b><span class="hint">Vérifiez, confirmez, c\'est terminé.</span></div></div></div>';
+      act = summary('Étape 1 · <b>votre code</b>') + goButton('Continuer', state.code.length === 11, true);
     } else if (s === 'me') {
-      html = '<h2 tabindex="-1">Est-ce bien vous ?</h2><div class="me"><span class="av">' + voter.initials + '</span><div><b>' + voter.name + '</b><span class="hint">' + voter.group + '</span></div></div>' +
-        '<p class="hint">Si ce n\'est pas votre nom, rendez ce bulletin à votre professeur.</p>';
-      act = '<button class="btn" type="button" id="back">Ce n\'est pas moi</button>' + goButton('Oui, c\'est moi', true);
+      html = '<div class="card me" style="--i:0"><span class="av">' + voter.initials + '</span><div><h2 class="sr" tabindex="-1">Votre identité</h2><b>' + voter.name + '</b><span class="hint">' + voter.group + ' · Collège Les Flamboyants</span></div></div>' +
+        '<p class="note" style="--i:1">Si ce n\'est pas votre nom, ne continuez pas : rendez ce bulletin à votre professeur.</p>';
+      act = '<button class="btn" type="button" id="back">Ce n\'est pas moi</button>' + summary('') + goButton('Oui, c\'est moi', true);
     } else if (s.charAt(0) === 'b') {
       var b = ballots[+s.charAt(1)], cur = state.picks[b.id];
-      html = '<h2 tabindex="-1">Choisissez 1 candidat</h2><fieldset><legend class="sr">Candidats au poste : ' + b.title + '</legend>' +
-        b.cands.concat([BLANK]).map(function (c) {
-          return '<label class="cand"><input type="radio" name="c" value="' + c.id + '"' + (cur === c.id ? ' checked' : '') + '>' + av(c) +
-            '<span><b>' + c.n + '</b>' + (c.party ? '<span class="party" style="--sw:' + (c.sw || '#8E99AE') + '">' + c.party + '</span>' : '') + '<q>' + c.slogan + '</q></span>' +
-            '<span class="radio">' + tick + '</span></label>';
+      html = '<fieldset class="grid" style="--n:' + b.cands.length + '"><legend class="sr">Choisissez 1 candidat au poste : ' + b.title + '</legend><h2 class="sr" tabindex="-1">Choisissez 1 candidat</h2>' +
+        b.cands.concat([BLANK]).map(function (c, k) {
+          return '<label class="cand' + (c.id === 'blank' ? ' blank' : '') + '" style="--i:' + k + '"><input type="radio" name="c" value="' + c.id + '"' + (cur === c.id ? ' checked' : '') + '>' +
+            '<span class="cband">' + av(c) + '<span class="badge">' + tick + '</span></span>' +
+            '<span class="cbody"><b>' + c.n + '</b>' + (c.party ? '<span class="party" style="--sw:' + c.sw + '">' + c.party + '</span>' : '') + '<q>' + c.slogan + '</q><span class="choose"></span></span></label>';
         }).join('') + '</fieldset>';
-      act = '<button class="btn" type="button" id="back">Retour</button>' + goButton(state.step === 4 ? 'Vérifier mes choix' : 'Poste suivant', !!cur);
+      act = '<button class="btn" type="button" id="back">Retour</button>' + summary(cur ? 'Votre choix : <b>' + cand(b, cur).n + '</b>' : 'Choisissez 1 candidat') +
+        goButton(state.step === 4 ? 'Vérifier mes choix' : 'Poste suivant', !!cur);
     } else if (s === 'review') {
-      html = '<h2 tabindex="-1">Vos 3 choix</h2><div class="rev">' + ballots.map(function (b, k) {
+      html = '<h2 class="sr" tabindex="-1">Vos 3 choix</h2><div class="pairs">' + ballots.map(function (b, k) {
         var c = cand(b, state.picks[b.id]);
-        return '<div style="--i:' + k + '">' + av(c) + '<span><small>' + b.title + '</small><b>' + c.n + '</b></span><button class="link" type="button" data-edit="' + k + '">Modifier</button></div>';
-      }).join('') + '</div><p class="note">Après confirmation, votre vote est définitif. Il ne pourra plus être modifié.</p>';
-      act = '<button class="btn" type="button" id="back">Retour</button>' + goButton('Confirmer mon vote', true);
+        return '<div class="card rev" style="--i:' + k + '"><div class="band">' + av(c) + '<div><small>' + b.title + '</small><b>' + c.n + '</b></div></div>' +
+          '<footer><span>' + (c.party || 'Aucun candidat') + '</span><button class="link" type="button" data-edit="' + k + '">Modifier</button></footer></div>';
+      }).join('') + '</div><p class="note" style="--i:3">Après confirmation, votre vote est définitif. Il ne pourra plus être modifié.</p>';
+      act = '<button class="btn" type="button" id="back">Retour</button>' + summary('<b>3 postes</b> remplis') + goButton('Confirmer mon vote', true);
     } else {
-      html = '<span class="seal"><svg class="bigtick" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.8"/></svg></span>' +
+      html = '<div class="card donecard"><span class="seal"><svg class="bigtick" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.8"/></svg></span>' +
         '<h2 tabindex="-1">Vote enregistré</h2><p class="when">20 nov. 2026 · 10 h 42</p>' +
         '<p class="hint">Vos choix ne sont pas affichés ici, pour que personne ne puisse les voir.</p>' +
-        '<div class="timer" aria-hidden="true"><i></i></div><p class="hint">Cet écran se ferme tout seul pour l\'élève suivant.</p>';
-      act = goButton('Terminer', true);
+        '<div class="timer" aria-hidden="true"><i></i></div><p class="hint">Cet écran se ferme tout seul pour l\'élève suivant.</p></div>';
+      act = summary('Merci, ' + voter.name.split(' ')[0]) + goButton('Terminer', true);
     }
     screen.innerHTML = html; actions.innerHTML = act;
     wire();
     var h = screen.querySelector('h2'); if (h && state.step > 0) h.focus({ preventScroll: true });
   }
 
-  function go(to, dir) { state.step = to; renderPanel(); renderScreen(dir); if (window.innerWidth < 860) window.scrollTo(0, 0); }
+  function go(to, dir) { state.step = to; renderHero(true, false); renderScreen(dir); window.scrollTo(0, 0); }
   function reset() { state = { step: 0, picks: {}, code: '' }; lastDone = 0; go(0, -1); }
+  function nudge(btn) { btn.classList.remove('ready'); void btn.offsetWidth; btn.classList.add('ready'); }
 
   function wire() {
     var s = steps[state.step], goBtn = document.getElementById('go'), back = document.getElementById('back');
@@ -316,7 +390,7 @@ fieldset { margin: 0; padding: 0; border: 0; display: grid; gap: 12px; min-width
         state.code = code.value;
         var ok = v.length === 10, was = !goBtn.disabled;
         code.classList.toggle('ok', ok); goBtn.disabled = !ok;
-        if (ok && !was) { goBtn.classList.remove('ready'); void goBtn.offsetWidth; goBtn.classList.add('ready'); }
+        if (ok && !was) nudge(goBtn);
       };
       code.addEventListener('input', fmt);
       document.getElementById('sample').addEventListener('click', function () { code.value = 'K7MPQ4XWRT'; fmt(); goBtn.focus(); });
@@ -324,14 +398,15 @@ fieldset { margin: 0; padding: 0; border: 0; display: grid; gap: 12px; min-width
     [].forEach.call(screen.querySelectorAll('input[type=radio]'), function (r) {
       r.addEventListener('change', function () {
         var b = ballots[+s.charAt(1)], first = !state.picks[b.id];
-        state.picks[b.id] = r.value; renderPanel();
-        goBtn.disabled = false;
-        if (first) { goBtn.classList.remove('ready'); void goBtn.offsetWidth; goBtn.classList.add('ready'); }
+        state.picks[b.id] = r.value;
+        renderHero(false, true);
+        var sum = actions.querySelector('.summary'); if (sum) sum.innerHTML = 'Votre choix : <b>' + cand(b, r.value).n + '</b>';
+        goBtn.disabled = false; if (first) nudge(goBtn);
       });
     });
   }
 
   document.getElementById('restart').addEventListener('click', reset);
-  renderPanel(); renderScreen(1);
+  renderHero(true, false); renderScreen(1);
 })();
 </script>

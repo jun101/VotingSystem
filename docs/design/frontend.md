@@ -150,11 +150,13 @@ Approved on two animated reference mockups, kept with the others:
 [motion-vote.html](mockups/motion-vote.html) (voting flow). The earlier mockups keep
 their content and their screens; their look follows these rules.
 
-1. **Every screen pairs a showcase panel with a working area.** The showcase panel
-   (gradient, white text) answers "where am I and what matters here": the title, the
-   state, the key figures, the current choice. The working area (light) holds the task:
-   the list, the form, the candidates. Side by side from the `md` breakpoint, the panel
-   on the left at about 45 % of the width; stacked on a phone, panel first.
+1. **Every screen opens with a full-width showcase hero, and its content climbs onto
+   it.** The hero (gradient, white text) answers "where am I and what matters here": a
+   pill, a short label, a large title, the state, three key figures. On a desktop it has
+   two tilted cards on its right that restate the essential (the winner, the current
+   choice). The content below is light; its first row of cards overlaps the bottom of the
+   hero by about 50 px. A hero-on-the-left, task-on-the-right split of the whole screen
+   was tried for the voting flow and rejected.
 2. **A section opens with its own showcase element**, never with a bare title on white:
    a full panel for the main item of the page, a band (a strip of the same gradient with
    an avatar, a name and one figure) for the others.
@@ -173,53 +175,16 @@ their content and their screens; their look follows these rules.
    create), so the bottom of a page is never an empty margin.
 8. **The main action is the accent button**, one per screen, at the bottom right on a
    desktop and full width at the bottom on a phone. Other actions are plain.
-9. **In the voting flow the panel is the voter's memory**: the institution, their name
-   and class, the step bar, and "your choice" for the ballot in view. It updates the
-   moment a candidate is picked. The ballot itself stays on the light working area.
-
-Every text and background pair used must reach WCAG AA contrast (NFR-UX-03); the pairs
-are checked by a test in slice 01.
-
-A party's own colour (FR-CAND-01) is data, not a token: it is used only as a small
-swatch next to a name, never as a text or background colour, so contrast does not depend
-on what an institution picks.
-
-### Type
-
-| Token | Value |
-|---|---|
-| Display font | Bricolage Grotesque, weights 600 and 700: headings, large figures |
-| Text font | Public Sans, weights 400, 500, 600, 700: everything else |
-| Code font | The system monospace: access codes, identifiers |
-| Hosting | Both fonts are served from our own origin, subset to Latin. No request to a font service (privacy, CSP, weight) |
-
-| Step | Size | Use |
-|---|---|---|
-| `xs` | 12 px | Labels on pills, table captions |
-| `sm` | 13 px | Secondary text |
-| `base` | 14 px | Admin body text |
-| `md` | 15 px | Voter body text |
-| `lg` | 17 px | Card titles |
-| `xl` | 18 px | Candidate names |
-| `2xl` | 24 px | Admin page titles |
-| `3xl` | 30–34 px | Voter screen titles, key figures |
-| `4xl` | 40–48 px | The big figure on the turnout and done screens |
-
-Text in a form field is never under 16 px on a phone, so the browser does not zoom.
-
-### Shape and space
-
-| Token | Value | Use |
-|---|---|---|
-| `radius-sm` | 6 px | Small tags, swatches |
-| `radius` | 10 px | Buttons, inputs, tiles |
-| `radius-md` | 12 px | Small cards |
-| `radius-lg` | 16 px | Cards, candidate rows |
-| `radius-full` | 999 px | Pills, avatars |
-| Space | A 4 px scale: 4, 8, 12, 16, 20, 24, 32, 40 | |
-| Touch target | 44 px high at least; 48 to 56 px for the main action of a voter screen | |
-| Selection | 2 px `primary` border plus a 4 px `primary-soft` ring | Selected candidate, focused field |
-| Shadows | None. Depth comes from borders and background, as in the mockups | |
+9. **In the voting flow the hero is the voter's memory**: the institution, their name
+   and class, the ballot's title, the step bar, and a "your choice" card that updates the
+   moment a candidate is picked.
+10. **A candidate is a small showcase card**: a gradient band with the photo or avatar,
+    then the name, the party and the slogan on white, and a "choose" pill. Candidates sit
+    in a grid that fills the row on a desktop and stack as horizontal cards on a phone.
+    The blank vote is a full-width card under them, in a grey band.
+11. **The main action lives in a bar fixed to the bottom of the screen**, with a one-line
+    reminder of the current choice on its left, so it is always reachable without
+    scrolling.
 
 ### Motion
 
