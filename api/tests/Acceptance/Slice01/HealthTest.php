@@ -84,10 +84,14 @@ it('answers 429 above the rate limit [NFR-SEC-05]', function () {
 it('writes the message in the language asked for [NFR-UX-01]', function () {
     $french = $this->postJson('/api/v1/health', [], ['Accept-Language' => 'fr'])->json('error.message');
     $english = $this->postJson('/api/v1/health', [], ['Accept-Language' => 'en'])->json('error.message');
-    $default = $this->postJson('/api/v1/health')->json('error.message');
+    // The test client always sends an Accept-Language header, so "no header" cannot be
+    // tested from here. A language we do not have must fall back to French.
+    $other = $this->postJson('/api/v1/health', [], ['Accept-Language' => 'de'])->json('error.message');
+    $regional = $this->postJson('/api/v1/health', [], ['Accept-Language' => 'en-US,en;q=0.9'])->json('error.message');
 
     expect($french)->toBeString()->not->toBe('')
         ->and($english)->toBeString()->not->toBe('')
         ->and($english)->not->toBe($french)
-        ->and($default)->toBe($french);
+        ->and($other)->toBe($french)
+        ->and($regional)->toBe($english);
 });

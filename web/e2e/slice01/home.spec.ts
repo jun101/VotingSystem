@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { expectAccessible, expectNoSidewaysScroll, recordForeignRequests } from '../support/checks';
+import { expectAccessible, expectNoSidewaysScroll, recordForeignRequests, rgb } from '../support/checks';
 
 /*
  * Slice 01 — the home page of the walking skeleton.
@@ -63,23 +63,28 @@ test.describe('home page', () => {
   test('exposes the design tokens as CSS variables [NFR-UX-02]', async ({ page }) => {
     await page.goto('/');
 
+    // The value is read as the browser resolves it, so "#fff" and "#FFFFFF" are the same.
     const token = (name: string) =>
-      page.evaluate(
-        (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim().toLowerCase(),
-        name,
-      );
+      page.evaluate((n) => {
+        const probe = document.createElement('span');
+        probe.style.color = `var(${n})`;
+        document.body.appendChild(probe);
+        const resolved = getComputedStyle(probe).color;
+        probe.remove();
+        return getComputedStyle(document.documentElement).getPropertyValue(n).trim() === '' ? '' : resolved;
+      }, name);
 
-    expect(await token('--color-ink')).toBe('#111b33');
-    expect(await token('--color-ink-soft')).toBe('#4a556b');
-    expect(await token('--color-canvas')).toBe('#f3f5f9');
-    expect(await token('--color-surface')).toBe('#ffffff');
-    expect(await token('--color-line')).toBe('#d8dee9');
-    expect(await token('--color-primary')).toBe('#1e3a8a');
-    expect(await token('--color-primary-hover')).toBe('#172b66');
-    expect(await token('--color-primary-soft')).toBe('#e6ecfa');
-    expect(await token('--color-warm')).toBe('#c2410c');
-    expect(await token('--color-teal')).toBe('#0f766e');
-    expect(await token('--color-danger')).toBe('#9a2a0a');
+    expect(await token('--color-ink')).toBe(rgb('#111B33'));
+    expect(await token('--color-ink-soft')).toBe(rgb('#4A556B'));
+    expect(await token('--color-canvas')).toBe(rgb('#F3F5F9'));
+    expect(await token('--color-surface')).toBe(rgb('#FFFFFF'));
+    expect(await token('--color-line')).toBe(rgb('#D8DEE9'));
+    expect(await token('--color-primary')).toBe(rgb('#1E3A8A'));
+    expect(await token('--color-primary-hover')).toBe(rgb('#172B66'));
+    expect(await token('--color-primary-soft')).toBe(rgb('#E6ECFA'));
+    expect(await token('--color-warm')).toBe(rgb('#C2410C'));
+    expect(await token('--color-teal')).toBe(rgb('#0F766E'));
+    expect(await token('--color-danger')).toBe(rgb('#9A2A0A'));
   });
 
   test('fits the screen without scrolling sideways [NFR-UX-02]', async ({ page }) => {
