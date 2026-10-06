@@ -1,6 +1,7 @@
-# VoteSystem — Functional Specification
+# New Voting System — Functional Specification
 
-Version 1.1 (approved 2026-10-05; 1.1 adds what the approved mockups introduced)
+Version 1.2 (1.0 approved 2026-10-05; 1.1 adds what the approved mockups introduced;
+1.2, 2026-10-06, adds the encrypted vote audit record and UUID public addresses)
 
 Requirement IDs (`FR-…`, `NFR-…`) are stable. Design documents, code, reviews and tests
 refer to them. Items marked **[ASSUMPTION]** are choices made without confirmation; they are
@@ -19,8 +20,10 @@ results on a public page that can be shared on social media.
 
 - An institution with no technical staff can run a full election alone.
 - A voter can vote in under a minute on a cheap phone and a slow connection.
-- Nobody, including the institution and the platform operator, can find out how a given
-  voter voted.
+- Nobody can find out how a given voter voted through the application: not the
+  institution, not a platform admin signed in to it. One encrypted audit record links
+  each vote to its voter; only the platform operator, holding a key kept outside the
+  database, can read it (FR-SEC-08).
 - Each voter votes at most once per election.
 - Distributing credentials costs the institution nothing if it chooses paper.
 
@@ -60,7 +63,7 @@ results on a public page that can be shared on social media.
 
 | Role | Signs in with | Can do |
 |---|---|---|
-| Platform admin | Email + password | List, suspend and reactivate institutions; see platform statistics. Cannot see votes or credentials. |
+| Platform admin | Email + password | List, suspend and reactivate institutions; see platform statistics. Cannot see votes or credentials in the application. |
 | Institution owner | Email + password | Everything inside their institution, including managing other institution users and the profile. |
 | Institution manager | Email + password | Manage elections, ballots, candidates, voters and credentials. Cannot manage users or delete the institution. |
 | Voter | Credential only | Vote once in the election the credential belongs to. No account. |
@@ -76,7 +79,8 @@ results on a public page that can be shared on social media.
   email, password. The email must be verified before any election can be opened.
 - **FR-INST-02** The profile holds: name, type (school, university, association, other),
   logo, short description, address, city, phone, contact email, default timezone
-  (default `America/Port-au-Prince`), default language, and a unique public slug.
+  (default `America/Port-au-Prince`), default language, and a public identifier (a
+  random UUID) used in its public address.
 - **FR-INST-03** The owner can invite other institution users by email with the role
   owner or manager, and can remove them. An institution always keeps at least one owner.
 - **FR-INST-04** Password reset by email. Optional two-factor authentication (TOTP) for
@@ -197,7 +201,7 @@ randomness.
 - **FR-CRED-05** A generated PDF or distribution file is stored encrypted, can be
   downloaded by institution users until the election closes, and is then deleted.
 - **FR-CRED-06** The personal link carries the code in the URL fragment
-  (`/vote/{election}#CODE`) so the code is not written in server or proxy logs.
+  (`/vote/{election-uuid}#CODE`) so the code is not written in server or proxy logs.
 - **FR-CRED-07** Before sending emails, the system shows the number of messages that will
   be sent and asks for confirmation. Voters without an email are listed and left for print.
 - **FR-CRED-08** Every generation, reissue, download and send is written to the audit log.
@@ -226,10 +230,26 @@ randomness.
 ### 4.8 Ballot secrecy and integrity
 
 - **FR-SEC-01** The system stores "this voter has voted" and "one vote for this candidate"
-  in two places with no link between them: no shared identifier, no sequence number that
-  aligns the two, no precise timestamp on the vote record.
-- **FR-SEC-02** Both are written in a single database transaction, with a lock on the
-  voter, so a voter cannot vote twice even with simultaneous requests.
+  in two places with no readable link between them: no shared identifier, no sequence
+  number that aligns the two, no timestamp on the vote record. The only link is the
+  encrypted audit record of FR-SEC-08.
+- **FR-SEC-08** For each vote the system writes one audit record holding the vote, the
+  voter and the exact time of the vote. These three values are encrypted before they are
+  stored, with authenticated encryption and a 256-bit key (`VOTE_AUDIT_KEY`) that comes
+  from the environment and is never in the database, the repository or a backup of the
+  database. The stored row carries nothing readable that could match it to a voter: no
+  voter identifier, no timestamp, no sequence number. It is written in the same
+  transaction as the vote (FR-SEC-02).
+- **FR-SEC-09** No screen, API endpoint, export or log gives access to the audit records.
+  They are read only by the platform operator, on the server, with a command-line tool
+  that needs the key; each use of the tool is written to a log that names the operator,
+  the election and the reason. The audit records are never used to compute results.
+- **FR-SEC-02** Both are written in a single database transaction: it commits only if
+  every write succeeded and rolls back entirely on any error, so a vote is never partly
+  recorded. A voter cannot vote twice even with simultaneous requests, through three
+  protections together: the transaction, a row lock on the voter taken at its start, and
+  a unique constraint in the database on (election, voter) for the "has voted" record.
+  A test submits the same vote many times at once and checks that exactly one is recorded.
 - **FR-SEC-03** Vote counts are not available to anyone, including institution users and
   the platform admin, before the election is Closed. During the election only turnout is
   shown.
@@ -254,13 +274,14 @@ randomness.
 - **FR-RES-03** A tie for the last seat is reported as a tie. The system does not break
   it. The institution can add a public note to a ballot's result.
 - **FR-RES-04** Publishing creates a public results page at a stable address
-  (`/{institution-slug}/{election-slug}`), readable without signing in.
+  (`/results/{election-uuid}`), readable without signing in.
 - **FR-RES-05** The public page has social sharing metadata and a generated preview image
   (institution, election title, winners), plus share buttons for WhatsApp, Facebook and X
   and a copy-link button.
 - **FR-RES-06** Results can be downloaded as PDF (official report) and as an image
   sized for social media.
-- **FR-RES-07** The institution has a public profile page listing its published elections.
+- **FR-RES-07** The institution has a public profile page listing its published elections,
+  at `/institutions/{institution-uuid}`.
 - **FR-RES-08** The institution chooses per election whether the public page shows full
   counts or only winners and turnout.
 
@@ -316,6 +337,13 @@ randomness.
   are parsed without evaluating formulas; exported cells are protected against formula
   injection.
 - **NFR-SEC-07** Secrets come from environment variables, never from the repository.
+- **NFR-SEC-08** Every identifier that appears in a URL, a link, a file name or an API
+  response is a random UUID (version 4). Internal numeric identifiers never leave the
+  server.
+- **NFR-SEC-09** Production uses its own `VOTE_AUDIT_KEY`, generated on the server and
+  different from any development key. The key is backed up separately from the database.
+  If it is lost, the audit records can no longer be read; votes and results are not
+  affected.
 
 ### Performance and reach
 
@@ -357,7 +385,8 @@ Election    1─* Group       1─* Voter
 Ballot      *─* Group           (empty = general ballot)
 Election    1─* Voter       1─0..1 Credential
 Election    1─* Participation   (voter has voted, when)
-Ballot      1─* Vote            (candidate or blank; no link to Voter)
+Ballot      1─* Vote            (candidate or blank; no readable link to Voter)
+Election    1─* VoteAudit       (encrypted: vote, voter, time)
 Institution 1─* AuditEntry
 ```
 
@@ -422,28 +451,13 @@ library styled with Tailwind; the exact one is chosen in the design phase.
 
 ---
 
-## 10. Delivery plan
+## 10. Delivery
 
-| Phase | Output | Model |
-|---|---|---|
-| 1. Specification | This document, approved | Opus 5.5 |
-| 2. Design | Architecture, database schema, API contract, screen list and UI design, milestone breakdown | Opus 5.5 |
-| 3. Implementation | Code, milestone by milestone | Sonnet 5.5 |
-| 4. Review (after each milestone) | Findings from three review subagents, fixed before the next milestone | Subagents |
-| 5. Testing | Test plan traced to requirement IDs, automated tests, load test for NFR-PERF-02 | Opus 5.5 |
-
-### Review subagents
-
-Defined as project agents in `.claude/agents/` at the start of phase 2, so every session
-uses the same reviewers.
-
-| Agent | Checks |
-|---|---|
-| `correctness-reviewer` | The code does what the referenced requirement says; edge cases; transactions; time and timezone handling. |
-| `security-reviewer` | Tenant isolation, authorisation on every route, ballot secrecy (section 4.8), input and upload handling, secrets, rate limits. |
-| `modernity-reviewer` | Current idioms and supported versions of Laravel, PHP, Next.js, React and TypeScript; no deprecated APIs; dependency health. |
-
-The slices, their order and the working loop are in [PLAN.md](PLAN.md).
+The system is delivered in vertical slices: one small feature at a time, built end to
+end (database, API, screen, tests), each as one pull request. Acceptance tests are
+written from this specification before the code of a slice, and every test names the
+requirement ID it checks. Each slice is reviewed for correctness, security and use of
+current, supported versions before it is merged.
 
 ---
 
@@ -456,6 +470,7 @@ The slices, their order and the working loop are in [PLAN.md](PLAN.md).
 | Connection drops during submission | Submission is atomic and safe to retry; the voter is told clearly whether the vote was recorded. |
 | The institution distrusts the result | Integrity check (FR-SEC-05), audit log, turnout by group, official PDF report. |
 | Emails land in spam | Paper is the default channel; the self-distribution file is a fallback. |
+| The audit key leaks, or someone with access to the server reads how students voted | The key is only in the server's environment, never in the database or its backups; the read tool logs every use (FR-SEC-09); production has its own key (NFR-SEC-09). |
 
 ---
 
@@ -476,6 +491,14 @@ The slices, their order and the working loop are in [PLAN.md](PLAN.md).
 | Paper | Printed slips use US Letter, not A4. |
 | Screens | The mockups in `docs/design/mockups/` are the approved design (voter flow, admin, public results). |
 
+### Decided on 2026-10-06
+
+| Subject | Decision |
+|---|---|
+| Vote audit | Each vote is linked to its voter and time in an encrypted record, for audit only, readable only by the platform operator with a key from the environment (FR-SEC-08, 09). Never shown in the admin interface. |
+| Public addresses | Every public link and every identifier leaving the server is a random UUID; slugs are dropped (NFR-SEC-08, FR-RES-04, FR-RES-07). |
+
 ### Open
 
-None.
+- How long the vote audit records are kept: deleted a set time after publication (for
+  example 30 days) or kept as long as the election exists.
