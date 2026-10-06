@@ -90,15 +90,27 @@ services:
   queue:
     <<: *api
     command: ["php", "artisan", "queue:work", "--sleep=3", "--tries=3", "--max-time=3600"]
+    # A real check rather than a disabled one: some Compose versions refuse to wait
+    # (`up --wait`) for a service whose health check is disabled.
     healthcheck:
-      disable: true
+      test: ["CMD-SHELL", "kill -0 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
     restart: unless-stopped
 
   scheduler:
     <<: *api
     command: ["php", "artisan", "schedule:work"]
+    # A real check rather than a disabled one: some Compose versions refuse to wait
+    # (`up --wait`) for a service whose health check is disabled.
     healthcheck:
-      disable: true
+      test: ["CMD-SHELL", "kill -0 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
     restart: unless-stopped
 
   # One-off, never started with the stack: `docker compose run --rm migrate` (make setup).
