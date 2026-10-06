@@ -1,0 +1,10 @@
+# Local working files, kept out of the repository
+CLAUDE.md
+CLAUDE.local.md
+.claude/
+docs/PLAN.md
+
+# Secrets
+.env
+.env.*
+!.env.example
