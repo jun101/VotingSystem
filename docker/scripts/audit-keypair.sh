@@ -8,16 +8,44 @@
 # machine and only its public key is sent to the server (SPEC NFR-SEC-09).
 set -eu
 
-ENV_FILE=.env
+ENV_FILE="${ENV_FILE:-.env}"
 NAME=VOTE_AUDIT_PUBLIC_KEY
+
+# The temporary copy of the env file is removed whatever happens.
+tmp=$(mktemp)
+trap 'rm -f "$tmp"' EXIT
 
 current=$(sed -n "s/^$NAME=//p" "$ENV_FILE" | head -n 1)
 [ -n "$current" ] && exit 0
 
 out="${VOTE_AUDIT_PRIVATE_KEY_FILE:-$HOME/.config/new-voting-system/vote-audit-dev.private}"
+
+# Absolute form of a path that may not exist yet (symbolic links resolved as far as it does).
+absolute() {
+  dir=$(dirname "$1")
+  rest=$(basename "$1")
+  while [ ! -d "$dir" ]; do
+    rest="$(basename "$dir")/$rest"
+    dir=$(dirname "$dir")
+  done
+  printf '%s/%s\n' "$(cd "$dir" && pwd -P)" "$rest"
+}
+
+# The private key must never sit in the repository, where a commit or an image could take it.
+repo=$(pwd -P)
+case "$(absolute "$out")" in
+  "$repo"/*)
+    echo "Refusing to write the private audit key inside the repository ($repo)." >&2
+    echo "Set VOTE_AUDIT_PRIVATE_KEY_FILE to a path outside it." >&2
+    exit 1
+    ;;
+esac
+
 if [ -e "$out" ]; then
-  echo "A private key already exists at $out but .env has no $NAME." >&2
-  echo "Move that file away, or put its public key in .env, then run again." >&2
+  echo "A private key already exists at $out, but $ENV_FILE has no $NAME." >&2
+  echo "This happens on a second clone of the project on the same machine: the first clone" >&2
+  echo "made that key. Either point VOTE_AUDIT_PRIVATE_KEY_FILE at a new path for this clone," >&2
+  echo "or put the public key of the existing pair in $ENV_FILE (see README.md)." >&2
   exit 1
 fi
 
@@ -31,11 +59,14 @@ if [ ${#public} -ne 64 ] || [ ${#private} -ne 64 ]; then
   exit 1
 fi
 
-mkdir -p "$(dirname "$out")"
-chmod 700 "$(dirname "$out")"
+# Only a folder made here is given a mode: a folder that already existed is not ours.
+keydir=$(dirname "$out")
+if [ ! -d "$keydir" ]; then
+  mkdir -p "$keydir"
+  chmod 700 "$keydir"
+fi
 ( umask 077 && printf '%s\n' "$private" > "$out" )
 
-tmp=$(mktemp)
 if grep -q "^$NAME=" "$ENV_FILE"; then
   awk -v n="$NAME" -v v="$public" 'index($0, n"=")==1 {print n"="v; next} {print}' "$ENV_FILE" > "$tmp"
 else
@@ -43,7 +74,6 @@ else
   printf '%s=%s\n' "$NAME" "$public" >> "$tmp"
 fi
 cat "$tmp" > "$ENV_FILE"
-rm -f "$tmp"
 
 echo "set $NAME"
 echo "The private audit key is in $out. Keep it out of the repository and off any server."

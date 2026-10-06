@@ -2,9 +2,13 @@
 
 namespace App\Http\Resources;
 
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Support\Collection;
+use JsonSerializable;
 
 /**
  * Base of every API resource (NFR-SEC-08).
@@ -45,13 +49,39 @@ abstract class ApiResource extends JsonResource
         $kept = [];
 
         foreach ($fields as $name => $value) {
-            if (is_string($name) && preg_match('/^id$|_ids?$/i', $name) === 1) {
+            if (is_string($name) && self::isIdentifierName($name)) {
                 continue;
             }
 
-            $kept[$name] = is_array($value) ? $this->withoutIdentifiers($value) : $value;
+            $kept[$name] = $this->plain($value);
         }
 
         return $kept;
+    }
+
+    /**
+     * What a field holds, as plain data with no identifier in it. A model, a collection,
+     * anything convertible to an array is converted first, then filtered like the rest.
+     * A nested `ApiResource` is left as it is: it applies this same rule to itself, and
+     * its `id` is a UUID.
+     */
+    private function plain(mixed $value): mixed
+    {
+        return match (true) {
+            is_array($value) => $this->withoutIdentifiers($value),
+            $value instanceof self => $value,
+            $value instanceof ResourceCollection => ($value->collection ?? new Collection)->map($this->plain(...))->all(),
+            $value instanceof JsonResource => $this->withoutIdentifiers($value->resolve()),
+            $value instanceof Arrayable => $this->withoutIdentifiers($value->toArray()),
+            $value instanceof JsonSerializable => $this->plain($value->jsonSerialize()),
+            default => $value,
+        };
+    }
+
+    /** `id`, `election_id`, `voter_ids`, and the camel-case `electionId`, `voterIds`, `electionID`. */
+    private static function isIdentifierName(string $name): bool
+    {
+        return preg_match('/^id$|_ids?$/i', $name) === 1
+            || preg_match('/[a-z0-9](Ids?|IDs?)$/', $name) === 1;
     }
 }

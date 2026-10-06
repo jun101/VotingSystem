@@ -16,12 +16,16 @@ use UnexpectedValueException;
  */
 final class CheckHealth
 {
+    private const TIMEOUT_SECONDS = 2;
+
     /**
      * @return array{status: string, checks: array{database: string, redis: string}, time: string}
      */
     public function __invoke(): array
     {
-        $now = DB::scalar('SELECT UTC_TIMESTAMP()');
+        // The connection has a time limit (config/database.php), and so does the query: a
+        // database that accepts the connection and then hangs fails after 2 seconds too.
+        $now = DB::scalar(sprintf('SET STATEMENT max_statement_time=%d FOR SELECT UTC_TIMESTAMP()', self::TIMEOUT_SECONDS));
         Redis::connection()->ping();
 
         if (! is_string($now)) {

@@ -1,6 +1,6 @@
 import { headers } from 'next/headers';
 import { Card, PageShell, Pill } from '@/components/ui';
-import { fetchHealth } from '@/lib/api/health';
+import { fetchHealthCached } from '@/lib/api/health';
 import { formatDateTime } from '@/lib/format/dateTime';
 import { getI18n } from '@/lib/i18n/server';
 
@@ -10,13 +10,19 @@ export const dynamic = 'force-dynamic';
 export default async function HomePage() {
   const { locale, t } = await getI18n();
   const forwardedFor = (await headers()).get('x-forwarded-for');
-  const health = await fetchHealth({ forwardedFor });
+  const health = await fetchHealthCached({ forwardedFor });
 
   const rows = [
-    { id: 'api', label: t('home.status.api'), up: health.reachable },
-    { id: 'database', label: t('home.status.database'), up: health.reachable && health.database },
-    { id: 'redis', label: t('home.status.redis'), up: health.reachable && health.redis },
+    { id: 'api', label: t('home.status.api'), state: health.api },
+    { id: 'database', label: t('home.status.database'), state: health.database },
+    { id: 'redis', label: t('home.status.redis'), state: health.redis },
   ] as const;
+
+  const pill = {
+    ok: { tone: 'teal', text: t('home.status.online') },
+    down: { tone: 'danger', text: t('home.status.offline') },
+    unknown: { tone: 'neutral', text: t('home.status.unknown') },
+  } as const;
 
   return (
     <PageShell productName={t('app.name')}>
@@ -28,14 +34,12 @@ export default async function HomePage() {
             <div
               key={row.id}
               data-testid={`status-${row.id}`}
-              data-state={row.up ? 'ok' : 'down'}
+              data-state={row.state}
               className="flex items-center justify-between gap-3 py-3 first:pt-0"
             >
               <dt className="text-ink-soft">{row.label}</dt>
               <dd>
-                <Pill tone={row.up ? 'teal' : 'danger'}>
-                  {row.up ? t('home.status.online') : t('home.status.offline')}
-                </Pill>
+                <Pill tone={pill[row.state].tone}>{pill[row.state].text}</Pill>
               </dd>
             </div>
           ))}
@@ -43,7 +47,7 @@ export default async function HomePage() {
           <div className="flex items-center justify-between gap-3 py-3 last:pb-0">
             <dt className="text-ink-soft">{t('home.status.time')}</dt>
             <dd className="text-right font-semibold text-ink">
-              {health.reachable ? (
+              {health.time ? (
                 <time data-testid="status-time" dateTime={health.time}>
                   {formatDateTime(health.time, locale)}
                 </time>

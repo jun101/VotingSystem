@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use App\Http\Middleware\AssignRequestId;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\LostConnectionDetector;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -13,12 +14,16 @@ use Illuminate\Validation\ValidationException;
 use PDOException;
 use Predis\CommunicationException;
 use Predis\Connection\Resource\Exception\StreamInitException;
+use Symfony\Component\HttpFoundation\Exception\SuspiciousOperationException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Throwable;
 
 /**
- * The single place that turns an exception into an answer under `/api`.
+ * The single place that turns an exception into an answer.
  *
+ * This application serves the API and nothing else (the web pages are another service
+ * behind the proxy), so there is no path to except: a bare `/api`, a path the router
+ * does not know and a request the framework refuses before routing all end here.
  * Every answer is JSON in the shape of docs/api/README.md section 3, whatever the debug
  * setting and the `Accept` header. A 500 and a 503 carry only the request id as
  * `reference`: no exception name, no file, no trace, no word about which service failed.
@@ -42,18 +47,28 @@ final class ApiErrorRenderer
         503 => 'maintenance',
     ];
 
+    /**
+     * MariaDB client codes of "cannot connect", "server gone", "connection lost",
+     * "server shutting down" and "statement ran past its time limit".
+     */
+    private const UNREACHABLE = [2002, 2003, 2005, 2006, 2013, 1053, 1927, 1969];
+
+    /** The server answered and said no: wrong password (1045), no right on the database (1044). */
+    private const REFUSED_BY_SERVER = [1044, 1045];
+
     public function __invoke(Throwable $e, Request $request): ?JsonResponse
     {
-        if (! $request->is('api/*')) {
-            return null;
-        }
-
         // A response built on purpose by the code that threw: keep it.
         if ($e instanceof HttpResponseException) {
             return null;
         }
 
         $this->useLanguageOf($request);
+
+        // A request the framework refuses before routing, such as a malformed Host header.
+        if ($this->causedBy($e, SuspiciousOperationException::class)) {
+            return $this->error($request, 400, 'malformed_request');
+        }
 
         if ($this->isDependencyFailure($e)) {
             return $this->error($request, 503, 'dependency_unavailable', headers: ['Retry-After' => '5']);
@@ -102,16 +117,44 @@ final class ApiErrorRenderer
         app()->setLocale($request->getPreferredLanguage($supported) ?? $supported[0]);
     }
 
-    /** The database or Redis could not be reached, at any point of the request. */
+    /**
+     * The database or Redis could not be reached, or did not answer in time, at any point
+     * of the request. Only a failure raised by the database layer or by the Redis client
+     * counts: the same words in any other exception, and a refused login ("Access denied":
+     * a wrong password is our mistake, not an outage), stay a 500.
+     */
     private function isDependencyFailure(Throwable $e): bool
     {
-        $detector = new LostConnectionDetector;
-
         for ($cause = $e; $cause !== null; $cause = $cause->getPrevious()) {
-            if ($cause instanceof CommunicationException
-                || $cause instanceof StreamInitException
-                || ($cause instanceof PDOException && $detector->causedByLostConnection($cause))
-                || $detector->causedByLostConnection($cause)) {
+            if ($cause instanceof CommunicationException || $cause instanceof StreamInitException) {
+                return true;
+            }
+
+            if ($cause instanceof PDOException && $this->databaseUnreachable($cause)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function databaseUnreachable(PDOException $e): bool
+    {
+        $code = $e instanceof QueryException ? ($e->errorInfo[1] ?? null) : $e->getCode();
+
+        if (in_array($code, self::REFUSED_BY_SERVER, true)) {
+            return false;
+        }
+
+        return in_array($code, self::UNREACHABLE, true)
+            || (new LostConnectionDetector)->causedByLostConnection($e);
+    }
+
+    /** @param  class-string<Throwable>  $class */
+    private function causedBy(Throwable $e, string $class): bool
+    {
+        for ($cause = $e; $cause !== null; $cause = $cause->getPrevious()) {
+            if ($cause instanceof $class) {
                 return true;
             }
         }

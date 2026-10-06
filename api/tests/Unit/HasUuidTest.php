@@ -23,6 +23,7 @@ class UuidProbe extends Model
 }
 
 beforeEach(function () {
+    useMigratorConnection();
     Schema::connection('migrator')->dropIfExists('uuid_probes');
     Schema::connection('migrator')->create('uuid_probes', function ($table) {
         $table->id();
@@ -31,7 +32,10 @@ beforeEach(function () {
     });
 });
 
-afterEach(fn () => Schema::connection('migrator')->dropIfExists('uuid_probes'));
+afterEach(function () {
+    useMigratorConnection();
+    Schema::connection('migrator')->dropIfExists('uuid_probes');
+});
 
 it('gives a new record a random version 4 uuid [NFR-SEC-08]', function () {
     $first = UuidProbe::create(['name' => 'a']);

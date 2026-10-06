@@ -11,7 +11,8 @@
       "time": "Heure de la base de données",
       "online": "En ligne",
       "offline": "Hors ligne",
-      "unavailable": "Indisponible"
+      "unavailable": "Indisponible",
+      "unknown": "Inconnu"
     }
   },
   "notFound": {

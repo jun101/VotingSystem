@@ -3,9 +3,10 @@
 use Illuminate\Support\Str;
 use Pdo\Mysql;
 
-// Two accounts on the same database. `mariadb` (account `app`) is what the application,
-// the queue worker and the scheduler use: it reads and writes data but cannot change
-// the schema. `migrator` runs the migrations and nothing else.
+// One connection, `mariadb`. In the api, queue and scheduler containers it is the account
+// `app`: it reads and writes data but cannot change the schema. The migrations run in a
+// container of their own (the `migrate` service of compose.yaml) where the same
+// connection is the account `migrator`: the serving containers never hold that password.
 $mariadb = [
     'driver' => 'mariadb',
     'host' => env('DB_HOST', '127.0.0.1'),
@@ -43,11 +44,24 @@ return [
             'password' => env('DB_PASSWORD'),
         ],
 
-        'migrator' => $mariadb + [
-            'username' => env('DB_MIGRATOR_USERNAME', 'migrator'),
-            'password' => env('DB_MIGRATOR_PASSWORD'),
-        ],
+    ],
 
+    // The account that `php artisan db:grant-app` gives its rights to (docs/design/database.md
+    // section 6).
+    'app_account' => [
+        'username' => env('DB_APP_USERNAME', 'app'),
+        'host' => '%',
+    ],
+
+    // Tables that only ever receive new rows: `app` has no UPDATE and no DELETE on them, so
+    // a flaw in the application cannot change or remove a vote, a participation or an audit
+    // entry (docs/design/database.md section 6). The one list: `db:grant-app` reads it.
+    'append_only_tables' => [
+        'participations',
+        'votes',
+        'vote_choices',
+        'vote_audit',
+        'audit_entries',
     ],
 
     'migrations' => [

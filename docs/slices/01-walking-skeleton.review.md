@@ -82,3 +82,22 @@ or **later** with the slice that takes it. Findings reported by both reviews are
   reports having tried it on the production image.
 - "Done when" item 4 (stopping the database): the reviews could not stop containers; the
   developer reports having tried it.
+
+## Outcome of the fixes
+
+2026-10-06. Findings 1 to 25 are closed, 26 stays for slice 20. The whole check suite
+passes: 91 API tests, 55 web unit tests, 55 browser tests (1 skipped by design), lint,
+generated files, production build, audit.
+
+| # | Outcome |
+|---|---|
+| 1, 3, 10 | Fixed; covered by acceptance tests; confirmed on the running stack |
+| 2 | Fixed: the log is written to the stream the server relays. Confirmed by stopping the database: the `reference` of the 503 is found in the API's log as a JSON line with its request id |
+| 4, 5 | Fixed: the serving containers no longer hold the schema account. Rights are granted table by table by a command run after each migration; the tables of database.md section 6 receive insert only. The API tests run in their own one-off service, the only one besides migrations to hold that account |
+| 11 | Not changed as written: the API tests keep the in-memory cache, because the "Redis does not answer" acceptance test needs Redis untouched before it runs. A separate test builds the rate limiter on the real Redis and obtains a 429 |
+| 17 | Fixed differently: the Redis password is read from a mounted configuration and is no longer on the command line; it remains in the container's environment |
+| 21 | Every dependency is audited; one advisory in a development tool with no fixed release is accepted until 2026-11-06 |
+| others | Fixed as planned |
+
+One acceptance test written for finding 1 was wrong and was corrected: the test client
+cannot send a malformed `Host` header, so the request is now built by hand.

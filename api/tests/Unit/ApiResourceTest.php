@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Resources\ApiResource;
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use JsonSerializable;
 
 const RESOURCE_UUID = '6f1c0c1e-8a54-4c5e-9b7b-2d0f0c9a51aa';
 
@@ -62,4 +64,61 @@ it('puts the id first [NFR-SEC-08]', function () {
     $json = resourceOf(recordOf(), ['title' => 'Conseil'])->resolve();
 
     expect(array_key_first($json))->toBe('id');
+});
+
+it('filters identifiers out of a nested model, whatever its attributes [NFR-SEC-08]', function () {
+    $json = resourceOf(recordOf(), ['title' => 'x', 'election' => recordOf()])->resolve();
+
+    // The nested model is converted, then filtered: no `election_id`, and its `uuid` stays.
+    expect($json['election'])->toBe(['uuid' => RESOURCE_UUID, 'title' => 'Conseil']);
+});
+
+it('filters identifiers out of a collection of models and out of what is convertible to an array [NFR-SEC-08]', function () {
+    $json = resourceOf(recordOf(), [
+        'list' => collect([recordOf(), recordOf()]),
+        'arrayable' => new class implements Arrayable
+        {
+            public function toArray(): array
+            {
+                return ['name' => 'a', 'party_id' => 5, 'inner' => ['voter_id' => 6, 'label' => 'b']];
+            }
+        },
+        'serializable' => new class implements JsonSerializable
+        {
+            public function jsonSerialize(): array
+            {
+                return ['name' => 'c', 'id' => 7];
+            }
+        },
+    ])->resolve();
+
+    expect($json['list'])->toBe([
+        ['uuid' => RESOURCE_UUID, 'title' => 'Conseil'],
+        ['uuid' => RESOURCE_UUID, 'title' => 'Conseil'],
+    ])
+        ->and($json['arrayable'])->toBe(['name' => 'a', 'inner' => ['label' => 'b']])
+        ->and($json['serializable'])->toBe(['name' => 'c']);
+});
+
+it('filters camel-case identifier names too [NFR-SEC-08]', function () {
+    $json = resourceOf(recordOf(), [
+        'institutionId' => 3,
+        'voterIds' => [1, 2],
+        'electionID' => 4,
+        'nested' => ['ballotId' => 5, 'ballotUuid' => RESOURCE_UUID, 'valid' => true, 'paid' => true],
+    ])->resolve();
+
+    expect($json)->toBe([
+        'id' => RESOURCE_UUID,
+        'nested' => ['ballotUuid' => RESOURCE_UUID, 'valid' => true, 'paid' => true],
+    ]);
+});
+
+it('keeps a nested resource, which guards itself and whose id is a UUID [NFR-SEC-08]', function () {
+    $inner = resourceOf(recordOf(), ['title' => 'Inner']);
+
+    $json = resourceOf(recordOf(), ['ballot' => $inner, 'ballots' => collect([$inner])])->toResponse(request())->getData(true);
+
+    expect($json['data']['ballot'])->toBe(['id' => RESOURCE_UUID, 'title' => 'Inner'])
+        ->and($json['data']['ballots'])->toBe([['id' => RESOURCE_UUID, 'title' => 'Inner']]);
 });

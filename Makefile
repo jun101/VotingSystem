@@ -5,8 +5,12 @@ export HOST_UID ?= $(shell id -u)
 export HOST_GID ?= $(shell id -g)
 
 # One-off commands in the api and web images. `-T`: no terminal (works in CI too).
-API     := $(COMPOSE) run --rm -T api
 API_BARE := $(COMPOSE) run --rm -T --no-deps api
+# One-off services (compose.yaml): the migrations and the table rights, as `migrator`, on
+# the database and on the test database; the API tests, which also hold `migrator`.
+MIGRATE      := $(COMPOSE) run --rm -T migrate
+MIGRATE_TEST := $(COMPOSE) run --rm -T migrate-test
+TEST_API     := $(COMPOSE) run --rm -T test
 WEB_BARE := $(COMPOSE) run --rm -T --no-deps web
 
 .DEFAULT_GOAL := help
@@ -22,8 +26,8 @@ setup: ## Create .env, generate missing secrets, build, install dependencies, mi
 	$(API_BARE) composer install --no-interaction --prefer-dist
 	$(WEB_BARE) npm ci
 	$(COMPOSE) up -d --wait db redis
-	$(API) php artisan migrate --database=migrator --force
-	$(COMPOSE) run --rm -T -e DB_DATABASE=votesystem_test api php artisan migrate --database=migrator --force
+	$(MIGRATE)
+	$(MIGRATE_TEST)
 
 up: ## Start the whole system on http://localhost:8080
 	$(COMPOSE) up -d --build --wait
@@ -37,7 +41,7 @@ restart-api: ## Reload the API workers after editing PHP code
 test: test-api test-web ## API tests (every suite) and web unit tests
 
 test-api:
-	$(API) vendor/bin/pest
+	$(TEST_API)
 
 test-web:
 	$(WEB_BARE) npm run test
@@ -62,19 +66,19 @@ generate: ## Regenerate docs/api/openapi.json and web/src/lib/api/schema.d.ts
 # Regenerates both files, then fails if either differs from what is committed.
 generate-check:
 	@set -e; \
-	cp docs/api/openapi.json /tmp/openapi.committed.$$$$ ; cp web/src/lib/api/schema.d.ts /tmp/schema.committed.$$$$ ; \
-	$(MAKE) --no-print-directory generate ; \
+	tmp=$$(mktemp -d); trap 'rm -rf "$$tmp"' EXIT; \
+	cp docs/api/openapi.json "$$tmp/openapi.json"; cp web/src/lib/api/schema.d.ts "$$tmp/schema.d.ts"; \
+	$(MAKE) --no-print-directory generate; \
 	status=0; \
-	cmp -s docs/api/openapi.json /tmp/openapi.committed.$$$$ || { echo "docs/api/openapi.json is not up to date: run make generate"; status=1; }; \
-	cmp -s web/src/lib/api/schema.d.ts /tmp/schema.committed.$$$$ || { echo "web/src/lib/api/schema.d.ts is not up to date: run make generate"; status=1; }; \
-	rm -f /tmp/openapi.committed.$$$$ /tmp/schema.committed.$$$$ ; \
+	cmp -s docs/api/openapi.json "$$tmp/openapi.json" || { echo "docs/api/openapi.json is not up to date: run make generate"; status=1; }; \
+	cmp -s web/src/lib/api/schema.d.ts "$$tmp/schema.d.ts" || { echo "web/src/lib/api/schema.d.ts is not up to date: run make generate"; status=1; }; \
 	exit $$status
 
 build: ## Build the production web image
 	docker build -f docker/web/Dockerfile --target prod -t votesystem-web:prod .
 
-audit: ## Known vulnerabilities in the dependencies that ship (the dev tools are not audited: no patched release of one of them exists yet)
+audit: ## Known vulnerabilities in every dependency; accepted advisories are listed, dated, in web/audit-accepted.json
 	$(API_BARE) composer audit
-	$(WEB_BARE) npm audit --omit=dev --audit-level=high
+	$(WEB_BARE) node scripts/audit.mjs
 
 check: lint test generate-check build audit e2e ## Everything CI runs

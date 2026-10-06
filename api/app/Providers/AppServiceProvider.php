@@ -13,7 +13,11 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         // The OpenAPI file is exported by `make generate`; no documentation page is served.
-        Scramble::ignoreDefaultRoutes();
+        // Scramble is a development package: without it (an install made with
+        // `--no-dev`) the application starts all the same.
+        if (class_exists(Scramble::class)) {
+            Scramble::ignoreDefaultRoutes();
+        }
     }
 
     public function boot(): void

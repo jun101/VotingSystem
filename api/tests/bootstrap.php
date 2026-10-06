@@ -15,8 +15,12 @@ $settings = [
     'DB_DATABASE' => (getenv('DB_DATABASE') ?: 'votesystem').'_test',
     'REDIS_DB' => '10',
     'REDIS_CACHE_DB' => '11',
-    // The rate-limit counters live in memory so each test starts clean. Redis itself is
-    // real: the health check pings it.
+    // The default cache is in memory so each test starts clean. It cannot be Redis:
+    // TestCase flushes the cache before every test, which would build the Redis manager
+    // (and copy its settings) before HealthTest points `redis.default` at a dead port to
+    // simulate an outage, and the manager never re-reads its settings. The Redis cache is
+    // tested on its own: tests/Feature/RedisRateLimitTest.php. Redis itself is real: the
+    // health check pings it.
     'CACHE_STORE' => 'array',
     'QUEUE_CONNECTION' => 'sync',
     'SESSION_DRIVER' => 'array',
@@ -31,3 +35,4 @@ foreach ($settings as $name => $value) {
 }
 
 require __DIR__.'/../vendor/autoload.php';
+require __DIR__.'/migrator.php';
