@@ -236,5 +236,6 @@ Filled slice by slice: each slice adds its endpoints here with a link to their f
 | Auth | `POST /auth/login` | 02 | [auth/POST-auth-login.md](auth/POST-auth-login.md) |
 | Auth | `POST /auth/logout` | 02 | [auth/POST-auth-logout.md](auth/POST-auth-logout.md) |
 | Auth | `GET /auth/me` | 02 | [auth/GET-auth-me.md](auth/GET-auth-me.md) |
+| Auth | `PATCH /auth/me` | 03 | [auth/PATCH-auth-me.md](auth/PATCH-auth-me.md) |
 | Auth | `POST /auth/forgot-password` | 02 | [auth/POST-auth-forgot-password.md](auth/POST-auth-forgot-password.md) |
 | Auth | `POST /auth/reset-password` | 02 | [auth/POST-auth-reset-password.md](auth/POST-auth-reset-password.md) |
