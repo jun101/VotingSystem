@@ -34,6 +34,11 @@ x-api: &api
     MAIL_HOST: mailpit
     MAIL_PORT: "1025"
     MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-no-reply@localhost}
+    # Multiplies the rate limits of the auth endpoints; empty means 1 (the real limits).
+    AUTH_RATE_LIMIT_FACTOR: ${AUTH_RATE_LIMIT_FACTOR:-}
+    # Name of the session cookie (docs/api/auth/GET-auth-csrf.md); the web container looks
+    # for the same name.
+    SESSION_COOKIE: ${SESSION_COOKIE:-new_voting_system_session}
   depends_on:
     db:
       condition: service_healthy
@@ -163,6 +168,7 @@ services:
     environment:
       # Server-side calls reach the API through the internal network.
       API_INTERNAL_URL: http://api:8000
+      SESSION_COOKIE: ${SESSION_COOKIE:-new_voting_system_session}
     depends_on:
       api:
         condition: service_healthy

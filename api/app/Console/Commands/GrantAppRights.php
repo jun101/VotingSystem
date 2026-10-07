@@ -14,6 +14,7 @@ use PDOException;
  * migrations, with the `migrator` account: the only account that may grant.
  *
  * - every table: `INSERT`, `UPDATE` and `DELETE`; `SELECT` is held on the whole database;
+ * - the tables of `database.no_delete_tables`: `INSERT` and `UPDATE`, never `DELETE`;
  * - the tables of `database.append_only_tables`: `INSERT` only (and `SELECT`);
  * - the migrations' own table: nothing.
  *
@@ -44,6 +45,9 @@ class GrantAppRights extends Command
         /** @var list<string> $appendOnly */
         $appendOnly = Config::array('database.append_only_tables');
 
+        /** @var list<string> $noDelete */
+        $noDelete = Config::array('database.no_delete_tables');
+
         // The database level: reading everywhere, nothing that changes data.
         $this->revoke($pdo, self::CHANGES_DATA, "{$database}.*", $account);
         $pdo->exec("GRANT SELECT ON {$database}.* TO {$account}");
@@ -69,13 +73,21 @@ class GrantAppRights extends Command
                 $this->revoke($pdo, ['UPDATE', 'DELETE'], $on, $account);
                 $pdo->exec("GRANT INSERT ON {$on} TO {$account}");
                 $this->line(sprintf('%-24s INSERT', $table));
+            } elseif (in_array($table, $noDelete, true)) {
+                $this->revoke($pdo, ['DELETE'], $on, $account);
+                $pdo->exec("GRANT INSERT, UPDATE ON {$on} TO {$account}");
+                $this->line(sprintf('%-24s INSERT, UPDATE', $table));
             } else {
                 $pdo->exec("GRANT INSERT, UPDATE, DELETE ON {$on} TO {$account}");
                 $this->line(sprintf('%-24s INSERT, UPDATE, DELETE', $table));
             }
         }
 
-        // A table of the list that does not exist yet.
+        // A table of the lists that does not exist yet.
+        foreach (array_diff($noDelete, $existing) as $table) {
+            $this->revoke($pdo, ['DELETE'], "{$database}.".$this->identifier($table), $account);
+        }
+
         foreach (array_diff($appendOnly, $existing) as $table) {
             $this->revoke($pdo, ['UPDATE', 'DELETE'], "{$database}.".$this->identifier($table), $account);
         }

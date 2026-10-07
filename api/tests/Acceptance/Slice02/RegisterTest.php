@@ -118,7 +118,7 @@ it('writes the email in the language of the user [NFR-UX-01] (scenario 1)', func
         ->and($en['text'])->not->toBe('')->and($en['html'])->not->toBe('');
 });
 
-it('takes the language from Accept-Language when none is sent [FR-INST-01] (scenario 1)', function () {
+it('takes the language from Accept-Language when none is sent, French when it is not English [FR-INST-01] (scenario 1)', function () {
     $body = validRegistration();
     unset($body['language']);
 
@@ -129,7 +129,7 @@ it('takes the language from Accept-Language when none is sent [FR-INST-01] (scen
     $other = validRegistration(['email' => 'c@example.test']);
     unset($other['language']);
 
-    $this->browser->post('/api/v1/auth/register', $other)
+    $this->browser->post('/api/v1/auth/register', $other, ['Accept-Language' => 'fr'])
         ->assertCreated()->assertJsonPath('data.language', 'fr');
 });
 

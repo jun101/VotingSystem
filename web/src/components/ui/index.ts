@@ -2,6 +2,8 @@ export { Button } from './Button';
 export type { ButtonSize, ButtonVariant } from './Button';
 export { Card } from './Card';
 export { Input } from './Input';
+export { Notice } from './Notice';
+export type { NoticeTone } from './Notice';
 export { PageShell } from './PageShell';
 export type { PageShellVariant } from './PageShell';
 export { Pill } from './Pill';

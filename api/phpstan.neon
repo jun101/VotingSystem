@@ -9,8 +9,3 @@ parameters:
         - config
         - database
         - routes
-    ignoreErrors:
-        -
-            # Used by the models of slice 02 onward; tested in tests/Unit.
-            identifier: trait.unused
-            path: app/Models/Concerns/HasUuid.php

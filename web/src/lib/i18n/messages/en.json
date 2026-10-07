@@ -108,5 +108,127 @@
   },
   "common": {
     "percent": " %"
+  },
+  "auth": {
+    "panel": {
+      "title": "Your school’s elections, from coupon to result.",
+      "point1": "Import your voters from Excel.",
+      "point2": "Print coupons or send the codes by email.",
+      "point3": "Secret ballot, one vote per voter.",
+      "point4": "Results published on a page you can share."
+    },
+    "password": {
+      "show": "Show password",
+      "hide": "Hide password"
+    },
+    "register": {
+      "title": "Create your institution’s account",
+      "lede": "Free. A verification email will be sent to you.",
+      "institutionName": "Institution name",
+      "name": "Your name",
+      "email": "Email",
+      "emailPlaceholder": "you@example.org",
+      "password": "Password",
+      "passwordHelp": "At least 12 characters.",
+      "submit": "Create the account",
+      "haveAccount": "Already registered?",
+      "signIn": "Sign in"
+    },
+    "login": {
+      "title": "Sign in",
+      "lede": "Pick up your elections where you left them.",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign in",
+      "forgot": "Forgot your password?",
+      "noAccount": "No account yet?",
+      "register": "Register my institution",
+      "notice": "Your password has been changed. You can sign in."
+    },
+    "forgot": {
+      "title": "Forgot your password",
+      "lede": "Enter your email: if an account exists, we send you a link to choose a new password.",
+      "email": "Email",
+      "submit": "Send the link",
+      "sentTitle": "Check your inbox",
+      "sent": "If an account exists for this address, a link has just been sent. It is valid for 60 minutes.",
+      "back": "Back to sign in"
+    },
+    "reset": {
+      "title": "New password",
+      "lede": "Choose a password of at least 12 characters.",
+      "password": "New password",
+      "passwordHelp": "At least 12 characters.",
+      "submit": "Change the password",
+      "invalidTitle": "Link invalid or expired",
+      "invalid": "This link is no longer valid. Ask for a new one.",
+      "request": "Ask for a new link"
+    },
+    "verify": {
+      "title": "Email verification",
+      "pending": "Verifying…",
+      "success": "Your email is verified.",
+      "toAdmin": "Go to my space",
+      "invalid": "This verification link is not valid. It may already have been used, or a newer link replaced it.",
+      "expired": "This link has expired. Sign in to receive a new one.",
+      "failed": "The verification could not be done right now. Try again in a moment.",
+      "signIn": "Sign in"
+    }
+  },
+  "admin": {
+    "placeholder": {
+      "welcome": "Welcome, {name}",
+      "institution": "{name}",
+      "soon": "Your administration area is coming soon.",
+      "signOut": "Sign out",
+      "bannerTitle": "Verify your email address",
+      "bannerText": "A verification link was sent to {email}. You will need to have used it to open an election.",
+      "resend": "Send the email again",
+      "resendDone": "Email sent. Check your inbox."
+    }
+  },
+  "errors": {
+    "validation_failed": "Some fields need correcting.",
+    "invalid_credentials": "Email or password is incorrect.",
+    "institution_suspended": "This institution is suspended.",
+    "unauthenticated": "Your session has ended. Sign in again.",
+    "csrf_mismatch": "The session has expired. Reload the page, then try again.",
+    "too_many_attempts": "Too many attempts. Try again in a moment.",
+    "expired": "This link has expired. Ask for a new one.",
+    "already_verified": "Your email is already verified.",
+    "malformed_request": "The request could not be read. Reload the page, then try again.",
+    "method_not_allowed": "This action is not available.",
+    "server_error": "A server error occurred. Try again in a moment.",
+    "dependency_unavailable": "The service is temporarily unavailable. Try again in a moment.",
+    "maintenance": "The service is under maintenance. Try again later.",
+    "network": "The server cannot be reached. Check your connection, then try again.",
+    "unknown": "An unexpected error occurred.",
+    "reference": "Reference to give to support: {reference}"
+  },
+  "validation": {
+    "required": "This field is required.",
+    "invalid": "This value is not valid.",
+    "taken": "This value is already in use.",
+    "min": "This value is too short.",
+    "max": "This value is too long.",
+    "same_as_email": "The password cannot be your email address.",
+    "email": {
+      "invalid": "Enter a valid email address.",
+      "taken": "This address already has an account. Sign in or use another address.",
+      "max": "This address is too long (255 characters at most)."
+    },
+    "password": {
+      "min": "The password must have at least 12 characters.",
+      "max": "The password must have 128 characters at most."
+    },
+    "institution_name": {
+      "max": "The institution name must have 150 characters at most."
+    },
+    "name": {
+      "max": "Your name must have 150 characters at most."
+    },
+    "language": {
+      "invalid": "This language is not available."
+    }
   }
 }

@@ -26,8 +26,10 @@ export function useEnter(ref: RefObject<HTMLElement | null>, onEnter?: () => voi
 
     if (!element || typeof IntersectionObserver === 'undefined') return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    // Already in view, or already passed: keep it as it is.
-    if (element.getBoundingClientRect().top < window.innerHeight * 0.95) return;
+    // Already in view, or already passed: keep it as it is. (The observer below ignores the
+    // last 5 % of the screen, so an element in that band would wait for a scroll that may
+    // never come: it is shown at once instead.)
+    if (element.getBoundingClientRect().top < window.innerHeight) return;
 
     let frame = 0;
     element.dataset.state = 'pending';

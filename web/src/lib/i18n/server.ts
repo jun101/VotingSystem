@@ -12,5 +12,5 @@ export async function getI18n(): Promise<{ locale: Locale; t: Translate }> {
   });
   const messages = getMessages(locale);
 
-  return { locale, t: (key) => translate(messages, key) };
+  return { locale, t: (key, params) => translate(messages, key, params) };
 }

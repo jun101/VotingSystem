@@ -2,12 +2,19 @@
 
 use App\Exceptions\ApiErrorRenderer;
 use App\Http\Middleware\AssignRequestId;
+use App\Http\Middleware\EnsureInstitutionActive;
 use App\Http\Middleware\RefuseOptions;
+use App\Http\Middleware\RejectMalformedJson;
+use App\Http\Middleware\ResetAuthState;
+use App\Http\Middleware\VerifyCsrfToken;
 use App\Support\TrustedHosts;
+use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Session\Middleware\AuthenticateSession;
+use Illuminate\Session\Middleware\StartSession;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -32,6 +39,32 @@ return Application::configure(basePath: dirname(__DIR__))
         // Global, so that routes outside the `api` group get a request id too.
         $middleware->prepend(AssignRequestId::class);
         $middleware->append(RefuseOptions::class);
+
+        // The routes that use the cookie session (docs/api/auth/): sign-in, CSRF, the current
+        // user. Only they start a session, so `/health` and the public routes set no cookie.
+        // The guard forgets its user first (the application stays in memory); a JSON body
+        // that cannot be read is refused; the session carries a hash of the password, and
+        // is ended when the password changes. The two cookies (session id, CSRF token) are
+        // random values and are not encrypted (see VerifyCsrfToken).
+        $middleware->group('cookie-session', [
+            ResetAuthState::class,
+            RejectMalformedJson::class,
+            StartSession::class,
+            VerifyCsrfToken::class,
+            AuthenticateSession::class,
+        ]);
+        $middleware->alias(['institution.active' => EnsureInstitutionActive::class]);
+
+        // This application serves the API only: a request that is not signed in is answered
+        // 401 (see ApiErrorRenderer), never redirected to a sign-in page.
+        $middleware->redirectGuestsTo(fn () => null);
+
+        // The framework sorts the middleware of a route by its priority list, and puts those
+        // it does not know after the others: say where ours go.
+        $middleware->prependToPriorityList(before: StartSession::class, prepend: ResetAuthState::class);
+        $middleware->prependToPriorityList(before: StartSession::class, prepend: RejectMalformedJson::class);
+        $middleware->appendToPriorityList(after: StartSession::class, append: VerifyCsrfToken::class);
+        $middleware->appendToPriorityList(after: AuthenticatesRequests::class, append: EnsureInstitutionActive::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // This application serves the API only: every answer is JSON, whatever the path

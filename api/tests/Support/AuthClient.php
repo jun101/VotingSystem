@@ -92,9 +92,8 @@ final class AuthClient
         }
 
         return $this->remember($this->test
-            ->withUnencryptedCookies($this->cookies)
             ->withServerVariables($this->server)
-            ->call('POST', $uri, [], [], [], [
+            ->call('POST', $uri, [], $this->cookies, [], [
                 'CONTENT_TYPE' => 'application/json',
                 'HTTP_ACCEPT' => 'application/json',
                 'HTTP_X_XSRF_TOKEN' => $this->cookies['XSRF-TOKEN'] ?? '',
@@ -119,8 +118,15 @@ final class AuthClient
      */
     private function send(string $method, string $uri, ?array $data, array $headers): TestResponse
     {
+        // `json()` sends cookies only with credentials; and the test case keeps the cookies it
+        // was given, so they are reset first: two clients in one test are two browsers.
+        (function () {
+            $this->unencryptedCookies = [];
+        })->call($this->test);
+
         return $this->remember($this->test
             ->withUnencryptedCookies($this->cookies)
+            ->withCredentials()
             ->withServerVariables($this->server)
             ->json($method, $uri, $data ?? [], $headers));
     }
