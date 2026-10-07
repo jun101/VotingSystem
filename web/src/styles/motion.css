@@ -61,24 +61,20 @@
     box-shadow: 0 0 0 4px var(--color-primary-soft);
   }
 
-  /* ---- Reveal: fades in and rises 16 px, once ---- */
+  /*
+   * Entrances. The pending state applies at once (no transition declared on it); the
+   * transition is declared on the entered state only, so it plays on the way in and an
+   * element that is already in view is never hidden and faded back.
+   */
 
-  [data-reveal] {
-    transition-property: opacity, transform;
-    transition-duration: var(--duration-reveal);
-    transition-timing-function: var(--ease-out-soft);
-  }
+  /* ---- Reveal: fades in and rises 16 px, once ---- */
 
   [data-reveal][data-state='pending'] {
     opacity: 0;
     transform: translateY(16px);
   }
 
-  [data-reveal='stagger'] {
-    transition: none;
-  }
-
-  [data-reveal='stagger'] > * {
+  [data-reveal][data-state='in'] {
     transition-property: opacity, transform;
     transition-duration: var(--duration-reveal);
     transition-timing-function: var(--ease-out-soft);
@@ -89,31 +85,41 @@
     transform: none;
   }
 
+  [data-reveal='stagger'][data-state='in'] {
+    transition: none;
+  }
+
   [data-reveal='stagger'][data-state='pending'] > * {
     opacity: 0;
     transform: translateY(16px);
   }
 
+  [data-reveal='stagger'][data-state='in'] > * {
+    transition-property: opacity, transform;
+    transition-duration: var(--duration-reveal);
+    transition-timing-function: var(--ease-out-soft);
+  }
+
   /* Siblings follow each other 60 ms apart, eight at most. */
-  [data-reveal='stagger'] > :nth-child(2) {
+  [data-reveal='stagger'][data-state='in'] > :nth-child(2) {
     transition-delay: 60ms;
   }
-  [data-reveal='stagger'] > :nth-child(3) {
+  [data-reveal='stagger'][data-state='in'] > :nth-child(3) {
     transition-delay: 120ms;
   }
-  [data-reveal='stagger'] > :nth-child(4) {
+  [data-reveal='stagger'][data-state='in'] > :nth-child(4) {
     transition-delay: 180ms;
   }
-  [data-reveal='stagger'] > :nth-child(5) {
+  [data-reveal='stagger'][data-state='in'] > :nth-child(5) {
     transition-delay: 240ms;
   }
-  [data-reveal='stagger'] > :nth-child(6) {
+  [data-reveal='stagger'][data-state='in'] > :nth-child(6) {
     transition-delay: 300ms;
   }
-  [data-reveal='stagger'] > :nth-child(7) {
+  [data-reveal='stagger'][data-state='in'] > :nth-child(7) {
     transition-delay: 360ms;
   }
-  [data-reveal='stagger'] > :nth-child(n + 8) {
+  [data-reveal='stagger'][data-state='in'] > :nth-child(n + 8) {
     transition-delay: 420ms;
   }
 
@@ -122,11 +128,14 @@
   [data-grow] {
     transform: scaleX(var(--grow, 1));
     transform-origin: left center;
-    transition: transform var(--duration-reveal) var(--ease-out-soft);
   }
 
   [data-grow][data-state='pending'] {
     transform: scaleX(0);
+  }
+
+  [data-grow][data-state='in'] {
+    transition: transform var(--duration-reveal) var(--ease-out-soft);
   }
 
   /* ---- Check: the mark draws itself, with one ring pulse ---- */
@@ -134,11 +143,14 @@
   [data-check] .check-mark {
     stroke-dasharray: 1;
     stroke-dashoffset: 0;
-    transition: stroke-dashoffset var(--duration-reveal) var(--ease-out-soft);
   }
 
   [data-check][data-state='pending'] .check-mark {
     stroke-dashoffset: 1;
+  }
+
+  [data-check][data-state='in'] .check-mark {
+    transition: stroke-dashoffset var(--duration-reveal) var(--ease-out-soft);
   }
 
   [data-check] .check-halo {

@@ -32,6 +32,9 @@ export default async function MotionPage() {
 
   const { locale, t } = await getI18n();
 
+  const number = new Intl.NumberFormat(locale);
+  const percent = number.format(87) + t('common.percent');
+
   const avatar = (
     <span
       aria-hidden="true"
@@ -59,9 +62,17 @@ export default async function MotionPage() {
           lede={t('dev.motion.lede')}
           figures={
             <>
-              <GlassTile data-testid="demo-glass" figure="1 240" label={t('dev.motion.tileA')} />
-              <GlassTile data-testid="demo-glass" figure="87 %" label={t('dev.motion.tileB')} />
-              <GlassTile data-testid="demo-glass" figure="1 078" label={t('dev.motion.tileC')} />
+              <GlassTile
+                data-testid="demo-glass"
+                figure={number.format(1240)}
+                label={t('dev.motion.tileA')}
+              />
+              <GlassTile data-testid="demo-glass" figure={percent} label={t('dev.motion.tileB')} />
+              <GlassTile
+                data-testid="demo-glass"
+                figure={number.format(1078)}
+                label={t('dev.motion.tileC')}
+              />
             </>
           }
           stage={
@@ -99,7 +110,7 @@ export default async function MotionPage() {
         <p className="text-ink-soft">{t('dev.motion.showcaseText')}</p>
       </ShowcaseCard>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-2">
         <Band
           data-testid="demo-band"
           avatar={avatar}
@@ -116,7 +127,7 @@ export default async function MotionPage() {
         />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-2">
         <Card title={t('dev.motion.countTitle')}>
           <p className="font-display text-4xl font-bold text-primary">
             <CountUp
@@ -155,7 +166,7 @@ export default async function MotionPage() {
         </Reveal>
       </Card>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-2">
         <Card title={t('dev.motion.liveTitle')}>
           <p className="flex items-center gap-3 text-ink-soft">
             <span data-testid="demo-livedot" className="inline-flex p-2 text-teal">
@@ -177,7 +188,7 @@ export default async function MotionPage() {
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-2">
         <Float data-testid="demo-float">
           <Card title={t('dev.motion.floatTitle')}>
             <p className="text-ink-soft">{t('dev.motion.floatText')}</p>
@@ -195,7 +206,7 @@ export default async function MotionPage() {
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-2">
         <div>
           <h2 className="mb-3 text-lg font-bold text-ink">{t('dev.motion.selectTitle')}</h2>
           <label

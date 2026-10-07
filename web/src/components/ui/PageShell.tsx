@@ -21,6 +21,10 @@ type PageShellProps = {
 const focusRing =
   'focus-visible:ring-4 focus-visible:ring-primary-soft focus-visible:outline-2 focus-visible:outline-primary';
 
+/** On the navy hero the usual outline is too dark: a light one, from the tokens. */
+const heroFocus =
+  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-light';
+
 export function PageShell({
   productName,
   variant = 'plain',
@@ -34,34 +38,48 @@ export function PageShell({
       href="/"
       className={cx(
         'rounded-sm font-display text-lg font-bold',
-        hero ? 'text-surface focus-visible:ring-hero-mid' : 'text-ink',
-        focusRing,
+        hero ? 'text-surface' : 'text-ink',
+        hero ? heroFocus : focusRing,
       )}
     >
       {productName}
     </Link>
   );
 
-  return (
-    <div data-variant={variant} className="min-h-screen bg-canvas">
-      {hero ? (
+  if (hero) {
+    return (
+      <div data-variant={variant} className="min-h-screen bg-canvas">
         <div className="relative">
-          {/* The name of the product sits on the hero, over its top edge. */}
+          {/* The name of the product sits on the hero, over its top edge, outside <main>. */}
           <header className="absolute inset-x-0 top-0 z-10 mx-auto w-full max-w-6xl px-4 pt-6">
             {link}
           </header>
-          {hero}
+          <main>
+            {hero}
+            <div
+              className={cx(
+                'mx-auto flex w-full max-w-6xl flex-col gap-6 px-4',
+                overlap ? 'relative z-10 -mt-12' : 'pt-6 md:pt-10',
+                withActionBar ? 'pb-32' : 'pb-6 md:pb-10',
+              )}
+            >
+              {children}
+            </div>
+          </main>
         </div>
-      ) : null}
+      </div>
+    );
+  }
+
+  return (
+    <div data-variant={variant} className="min-h-screen bg-canvas">
       <div
         className={cx(
-          'mx-auto flex w-full flex-col gap-6 px-4',
-          hero ? 'max-w-6xl' : 'max-w-3xl',
-          hero && overlap ? 'relative z-10 -mt-12' : 'pt-6 md:pt-10',
+          'mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 pt-6 md:pt-10',
           withActionBar ? 'pb-32' : 'pb-6 md:pb-10',
         )}
       >
-        {hero ? null : <header>{link}</header>}
+        <header>{link}</header>
         <main className="flex flex-col gap-6">{children}</main>
       </div>
     </div>

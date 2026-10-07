@@ -1,22 +1,33 @@
 'use client';
 
-import { useEffect, type RefObject } from 'react';
+import { useEffect, useRef, type RefObject } from 'react';
 
 /**
  * Runs an entrance once, when the element enters the screen.
  *
  * The state lives in a `data-state` attribute that only this hook writes, after the page
- * is running: `pending` (hidden at its start position), then `in` (the final state, which
- * the stylesheet reaches with a transition). Server-rendered, and with JavaScript off or
- * with "reduce motion", the element has no state and shows its final state at once.
- * `onEnter` is called at the moment the entrance starts.
+ * is running: `pending` (hidden at its start position, applied at once), then `in` (the
+ * final state, which the stylesheet reaches with a transition declared on `in` only).
+ * Server-rendered, with JavaScript off, with "reduce motion", or when the element is
+ * already in view (or above it) when the page starts, the element has no state and shows
+ * its final state at once: nothing visible is hidden and faded back.
+ * `onEnter` is called at the moment the entrance starts; changing it does not restart
+ * anything.
  */
 export function useEnter(ref: RefObject<HTMLElement | null>, onEnter?: () => void): void {
+  const latest = useRef(onEnter);
+
+  useEffect(() => {
+    latest.current = onEnter;
+  }, [onEnter]);
+
   useEffect(() => {
     const element = ref.current;
 
     if (!element || typeof IntersectionObserver === 'undefined') return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    // Already in view, or already passed: keep it as it is.
+    if (element.getBoundingClientRect().top < window.innerHeight * 0.95) return;
 
     let frame = 0;
     element.dataset.state = 'pending';
@@ -29,7 +40,7 @@ export function useEnter(ref: RefObject<HTMLElement | null>, onEnter?: () => voi
         // One frame later, so the start position has been drawn and the change is animated.
         frame = requestAnimationFrame(() => {
           element.dataset.state = 'in';
-          onEnter?.();
+          latest.current?.();
         });
       },
       { rootMargin: '0px 0px -5% 0px' },
@@ -40,6 +51,8 @@ export function useEnter(ref: RefObject<HTMLElement | null>, onEnter?: () => voi
     return () => {
       observer.disconnect();
       cancelAnimationFrame(frame);
+      // Strict mode runs the effect twice: leave no hidden state behind.
+      if (element.dataset.state === 'pending') delete element.dataset.state;
     };
-  }, [ref, onEnter]);
+  }, [ref]);
 }
