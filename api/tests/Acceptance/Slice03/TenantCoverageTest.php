@@ -25,6 +25,9 @@ it('notices a route that is in no list [NFR-SEC-03] (rule 5)', function () {
 });
 
 it('names an existing test file, mentioning the route, for every tenant route [NFR-SEC-03] (rule 5)', function () {
+    // Empty until slice 05 adds the first tenant routes.
+    expect(Tenancy::TENANT_ROUTES)->toBeArray();
+
     foreach (Tenancy::TENANT_ROUTES as $route => $file) {
         $path = base_path('tests/Acceptance/'.$file);
 

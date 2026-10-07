@@ -68,7 +68,7 @@ it('refuses to create a tenant record when nobody can own it [NFR-SEC-03] (rule 
     Auth::forgetGuards();
     $before = Tenancy::probeCount();
 
-    expect(fn () => TenantProbe::create(['title' => 'Orphan']))->toThrow(Throwable::class);
+    expect(fn () => TenantProbe::create(['title' => 'Orphan']))->toThrow(LogicException::class);
     expect(Tenancy::probeCount())->toBe($before);
 });
 
