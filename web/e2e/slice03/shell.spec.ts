@@ -81,7 +81,8 @@ test.describe('the shell after sign-up [FR-NAV-02, FR-NAV-03]', () => {
 
       await openMenu(page);
       expect(await currentLinks(page)).toEqual([`menu-link-${entry.key}`]);
-      if (entry.key !== 'dashboard') await page.keyboard.press('Escape');
+      // Close the drawer again on a phone (nothing to close on a desktop).
+      await page.keyboard.press('Escape');
     }
   });
 
@@ -254,6 +255,8 @@ test.describe('the desktop menu [FR-NAV-03]', () => {
 test.describe('keyboard and structure [NFR-UX-03]', () => {
   test('has a skip link that goes to the content, and a visible focus ring', async ({ page }) => {
     await registerAndEnter(page);
+    // A fresh load: after a client-side navigation the browser starts from the last click.
+    await page.reload();
 
     await page.keyboard.press('Tab');
     await expect(page.getByTestId('skip-link')).toBeFocused();
