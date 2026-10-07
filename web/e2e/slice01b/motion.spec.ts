@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { expect, test, type Page } from '@playwright/test';
 
 /*
@@ -174,7 +174,7 @@ test.describe('with JavaScript off', () => {
 });
 
 test('no animation library is installed [rule 1]', () => {
-  const manifest = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8'));
+  const manifest = JSON.parse(readFileSync(fileURLToPath(new URL('../../package.json', import.meta.url)), 'utf8'));
   const names = Object.keys({ ...manifest.dependencies, ...manifest.devDependencies });
   const banned = /^(framer-motion|motion|gsap|animejs|react-spring|@react-spring\/.*|lottie-.*|@lottiefiles\/.*|aos|animate\.css|popmotion|velocity-animate)$/;
 
