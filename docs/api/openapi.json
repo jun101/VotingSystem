@@ -342,6 +342,116 @@
                         "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
+            },
+            "patch": {
+                "operationId": "me.update",
+                "description": "In this slice, the language of the admin area (`fr` or `en`). It also becomes the language of\nthe emails sent to this user from then on. Only the signed-in user's own row changes; any\nother field of the body is ignored. Signed-in user.",
+                "summary": "Change the signed-in user's settings",
+                "tags": [
+                    "Me"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateMeRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "type": "string"
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "owner",
+                                                        "manager",
+                                                        "platform_admin"
+                                                    ]
+                                                },
+                                                "email_verified": {
+                                                    "type": "boolean"
+                                                },
+                                                "language": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "fr",
+                                                        "en"
+                                                    ]
+                                                },
+                                                "institution": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "string"
+                                                        },
+                                                        "name": {
+                                                            "type": "string"
+                                                        },
+                                                        "type": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "school",
+                                                                "university",
+                                                                "association",
+                                                                "other"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "id",
+                                                        "name",
+                                                        "type"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "name",
+                                                "email",
+                                                "role",
+                                                "email_verified",
+                                                "language",
+                                                "institution"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
             }
         },
         "/v1/auth/register": {
@@ -622,6 +732,22 @@
                     "password"
                 ],
                 "title": "ResetPasswordRequest"
+            },
+            "UpdateMeRequest": {
+                "type": "object",
+                "properties": {
+                    "language": {
+                        "type": "string",
+                        "enum": [
+                            "fr",
+                            "en"
+                        ]
+                    }
+                },
+                "required": [
+                    "language"
+                ],
+                "title": "UpdateMeRequest"
             },
             "UserResource": {
                 "type": "array",
