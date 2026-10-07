@@ -64,6 +64,13 @@ return [
         'audit_entries',
     ],
 
+    // `app` may insert and update here, never delete: a user is removed with `deleted_at`
+    // (docs/design/database.md section 1).
+    'no_delete_tables' => [
+        'institutions',
+        'users',
+    ],
+
     'migrations' => [
         'table' => 'migrations',
         'update_date_on_publish' => true,

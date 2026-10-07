@@ -130,11 +130,11 @@
     transform-origin: left center;
   }
 
-  [data-grow][data-state='pending'] {
+  [data-grow-track][data-state='pending'] [data-grow] {
     transform: scaleX(0);
   }
 
-  [data-grow][data-state='in'] {
+  [data-grow-track][data-state='in'] [data-grow] {
     transition: transform var(--duration-reveal) var(--ease-out-soft);
   }
 
@@ -403,7 +403,7 @@
     stroke-dashoffset: 0 !important;
   }
 
-  [data-grow][data-state='pending'] {
+  [data-grow-track][data-state='pending'] [data-grow] {
     transform: scaleX(var(--grow, 1)) !important;
   }
 }

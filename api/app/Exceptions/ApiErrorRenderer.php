@@ -9,6 +9,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use PDOException;
@@ -48,6 +49,18 @@ final class ApiErrorRenderer
     ];
 
     /**
+     * Laravel's name of a validation rule → the code of the API, where they differ
+     * (docs/api/auth/POST-auth-register.md: `email: invalid`, `email: taken`). The others
+     * keep the rule's name in snake case: `required`, `min`, `max`.
+     */
+    private const RULE_CODES = [
+        'email' => 'invalid',
+        'unique' => 'taken',
+        'in' => 'invalid',
+        'string' => 'invalid',
+    ];
+
+    /**
      * MariaDB client codes of "cannot connect", "server gone", "connection lost",
      * "server shutting down" and "statement ran past its time limit".
      */
@@ -76,6 +89,14 @@ final class ApiErrorRenderer
 
         if ($e instanceof ValidationException) {
             return $this->error($request, 422, 'validation_failed', fields: $this->fieldsOf($e));
+        }
+
+        if ($e instanceof ApiException) {
+            return $this->error($request, $e->getStatusCode(), $e->errorCode, headers: $e->getHeaders());
+        }
+
+        if ($e instanceof TokenMismatchException) {
+            return $this->error($request, 419, 'csrf_mismatch');
         }
 
         if ($e instanceof AuthenticationException) {
@@ -163,22 +184,41 @@ final class ApiErrorRenderer
     }
 
     /**
-     * Field name → codes of the rules that failed (`required`, `max`, ...).
+     * Field name → codes of the rules that failed (`required`, `max`, ...). A field refused
+     * by hand (`ValidationException::withMessages(['token' => ['invalid']])`) has no rule:
+     * the messages given are its codes.
      *
      * @return array<string, list<string>>
      */
     private function fieldsOf(ValidationException $e): array
     {
+        $failed = $e->validator->failed();
         $fields = [];
 
-        foreach ($e->validator->failed() as $field => $rules) {
-            $fields[(string) $field] = [];
+        foreach ($e->errors() as $field => $messages) {
+            $rules = $failed[$field] ?? null;
+            $codes = [];
 
-            foreach (is_array($rules) ? array_keys($rules) : [] as $rule) {
-                $fields[(string) $field][] = Str::snake((string) $rule);
+            if (is_array($rules)) {
+                foreach (array_keys($rules) as $rule) {
+                    $codes[] = $this->codeOfRule($rule);
+                }
+            } elseif (is_array($messages)) {
+                foreach ($messages as $message) {
+                    $codes[] = is_string($message) ? $message : 'invalid';
+                }
             }
+
+            $fields[(string) $field] = array_values(array_unique($codes));
         }
 
         return $fields;
+    }
+
+    private function codeOfRule(string|int $rule): string
+    {
+        $code = Str::snake(class_basename((string) $rule));
+
+        return self::RULE_CODES[$code] ?? $code;
     }
 }

@@ -1,4 +1,4 @@
-import { useId, type ComponentProps } from 'react';
+import { useId, type ComponentProps, type ReactNode } from 'react';
 import { cx } from './cx';
 
 type InputProps = Omit<ComponentProps<'input'>, 'size'> & {
@@ -7,9 +7,22 @@ type InputProps = Omit<ComponentProps<'input'>, 'size'> & {
   help?: string;
   /** Sets aria-invalid and is read out with the field. */
   error?: string;
+  /** `data-testid` of the error message. */
+  errorTestId?: string;
+  /** A control inside the field, at its right end (the "show password" button). */
+  trailing?: ReactNode;
 };
 
-export function Input({ label, help, error, id, className, ...rest }: InputProps) {
+export function Input({
+  label,
+  help,
+  error,
+  errorTestId,
+  trailing,
+  id,
+  className,
+  ...rest
+}: InputProps) {
   const generated = useId();
   const fieldId = id ?? generated;
   const errorId = `${fieldId}-error`;
@@ -23,21 +36,27 @@ export function Input({ label, help, error, id, className, ...rest }: InputProps
       <label htmlFor={fieldId} className="text-base font-semibold text-ink">
         {label}
       </label>
-      <input
-        id={fieldId}
-        aria-invalid={error ? 'true' : undefined}
-        aria-describedby={describedBy || undefined}
-        className={cx(
-          'min-h-11 rounded border bg-surface px-3 text-[16px] text-ink md:text-base',
-          error ? 'border-danger' : 'border-line-strong',
-          'focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary-soft focus-visible:outline-none',
-          'disabled:bg-line-soft disabled:text-ink-muted',
-          className,
-        )}
-        {...rest}
-      />
+      <div className="relative">
+        <input
+          id={fieldId}
+          aria-invalid={error ? 'true' : undefined}
+          aria-describedby={describedBy || undefined}
+          className={cx(
+            'min-h-11 w-full rounded border bg-surface px-3 text-[16px] text-ink md:text-base',
+            error ? 'border-danger' : 'border-line-strong',
+            'focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary-soft focus-visible:outline-none',
+            'disabled:bg-line-soft disabled:text-ink-muted',
+            trailing ? 'pr-12' : undefined,
+            className,
+          )}
+          {...rest}
+        />
+        {trailing ? (
+          <div className="absolute inset-y-0 right-0 flex items-center">{trailing}</div>
+        ) : null}
+      </div>
       {error ? (
-        <p id={errorId} className="text-sm font-medium text-danger">
+        <p id={errorId} data-testid={errorTestId} className="text-sm font-medium text-danger">
           {error}
         </p>
       ) : null}

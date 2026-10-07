@@ -1,0 +1,197 @@
+<?php
+
+namespace Tests\Support;
+
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Ramsey\Uuid\Uuid;
+
+/**
+ * Test data and mail for the slices that use accounts (02 and after).
+ *
+ * It writes the rows directly, with the column names of docs/design/database.md, so a test
+ * does not depend on the models or the factories. It uses the `migrator` account, which can
+ * empty the tables (the application cannot).
+ *
+ * Part of the acceptance harness: it is not edited when a slice is coded.
+ */
+final class Accounts
+{
+    private static bool $migrated = false;
+
+    public const PASSWORD = 'correct horse battery staple';
+
+    /**
+     * Brings the test database up to date and empties every table but `migrations`.
+     * Call it in `beforeEach`.
+     */
+    public static function reset(): void
+    {
+        $connection = useMigratorConnection();
+
+        if (! self::$migrated) {
+            expect(Artisan::call('migrate', ['--database' => $connection, '--force' => true]))->toBe(0);
+            expect(Artisan::call('db:grant-app', ['--database' => $connection]))->toBe(0);
+            self::$migrated = true;
+        }
+
+        $db = DB::connection($connection);
+        $tables = $db->select("SELECT TABLE_NAME AS name FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_TYPE = 'BASE TABLE'");
+
+        $db->unprepared('SET FOREIGN_KEY_CHECKS=0');
+        foreach ($tables as $table) {
+            $name = ((array) $table)['name'];
+            if ($name !== 'migrations') {
+                $db->unprepared("TRUNCATE TABLE `{$name}`");
+            }
+        }
+        $db->unprepared('SET FOREIGN_KEY_CHECKS=1');
+    }
+
+    /**
+     * An institution and its user. Returns the user's and the institution's uuid, the email
+     * and the password.
+     *
+     * @param  array{email?: string, password?: string, verified?: bool, suspended?: bool, role?: string, language?: string, removed?: bool, institution?: string|null}  $options
+     * @return array{user: string, institution: string|null, email: string, password: string}
+     */
+    public static function user(array $options = []): array
+    {
+        $db = DB::connection(useMigratorConnection());
+        $now = Carbon::now('UTC')->format('Y-m-d H:i:s');
+        $role = $options['role'] ?? 'owner';
+        $email = strtolower($options['email'] ?? 'user'.bin2hex(random_bytes(4)).'@example.test');
+        $password = $options['password'] ?? self::PASSWORD;
+
+        $institutionId = null;
+        $institutionUuid = null;
+        if ($role !== 'platform_admin') {
+            $institutionUuid = Uuid::uuid4()->toString();
+            $institutionId = $db->table('institutions')->insertGetId([
+                'uuid' => $institutionUuid,
+                'name' => 'Collège '.bin2hex(random_bytes(3)),
+                'type' => 'other',
+                'timezone' => 'America/Port-au-Prince',
+                'language' => $options['language'] ?? 'fr',
+                'suspended_at' => ($options['suspended'] ?? false) ? $now : null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+        }
+
+        $userUuid = Uuid::uuid4()->toString();
+        $db->table('users')->insert([
+            'uuid' => $userUuid,
+            'institution_id' => $institutionId,
+            'role' => $role,
+            'name' => 'Marie Joseph',
+            'email' => $email,
+            'password' => Hash::make($password),
+            'email_verified_at' => ($options['verified'] ?? true) ? $now : null,
+            'language' => $options['language'] ?? 'fr',
+            'deleted_at' => ($options['removed'] ?? false) ? $now : null,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+
+        return ['user' => $userUuid, 'institution' => $institutionUuid, 'email' => $email, 'password' => $password];
+    }
+
+    /** One row of `users` by email, as an array, or null. */
+    public static function userRow(string $email): ?array
+    {
+        $row = DB::connection(useMigratorConnection())->table('users')->where('email', strtolower($email))->first();
+
+        return $row === null ? null : (array) $row;
+    }
+
+    /**
+     * Stores a token the way the API does (SHA-256 of the token, 32 bytes) for the user with
+     * this email, replacing any token that user had.
+     *
+     * @param  'email_verification_tokens'|'password_reset_tokens'  $table
+     */
+    public static function plantToken(string $table, string $email, string $token, ?Carbon $expiresAt = null): void
+    {
+        $db = DB::connection(useMigratorConnection());
+        $userId = $db->table('users')->where('email', strtolower($email))->value('id');
+        $db->table($table)->where('user_id', $userId)->delete();
+        $db->table($table)->insert([
+            'user_id' => $userId,
+            'token_hash' => hash('sha256', $token, true),
+            'expires_at' => ($expiresAt ?? Carbon::now('UTC')->addHour())->format('Y-m-d H:i:s'),
+            'created_at' => Carbon::now('UTC')->format('Y-m-d H:i:s'),
+        ]);
+    }
+
+    /** A new random token of the right shape: 64 hexadecimal characters. */
+    public static function token(): string
+    {
+        return bin2hex(random_bytes(32));
+    }
+
+    /** Makes the user's token in this table expire a minute ago. */
+    public static function expireToken(string $table, string $email): void
+    {
+        $db = DB::connection(useMigratorConnection());
+        $userId = $db->table('users')->where('email', strtolower($email))->value('id');
+        $db->table($table)->where('user_id', $userId)->update(['expires_at' => Carbon::now('UTC')->subMinute()->format('Y-m-d H:i:s')]);
+    }
+
+    /** The rows of a token table for this user's email. */
+    public static function tokenRows(string $table, string $email): array
+    {
+        $db = DB::connection(useMigratorConnection());
+        $userId = $db->table('users')->where('email', strtolower($email))->value('id');
+
+        return $db->table($table)->where('user_id', $userId)->get()->map(fn ($row) => (array) $row)->all();
+    }
+
+    /**
+     * The emails sent so far in this test (the `array` mailer).
+     *
+     * @return list<array{to: list<string>, subject: string, text: string, html: string}>
+     */
+    public static function mail(): array
+    {
+        $sent = [];
+
+        foreach (app('mail.manager')->mailer('array')->getSymfonyTransport()->messages() as $message) {
+            $email = $message->getOriginalMessage();
+            $sent[] = [
+                'to' => array_map(fn ($a) => strtolower($a->getAddress()), $email->getTo()),
+                'subject' => (string) $email->getSubject(),
+                'text' => (string) $email->getTextBody(),
+                'html' => (string) $email->getHtmlBody(),
+            ];
+        }
+
+        return $sent;
+    }
+
+    /** The emails sent to this address. */
+    public static function mailTo(string $email): array
+    {
+        return array_values(array_filter(self::mail(), fn ($m) => in_array(strtolower($email), $m['to'], true)));
+    }
+
+    /**
+     * The token in the link of an email: `{APP_URL}/{path}?token=<64 hex>`. Null when there
+     * is no such link.
+     */
+    public static function tokenIn(array $mail, string $path): ?string
+    {
+        $app = preg_quote(rtrim((string) config('app.url'), '/'), '#');
+        $path = preg_quote($path, '#');
+
+        foreach ([$mail['text'], $mail['html']] as $body) {
+            if (preg_match('#'.$app.$path.'\?token=([0-9a-f]{64})(?![0-9a-f])#', $body, $found)) {
+                return $found[1];
+            }
+        }
+
+        return null;
+    }
+}

@@ -34,6 +34,11 @@ x-api: &api
     MAIL_HOST: mailpit
     MAIL_PORT: "1025"
     MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-no-reply@localhost}
+    # Multiplies the rate limits of the auth endpoints; empty means 1 (the real limits).
+    AUTH_RATE_LIMIT_FACTOR: ${AUTH_RATE_LIMIT_FACTOR:-}
+    # Name of the session cookie (docs/api/auth/GET-auth-csrf.md); the web container looks
+    # for the same name.
+    SESSION_COOKIE: ${SESSION_COOKIE:-new_voting_system_session}
   depends_on:
     db:
       condition: service_healthy
@@ -141,6 +146,11 @@ services:
   test:
     <<: *api
     profiles: ["tools"]
+    volumes:
+      - ./api:/var/www/html
+      - ./docs/api:/var/www/docs/api
+      # The design tokens, which the email tests read (docs/design/email.md section 1).
+      - ./web/src/styles:/var/www/web/src/styles:ro
     environment:
       <<: *api-environment
       DB_MIGRATOR_USERNAME: migrator
@@ -163,6 +173,7 @@ services:
     environment:
       # Server-side calls reach the API through the internal network.
       API_INTERNAL_URL: http://api:8000
+      SESSION_COOKIE: ${SESSION_COOKIE:-new_voting_system_session}
     depends_on:
       api:
         condition: service_healthy
@@ -238,6 +249,8 @@ services:
     depends_on:
       proxy:
         condition: service_healthy
+      mailpit:
+        condition: service_healthy
     user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
     working_dir: /app
     volumes:
@@ -245,6 +258,7 @@ services:
     environment:
       HOME: /tmp
       BASE_URL: http://proxy:8080
+      MAILPIT_URL: http://mailpit:8025
       CI: ${CI:-}
     command: ["npx", "playwright", "test"]
 

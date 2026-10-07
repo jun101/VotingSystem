@@ -12,3 +12,9 @@
 pest()->extend(Tests\TestCase::class)->in('Acceptance', 'Feature', 'Unit');
 
 const UUID_V4 = '/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/';
+
+// Slice 02 and after: a clean database and one browser (docs/api/auth/).
+pest()->beforeEach(function () {
+    Tests\Support\Accounts::reset();
+    $this->browser = new Tests\Support\AuthClient($this);
+})->in('Acceptance/Slice02');

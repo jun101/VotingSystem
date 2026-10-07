@@ -89,11 +89,11 @@ returns a code that is not in this table.
 | **202** Accepted | A background job was queued; the body gives its id and status | |
 | **204** No Content | Succeeded, nothing to return (delete, sign-out) | |
 | **400** Bad Request | The body is not valid JSON, or a parameter cannot be read | `malformed_request` |
-| **401** Unauthorized | Not signed in, or the session or voter session has ended | `unauthenticated`, `voter_session_expired` |
+| **401** Unauthorized | Not signed in, or the session or voter session has ended | `unauthenticated`, `invalid_credentials`, `voter_session_expired` |
 | **403** Forbidden | Signed in, but the role does not allow it; email not verified; institution suspended | `forbidden`, `email_not_verified`, `institution_suspended` |
 | **404** Not Found | The record does not exist **or belongs to another institution**. The two cases give the same answer on purpose | `not_found` |
 | **405** Method Not Allowed | The path exists but not with this method; the `Allow` header lists the accepted ones | `method_not_allowed` |
-| **409** Conflict | The request is valid but the record's state refuses it | `election_not_editable`, `already_voted`, `last_owner`, … |
+| **409** Conflict | The request is valid but the record's state refuses it | `election_not_editable`, `already_voted`, `already_verified`, `last_owner`, … |
 | **410** Gone | It existed and has expired: an invitation, a reset link, a generated file | `expired` |
 | **413** Content Too Large | Upload above the limit | `file_too_large` |
 | **415** Unsupported Media Type | Upload whose content is not an accepted type | `file_type_not_allowed` |
@@ -229,3 +229,12 @@ Filled slice by slice: each slice adds its endpoints here with a link to their f
 | Area | Endpoint | Slice | File |
 |---|---|---|---|
 | System | `GET /health` | 01 | [system/GET-health.md](system/GET-health.md) |
+| Auth | `GET /auth/csrf` | 02 | [auth/GET-auth-csrf.md](auth/GET-auth-csrf.md) |
+| Auth | `POST /auth/register` | 02 | [auth/POST-auth-register.md](auth/POST-auth-register.md) |
+| Auth | `POST /auth/verify-email` | 02 | [auth/POST-auth-verify-email.md](auth/POST-auth-verify-email.md) |
+| Auth | `POST /auth/verify-email/resend` | 02 | [auth/POST-auth-verify-email-resend.md](auth/POST-auth-verify-email-resend.md) |
+| Auth | `POST /auth/login` | 02 | [auth/POST-auth-login.md](auth/POST-auth-login.md) |
+| Auth | `POST /auth/logout` | 02 | [auth/POST-auth-logout.md](auth/POST-auth-logout.md) |
+| Auth | `GET /auth/me` | 02 | [auth/GET-auth-me.md](auth/GET-auth-me.md) |
+| Auth | `POST /auth/forgot-password` | 02 | [auth/POST-auth-forgot-password.md](auth/POST-auth-forgot-password.md) |
+| Auth | `POST /auth/reset-password` | 02 | [auth/POST-auth-reset-password.md](auth/POST-auth-reset-password.md) |

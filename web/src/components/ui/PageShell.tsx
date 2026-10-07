@@ -9,6 +9,8 @@ type PageShellProps = {
   /** Name of the product, from the message files. */
   productName: string;
   variant?: PageShellVariant;
+  /** Without a hero, the content column: the default, or the width of a split card. */
+  width?: 'narrow' | 'wide';
   /** A `Hero`, shown across the whole width above the content. */
   hero?: ReactNode;
   /** With a hero: the first cards climb about 50 px onto it (the default). */
@@ -28,6 +30,7 @@ const heroFocus =
 export function PageShell({
   productName,
   variant = 'plain',
+  width = 'narrow',
   hero,
   overlap = true,
   withActionBar = false,
@@ -75,7 +78,8 @@ export function PageShell({
     <div data-variant={variant} className="min-h-screen bg-canvas">
       <div
         className={cx(
-          'mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 pt-6 md:pt-10',
+          'mx-auto flex w-full flex-col gap-6 px-4 pt-6 md:pt-10',
+          width === 'wide' ? 'max-w-6xl' : 'max-w-3xl',
           withActionBar ? 'pb-32' : 'pb-6 md:pb-10',
         )}
       >

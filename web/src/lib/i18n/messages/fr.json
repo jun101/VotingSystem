@@ -108,5 +108,128 @@
   },
   "common": {
     "percent": " %"
+  },
+  "auth": {
+    "panel": {
+      "title": "Les élections de votre école, du coupon au résultat.",
+      "point1": "Importez vos électeurs depuis Excel.",
+      "point2": "Imprimez les coupons ou envoyez les codes par courriel.",
+      "point3": "Vote secret, un seul vote par électeur.",
+      "point4": "Résultats publiés sur une page à partager."
+    },
+    "password": {
+      "show": "Afficher le mot de passe",
+      "hide": "Masquer le mot de passe"
+    },
+    "register": {
+      "title": "Créer le compte de votre établissement",
+      "lede": "Gratuit. Un courriel de vérification vous sera envoyé.",
+      "institutionName": "Nom de l’établissement",
+      "name": "Votre nom",
+      "email": "Courriel",
+      "emailPlaceholder": "vous@exemple.ht",
+      "password": "Mot de passe",
+      "passwordHelp": "12 caractères au minimum.",
+      "submit": "Créer le compte",
+      "haveAccount": "Déjà inscrit ?",
+      "signIn": "Se connecter"
+    },
+    "login": {
+      "title": "Se connecter",
+      "lede": "Retrouvez vos élections.",
+      "email": "Courriel",
+      "password": "Mot de passe",
+      "submit": "Se connecter",
+      "forgot": "Mot de passe oublié ?",
+      "noAccount": "Pas encore de compte ?",
+      "register": "Inscrire mon établissement",
+      "notice": "Votre mot de passe a été changé. Vous pouvez vous connecter."
+    },
+    "forgot": {
+      "title": "Mot de passe oublié",
+      "lede": "Saisissez votre courriel : si un compte existe, nous vous envoyons un lien pour choisir un nouveau mot de passe.",
+      "email": "Courriel",
+      "submit": "Envoyer le lien",
+      "sentTitle": "Vérifiez votre boîte de réception",
+      "sent": "Si un compte existe pour cette adresse, un lien vient d’être envoyé. Il est valable 60 minutes.",
+      "back": "Retour à la connexion"
+    },
+    "reset": {
+      "title": "Nouveau mot de passe",
+      "lede": "Choisissez un mot de passe d’au moins 12 caractères.",
+      "password": "Nouveau mot de passe",
+      "passwordHelp": "12 caractères au minimum.",
+      "submit": "Changer le mot de passe",
+      "invalidTitle": "Lien invalide ou expiré",
+      "invalid": "Ce lien n’est plus valable. Demandez-en un nouveau.",
+      "request": "Demander un nouveau lien"
+    },
+    "verify": {
+      "title": "Vérification du courriel",
+      "pending": "Vérification en cours…",
+      "success": "Votre courriel est vérifié.",
+      "toAdmin": "Aller à mon espace",
+      "invalid": "Ce lien de vérification n’est pas valable. Il a peut-être déjà servi, ou un lien plus récent l’a remplacé.",
+      "expired": "Ce lien a expiré. Connectez-vous pour en recevoir un nouveau.",
+      "failed": "La vérification n’a pas pu être faite pour le moment. Réessayez dans un instant.",
+      "signIn": "Se connecter",
+      "retry": "Réessayer"
+    }
+  },
+  "admin": {
+    "placeholder": {
+      "welcome": "Bienvenue, {name}",
+      "institution": "{name}",
+      "soon": "Votre espace d’administration arrive bientôt.",
+      "signOut": "Se déconnecter",
+      "bannerTitle": "Vérifiez votre adresse courriel",
+      "bannerText": "Un lien de vérification a été envoyé à {email}. Il faudra l’avoir utilisé pour ouvrir une élection.",
+      "resend": "Envoyer le courriel de nouveau",
+      "resendDone": "Courriel envoyé. Vérifiez votre boîte de réception."
+    }
+  },
+  "errors": {
+    "validation_failed": "Certains champs sont à corriger.",
+    "invalid_credentials": "Courriel ou mot de passe incorrect.",
+    "institution_suspended": "Cet établissement est suspendu.",
+    "unauthenticated": "Votre session a pris fin. Connectez-vous de nouveau.",
+    "csrf_mismatch": "La session a expiré. Rechargez la page, puis réessayez.",
+    "too_many_attempts": "Trop de tentatives. Réessayez dans un instant.",
+    "expired": "Ce lien a expiré. Demandez-en un nouveau.",
+    "already_verified": "Votre courriel est déjà vérifié.",
+    "malformed_request": "La demande n’a pas pu être lue. Rechargez la page, puis réessayez.",
+    "method_not_allowed": "Cette action n’est pas disponible.",
+    "server_error": "Une erreur est survenue sur le serveur. Réessayez dans un instant.",
+    "dependency_unavailable": "Le service est momentanément indisponible. Réessayez dans un instant.",
+    "maintenance": "Le service est en maintenance. Réessayez plus tard.",
+    "network": "Impossible de joindre le serveur. Vérifiez votre connexion, puis réessayez.",
+    "unknown": "Une erreur inattendue est survenue.",
+    "reference": "Référence à indiquer au support : {reference}"
+  },
+  "validation": {
+    "required": "Ce champ est obligatoire.",
+    "invalid": "Cette valeur n’est pas valable.",
+    "taken": "Cette valeur est déjà utilisée.",
+    "min": "Cette valeur est trop courte.",
+    "max": "Cette valeur est trop longue.",
+    "same_as_email": "Le mot de passe ne peut pas être votre adresse courriel.",
+    "email": {
+      "invalid": "Saisissez une adresse courriel valide.",
+      "taken": "Cette adresse a déjà un compte. Connectez-vous ou utilisez une autre adresse.",
+      "max": "Cette adresse est trop longue (255 caractères au plus)."
+    },
+    "password": {
+      "min": "Le mot de passe doit avoir 12 caractères au minimum.",
+      "max": "Le mot de passe doit avoir 128 caractères au plus."
+    },
+    "institution_name": {
+      "max": "Le nom de l’établissement doit avoir 150 caractères au plus."
+    },
+    "name": {
+      "max": "Votre nom doit avoir 150 caractères au plus."
+    },
+    "language": {
+      "invalid": "Cette langue n’est pas disponible."
+    }
   }
 }
