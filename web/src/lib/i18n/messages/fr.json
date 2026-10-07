@@ -143,7 +143,9 @@
       "forgot": "Mot de passe oublié ?",
       "noAccount": "Pas encore de compte ?",
       "register": "Inscrire mon établissement",
-      "notice": "Votre mot de passe a été changé. Vous pouvez vous connecter."
+      "notice": "Votre mot de passe a été changé. Vous pouvez vous connecter.",
+      "suspended": "Cet établissement est suspendu. Vous avez été déconnecté.",
+      "platformAdmin": "L’espace des administrateurs de la plateforme n’est pas encore disponible. Vous avez été déconnecté."
     },
     "forgot": {
       "title": "Mot de passe oublié",
@@ -177,15 +179,87 @@
     }
   },
   "admin": {
-    "placeholder": {
-      "welcome": "Bienvenue, {name}",
-      "institution": "{name}",
-      "soon": "Votre espace d’administration arrive bientôt.",
-      "signOut": "Se déconnecter",
-      "bannerTitle": "Vérifiez votre adresse courriel",
-      "bannerText": "Un lien de vérification a été envoyé à {email}. Il faudra l’avoir utilisé pour ouvrir une élection.",
+    "shell": {
+      "skip": "Aller au contenu",
+      "menuOpen": "Ouvrir le menu",
+      "menuClose": "Fermer le menu",
+      "menuLabel": "Menu principal"
+    },
+    "nav": {
+      "dashboard": "Tableau de bord",
+      "elections": "Élections",
+      "institution": "Établissement",
+      "audit": "Journal d'audit",
+      "newElection": "Nouvelle élection"
+    },
+    "menu": {
+      "search": "Aller à…",
+      "searchLabel": "Aller à une page",
+      "searchEmpty": "Aucune page ne correspond.",
+      "newElection": "Nouvelle élection",
+      "sectionInstitution": "Établissement",
+      "electionTitle": "Élection choisie",
+      "noElection": "Aucune élection choisie",
+      "noElectionHelp": "Les réglages d’une élection apparaissent ici une fois qu’elle est choisie.",
+      "electionList": "Voir les élections"
+    },
+    "user": {
+      "menu": "Menu de {name}",
+      "signOut": "Se déconnecter"
+    },
+    "roles": {
+      "owner": "Propriétaire",
+      "manager": "Gestionnaire",
+      "platform_admin": "Administrateur de la plateforme"
+    },
+    "verification": {
+      "verified": "Courriel vérifié",
+      "unverified": "Courriel à vérifier"
+    },
+    "language": {
+      "switch": "Passer en anglais",
+      "error": "La langue n’a pas pu être changée."
+    },
+    "banner": {
+      "title": "Vérifiez votre adresse courriel",
+      "text": "Un lien de vérification a été envoyé à {email}. Il faudra l’avoir utilisé pour ouvrir une élection.",
       "resend": "Envoyer le courriel de nouveau",
       "resendDone": "Courriel envoyé. Vérifiez votre boîte de réception."
+    },
+    "dashboard": {
+      "welcome": "Bienvenue, {name}",
+      "institution": "{name}",
+      "lede": "Voici votre tableau de bord. Il se remplira avec votre première élection.",
+      "create": "Créer une élection",
+      "openElection": {
+        "title": "Élection ouverte",
+        "empty": "Aucune élection n’est ouverte pour le moment."
+      },
+      "todo": {
+        "title": "À faire",
+        "empty": "Rien à faire pour le moment."
+      },
+      "figures": {
+        "title": "Chiffres clés",
+        "empty": "Les chiffres apparaîtront avec votre première élection."
+      },
+      "activity": {
+        "title": "Activité récente",
+        "empty": "Aucune activité pour le moment."
+      },
+      "latest": {
+        "title": "Dernières élections",
+        "empty": "Vous n’avez pas encore d’élection."
+      }
+    },
+    "comingSoon": {
+      "title": "Pas encore disponible",
+      "text": "Cette page arrive avec une prochaine étape du produit. Le reste de l’espace est déjà utilisable.",
+      "back": "Retour au tableau de bord"
+    },
+    "turnedAway": {
+      "title": "Espace non disponible",
+      "text": "Ce compte n’a pas d’établissement. Vous êtes déconnecté."
     }
   },
   "errors": {

@@ -143,7 +143,9 @@
       "forgot": "Forgot your password?",
       "noAccount": "No account yet?",
       "register": "Register my institution",
-      "notice": "Your password has been changed. You can sign in."
+      "notice": "Your password has been changed. You can sign in.",
+      "suspended": "This institution is suspended. You have been signed out.",
+      "platformAdmin": "The platform administrators' area is not available yet. You have been signed out."
     },
     "forgot": {
       "title": "Forgot your password",
@@ -177,15 +179,87 @@
     }
   },
   "admin": {
-    "placeholder": {
-      "welcome": "Welcome, {name}",
-      "institution": "{name}",
-      "soon": "Your administration area is coming soon.",
-      "signOut": "Sign out",
-      "bannerTitle": "Verify your email address",
-      "bannerText": "A verification link was sent to {email}. You will need to have used it to open an election.",
+    "shell": {
+      "skip": "Skip to content",
+      "menuOpen": "Open the menu",
+      "menuClose": "Close the menu",
+      "menuLabel": "Main menu"
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "elections": "Elections",
+      "institution": "Institution",
+      "audit": "Audit log",
+      "newElection": "New election"
+    },
+    "menu": {
+      "search": "Go to…",
+      "searchLabel": "Go to a page",
+      "searchEmpty": "No page matches.",
+      "newElection": "New election",
+      "sectionInstitution": "Institution",
+      "electionTitle": "Selected election",
+      "noElection": "No election selected",
+      "noElectionHelp": "An election's settings show up here once you pick one.",
+      "electionList": "See the elections"
+    },
+    "user": {
+      "menu": "{name}'s menu",
+      "signOut": "Sign out"
+    },
+    "roles": {
+      "owner": "Owner",
+      "manager": "Manager",
+      "platform_admin": "Platform administrator"
+    },
+    "verification": {
+      "verified": "Email verified",
+      "unverified": "Email to verify"
+    },
+    "language": {
+      "switch": "Switch to French",
+      "error": "The language could not be changed."
+    },
+    "banner": {
+      "title": "Verify your email address",
+      "text": "A verification link was sent to {email}. You will need to have used it to open an election.",
       "resend": "Send the email again",
       "resendDone": "Email sent. Check your inbox."
+    },
+    "dashboard": {
+      "welcome": "Welcome, {name}",
+      "institution": "{name}",
+      "lede": "This is your dashboard. It fills up with your first election.",
+      "create": "Create an election",
+      "openElection": {
+        "title": "Open election",
+        "empty": "No election is open right now."
+      },
+      "todo": {
+        "title": "To do",
+        "empty": "Nothing to do right now."
+      },
+      "figures": {
+        "title": "Key figures",
+        "empty": "The figures show up with your first election."
+      },
+      "activity": {
+        "title": "Recent activity",
+        "empty": "No activity yet."
+      },
+      "latest": {
+        "title": "Latest elections",
+        "empty": "You have no election yet."
+      }
+    },
+    "comingSoon": {
+      "title": "Not available yet",
+      "text": "This page comes with a later step of the product. The rest of the area is ready to use.",
+      "back": "Back to the dashboard"
+    },
+    "turnedAway": {
+      "title": "Area not available",
+      "text": "This account has no institution. You have been signed out."
     }
   },
   "errors": {

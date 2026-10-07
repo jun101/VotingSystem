@@ -8,11 +8,15 @@ export default async function LoginPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { reset } = await searchParams;
+  const { reset, suspended, platform } = await searchParams;
 
   return (
     <AuthPage>
-      <LoginForm reset={reset === '1'} />
+      <LoginForm
+        reset={reset === '1'}
+        suspended={suspended === '1'}
+        platformAdmin={platform === '1'}
+      />
     </AuthPage>
   );
 }
