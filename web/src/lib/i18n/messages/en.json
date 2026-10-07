@@ -13,6 +13,11 @@
       "offline": "Offline",
       "unavailable": "Unavailable",
       "unknown": "Unknown"
+    },
+    "hero": {
+      "pill": "Online elections",
+      "accent": "Voting",
+      "lede": "Secure elections for schools and institutions, in French and English."
     }
   },
   "notFound": {
@@ -45,7 +50,63 @@
       "tonePrimary": "Primary",
       "teal": "Open",
       "warm": "To do",
-      "toneDanger": "Closed"
+      "toneDanger": "Closed",
+      "accent": "Main action"
+    },
+    "motion": {
+      "title": "Motion and colours",
+      "accent": "Motion",
+      "pill": "Live",
+      "label": "Showcase",
+      "lede": "Every building block of the showcase look, with its animation. Turn on reduce motion in your system and the same page stays still.",
+      "tileA": "Voters",
+      "tileB": "Turnout",
+      "tileC": "Ballots",
+      "stageTitle": "Winner",
+      "stageLine": "Leads with a clear margin",
+      "stageTitleB": "Turnout",
+      "stageLineB": "Rising since this morning",
+      "bandLabel": "Leading",
+      "bandName": "Marie Joseph",
+      "bandFigure": "64 %",
+      "bandWarmLabel": "Tie",
+      "bandWarmName": "Two candidates",
+      "bandWarmFigure": "12 votes",
+      "showcasePanel": "Showcase panel",
+      "showcaseTitle": "Main item of the page",
+      "showcaseText": "A card split in a gradient panel and a light body. Side by side on a desktop, stacked on a phone.",
+      "closingTitle": "Ready for the next step?",
+      "closingLine": "The band that ends a page carries its main action.",
+      "closingAction": "Continue",
+      "barReminder": "Your choice: Marie Joseph",
+      "barAction": "Confirm my vote",
+      "revealTitle": "Reveal",
+      "revealText": "Fades in and rises once, when it enters the screen.",
+      "staggerTitle": "Staggered reveal",
+      "stagger1": "First",
+      "stagger2": "Second",
+      "stagger3": "Third",
+      "countTitle": "Count up",
+      "countLabel": "Turnout so far",
+      "growTitle": "Grow bar",
+      "growLabel": "87 % of the voters",
+      "liveTitle": "Live dot",
+      "liveLabel": "Election open",
+      "shimmerTitle": "Shimmer",
+      "shimmerButton": "Enter my code",
+      "floatTitle": "Float",
+      "floatText": "Drifts a few pixels, slightly tilted.",
+      "checkTitle": "Check",
+      "checkLabel": "Vote recorded",
+      "selectTitle": "Select ring",
+      "selectCard": "Choose this card",
+      "selectHelp": "The ring springs out around the choice.",
+      "slideTitle": "Slide",
+      "slideLeft": "Enters from the left",
+      "slideRight": "Enters from the right"
     }
+  },
+  "common": {
+    "percent": " %"
   }
 }

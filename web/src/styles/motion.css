@@ -1,0 +1,409 @@
+/*
+ * Showcase surfaces and motion (docs/design/frontend.md section 4, Composition and Motion).
+ *
+ * Colours come from tokens only. Only `transform`, `opacity`, `stroke-dashoffset` and
+ * `background-position` are animated, with the exceptions of the design: the colour,
+ * border and ring of a control easing. Tailwind's own transform utilities (`translate-*`,
+ * `scale-*`, `rotate-*`) set separate properties and are not used on moving elements.
+ *
+ * Without JavaScript nothing is hidden: the "pending" state below is only ever set by
+ * the components, once the page is running.
+ */
+@layer components {
+  /* ---- Surfaces ---- */
+
+  .bg-hero {
+    background-image: linear-gradient(
+      135deg,
+      var(--color-hero-from) 0%,
+      var(--color-hero-mid) 60%,
+      var(--color-hero-to) 100%
+    );
+  }
+
+  .bg-hero-warm {
+    background-image: linear-gradient(135deg, var(--color-warm-ink) 0%, var(--color-warm) 100%);
+  }
+
+  .bg-accent-gradient {
+    background-image: linear-gradient(
+      135deg,
+      var(--color-accent) 0%,
+      var(--color-accent-light) 100%
+    );
+  }
+
+  /* ---- Controls: a press answers within 150 ms ---- */
+
+  .ui-control {
+    transition-property: color, background-color, border-color, box-shadow, transform;
+    transition-duration: var(--duration-fast);
+    transition-timing-function: var(--ease-out-soft);
+  }
+
+  .ui-control:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  /* ---- Select ring: 2 px primary border, 4 px primary-soft ring that springs out ---- */
+
+  .select-ring {
+    border: 2px solid var(--color-line);
+    box-shadow: 0 0 0 0 var(--color-primary-soft);
+    transition-property: border-color, box-shadow, background-color;
+    transition-duration: var(--duration-base);
+    transition-timing-function: var(--ease-spring);
+  }
+
+  .select-ring:is([aria-pressed='true'], [aria-checked='true'], [data-selected='true']),
+  .select-ring:has(input:checked) {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px var(--color-primary-soft);
+  }
+
+  /*
+   * Entrances. The pending state applies at once (no transition declared on it); the
+   * transition is declared on the entered state only, so it plays on the way in and an
+   * element that is already in view is never hidden and faded back.
+   */
+
+  /* ---- Reveal: fades in and rises 16 px, once ---- */
+
+  [data-reveal][data-state='pending'] {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  [data-reveal][data-state='in'] {
+    transition-property: opacity, transform;
+    transition-duration: var(--duration-reveal);
+    transition-timing-function: var(--ease-out-soft);
+  }
+
+  [data-reveal='stagger'][data-state='pending'] {
+    opacity: 1;
+    transform: none;
+  }
+
+  [data-reveal='stagger'][data-state='in'] {
+    transition: none;
+  }
+
+  [data-reveal='stagger'][data-state='pending'] > * {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  [data-reveal='stagger'][data-state='in'] > * {
+    transition-property: opacity, transform;
+    transition-duration: var(--duration-reveal);
+    transition-timing-function: var(--ease-out-soft);
+  }
+
+  /* Siblings follow each other 60 ms apart, eight at most. */
+  [data-reveal='stagger'][data-state='in'] > :nth-child(2) {
+    transition-delay: 60ms;
+  }
+  [data-reveal='stagger'][data-state='in'] > :nth-child(3) {
+    transition-delay: 120ms;
+  }
+  [data-reveal='stagger'][data-state='in'] > :nth-child(4) {
+    transition-delay: 180ms;
+  }
+  [data-reveal='stagger'][data-state='in'] > :nth-child(5) {
+    transition-delay: 240ms;
+  }
+  [data-reveal='stagger'][data-state='in'] > :nth-child(6) {
+    transition-delay: 300ms;
+  }
+  [data-reveal='stagger'][data-state='in'] > :nth-child(7) {
+    transition-delay: 360ms;
+  }
+  [data-reveal='stagger'][data-state='in'] > :nth-child(n + 8) {
+    transition-delay: 420ms;
+  }
+
+  /* ---- Grow: a bar from zero to its value ---- */
+
+  [data-grow] {
+    transform: scaleX(var(--grow, 1));
+    transform-origin: left center;
+  }
+
+  [data-grow][data-state='pending'] {
+    transform: scaleX(0);
+  }
+
+  [data-grow][data-state='in'] {
+    transition: transform var(--duration-reveal) var(--ease-out-soft);
+  }
+
+  /* ---- Check: the mark draws itself, with one ring pulse ---- */
+
+  [data-check] .check-mark {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+
+  [data-check][data-state='pending'] .check-mark {
+    stroke-dashoffset: 1;
+  }
+
+  [data-check][data-state='in'] .check-mark {
+    transition: stroke-dashoffset var(--duration-reveal) var(--ease-out-soft);
+  }
+
+  [data-check] .check-halo {
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  [data-check][data-state='in'] .check-halo {
+    animation: ring-pulse 700ms var(--ease-out-soft) 200ms 1;
+  }
+
+  /* ---- Live dot: a ring sent out, forever ---- */
+
+  .live-dot {
+    position: relative;
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background-color: currentColor;
+  }
+
+  .live-dot::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    background-color: currentColor;
+    animation: ping 2s var(--ease-out-soft) infinite;
+  }
+
+  /* ---- Shimmer: a light sweeping across ---- */
+
+  .shimmer {
+    background-image: linear-gradient(
+      90deg,
+      var(--color-line-soft) 25%,
+      var(--color-surface) 50%,
+      var(--color-line-soft) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.6s linear infinite;
+  }
+
+  /* On the accent button: a light bar sweeping over it. */
+  .shimmer-sweep {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shimmer-sweep::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(
+      100deg,
+      transparent 30%,
+      var(--color-glass-line) 50%,
+      transparent 70%
+    );
+    transform: translateX(-120%);
+    animation: sweep 3.2s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  /* ---- Float: drifts a few pixels, slightly tilted ---- */
+
+  .float-a {
+    transform: rotate(-2.5deg);
+    animation: float-a 5.5s ease-in-out infinite;
+  }
+
+  .float-b {
+    transform: rotate(2deg);
+    animation: float-b 6s ease-in-out infinite;
+  }
+
+  /* ---- Slide: an entrance from the side ---- */
+
+  .slide-in-left {
+    animation: slide-left 300ms var(--ease-out-soft) both;
+  }
+
+  .slide-in-right {
+    animation: slide-right 300ms var(--ease-out-soft) both;
+  }
+
+  /* ---- Hero: the lights that drift, the accent word ---- */
+
+  .hero-light {
+    position: absolute;
+    border-radius: 999px;
+    background-image: radial-gradient(closest-side, var(--color-hero-light), transparent);
+    pointer-events: none;
+  }
+
+  [data-live='true'] .hero-light-a {
+    animation: drift-a 18s ease-in-out infinite;
+  }
+
+  [data-live='true'] .hero-light-b {
+    animation: drift-b 22s ease-in-out infinite;
+  }
+
+  .accent-word {
+    color: var(--color-accent-light);
+    background-image: linear-gradient(
+      100deg,
+      var(--color-accent-light) 0%,
+      var(--color-accent) 40%,
+      var(--color-accent-light) 80%
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer-word 6s ease-in-out infinite alternate;
+  }
+
+  @keyframes ping {
+    0% {
+      transform: scale(1);
+      opacity: 0.7;
+    }
+    80%,
+    100% {
+      transform: scale(2.8);
+      opacity: 0;
+    }
+  }
+
+  @keyframes ring-pulse {
+    0% {
+      transform: scale(1);
+      opacity: 0.6;
+    }
+    100% {
+      transform: scale(1.5);
+      opacity: 0;
+    }
+  }
+
+  @keyframes shimmer {
+    to {
+      background-position: -200% center;
+    }
+  }
+
+  @keyframes shimmer-word {
+    from {
+      background-position: 0% center;
+    }
+    to {
+      background-position: 100% center;
+    }
+  }
+
+  @keyframes sweep {
+    0%,
+    55% {
+      transform: translateX(-120%);
+    }
+    100% {
+      transform: translateX(120%);
+    }
+  }
+
+  @keyframes float-a {
+    0%,
+    100% {
+      transform: translateY(0) rotate(-2.5deg);
+    }
+    50% {
+      transform: translateY(-9px) rotate(-2.5deg);
+    }
+  }
+
+  @keyframes float-b {
+    0%,
+    100% {
+      transform: translateY(0) rotate(2deg);
+    }
+    50% {
+      transform: translateY(-7px) rotate(2deg);
+    }
+  }
+
+  @keyframes drift-a {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(-30px, 24px);
+    }
+  }
+
+  @keyframes drift-b {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(26px, -20px);
+    }
+  }
+
+  @keyframes slide-left {
+    from {
+      opacity: 0;
+      transform: translateX(-24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slide-right {
+    from {
+      opacity: 0;
+      transform: translateX(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+}
+
+/*
+ * Reduced motion: every effect becomes an instant change. Nothing is lost but the
+ * movement, so the final state is shown at once. Outside the layer so it always wins.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+
+  [data-state='pending'],
+  [data-state='pending'] > *,
+  [data-state='pending'] .check-mark {
+    opacity: 1 !important;
+    transform: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+
+  [data-grow][data-state='pending'] {
+    transform: scaleX(var(--grow, 1)) !important;
+  }
+}

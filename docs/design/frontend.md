@@ -221,9 +221,12 @@ The interface moves: it should feel alive, never slow.
 
 Rules:
 
-1. **Only movement and fading are animated** (`transform` and `opacity`), in CSS. No
-   animation library. This keeps the voting flow inside its weight budget and smooth on a
-   low-end phone.
+1. **Only movement and fading are animated** (`transform` and `opacity`), in CSS.
+   Exceptions, all on small elements: the check mark that draws itself (its stroke), the
+   sweep of colour in the accent word of a hero title (its background position), and the
+   colour, border and ring of a control easing on hover, focus and selection. No
+   animation library. This keeps the voting flow inside its weight budget and smooth on
+   a low-end phone.
 2. **Reduced motion is respected.** With the device's "reduce motion" setting, every
    effect above is replaced by an instant change; nothing is lost but the movement
    (NFR-UX-03).

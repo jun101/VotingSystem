@@ -13,6 +13,11 @@
       "offline": "Hors ligne",
       "unavailable": "Indisponible",
       "unknown": "Inconnu"
+    },
+    "hero": {
+      "pill": "Élections en ligne",
+      "accent": "Voting",
+      "lede": "Des élections sûres pour les écoles et les institutions, en français et en anglais."
     }
   },
   "notFound": {
@@ -45,7 +50,63 @@
       "tonePrimary": "Principal",
       "teal": "Ouvert",
       "warm": "À faire",
-      "toneDanger": "Fermé"
+      "toneDanger": "Fermé",
+      "accent": "Action principale"
+    },
+    "motion": {
+      "title": "Mouvement et couleurs",
+      "accent": "Mouvement",
+      "pill": "En direct",
+      "label": "Vitrine",
+      "lede": "Chaque brique du style vitrine, avec son animation. Activez la réduction des animations dans votre système : la même page reste immobile.",
+      "tileA": "Électeurs",
+      "tileB": "Participation",
+      "tileC": "Bulletins",
+      "stageTitle": "En tête",
+      "stageLine": "Devant avec une nette avance",
+      "stageTitleB": "Participation",
+      "stageLineB": "En hausse depuis ce matin",
+      "bandLabel": "En tête",
+      "bandName": "Marie Joseph",
+      "bandFigure": "64 %",
+      "bandWarmLabel": "Égalité",
+      "bandWarmName": "Deux candidats",
+      "bandWarmFigure": "12 voix",
+      "showcasePanel": "Panneau vitrine",
+      "showcaseTitle": "L’élément principal de la page",
+      "showcaseText": "Une carte divisée en un panneau dégradé et un corps clair. Côte à côte sur ordinateur, empilés sur téléphone.",
+      "closingTitle": "Prêt pour la suite ?",
+      "closingLine": "La bande qui termine une page porte son action principale.",
+      "closingAction": "Continuer",
+      "barReminder": "Votre choix : Marie Joseph",
+      "barAction": "Confirmer mon vote",
+      "revealTitle": "Apparition",
+      "revealText": "Apparaît en fondu et monte une seule fois, quand elle entre à l’écran.",
+      "staggerTitle": "Apparition en cascade",
+      "stagger1": "Premier",
+      "stagger2": "Deuxième",
+      "stagger3": "Troisième",
+      "countTitle": "Compteur",
+      "countLabel": "Participation à cette heure",
+      "growTitle": "Barre qui grandit",
+      "growLabel": "87 % des électeurs",
+      "liveTitle": "Point en direct",
+      "liveLabel": "Élection ouverte",
+      "shimmerTitle": "Reflet",
+      "shimmerButton": "Saisir mon code",
+      "floatTitle": "Flottement",
+      "floatText": "Dérive de quelques pixels, légèrement inclinée.",
+      "checkTitle": "Coche",
+      "checkLabel": "Vote enregistré",
+      "selectTitle": "Anneau de sélection",
+      "selectCard": "Choisir cette carte",
+      "selectHelp": "L’anneau jaillit autour du choix.",
+      "slideTitle": "Glissement",
+      "slideLeft": "Arrive par la gauche",
+      "slideRight": "Arrive par la droite"
     }
+  },
+  "common": {
+    "percent": " %"
   }
 }
