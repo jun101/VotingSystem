@@ -110,8 +110,8 @@ it('gives the same answer for sign-in failures on an existing and an unknown ema
         ->and($wrong->headers->get('Content-Type'))->toBe($unknown->headers->get('Content-Type'));
 });
 
-it('answers every endpoint of the slice in the error shape, in French and English by Accept-Language [NFR-UX-01]', function () {
-    $fr = $this->browser->get('/api/v1/auth/me', ['Accept-Language' => 'fr']);
+it('answers every endpoint of the slice in the error shape, in French by default and English on request [NFR-UX-01]', function () {
+    $fr = $this->browser->withoutAcceptLanguage()->get('/api/v1/auth/me');
     $en = (new AuthClient($this))->get('/api/v1/auth/me', ['Accept-Language' => 'en']);
 
     expect($fr->json('error.code'))->toBe('unauthenticated')

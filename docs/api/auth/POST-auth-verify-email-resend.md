@@ -23,6 +23,7 @@ No path parameter, no query parameter, no body.
 | 4 | CSRF token missing | 419 | `csrf_mismatch` | |
 | 5 | More than 3 requests in a minute from one user | 429 | `too_many_attempts` | |
 | 6 | Another method than POST | 405 | `method_not_allowed` | |
+| 7 | The user's institution was suspended since sign-in | 403 | `institution_suspended` | |
 
 ## Responses
 
@@ -35,6 +36,14 @@ No body.
 ```json
 { "error": { "code": "already_verified", "message": "Votre courriel est déjà vérifié." } }
 ```
+
+### 403 — scenario 7
+
+```json
+{ "error": { "code": "institution_suspended", "message": "Cet établissement est suspendu." } }
+```
+
+The session is also ended, as in [GET /auth/me](GET-auth-me.md).
 
 ### 401, 419, 429, 405
 

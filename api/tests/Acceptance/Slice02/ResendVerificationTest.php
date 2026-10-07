@@ -93,3 +93,14 @@ it('answers 405 to another method than POST [NFR-SEC-01] (scenario 6)', function
     $response->assertStatus(405)->assertJsonPath('error.code', 'method_not_allowed');
     expect($response->headers->get('Allow'))->toContain('POST');
 });
+
+it('answers 403 and ends the session when the institution was suspended since sign-in [FR-INST-06] (scenario 7)', function () {
+    $user = signedInUnverified($this);
+
+    \Illuminate\Support\Facades\DB::connection(useMigratorConnection())->table('institutions')
+        ->where('uuid', $user['institution'])->update(['suspended_at' => now('UTC')->format('Y-m-d H:i:s')]);
+
+    $this->browser->post(RESEND)->assertStatus(403)->assertJsonPath('error.code', 'institution_suspended');
+    expect(Accounts::mail())->toBe([]);
+    $this->browser->get('/api/v1/auth/me')->assertStatus(401);
+});

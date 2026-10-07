@@ -32,6 +32,17 @@ final class AuthClient
         return $this;
     }
 
+    /**
+     * Sends no Accept-Language at all. The test framework adds one to every request, so
+     * this empties it, as a client that does not send the header.
+     */
+    public function withoutAcceptLanguage(): self
+    {
+        $this->server['HTTP_ACCEPT_LANGUAGE'] = '';
+
+        return $this;
+    }
+
     public function csrf(): TestResponse
     {
         return $this->get('/api/v1/auth/csrf');
