@@ -21,7 +21,11 @@ const user: CurrentUser = {
   email_verified: true,
   role: 'owner',
   language: 'fr',
-  institution: { id: '22222222-2222-4222-8222-222222222222', name: 'Collège Alpha', type: 'school' },
+  institution: {
+    id: '22222222-2222-4222-8222-222222222222',
+    name: 'Collège Alpha',
+    type: 'school',
+  },
 };
 
 function show(locale: 'fr' | 'en') {
