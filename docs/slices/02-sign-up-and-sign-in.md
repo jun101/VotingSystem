@@ -125,13 +125,15 @@ All the slice 01 and 01b tests keep passing.
 
 ## Decisions taken in this brief
 
+All three confirmed by Jun on 2026-10-07.
+
 - **Custom tokens instead of the framework's reset and verification links**, because those
   put the email address (reset) and the numeric id (verification) in the link, which
   NFR-SEC-08 forbids. The framework's package for sign-up flows (architecture.md section
   4.3) may still be used for its actions and password broker if that stays within these
   endpoint files; the files rule.
 - **Registering with an address already in use answers 422** rather than hiding it; the
-  rate limit slows enumeration. Jun can ask for the hidden variant (always accept, send
-  "you already have an account" by email) at the checkpoint.
+  rate limit slows enumeration. The hidden variant (always accept, send "you already
+  have an account" by email) was offered and not chosen.
 - **Sign-in works before the email is verified**; verification only blocks opening an
   election (slice 13) and is shown as a banner.
