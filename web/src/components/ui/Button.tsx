@@ -1,7 +1,7 @@
 import type { ComponentProps } from 'react';
 import { cx } from './cx';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'quiet';
+export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'quiet' | 'accent';
 export type ButtonSize = 'admin' | 'voter';
 
 type ButtonProps = ComponentProps<'button'> & {
@@ -9,6 +9,8 @@ type ButtonProps = ComponentProps<'button'> & {
   size?: ButtonSize;
   /** Busy: announced, not pressable, and the button keeps its width. */
   loading?: boolean;
+  /** A light sweeping over an accent button (the code entry screen only). */
+  shimmer?: boolean;
 };
 
 const variants: Record<ButtonVariant, string> = {
@@ -17,6 +19,8 @@ const variants: Record<ButtonVariant, string> = {
   secondary: 'bg-surface text-ink border-line-strong hover:bg-surface-alt',
   danger: 'bg-surface text-danger border-danger-line hover:bg-warm-softer',
   quiet: 'bg-transparent text-primary border-transparent hover:bg-primary-soft',
+  // The one main action of a screen. Text is never white on this orange.
+  accent: 'bg-accent-gradient text-navy-deep border-transparent hover:border-accent-light',
 };
 
 const sizes: Record<ButtonSize, string> = {
@@ -28,6 +32,7 @@ export function Button({
   variant = 'primary',
   size = 'admin',
   loading = false,
+  shimmer = false,
   disabled,
   type = 'button',
   className,
@@ -40,10 +45,11 @@ export function Button({
       disabled={disabled || loading}
       aria-busy={loading ? 'true' : undefined}
       className={cx(
-        'relative inline-flex items-center justify-center rounded border font-semibold transition-colors',
+        'ui-control relative inline-flex items-center justify-center rounded border font-semibold',
         'focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary-soft focus-visible:outline-2 focus-visible:outline-primary',
-        'disabled:border-line disabled:bg-line-soft disabled:text-ink-muted',
+        'disabled:border-line disabled:bg-line-soft disabled:bg-none disabled:text-ink-muted',
         variants[variant],
+        variant === 'accent' && shimmer && 'shimmer-sweep',
         sizes[size],
         className,
       )}

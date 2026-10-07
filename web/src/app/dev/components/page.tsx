@@ -27,6 +27,9 @@ export default async function ComponentsPage() {
           <Button variant="quiet" data-testid="demo-button-quiet">
             {t('dev.components.quiet')}
           </Button>
+          <Button variant="accent" data-testid="demo-button-accent">
+            {t('dev.components.accent')}
+          </Button>
           <Button size="voter" data-testid="demo-button-voter">
             {t('dev.components.voter')}
           </Button>

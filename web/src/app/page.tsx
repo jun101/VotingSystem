@@ -1,5 +1,6 @@
 import { headers } from 'next/headers';
-import { Card, PageShell, Pill } from '@/components/ui';
+import { Hero, HeroPill, Card, PageShell, Pill } from '@/components/ui';
+import { LiveDot, Reveal } from '@/components/motion';
 import { fetchHealthCached } from '@/lib/api/health';
 import { formatDateTime } from '@/lib/format/dateTime';
 import { getI18n } from '@/lib/i18n/server';
@@ -25,39 +26,56 @@ export default async function HomePage() {
   } as const;
 
   return (
-    <PageShell productName={t('app.name')}>
-      <h1 className="text-3xl text-ink">{t('app.name')}</h1>
+    <PageShell
+      productName={t('app.name')}
+      hero={
+        <Hero
+          data-testid="home-hero"
+          live
+          pill={
+            <HeroPill>
+              <LiveDot className="text-accent-light" />
+              {t('home.hero.pill')}
+            </HeroPill>
+          }
+          title={t('app.name')}
+          accent={t('home.hero.accent')}
+          lede={t('home.hero.lede')}
+        />
+      }
+    >
+      <Reveal>
+        <Card title={t('home.status.title')}>
+          <dl className="flex flex-col divide-y divide-line-soft">
+            {rows.map((row) => (
+              <div
+                key={row.id}
+                data-testid={`status-${row.id}`}
+                data-state={row.state}
+                className="flex items-center justify-between gap-3 py-3 first:pt-0"
+              >
+                <dt className="text-ink-soft">{row.label}</dt>
+                <dd>
+                  <Pill tone={pill[row.state].tone}>{pill[row.state].text}</Pill>
+                </dd>
+              </div>
+            ))}
 
-      <Card title={t('home.status.title')}>
-        <dl className="flex flex-col divide-y divide-line-soft">
-          {rows.map((row) => (
-            <div
-              key={row.id}
-              data-testid={`status-${row.id}`}
-              data-state={row.state}
-              className="flex items-center justify-between gap-3 py-3 first:pt-0"
-            >
-              <dt className="text-ink-soft">{row.label}</dt>
-              <dd>
-                <Pill tone={pill[row.state].tone}>{pill[row.state].text}</Pill>
+            <div className="flex items-center justify-between gap-3 py-3 last:pb-0">
+              <dt className="text-ink-soft">{t('home.status.time')}</dt>
+              <dd className="text-right font-semibold text-ink">
+                {health.time ? (
+                  <time data-testid="status-time" dateTime={health.time}>
+                    {formatDateTime(health.time, locale)}
+                  </time>
+                ) : (
+                  <span>—</span>
+                )}
               </dd>
             </div>
-          ))}
-
-          <div className="flex items-center justify-between gap-3 py-3 last:pb-0">
-            <dt className="text-ink-soft">{t('home.status.time')}</dt>
-            <dd className="text-right font-semibold text-ink">
-              {health.time ? (
-                <time data-testid="status-time" dateTime={health.time}>
-                  {formatDateTime(health.time, locale)}
-                </time>
-              ) : (
-                <span>—</span>
-              )}
-            </dd>
-          </div>
-        </dl>
-      </Card>
+          </dl>
+        </Card>
+      </Reveal>
     </PageShell>
   );
 }
