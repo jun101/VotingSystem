@@ -70,3 +70,7 @@ A failed attempt is counted by the limiter and writes nothing in the database.
 
 A platform admin signs in here too; their `institution` is `null`.
 Two-factor authentication is added in slice 04.
+
+When the hashing cost parameters are raised, the first sign-in of a user rewrites their hash;
+the user's other sessions then end (they carry a hash of the old password hash), and the person
+signs in again there. Accepted.

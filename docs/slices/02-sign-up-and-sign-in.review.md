@@ -49,7 +49,7 @@ storage, `allowedDevOrigins` (dev server only).
 | C3 | Should fix | `components/auth/useAuthForm.ts`, `Button.tsx` | After an error that belongs to no field, focus drops to `<body>` (the submit button was disabled). Focus the `form-error` notice (`tabIndex={-1}`) | Open |
 | C4 | Should fix | `Actions/Auth/ResetPassword.php`, `Rules/SameAsEmail.php` | Registration trims before comparing the password with the email, reset does not: `"  a@b.c  "` passes at reset. Reuse the rule | Open |
 | C5 | Note | `RequestPasswordReset.php` | Same as S5 | Open (with S5) |
-| C6 | Note | `AttemptLogin.php` | Rewriting the hash at sign-in (after the cost parameters change) ends the user's other sessions. Accept and document in the endpoint file, or refresh the session hash | Open |
+| C6 | Note | `AttemptLogin.php` | Rewriting the hash at sign-in (after the cost parameters change) ends the user's other sessions. Accept and document in the endpoint file, or refresh the session hash | Accepted, written in the endpoint file |
 | C7 | Note | `VerifyEmailState.tsx` | The `error` state (429, 5xx, network) has no retry and the result is cached for the token. Add a retry button | Open |
 | C8 | Note | `lib/api/browser.ts` | A rate-limited `GET /auth/csrf` makes the person read "session expired" instead of "too many attempts". Turn that answer into an `ApiError` | Open |
 | C9 | Note | `components/admin/AdminPlaceholder.tsx` | A platform admin sees their own name as the institution. Show nothing when `institution` is null | Open |
