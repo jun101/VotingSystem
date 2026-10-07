@@ -70,6 +70,8 @@ describe('RegisterForm', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Trop de tentatives');
     expect(screen.getByTestId('register-submit')).not.toBeDisabled();
+    // Focus does not fall to the page: it goes to the alert.
+    expect(screen.getByTestId('form-error')).toHaveFocus();
   });
 
   it('says a field it does not show is wrong in the alert, and keeps the form usable', async () => {

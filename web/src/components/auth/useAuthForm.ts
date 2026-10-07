@@ -10,7 +10,8 @@ import { useI18n } from '@/lib/i18n/client';
  * - while the call runs, `busy` (the submit button is disabled and announced as busy);
  * - an error that belongs to a field is shown next to it, the field is marked invalid, and
  *   the first one in the form gets the focus;
- * - any other error is shown in one alert for the form.
+ * - any other error is shown in one alert for the form (`role="alert"`, `tabIndex={-1}`),
+ *   which gets the focus when no field is invalid.
  *
  * `shown` names the fields the form has. An error on another field (the token of a link, a
  * field the page does not show) goes in the alert. `handle` can take an error over (return
@@ -24,9 +25,17 @@ export function useAuthForm(shown: readonly string[]) {
   const [formError, setFormError] = useState<string | null>(null);
   const [round, setRound] = useState(0);
 
-  // After the errors are on the screen, the first invalid field gets the focus.
+  // After the errors are on the screen, the first invalid field gets the focus; when the
+  // error belongs to no field, the alert of the form does (it has `tabIndex={-1}`), so the
+  // keyboard focus is not lost with the submit button that was disabled.
   useEffect(() => {
-    if (round > 0) form.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+    if (round === 0) return;
+
+    const target =
+      form.current?.querySelector<HTMLElement>('[aria-invalid="true"]') ??
+      form.current?.querySelector<HTMLElement>('[role="alert"]');
+
+    target?.focus();
   }, [round]);
 
   /**

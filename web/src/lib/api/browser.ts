@@ -63,7 +63,28 @@ function refreshCsrf(): Promise<void> {
     credentials: 'same-origin',
     headers: { 'Accept-Language': pageLanguage() },
   })
-    .then(() => undefined)
+    .then(
+      (response) => {
+        // An answer that is not a success (429, 5xx) is the error the person reads, not a
+        // reason to send the call with an empty token.
+        if (response.ok) return undefined;
+
+        return response.text().then((text) => {
+          let body: unknown = null;
+
+          try {
+            body = JSON.parse(text);
+          } catch {
+            // Not JSON: an `unknown` error.
+          }
+
+          throw parseApiError(response.status, body, response.headers.get('Retry-After'));
+        });
+      },
+      () => {
+        throw new ApiError(0, 'network');
+      },
+    )
     .finally(() => {
       fetching = null;
     });
@@ -90,8 +111,9 @@ async function send<R extends Outcome>(call: (api: Client) => Promise<R>): Promi
 
     try {
       outcome = await call(getClient());
-    } catch {
-      throw new ApiError(0, 'network');
+    } catch (error) {
+      // The CSRF call can have failed on its own (rate limit, server error).
+      throw error instanceof ApiError ? error : new ApiError(0, 'network');
     }
 
     if (outcome.response.ok) return outcome;
@@ -103,11 +125,7 @@ async function send<R extends Outcome>(call: (api: Client) => Promise<R>): Promi
     );
 
     if (failure.code === 'csrf_mismatch' && attempt === 0) {
-      try {
-        await refreshCsrf();
-      } catch {
-        throw new ApiError(0, 'network');
-      }
+      await refreshCsrf();
 
       continue;
     }

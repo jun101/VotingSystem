@@ -1,4 +1,4 @@
-{!! __('mail.greeting', ['name' => $name]) !!}
+{!! __('mail.greeting') !!}
 
 {!! $intro !!}
 

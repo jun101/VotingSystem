@@ -27,8 +27,9 @@ class Institution extends Model
 
     use HasUuid;
 
+    // `suspended_at` is never mass-assigned.
     /** @var list<string> */
-    protected $fillable = ['name', 'type', 'timezone', 'language', 'suspended_at'];
+    protected $fillable = ['name', 'type', 'timezone', 'language'];
 
     /** @return array<string, string> */
     protected function casts(): array

@@ -3,6 +3,7 @@
 use App\Models\User;
 use App\Notifications\ResetPasswordNotification;
 use App\Notifications\VerifyEmailNotification;
+use Illuminate\Contracts\Queue\ShouldBeEncrypted;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Notification;
@@ -35,18 +36,26 @@ it('sends the verification and the reset email once each, in the language of the
     }
 });
 
-it('does not escape the text part, so a link or a name with a symbol stays readable [NFR-UX-01]', function () {
-    $made = Accounts::user(['verified' => false]);
-    $user = User::query()->where('uuid', $made['user'])->firstOrFail();
-    $user->name = 'Marie & O\'Neil';
-    $user->save();
+it('greets without the name, which anyone can type at sign-up [NFR-SEC-02]', function () {
+    foreach (['fr' => 'Bonjour,', 'en' => 'Hello,'] as $language => $greeting) {
+        $made = Accounts::user(['verified' => false, 'language' => $language, 'email' => "greet-{$language}@example.test"]);
+        $user = User::query()->where('uuid', $made['user'])->firstOrFail();
+        $user->name = 'Visit evil.example & win';
+        $user->save();
 
-    $user->notify(new VerifyEmailNotification(str_repeat('c', 64)));
+        $user->notify(new VerifyEmailNotification(str_repeat('c', 64)));
+        $user->notify(new ResetPasswordNotification(str_repeat('d', 64)));
 
-    $mail = Accounts::mailTo($user->email)[0];
+        foreach (Accounts::mailTo($user->email) as $mail) {
+            expect($mail['text'])->toContain($greeting)->not->toContain('evil.example')
+                ->and($mail['html'])->toContain($greeting)->not->toContain('evil.example');
+        }
+    }
+});
 
-    expect($mail['text'])->toContain('Marie & O\'Neil')->not->toContain('&amp;')->not->toContain('&#039;')
-        ->and($mail['html'])->toContain('Marie &amp; O&#039;Neil');
+it('encrypts the payload of both notifications in the queue, since it holds a token [NFR-SEC-02]', function () {
+    expect(new VerifyEmailNotification('a'))->toBeInstanceOf(ShouldBeEncrypted::class)
+        ->and(new ResetPasswordNotification('a'))->toBeInstanceOf(ShouldBeEncrypted::class);
 });
 
 it('sends from the address set in the environment [FR-INST-01]', function () {

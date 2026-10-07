@@ -69,7 +69,11 @@ class AppServiceProvider extends ServiceProvider
             $email = $request->input('email');
 
             if (is_string($email) && $email !== '') {
-                $limits[] = Limit::perHour($times(3))->by('email:'.hash('sha256', mb_strtolower(trim($email))));
+                // By the account when there is one (the database ignores accents and case),
+                // else by the text of the address. A hash either way.
+                $normalized = mb_strtolower(trim($email));
+                $uuid = User::query()->where('email', $normalized)->value('uuid');
+                $limits[] = Limit::perHour($times(3))->by('email:'.hash('sha256', is_string($uuid) ? 'user:'.$uuid : 'email:'.$normalized));
             }
 
             return $limits;

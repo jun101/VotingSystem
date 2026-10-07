@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeEncrypted;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\Config;
  * The password reset email (FR-INST-04). Queued, in the language of the user. The link
  * holds the token and nothing else: no id, no address.
  */
-class ResetPasswordNotification extends Notification implements ShouldQueue
+class ResetPasswordNotification extends Notification implements ShouldBeEncrypted, ShouldQueue
 {
     use Queueable;
 
@@ -34,7 +35,6 @@ class ResetPasswordNotification extends Notification implements ShouldQueue
             ->view(
                 ['mail.action', 'mail.action-text'],
                 [
-                    'name' => data_get($notifiable, 'name'),
                     'intro' => __('mail.reset.intro'),
                     'button' => __('mail.reset.button'),
                     'url' => rtrim(Config::string('app.url'), '/').'/reset-password?token='.$this->token,

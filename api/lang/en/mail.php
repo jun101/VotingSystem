@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'greeting' => 'Hello :name,',
+    'greeting' => 'Hello,',
     'link_fallback' => 'If the button does not work, copy this link into your browser:',
     'footer' => 'This message was sent automatically, please do not reply to it.',
 

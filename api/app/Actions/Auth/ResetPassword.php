@@ -4,6 +4,7 @@ namespace App\Actions\Auth;
 
 use App\Exceptions\ApiException;
 use App\Models\User;
+use App\Rules\SameAsEmail;
 use App\Support\LinkTokens;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -39,9 +40,9 @@ final class ResetPassword
             }
 
             // Checked before the token is spent: a refused password leaves the link usable.
-            if (mb_strtolower($password) === mb_strtolower($user->email)) {
+            (new SameAsEmail($user->email))->validate('password', $password, static function (): never {
                 throw ValidationException::withMessages(['password' => ['same_as_email']]);
-            }
+            });
 
             $user->password = Hash::make($password);
 

@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\RateLimiter;
  * Checks an email and a password (docs/api/auth/POST-auth-login.md). It does not open the
  * session: the controller does, with the user returned.
  *
- * - Five failed attempts a minute for one email and one address, then 429 even with the
+ * - Five failed attempts a minute for one account (or one unknown email) and one address, then 429 even with the
  *   right password. The counter holds a hash of the pair, never the address itself.
  * - An unknown email, a removed user and a wrong password give the same answer, in about
  *   the same time: a hash is computed in every case.
@@ -27,7 +27,12 @@ final class AttemptLogin
     public function __invoke(string $email, string $password, string $ip): User
     {
         $email = mb_strtolower(trim($email));
-        $key = 'login-failures:'.hash('sha256', $email.'|'.$ip);
+        $user = User::query()->where('email', $email)->first();
+
+        // The counter follows the account, not the spelling: the database ignores accents and
+        // case, so `josé@` and `jose@` are one user. An address with no account is counted by
+        // its text. Either way the key is a hash.
+        $key = 'login-failures:'.hash('sha256', ($user === null ? 'email:'.$email : 'user:'.$user->uuid).'|'.$ip);
         $max = self::MAX_FAILURES_PER_MINUTE * Config::integer('auth.rate_limit_factor');
 
         if (RateLimiter::tooManyAttempts($key, $max)) {
@@ -35,8 +40,6 @@ final class AttemptLogin
 
             throw new ThrottleRequestsException('Too many attempts.', null, ['Retry-After' => (string) max(1, RateLimiter::availableIn($key))]);
         }
-
-        $user = User::query()->where('email', $email)->first();
 
         if ($user === null) {
             // Same work as for a known user: a hash, whose result is thrown away.

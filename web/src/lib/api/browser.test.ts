@@ -136,6 +136,37 @@ describe('the browser client', () => {
     });
   });
 
+  it('turns a rate-limited CSRF call into the error the forms show, and sends nothing else', async () => {
+    const { logout } = await import('./browser');
+    answers = [
+      () =>
+        json(429, { error: { code: 'too_many_attempts', message: 'x' } }, { 'Retry-After': '12' }),
+    ];
+
+    await expect(logout()).rejects.toMatchObject({
+      status: 429,
+      code: 'too_many_attempts',
+      retryAfter: 12,
+    });
+    expect(calls.map((c) => c.method)).toEqual(['GET']);
+  });
+
+  it('turns a server error or a network failure of the CSRF call into an error too', async () => {
+    const { logout } = await import('./browser');
+    answers = [() => new Response('<html>', { status: 502 })];
+
+    await expect(logout()).rejects.toMatchObject({ status: 502, code: 'unknown' });
+
+    answers = [
+      () => {
+        throw new TypeError('Failed to fetch');
+      },
+    ];
+
+    await expect(logout()).rejects.toMatchObject({ status: 0, code: 'network' });
+    expect(calls.map((c) => c.method)).toEqual(['GET', 'GET']);
+  });
+
   it('turns a failure to reach the server into a network error', async () => {
     const { forgotPassword } = await import('./browser');
     document.cookie = 'XSRF-TOKEN=abc; path=/';

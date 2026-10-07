@@ -10,8 +10,8 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['bail', 'required', 'string'],
-            'password' => ['bail', 'required', 'string'],
+            'email' => ['bail', 'required', 'string', 'max:255'],
+            'password' => ['bail', 'required', 'string', 'max:1024'],
         ];
     }
 }

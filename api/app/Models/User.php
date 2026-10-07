@@ -37,8 +37,9 @@ class User extends Authenticatable implements HasLocalePreference
     use Notifiable;
     use SoftDeletes;
 
+    // `role` and `institution_id` are never mass-assigned: the code that writes them sets them.
     /** @var list<string> */
-    protected $fillable = ['institution_id', 'role', 'name', 'email', 'password', 'language'];
+    protected $fillable = ['name', 'email', 'password', 'language'];
 
     /** @var list<string> */
     protected $hidden = ['password', 'two_factor_secret', 'two_factor_recovery_codes', 'two_factor_confirmed_at'];

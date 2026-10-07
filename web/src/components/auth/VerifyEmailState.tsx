@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui';
 import { verifyEmail } from '@/lib/api/browser';
 import { ApiError } from '@/lib/api/errors';
 import { useI18n } from '@/lib/i18n/client';
@@ -29,6 +30,12 @@ function verifyOnce(token: string): Promise<State> {
       },
     );
     calls.set(token, call);
+
+    // An answer that says nothing about the link (rate limit, server, network) is not kept:
+    // the person can try again.
+    void call.then((state) => {
+      if (state === 'error' && calls.get(token) === call) calls.delete(token);
+    });
   }
 
   return call;
@@ -38,6 +45,7 @@ function verifyOnce(token: string): Promise<State> {
 export function VerifyEmailState({ token }: { token: string | null }) {
   const { t } = useI18n();
   const [state, setState] = useState<State>(token === null ? 'invalid' : 'pending');
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     if (token === null) return;
@@ -51,7 +59,7 @@ export function VerifyEmailState({ token }: { token: string | null }) {
     return () => {
       current = false;
     };
-  }, [token]);
+  }, [token, attempt]);
 
   const text: Record<State, string> = {
     pending: t('auth.verify.pending'),
@@ -78,7 +86,20 @@ export function VerifyEmailState({ token }: { token: string | null }) {
             {t('auth.verify.toAdmin')}
           </Link>
         ) : null}
-        {state === 'invalid' || state === 'expired' ? (
+        {state === 'error' ? (
+          <Button
+            variant="secondary"
+            className="w-fit"
+            data-testid="verify-retry"
+            onClick={() => {
+              setState('pending');
+              setAttempt((n) => n + 1);
+            }}
+          >
+            {t('auth.verify.retry')}
+          </Button>
+        ) : null}
+        {state === 'invalid' || state === 'expired' || state === 'error' ? (
           <Link href="/login" className="w-fit font-semibold text-primary underline">
             {t('auth.verify.signIn')}
           </Link>

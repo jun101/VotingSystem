@@ -172,7 +172,8 @@
       "invalid": "This verification link is not valid. It may already have been used, or a newer link replaced it.",
       "expired": "This link has expired. Sign in to receive a new one.",
       "failed": "The verification could not be done right now. Try again in a moment.",
-      "signIn": "Sign in"
+      "signIn": "Sign in",
+      "retry": "Try again"
     }
   },
   "admin": {

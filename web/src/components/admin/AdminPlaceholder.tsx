@@ -116,9 +116,11 @@ export function AdminPlaceholder({ user }: { user: CurrentUser }) {
             </Button>
           }
         >
-          <p className="font-display text-xl font-bold text-ink" data-testid="admin-institution">
-            {t('admin.placeholder.institution', { name: user.institution?.name ?? user.name })}
-          </p>
+          {user.institution ? (
+            <p className="font-display text-xl font-bold text-ink" data-testid="admin-institution">
+              {t('admin.placeholder.institution', { name: user.institution.name })}
+            </p>
+          ) : null}
         </Card>
       </Reveal>
     </PageShell>

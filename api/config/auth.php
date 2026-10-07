@@ -28,7 +28,11 @@ return [
 
     // Every number of the auth rate limiters (docs/api/auth/) is multiplied by this integer.
     // Unset or empty: 1. The development stack and the browser tests raise it, since they
-    // register many accounts from one address; the API tests keep it at 1.
-    'rate_limit_factor' => max(1, (int) env('AUTH_RATE_LIMIT_FACTOR', 1)),
+    // register many accounts from one address; the API tests keep it at 1. It is honoured
+    // only when APP_ENV is `local` or `testing`: anywhere else it is 1, whatever the variable
+    // says, so a copied development file cannot switch the limits off.
+    'rate_limit_factor' => in_array(env('APP_ENV'), ['local', 'testing'], true)
+        ? max(1, (int) env('AUTH_RATE_LIMIT_FACTOR', 1))
+        : 1,
 
 ];

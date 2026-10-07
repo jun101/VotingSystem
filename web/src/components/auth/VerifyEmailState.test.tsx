@@ -1,4 +1,5 @@
 import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { StrictMode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiError } from '@/lib/api/errors';
@@ -67,5 +68,35 @@ describe('VerifyEmailState', () => {
     await waitFor(() =>
       expect(screen.getByTestId('verify-state')).toHaveAttribute('data-state', state),
     );
+  });
+
+  it('offers a retry after an error that says nothing about the link, and calls the API again', async () => {
+    const link = token();
+    answer = () => Promise.reject(new ApiError(429, 'too_many_attempts'));
+    renderIn('en', <VerifyEmailState token={link} />);
+
+    await waitFor(() =>
+      expect(screen.getByTestId('verify-state')).toHaveAttribute('data-state', 'error'),
+    );
+    expect(screen.getByRole('link', { name: 'Sign in' })).toHaveAttribute('href', '/login');
+
+    answer = () => Promise.resolve();
+    await userEvent.click(screen.getByTestId('verify-retry'));
+
+    await waitFor(() =>
+      expect(screen.getByTestId('verify-state')).toHaveAttribute('data-state', 'success'),
+    );
+    expect(verifyEmail).toHaveBeenCalledTimes(2);
+    expect(screen.queryByTestId('verify-retry')).not.toBeInTheDocument();
+  });
+
+  it('offers no retry in the other states', async () => {
+    answer = () => Promise.reject(new ApiError(410, 'expired'));
+    renderIn('en', <VerifyEmailState token={token()} />);
+
+    await waitFor(() =>
+      expect(screen.getByTestId('verify-state')).toHaveAttribute('data-state', 'expired'),
+    );
+    expect(screen.queryByTestId('verify-retry')).not.toBeInTheDocument();
   });
 });

@@ -172,7 +172,8 @@
       "invalid": "Ce lien de vérification n’est pas valable. Il a peut-être déjà servi, ou un lien plus récent l’a remplacé.",
       "expired": "Ce lien a expiré. Connectez-vous pour en recevoir un nouveau.",
       "failed": "La vérification n’a pas pu être faite pour le moment. Réessayez dans un instant.",
-      "signIn": "Se connecter"
+      "signIn": "Se connecter",
+      "retry": "Réessayer"
     }
   },
   "admin": {

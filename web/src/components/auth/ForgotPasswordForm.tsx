@@ -51,7 +51,7 @@ export function ForgotPasswordForm() {
       </div>
 
       {formError ? (
-        <Notice tone="danger" role="alert" data-testid="form-error">
+        <Notice tone="danger" role="alert" tabIndex={-1} data-testid="form-error">
           {formError}
         </Notice>
       ) : null}
