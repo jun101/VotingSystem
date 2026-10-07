@@ -2,10 +2,13 @@
 
 namespace App\Providers;
 
+use App\Auth\SessionUserProvider;
 use App\Models\User;
 use Dedoc\Scramble\Scramble;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -24,6 +27,9 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Users are found by the guard without the institution scope (see SessionUserProvider).
+        Auth::provider('institution-session', fn (Application $app, array $config) => new SessionUserProvider($app->make('hash'), Config::string('auth.providers.users.model')));
+
         $this->configureRateLimiters();
     }
 
@@ -72,7 +78,9 @@ class AppServiceProvider extends ServiceProvider
                 // By the account when there is one (the database ignores accents and case),
                 // else by the text of the address. A hash either way.
                 $normalized = mb_strtolower(trim($email));
-                $uuid = User::query()->where('email', $normalized)->value('uuid');
+                // The limiter runs before sign-in, so no institution can narrow the lookup: the
+                // address is unique across all of them.
+                $uuid = User::withoutInstitutionScope()->where('email', $normalized)->value('uuid');
                 $limits[] = Limit::perHour($times(3))->by('email:'.hash('sha256', is_string($uuid) ? 'user:'.$uuid : 'email:'.$normalized));
             }
 

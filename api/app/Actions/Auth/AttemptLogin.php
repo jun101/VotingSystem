@@ -27,7 +27,9 @@ final class AttemptLogin
     public function __invoke(string $email, string $password, string $ip): User
     {
         $email = mb_strtolower(trim($email));
-        $user = User::query()->where('email', $email)->first();
+        // Nobody is signed in yet at sign-in, and the email is unique across every institution,
+        // so the lookup has to cross tenants.
+        $user = User::withoutInstitutionScope()->where('email', $email)->first();
 
         // The counter follows the account, not the spelling: the database ignores accents and
         // case, so `josé@` and `jose@` are one user. An address with no account is counted by

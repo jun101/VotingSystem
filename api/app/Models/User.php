@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Role;
+use App\Models\Concerns\BelongsToInstitution;
 use App\Models\Concerns\HasUuid;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Translation\HasLocalePreference;
@@ -30,6 +31,8 @@ use Illuminate\Support\Carbon;
  */
 class User extends Authenticatable implements HasLocalePreference
 {
+    use BelongsToInstitution;
+
     /** @use HasFactory<UserFactory> */
     use HasFactory;
 
@@ -61,6 +64,15 @@ class User extends Authenticatable implements HasLocalePreference
     public function institution(): BelongsTo
     {
         return $this->belongsTo(Institution::class);
+    }
+
+    /**
+     * A platform admin belongs to no institution and everyone else must; the database's check
+     * ties the column to the role, so the trait lets the database refuse a bad combination.
+     */
+    public function allowsNoInstitution(): bool
+    {
+        return true;
     }
 
     public function hasVerifiedEmail(): bool

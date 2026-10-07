@@ -29,7 +29,9 @@ class SendPasswordResetLink implements ShouldBeEncrypted, ShouldQueue
 
     public function handle(LinkTokens $tokens): void
     {
-        $user = User::query()->where('email', mb_strtolower(trim($this->email)))->first();
+        // A queued job has no signed-in user and the address is unique across institutions:
+        // the lookup has to cross tenants.
+        $user = User::withoutInstitutionScope()->where('email', mb_strtolower(trim($this->email)))->first();
 
         if ($user === null) {
             return;

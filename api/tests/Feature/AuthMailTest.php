@@ -20,7 +20,8 @@ it('queues the two notifications, so the queue service sends them [FR-INST-01]',
 it('sends the verification and the reset email once each, in the language of the user, with a text and an HTML part [NFR-UX-01]', function () {
     foreach (['fr' => ['vérif', 'initialis'], 'en' => ['verify', 'reset']] as $language => [$verify, $reset]) {
         $made = Accounts::user(['language' => $language, 'verified' => false, 'email' => "{$language}@example.test"]);
-        $user = User::query()->where('uuid', $made['user'])->firstOrFail();
+        // Test setup: nobody is signed in, so the institution scope is removed on purpose.
+        $user = User::withoutInstitutionScope()->where('uuid', $made['user'])->firstOrFail();
 
         $user->notify(new VerifyEmailNotification(str_repeat('a', 64)));
         $user->notify(new ResetPasswordNotification(str_repeat('b', 64)));
@@ -39,7 +40,8 @@ it('sends the verification and the reset email once each, in the language of the
 it('greets without the name, which anyone can type at sign-up [NFR-SEC-02]', function () {
     foreach (['fr' => 'Bonjour,', 'en' => 'Hello,'] as $language => $greeting) {
         $made = Accounts::user(['verified' => false, 'language' => $language, 'email' => "greet-{$language}@example.test"]);
-        $user = User::query()->where('uuid', $made['user'])->firstOrFail();
+        // Test setup: nobody is signed in, so the institution scope is removed on purpose.
+        $user = User::withoutInstitutionScope()->where('uuid', $made['user'])->firstOrFail();
         $user->name = 'Visit evil.example & win';
         $user->save();
 

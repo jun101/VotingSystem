@@ -25,7 +25,7 @@ final class ResetPassword
     {
         DB::transaction(function () use ($token, $password): void {
             $row = $this->tokens->find(LinkTokens::RESET, $token, lock: true);
-            $user = $row === null ? null : User::query()->whereKey($row->user_id)->first();
+            $user = $row === null ? null : $this->userOf($row->user_id);
 
             if ($row === null || $user === null) {
                 Log::info('auth.reset_password', ['outcome' => 'invalid']);
@@ -55,5 +55,13 @@ final class ResetPassword
         });
 
         Log::info('auth.reset_password', ['outcome' => 'reset']);
+    }
+
+    /** The owner of a token row. */
+    private function userOf(mixed $key): ?User
+    {
+        // The link is opened with nobody signed in, so the token's owner is found across
+        // every institution.
+        return User::withoutInstitutionScope()->whereKey($key)->first();
     }
 }

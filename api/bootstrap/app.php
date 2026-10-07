@@ -63,8 +63,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // it does not know after the others: say where ours go.
         $middleware->prependToPriorityList(before: StartSession::class, prepend: ResetAuthState::class);
         $middleware->prependToPriorityList(before: StartSession::class, prepend: RejectMalformedJson::class);
-        $middleware->appendToPriorityList(after: StartSession::class, append: VerifyCsrfToken::class);
-        $middleware->appendToPriorityList(after: AuthenticatesRequests::class, append: EnsureInstitutionActive::class);
+        // A signed-out request is answered 401 before its CSRF token is judged: after the
+        // session ended, the token the page still holds no longer matches, and that is a
+        // sign-in problem, not a forgery.
+        $middleware->appendToPriorityList(after: AuthenticatesRequests::class, append: VerifyCsrfToken::class);
+        $middleware->appendToPriorityList(after: VerifyCsrfToken::class, append: EnsureInstitutionActive::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // This application serves the API only: every answer is JSON, whatever the path
