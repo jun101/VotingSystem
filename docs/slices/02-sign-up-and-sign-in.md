@@ -52,7 +52,7 @@ the nine endpoint files in [docs/api/auth/](../api/auth/) · the mockup
 | Current user | One API resource for "the current user" (the `data` of [GET /auth/me](../api/auth/GET-auth-me.md)); never outputs `id` or `*_id` of the database |
 | Passwords | Argon2id (`HASH_DRIVER=argon2id`), cost parameters in the config. Rule: 12 to 128 characters and not equal to the email. Nothing else (no composition rules) |
 | Tokens | 64 hexadecimal characters from a secure random source. Only the SHA-256 hash is stored. Compared by hash, in constant time. Verification 24 h, reset 60 min. A new token replaces the user's previous one |
-| Rate limits | Named limiters, declared like slice 01's, with the numbers of each endpoint file. Counters in Redis. The sign-in limiter counts failed attempts per email address and IP address |
+| Rate limits | Named limiters, declared like slice 01's, with the numbers of each endpoint file. Counters in Redis. The sign-in limiter counts failed attempts per email address and IP address. Every number of the auth limiters is multiplied by `AUTH_RATE_LIMIT_FACTOR` (integer, default 1 when unset). `.env.example` sets it to 100 for development and the browser tests, which register many accounts from one address; the production example leaves it empty (slice 20). The API tests set it to 1 themselves |
 | Sign-in timing | An unknown email costs about the same as a wrong password (hash against a dummy value) |
 | Emails | Two queued notifications (verification, reset), in the user's language, French and English, plain and HTML parts, sent through the `queue` service. Links `{APP_URL}/verify-email?token=…` and `{APP_URL}/reset-password?token=…`. No numeric id, no email address in a link. The mail's `From` comes from the environment |
 | Suspended institution | Sign-in and `GET /auth/me` refuse a user whose institution has `suspended_at` set (the platform admin that sets it is slice 18) |
@@ -72,6 +72,26 @@ the nine endpoint files in [docs/api/auth/](../api/auth/) · the mockup
 | Messages | Every text in the French and English message files, including each error code and rule code of the endpoint files |
 | Language | The pages follow the browser's language; registering sends it as `language` |
 | Pages without JavaScript | A form page renders without JavaScript (submitting needs it) |
+
+### 3b. Names the browser tests rely on
+
+`data-testid` values (the tests find fields and messages by these, never by text):
+
+| Page | Values |
+|---|---|
+| `/register` | `register-form`, `register-institution-name`, `register-name`, `register-email`, `register-password`, `register-password-toggle`, `register-submit` |
+| `/login` | `login-form`, `login-email`, `login-password`, `login-submit`, `login-forgot` (link), `login-register` (link), `login-notice` (shown after a reset) |
+| `/forgot-password` | `forgot-form`, `forgot-email`, `forgot-submit`, `forgot-sent` (the confirmation, shown whether or not the address exists) |
+| `/reset-password` | `reset-form`, `reset-password`, `reset-submit`, `reset-invalid` (a message with a link to `/forgot-password`, shown on 422 or 410) |
+| `/verify-email` | `verify-state` with `data-state` = `pending`, `success`, `invalid` (also without a token) or `expired`; the page calls the API on load |
+| `/admin` | `admin-welcome` (holds the user's name), `admin-institution`, `verify-banner`, `resend-button`, `resend-done`, `signout-button` |
+| Any form | `field-error-<field>` next to a field in error (`field-error-institution_name`, `field-error-email`, …), `form-error` (`role="alert"`) for an error that belongs to no field. A field in error has `aria-invalid="true"` and the first one gets the focus. Each form's `data-testid` is on the `<form>` element |
+
+Words the tests check (one each, in the message files): the pages' `<html lang>` follows
+the browser (`fr` or `en`); the verification email's subject contains "vérif" in French and
+"verify" in English; the reset email's subject contains "initialis" in French and "reset"
+in English; no other copy is asserted. The words you choose for the rest are yours, within
+the mockup's wording (A01) for French.
 
 ### 4. Test data
 

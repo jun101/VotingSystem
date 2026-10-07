@@ -26,6 +26,9 @@ $settings = [
     'SESSION_DRIVER' => 'array',
     'MAIL_MAILER' => 'array',
     'LOG_CHANNEL' => 'null',
+    // The rate limits of docs/api/auth/ are tested at their real value; the development stack
+    // and the browser tests raise them (many sign-ups from one address).
+    'AUTH_RATE_LIMIT_FACTOR' => '1',
 ];
 
 foreach ($settings as $name => $value) {

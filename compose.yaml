@@ -238,6 +238,8 @@ services:
     depends_on:
       proxy:
         condition: service_healthy
+      mailpit:
+        condition: service_healthy
     user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
     working_dir: /app
     volumes:
@@ -245,6 +247,7 @@ services:
     environment:
       HOME: /tmp
       BASE_URL: http://proxy:8080
+      MAILPIT_URL: http://mailpit:8025
       CI: ${CI:-}
     command: ["npx", "playwright", "test"]
 
