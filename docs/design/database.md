@@ -76,7 +76,26 @@ Check constraint: `institution_id IS NULL` exactly when `role = 'platform_admin'
 | expires_at | dt | |
 | accepted_at | dt, null | |
 
-**`password_reset_tokens`** — the framework's standard table (email, token, created_at).
+**`email_verification_tokens`** — the link sent to verify an email (FR-INST-01).
+
+| Column | Type | Notes |
+|---|---|---|
+| user_id | fk | Cascade. One live token per user: a new one replaces the old |
+| token_hash | binary(32) | SHA-256 of the token. Unique. The token itself is only in the email |
+| expires_at | dt | 24 hours after creation |
+
+No `uuid`, no `updated_at`.
+
+**`password_reset_tokens`** — the link sent to reset a password (FR-INST-04). Replaces the
+framework's standard table, which is keyed by email and would put the email in the link.
+
+| Column | Type | Notes |
+|---|---|---|
+| user_id | fk | Cascade. One live token per user: a new one replaces the old |
+| token_hash | binary(32) | SHA-256 of the token. Unique. The token itself is only in the email |
+| expires_at | dt | 60 minutes after creation |
+
+No `uuid`, no `updated_at`.
 
 ### 2.2 Election setup
 
