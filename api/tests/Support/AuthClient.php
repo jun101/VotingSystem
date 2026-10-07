@@ -117,6 +117,45 @@ final class AuthClient
         return $this->send($method, $uri, [], $method === 'GET' ? [] : ['X-XSRF-TOKEN' => $this->cookies['XSRF-TOKEN'] ?? '']);
     }
 
+    /**
+     * PATCH, PUT or DELETE with the CSRF token, as `post()` does.
+     *
+     * @param  array<string, mixed>  $data
+     * @param  array<string, string>  $headers
+     */
+    public function change(string $method, string $uri, array $data = [], array $headers = [], bool $csrf = true): TestResponse
+    {
+        if ($csrf) {
+            if (! $this->hasCookie('XSRF-TOKEN')) {
+                $this->csrf();
+            }
+            $headers['X-XSRF-TOKEN'] = $this->cookies['XSRF-TOKEN'] ?? '';
+        }
+
+        return $this->send($method, $uri, $data, $headers);
+    }
+
+    public function patch(string $uri, array $data = [], array $headers = [], bool $csrf = true): TestResponse
+    {
+        return $this->change('PATCH', $uri, $data, $headers, $csrf);
+    }
+
+    /** A request of any method whose body is sent as it is, with the CSRF token. */
+    public function rawBody(string $method, string $uri, string $body): TestResponse
+    {
+        if (! $this->hasCookie('XSRF-TOKEN')) {
+            $this->csrf();
+        }
+
+        return $this->remember($this->test
+            ->withServerVariables($this->server)
+            ->call($method, $uri, [], $this->cookies, [], [
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_ACCEPT' => 'application/json',
+                'HTTP_X_XSRF_TOKEN' => $this->cookies['XSRF-TOKEN'] ?? '',
+            ], $body));
+    }
+
     /** Signs in through the API; the browser is then signed in. */
     public function login(string $email, string $password): TestResponse
     {

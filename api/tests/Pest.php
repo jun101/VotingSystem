@@ -18,3 +18,10 @@ pest()->beforeEach(function () {
     Tests\Support\Accounts::reset();
     $this->browser = new Tests\Support\AuthClient($this);
 })->in('Acceptance/Slice02');
+
+// Slice 03: the same, and the test-only tenant tables (docs/slices/03-admin-shell-and-tenant-isolation.md).
+pest()->beforeEach(function () {
+    Tests\Support\Accounts::reset();
+    Tests\Support\Tenancy::installProbeTables();
+    $this->browser = new Tests\Support\AuthClient($this);
+})->in('Acceptance/Slice03');

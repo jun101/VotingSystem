@@ -43,13 +43,13 @@ the slice 02 review file, for the points it left for this slice.
 
 | Item | Requirement |
 |---|---|
-| Scope | One global scope and one trait (`BelongsToInstitution`) in `app/Models/Concerns/`. The scope adds `WHERE institution_id = <current institution>` to every query; the trait fills `institution_id` on insert and refuses to save a record whose `institution_id` was changed afterwards |
+| Scope | One global scope and one trait (`App\Models\Concerns\BelongsToInstitution`). The scope adds `WHERE institution_id = <current institution>` to every query, relations included; the trait fills `institution_id` on insert (and throws when there is no signed-in user with an institution to fill it from) and throws a `LogicException` on saving a record whose `institution_id` was changed |
 | Where the institution comes from | **The current request, read each time** (rule 11): the signed-in user's institution. Nothing in a singleton or a static property. A request with no signed-in user, or a platform admin (no institution), **gets no rows** (the scope fails closed) |
-| Removing the scope | Only by one named method on the trait (`withoutInstitutionScope()`), and every call site carries a comment saying why. A test greps the code base and fails on a call without a comment line directly above it, and on any other way of removing the scope (`withoutGlobalScopes()`, `withoutGlobalScope(` on a tenant model) |
+| Removing the scope | Only by one **static** method on the trait, `Model::withoutInstitutionScope()`, which returns a query builder without the scope, and every call site carries a comment saying why. A test greps the code base and fails on a call without a comment line directly above it, and on any other way of removing the scope (`withoutGlobalScopes()`, `withoutGlobalScope(` on a tenant model) |
 | `User` | Uses the trait. The places that must cross tenants because nobody is signed in yet (sign-in lookup by email, registration's duplicate check, the verification and reset token flows, the session guard's user retrieval) call `withoutInstitutionScope()` with their reason. Behaviour and status codes of the nine slice 02 endpoint files do not change |
 | `Institution` | It **is** the tenant, so it has no scope. Anything that reads an institution reads the signed-in user's own (`$user->institution`), never by a request value |
 | Route binding | A shared way to bind a route parameter through the scope, so another institution's `uuid` answers **404 `not_found`**, the same body and headers as a `uuid` that does not exist. A parameter that is not a UUID also answers 404 |
-| Policies | A base policy that checks the record's institution against the user's and the role. Used by every later resource policy. A record of another institution is a **404, never a 403** (API README section 4) |
+| Policies | An abstract `App\Policies\TenantPolicy` with `belongsToUsersInstitution(User $user, Model $record): bool`: true only when the user has an institution and it is the record's; false for a platform admin. Every later resource policy extends it. A record of another institution is a **404, never a 403** (API README section 4) |
 | Octane | Test that a request signed in as user A of institution A, followed by one signed in as user B of institution B on the same worker, never sees A's institution, and that a request with no user after them sees none |
 | Logs | Nothing new is logged, and no log line holds an institution's name or a user's email |
 
@@ -70,7 +70,7 @@ Written before the code, extended by every later slice. Its parts:
 |---|---|
 | Fixtures | A helper that builds two institutions, each with an owner, a manager and (once models exist) one record of each tenant model. Two test-only tables and models (`tenant_probes`, `tenant_probe_notes`), created by a migration that exists **only in the test environment**, stand in for tenant data until slice 05 |
 | Test-only routes | Registered by the test case, not by the application: list, show, create, update and delete a probe, and one nested route (`probes/{probe}/notes/{note}`), all bound through the shared binding and policy |
-| Behaviour checks | For the probes: the list shows only the caller's rows; show, update and delete of the other institution's `uuid` answer 404 with the **same body and headers** as an unknown `uuid`; create fills the caller's institution and ignores a body that names another; a nested record cannot be reached through a parent of the other institution; a count, an `exists` rule and a `uuid` in a validation rule never reveal that the other institution's record exists |
+| Behaviour checks | For the probes: the list shows only the caller's rows; show, update and delete of the other institution's `uuid` answer 404 with the **same body and headers** as an unknown `uuid`; create fills the caller's institution and ignores a body that names another; a nested record cannot be reached through a parent of the other institution; a total in a list counts only the caller's rows |
 | Scope checks | A model query with no user returns nothing; a platform admin gets nothing from tenant models; changing `institution_id` on a saved record throws |
 | **Route coverage test** | Walks every registered route under `/api/v1`. Each must be in the explicit list of public routes (`/health` and the pre-sign-in `/auth/*` routes) **or** be covered by a tenant test that names it. A route in neither list fails the suite, with the route name in the message. This is what makes later slices extend the suite |
 | Model coverage test | Every model in `app/Models` that has an `institution_id` column in the schema must use the trait; a model with the column and no trait fails. A model listed as tenant-free needs a one-line reason in the list |
@@ -106,6 +106,20 @@ tenant model without extending that file makes `make check` fail on purpose.
 | Shell | `admin-shell`, `side-menu`, `menu-search`, `menu-new-election`, `menu-link-dashboard`, `menu-link-elections`, `menu-link-institution`, `menu-link-audit`, `menu-election-card`, `menu-user-name`, `menu-user-role`, `language-switch` (a button, `data-language` = the current one), `top-bar`, `top-bar-title`, `menu-button` (below `lg` only), `menu-drawer`, `user-menu`, `signout-button`, `skip-link` |
 | Dashboard | `dashboard`, `dashboard-welcome`, `dashboard-institution`, `dashboard-card-open-election`, `dashboard-card-todo`, `dashboard-card-figures`, `dashboard-card-activity`, `dashboard-card-latest`, `dashboard-create-election` (link), plus the slice 02 `verify-banner`, `resend-button`, `resend-done` |
 | Not yet available | `coming-soon` |
+| Other | `menu-election-section` (the "Cette élection" section, absent in this slice), `menu-search-empty` (shown when the search matches nothing), `language-error` (shown when the switch fails) |
+
+`user-menu` is a button that opens a small menu (Escape closes it and gives the focus back to the button); `signout-button` is inside it and is visible only while it is open. `language-switch` is in the side menu, so on a phone it is inside the drawer. A click on it changes to the other language.
+
+Words the tests check (French first, then English), and no other copy:
+
+| Where | French | English |
+|---|---|---|
+| `top-bar-title` and menu labels | Tableau de bord · Élections · Établissement · Journal d'audit | Dashboard · Elections · Institution · Audit log |
+| `menu-user-role` of an owner | Propriétaire | Owner |
+| `menu-election-card`, with no election | contains "Aucune élection choisie", and one link to `/admin/elections` | contains "No election selected", same link |
+| `coming-soon` | holds "disponible" | does not hold "disponible" |
+
+The search matches the translated label, ignoring case and accents. Each page has exactly one `h1`, and the top bar title is its text.
 
 `admin-welcome`, `admin-institution` and `signout-button` of slice 02 keep working: the
 first two are on the dashboard under the same names (`dashboard-welcome` and
@@ -136,9 +150,10 @@ coding**. If one seems wrong, stop and say why.
 
 | Where | Checks |
 |---|---|
-| `api/tests/Acceptance/Slice03/` | `PATCH /auth/me`, one test per scenario of its file; the tenant suite of part 3 (behaviour, scope, route, model and table coverage, the grep test); the Octane test |
+| `api/tests/Acceptance/Slice03/` | `PatchMeTest` (one test per scenario of its file); `TenantBehaviourTest`, `TenantScopeTest` (scope, fail-closed, Octane), `TenantPolicyTest`, `TenantCoverageTest` (routes, models, tables), `ScopeRemovalTest` (the source check) |
+| `api/tests/Support/` | `Tenancy.php` and `Tenancy/` (the lists, the probe models and routes); `AuthClient` and `Accounts` extended (PATCH, a second user in an existing institution). `Pest.php` runs the slice 03 tests on a clean database with the two test-only tables |
 | `api/tests/Support/Tenancy.php` | The lists the coverage tests read (written with the acceptance tests; later slices add to it) |
-| `web/e2e/slice03/` | Sign in → shell; every menu entry opens and marks itself current; the "go to" search; the drawer on a phone width; the language switch and its persistence; a 404-free walk of the menu; the guard redirects; reduced motion; accessibility at both widths in both languages |
+| `web/e2e/slice03/` | `shell.spec.ts` (shell, menu, search, drawer, keyboard, guards, two institutions), `language.spec.ts` (switch, persistence, failure, isolation), `quality.spec.ts` (accessibility at 1280 and 320 px in both languages, touch size, reduced motion). Helpers in `web/e2e/support/admin.ts` |
 | `web/e2e/slice02/` | Updated with the acceptance tests where the placeholder's test ids moved (listed in the section 4b note). The coder does not touch them |
 
 All the slice 01, 01b and 02 tests keep passing.

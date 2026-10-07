@@ -67,7 +67,11 @@ final class Accounts
 
         $institutionId = null;
         $institutionUuid = null;
-        if ($role !== 'platform_admin') {
+        if ($role !== 'platform_admin' && isset($options['institution'])) {
+            // Another user of an institution that exists (slice 03 and after).
+            $institutionUuid = $options['institution'];
+            $institutionId = $db->table('institutions')->where('uuid', $institutionUuid)->value('id');
+        } elseif ($role !== 'platform_admin') {
             $institutionUuid = Uuid::uuid4()->toString();
             $institutionId = $db->table('institutions')->insertGetId([
                 'uuid' => $institutionUuid,
