@@ -19,7 +19,7 @@ An email is the front-end design in a form every mail program can draw.
 | Body | A white card with `ink` text, 16 px, 1.5 line height; short paragraphs; the greeting never holds a name (security review S6) |
 | Button | The one main action: `accent` background, `navy-deep` text, bold, 16 px, 8 px radius, at least 48 px high, centred on a phone. Never white text. Built the "bulletproof" way: a table cell with the background and a link inside, plus a VML rounded rectangle for Outlook on Windows |
 | Link fallback | Under the button: "if the button does not work…" and the full link, in `primary`, underlined, breaking anywhere |
-| Small print | Validity and "ignore this message" in `ink-soft` 14 px; the footer in `ink-muted` 12 px |
+| Small print | Validity and "ignore this message" in `ink-soft` 14 px; the footer in `ink-soft` 12 px (`ink-muted` is too pale for small text) |
 | Language | The language of the user. `lang` on `<html>`; both languages have the same structure |
 
 Colours are the tokens of `web/src/styles/tokens.css`, copied as hexadecimal values (a mail program
@@ -56,6 +56,8 @@ the pair counts 1 when the data says it is supported, 0.5 when partly supported,
 supported, and 1 when the email carries a **declared fallback** that draws acceptably in that program
 (for example `bgcolor` beside `background-color`, the solid colour beside the gradient, the VML button
 beside the table-cell button). The score is the sum divided by the number of pairs.
+
+Two readings of the data are fixed here: a "partly supported" status counts 1 when none of the limits the data names applies to how the email uses the feature (each case is written in the audit), and a pair the data marks **unknown** is left out of the count and reported separately (with it counted as 0 the score is also printed, so the reader can see both).
 
 The target is **at least 95 %**, and **100 % for reading**: in every program, the title, the text, the
 button (or the link under it) and the footer are visible and usable.

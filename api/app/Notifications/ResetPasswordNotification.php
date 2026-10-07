@@ -35,6 +35,9 @@ class ResetPasswordNotification extends Notification implements ShouldBeEncrypte
             ->view(
                 ['mail.action', 'mail.action-text'],
                 [
+                    'title' => __('mail.reset.title'),
+                    'line' => __('mail.reset.line'),
+                    'preheader' => __('mail.reset.preheader'),
                     'intro' => __('mail.reset.intro'),
                     'button' => __('mail.reset.button'),
                     'url' => rtrim(Config::string('app.url'), '/').'/reset-password?token='.$this->token,

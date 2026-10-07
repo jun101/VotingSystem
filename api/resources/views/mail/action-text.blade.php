@@ -1,3 +1,6 @@
+{!! $title !!}
+{!! $line !!}
+
 {!! __('mail.greeting') !!}
 
 {!! $intro !!}

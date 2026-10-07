@@ -7,6 +7,9 @@ return [
 
     'verify' => [
         'subject' => 'Vérifiez votre adresse courriel',
+        'title' => 'Vérifiez votre adresse courriel',
+        'line' => 'Un dernier pas avant de commencer.',
+        'preheader' => 'Confirmez votre adresse courriel pour terminer la création de votre compte.',
         'intro' => 'Merci de vous être inscrit. Confirmez votre adresse courriel pour terminer la création de votre compte.',
         'button' => 'Vérifier mon courriel',
         'validity' => 'Ce lien est valable 24 heures.',
@@ -15,6 +18,9 @@ return [
 
     'reset' => [
         'subject' => 'Réinitialisez votre mot de passe',
+        'title' => 'Réinitialisez votre mot de passe',
+        'line' => 'Choisissez un nouveau mot de passe en toute sécurité.',
+        'preheader' => 'Choisissez un nouveau mot de passe pour retrouver l’accès à votre compte.',
         'intro' => 'Nous avons reçu une demande de réinitialisation du mot de passe de votre compte.',
         'button' => 'Choisir un nouveau mot de passe',
         'validity' => 'Ce lien est valable 60 minutes et ne peut servir qu’une fois.',

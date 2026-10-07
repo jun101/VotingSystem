@@ -146,6 +146,11 @@ services:
   test:
     <<: *api
     profiles: ["tools"]
+    volumes:
+      - ./api:/var/www/html
+      - ./docs/api:/var/www/docs/api
+      # The design tokens, which the email tests read (docs/design/email.md section 1).
+      - ./web/src/styles:/var/www/web/src/styles:ro
     environment:
       <<: *api-environment
       DB_MIGRATOR_USERNAME: migrator

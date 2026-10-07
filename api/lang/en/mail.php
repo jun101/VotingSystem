@@ -7,6 +7,9 @@ return [
 
     'verify' => [
         'subject' => 'Verify your email address',
+        'title' => 'Verify your email address',
+        'line' => 'One last step before you start.',
+        'preheader' => 'Confirm your email address to finish creating your account.',
         'intro' => 'Thank you for signing up. Confirm your email address to finish creating your account.',
         'button' => 'Verify my email',
         'validity' => 'This link is valid for 24 hours.',
@@ -15,6 +18,9 @@ return [
 
     'reset' => [
         'subject' => 'Reset your password',
+        'title' => 'Reset your password',
+        'line' => 'Choose a new password safely.',
+        'preheader' => 'Choose a new password to get back into your account.',
         'intro' => 'We received a request to reset the password of your account.',
         'button' => 'Choose a new password',
         'validity' => 'This link is valid for 60 minutes and can be used once.',

@@ -35,6 +35,9 @@ class VerifyEmailNotification extends Notification implements ShouldBeEncrypted,
             ->view(
                 ['mail.action', 'mail.action-text'],
                 [
+                    'title' => __('mail.verify.title'),
+                    'line' => __('mail.verify.line'),
+                    'preheader' => __('mail.verify.preheader'),
                     'intro' => __('mail.verify.intro'),
                     'button' => __('mail.verify.button'),
                     'url' => rtrim(Config::string('app.url'), '/').'/verify-email?token='.$this->token,
