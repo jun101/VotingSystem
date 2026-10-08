@@ -63,8 +63,9 @@ The shared error shape of [API conventions](../README.md), with the codes of the
 - One row in `invitations`: the SHA-256 of a random 64-character token, the role, the
   inviter, `expires_at` (seven days). One live invitation per address and institution.
 - One email, in the **inviter's institution default language**, following
-  [email.md](../../design/email.md): the greeting holds no name, the inviter's name and the
-  institution's name are text in the body, one button to
+  [email.md](../../design/email.md): the greeting holds no name; the body names the
+  institution (text) and **never the inviter's name** (a free-text name under our name is the
+  phishing risk of the slice 02 review, S6); one button to
   `{APP_URL}/accept-invitation?token=…` (a token and nothing else in the link), the
   validity, and an "ignore this message" line. Sent through the queue, the payload
   encrypted.

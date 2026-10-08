@@ -54,7 +54,7 @@ final class Accounts
      * An institution and its user. Returns the user's and the institution's uuid, the email
      * and the password.
      *
-     * @param  array{email?: string, password?: string, verified?: bool, suspended?: bool, role?: string, language?: string, removed?: bool, institution?: string|null}  $options
+     * @param  array{email?: string, password?: string, verified?: bool, suspended?: bool, role?: string, language?: string, removed?: bool, institution?: string|null, name?: string}  $options
      * @return array{user: string, institution: string|null, email: string, password: string}
      */
     public static function user(array $options = []): array
@@ -90,7 +90,7 @@ final class Accounts
             'uuid' => $userUuid,
             'institution_id' => $institutionId,
             'role' => $role,
-            'name' => 'Marie Joseph',
+            'name' => $options['name'] ?? 'Marie Joseph',
             'email' => $email,
             'password' => Hash::make($password),
             'email_verified_at' => ($options['verified'] ?? true) ? $now : null,
@@ -128,6 +128,77 @@ final class Accounts
             'expires_at' => ($expiresAt ?? Carbon::now('UTC')->addHour())->format('Y-m-d H:i:s'),
             'created_at' => Carbon::now('UTC')->format('Y-m-d H:i:s'),
         ]);
+    }
+
+    /** One row of `users` by uuid, as an array, or null. */
+    public static function userRowByUuid(string $uuid): ?array
+    {
+        $row = DB::connection(useMigratorConnection())->table('users')->where('uuid', $uuid)->first();
+
+        return $row === null ? null : (array) $row;
+    }
+
+    /** One row of `institutions` by uuid, as an array, or null. */
+    public static function institutionRow(string $uuid): ?array
+    {
+        $row = DB::connection(useMigratorConnection())->table('institutions')->where('uuid', $uuid)->first();
+
+        return $row === null ? null : (array) $row;
+    }
+
+    /** Sets columns of an institution row (its uuid), as an administrator would have. */
+    public static function updateInstitution(string $uuid, array $values): void
+    {
+        DB::connection(useMigratorConnection())->table('institutions')->where('uuid', $uuid)->update($values);
+    }
+
+    /** Suspends the institution (its uuid) now. */
+    public static function suspend(string $institution): void
+    {
+        self::updateInstitution($institution, ['suspended_at' => Carbon::now('UTC')->format('Y-m-d H:i:s')]);
+    }
+
+    /**
+     * Writes an invitation the way the API does (SHA-256 of the token, 32 bytes). Returns its
+     * uuid. `invited_by` is the uuid of a user of the institution.
+     *
+     * @param  array{institution: string, invited_by: string, email: string, role?: string, token: string, expires_at?: Carbon, accepted?: bool}  $o
+     */
+    public static function plantInvitation(array $o): string
+    {
+        $db = DB::connection(useMigratorConnection());
+        $now = Carbon::now('UTC');
+        $uuid = Uuid::uuid4()->toString();
+
+        $db->table('invitations')->insert([
+            'uuid' => $uuid,
+            'institution_id' => $db->table('institutions')->where('uuid', $o['institution'])->value('id'),
+            'invited_by_user_id' => $db->table('users')->where('uuid', $o['invited_by'])->value('id'),
+            'email' => strtolower($o['email']),
+            'role' => $o['role'] ?? 'manager',
+            'token_hash' => hash('sha256', $o['token'], true),
+            'expires_at' => ($o['expires_at'] ?? $now->copy()->addDays(7))->format('Y-m-d H:i:s'),
+            'accepted_at' => ($o['accepted'] ?? false) ? $now->format('Y-m-d H:i:s') : null,
+            'created_at' => $now->format('Y-m-d H:i:s'),
+        ]);
+
+        return $uuid;
+    }
+
+    /**
+     * The rows of `invitations`, optionally of one institution (its uuid).
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function invitationRows(?string $institution = null): array
+    {
+        $db = DB::connection(useMigratorConnection());
+        $query = $db->table('invitations');
+        if ($institution !== null) {
+            $query->where('institution_id', $db->table('institutions')->where('uuid', $institution)->value('id'));
+        }
+
+        return $query->orderBy('id')->get()->map(fn ($row) => (array) $row)->all();
     }
 
     /** A new random token of the right shape: 64 hexadecimal characters. */

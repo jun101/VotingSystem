@@ -140,6 +140,39 @@ final class AuthClient
         return $this->change('PATCH', $uri, $data, $headers, $csrf);
     }
 
+    public function put(string $uri, array $data = [], array $headers = [], bool $csrf = true): TestResponse
+    {
+        return $this->change('PUT', $uri, $data, $headers, $csrf);
+    }
+
+    public function delete(string $uri, array $headers = [], bool $csrf = true): TestResponse
+    {
+        return $this->change('DELETE', $uri, [], $headers, $csrf);
+    }
+
+    /**
+     * A `multipart/form-data` request with files (slice 04: the logo). `$files` maps the part
+     * name to an UploadedFile; `$fields` are the other parts.
+     *
+     * @param  array<string, \Illuminate\Http\UploadedFile>  $files
+     * @param  array<string, string>  $fields
+     */
+    public function upload(string $method, string $uri, array $files, array $fields = [], bool $csrf = true): TestResponse
+    {
+        if ($csrf && ! $this->hasCookie('XSRF-TOKEN')) {
+            $this->csrf();
+        }
+
+        $server = ['HTTP_ACCEPT' => 'application/json'];
+        if ($csrf) {
+            $server['HTTP_X_XSRF_TOKEN'] = $this->cookies['XSRF-TOKEN'] ?? '';
+        }
+
+        return $this->remember($this->test
+            ->withServerVariables($this->server)
+            ->call($method, $uri, $fields, $this->cookies, $files, $server));
+    }
+
     /** A request of any method whose body is sent as it is, with the CSRF token. */
     public function rawBody(string $method, string $uri, string $body): TestResponse
     {

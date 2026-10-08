@@ -30,7 +30,7 @@ account in the institution that invited them, signed in.
 | 2 | `token`, `name` or `password` missing | 422 | `validation_failed` (`name: required`) | |
 | 3 | `name` empty or longer than 150 | 422 | `validation_failed` (`name: required`, `name: max`) | |
 | 4 | `password` shorter than 12 or longer than 128 | 422 | `validation_failed` (`password: min`, `password: max`) | |
-| 5 | `password` equals the invited email address | 422 | `validation_failed` (`password: not_email`) | |
+| 5 | `password` equals the invited email address | 422 | `validation_failed` (`password: same_as_email`) | |
 | 6 | Unknown token, cancelled invitation, or already accepted | 404 | `not_found` | |
 | 7 | The invitation has expired | 410 | `expired` | |
 | 8 | The address has since become a user (accepted elsewhere, or registered) | 409 | `email_taken` | |

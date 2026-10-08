@@ -25,3 +25,12 @@ pest()->beforeEach(function () {
     Tests\Support\Tenancy::installProbeTables();
     $this->browser = new Tests\Support\AuthClient($this);
 })->in('Acceptance/Slice03');
+
+// Slice 04: the same, and an empty `media` disk where the logos are written
+// (docs/slices/04-profile-and-users.md).
+pest()->beforeEach(function () {
+    Tests\Support\Accounts::reset();
+    Tests\Support\Tenancy::installProbeTables();
+    Tests\Support\Team::clearMedia();
+    $this->browser = new Tests\Support\AuthClient($this);
+})->in('Acceptance/Slice04');
