@@ -72,7 +72,7 @@ route joins the isolation suite), NFR-UX-03 (accessibility).
 | User menu | A new entry "Mon compte" (`/admin/account`) in the user menu, above sign out |
 | Page `/admin/account` | In the admin shell, title "Mon compte" / "My account". A **Sécurité** card: the state pill ("Activée" / "Désactivée"), the number of recovery codes left, and the actions. Cards, no table. No "change my name or password" yet (out of scope) |
 | Set up | "Activer" asks for the password; then a card shows the **QR code** (drawn in the browser from the `otpauth` link with a small library; the link or the secret never goes to any other service) and the secret in groups of four for manual entry, a field for the first code, and "Confirmer". Then the **recovery codes** are shown once: a list, "Copier", "Télécharger" (a text file named `codes-de-recuperation.txt`, no address or institution name in it), and a checkbox "J'ai conservé ces codes" that enables "Terminer". Leaving the page before finishing says the codes are lost (the setup is already active; they can be renewed) |
-| Disable, renew | "Désactiver" and "Renouveler les codes" each open a dialog with the password (`ConfirmDialog` of slice 04: focus trap, Escape, focus returned). The renewed codes show in the same list as above |
+| Disable, renew | "Désactiver" and "Renouveler les codes" each open a dialog with the password and a second factor (the current code, or a recovery code through a toggle) (`ConfirmDialog` of slice 04: focus trap, Escape, focus returned). The renewed codes show in the same list as above |
 | Users card | Each user card shows a chip "Double authentification activée" / "Sans double authentification" (the mockup); for an owner looking at another user whose second factor is on, a "Réinitialiser" action with a confirmation naming the person and asking the owner's own password, which calls the reset |
 | Messages | Every text in the French and English files, none in a component |
 | Motion and tokens | Reveal kit of slice 01b, off under reduced motion; tokens only |
@@ -87,8 +87,8 @@ route joins the isolation suite), NFR-UX-03 (accessibility).
 | Page | `account-page`, `security-card`, `two-factor-status` (its text holds "Activée"/"Désactivée" or "On"/"Off"), `recovery-codes-left` |
 | Set up | `two-factor-setup-open`, `two-factor-password`, `two-factor-password-error`, `two-factor-setup-submit`, `two-factor-qr` (an `svg` or `img` with a text alternative), `two-factor-secret` (the secret in groups of four), `two-factor-code`, `two-factor-code-error`, `two-factor-confirm`, `two-factor-error` |
 | Recovery codes | `recovery-codes` (the list), `recovery-code-<n>` (n from 1), `recovery-copy`, `recovery-download`, `recovery-saved` (the checkbox), `recovery-done` |
-| Disable, renew | `two-factor-disable-open`, `two-factor-disable-dialog`, `two-factor-disable-confirm`, `two-factor-disable-cancel`, `two-factor-codes-open`, `two-factor-codes-dialog`, `two-factor-codes-confirm`, `two-factor-codes-cancel` (the dialogs use `two-factor-password` and `two-factor-password-error` too) |
-| Users card | `user-two-factor-<n>` (the chip, `data-enabled` = `true`/`false`), `user-reset-two-factor-<n>`, `user-reset-dialog`, `user-reset-password`, `user-reset-password-error`, `user-reset-confirm`, `user-reset-cancel`, `user-reset-error` |
+| Disable, renew | `two-factor-disable-open`, `two-factor-disable-dialog`, `two-factor-disable-confirm`, `two-factor-disable-cancel`, `two-factor-codes-open`, `two-factor-codes-dialog`, `two-factor-codes-confirm`, `two-factor-codes-cancel`; the dialogs hold the password (`two-factor-password`, `two-factor-password-error`) **and** a second factor: `two-factor-code`, `two-factor-code-error`, and a link `two-factor-recovery-toggle` that swaps it for `two-factor-recovery-code`, `two-factor-recovery-code-error` |
+| Users card | `user-two-factor-<n>` (the chip, `data-enabled` = `true`/`false`), `user-reset-two-factor-<n>`, `user-reset-dialog`, `user-reset-password`, `user-reset-password-error`, `user-reset-code`, `user-reset-code-error`, `user-reset-recovery-toggle`, `user-reset-recovery-code` (the code fields only when the owner has two-factor on), `user-reset-confirm`, `user-reset-cancel`, `user-reset-error` |
 
 Words checked by tests, French first: the pill "Activée" / "On" and "Désactivée" / "Off"; the chip
 "Double authentification activée" / "Two-factor on" and "Sans double authentification" / "No
@@ -170,3 +170,10 @@ owner reset end the session (401); the owner's reset asks the owner's password a
 body is gone); the pending sign-in records a hash of the password hash and the session id is regenerated at the
 first step; the challenge refuses a value over 32 characters; two confirmations at once cannot return two sets
 of recovery codes.
+
+Changed after the third review, confirmed by Jun (2026-10-08): turning two-factor off and renewing the recovery
+codes need the password **and** a current second factor (code or recovery code), and the owner's reset needs the
+owner's own second factor when the owner has two-factor on; wrong second factors there count in the same
+account counter as wrong codes at sign-in; a password reset does not clear the wrong-code or password-failure
+counts (they run out by themselves); the 429 of the password failures keeps the session, the fifth wrong
+password ends it; logins feed the password-failure counter from any address and are never refused by it.

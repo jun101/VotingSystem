@@ -66,7 +66,7 @@ The account limit is kept in the cache by user, not in the session and not by ad
 starting again with the password, or coming from another address, does not reset it. A value longer than 32 characters is refused as wrong without being hashed or compared. Every wrong
 `code`, wrong or used `recovery_code`, and refused period counts; a request with neither field
 does not. From the sixth, the answer is 429 with `Retry-After`, even for a right code, until the
-oldest wrong code is 15 minutes old. A success clears the count, and so does a password reset or any reset of the user's two-factor. The window is fixed: it starts at the first wrong code since the last clearing.
+oldest wrong code is 15 minutes old. A success clears the count, and so does any clearing of the user's two-factor (their own turning off, an owner's reset, the operator's command). A password reset does **not** clear it: it runs out by itself, so that someone who holds the mailbox cannot use resets to get more guesses. Wrong second factors given on the [disable](POST-auth-two-factor-disable.md), [recovery codes](POST-auth-two-factor-recovery-codes.md) and owner-reset routes count in the same account counter. The window is fixed: it starts at the first wrong code since the last clearing.
 
 ## Side effects
 

@@ -213,3 +213,41 @@ it('answers 429 above 10 requests a minute from one user [NFR-SEC-05] (scenario 
 
     $this->browser->post(resetUrl($t['a']['manager']['user']), resetBody($t['a']['owner']))->assertStatus(429)->assertJsonPath('error.code', 'too_many_attempts');
 });
+
+it('asks the owner\'s own second factor too when the owner has two-factor on [NFR-SEC-01] (scenario 3d)', function () {
+    $t = Team::two();
+    TwoFactor::enable($this, $t['a']['manager']);
+    $ownerTwo = TwoFactor::enable($this, $t['a']['owner']);
+    $owner = TwoFactor::pending($this, $t['a']['owner'], new AuthClient($this));
+    $owner->post('/api/v1/auth/two-factor-challenge', ['code' => Totp::code($ownerTwo['secret'])])->assertOk();
+    $url = resetUrl($t['a']['manager']['user']);
+
+    $response = $owner->post($url, ['password' => $t['a']['owner']['password']]);
+    $response->assertStatus(422)->assertJsonPath('error.code', 'validation_failed');
+    expect($response->json('error.fields.code'))->toContain('required')
+        ->and(TwoFactor::row($t['a']['manager']['user'])['two_factor_confirmed_at'])->not->toBeNull();
+
+    // A wrong one (3e), then a right one: the manager's second factor is turned off.
+    $owner->post($url, ['password' => $t['a']['owner']['password'], 'recovery_code' => 'abcde-fghij'])
+        ->assertStatus(422)->assertJsonPath('error.fields.recovery_code.0', 'invalid');
+    $owner->post($url, ['password' => $t['a']['owner']['password'], 'recovery_code' => $ownerTwo['codes'][0]])->assertNoContent();
+    expect(TwoFactor::row($t['a']['manager']['user'])['two_factor_confirmed_at'])->toBeNull();
+});
+
+it('stops the owner\'s second factor after 5 wrong ones in 15 minutes for the account [NFR-SEC-05] (scenario 3f)', function () {
+    $t = Team::two();
+    TwoFactor::enable($this, $t['a']['manager']);
+    $ownerTwo = TwoFactor::enable($this, $t['a']['owner']);
+    $owner = TwoFactor::pending($this, $t['a']['owner'], new AuthClient($this));
+    $owner->post('/api/v1/auth/two-factor-challenge', ['code' => Totp::code($ownerTwo['secret'])])->assertOk();
+    $url = resetUrl($t['a']['manager']['user']);
+
+    foreach (range(1, 5) as $i) {
+        $owner->post($url, ['password' => $t['a']['owner']['password'], 'recovery_code' => 'abcde-fghij'])->assertStatus(422);
+    }
+
+    $response = $owner->post($url, ['password' => $t['a']['owner']['password'], 'recovery_code' => $ownerTwo['codes'][0]]);
+    $response->assertStatus(429)->assertJsonPath('error.code', 'too_many_attempts');
+    expect((int) $response->headers->get('Retry-After'))->toBeGreaterThan(0)
+        ->and(TwoFactor::row($t['a']['manager']['user'])['two_factor_confirmed_at'])->not->toBeNull();
+});

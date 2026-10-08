@@ -22,6 +22,8 @@ Body, JSON:
 | Field | Type | Required | Rules |
 |---|---|---|---|
 | password | string | yes | The **caller's** own current password |
+| code | string | one of the two, only if the owner has two-factor on | The owner's current code |
+| recovery_code | string | one of the two, only if the owner has two-factor on | One of the owner's unused recovery codes |
 
 ## Scenarios
 
@@ -34,6 +36,9 @@ Body, JSON:
 | 3b | `password` wrong | 422 | `validation_failed` (`password: incorrect`) | |
 | 3c | The 5th wrong password in 15 minutes for this user (counted across these routes, the owner reset and sign-in) | 401 | `unauthenticated` (the session ends) | |
 | 3c+ | Any later attempt while the count is at 5 or more | 429 | `too_many_attempts` (`Retry-After`; the session is kept) | |
+| 3d | The owner has two-factor on and sends neither `code` nor `recovery_code` | 422 | `validation_failed` (`code: required`) | |
+| 3e | The owner's second factor is wrong, already used or malformed | 422 | `validation_failed` (`code: invalid` or `recovery_code: invalid`) | |
+| 3f | 5 wrong second factors in the last 15 minutes for the owner's account | 429 | `too_many_attempts` (`Retry-After`) | |
 | 4 | The user has no two-factor turned on | 409 | `two_factor_not_enabled` | |
 | 5 | `user` is not a UUID, does not exist, is removed, belongs to another institution, or is a platform admin | 404 | `not_found` | |
 | 6 | The user is a manager | 403 | `forbidden` | |
@@ -62,7 +67,7 @@ Their open sessions stay open; their next sign-in asks for the password only.
 ### 422, 404, 403, 401, 419, 400, 429, 405
 
 The shared error shape of [API conventions](../README.md), with the codes of the table.
-Scenario 5 gives the same body and headers for every cause. Order of the checks: 404, 403, the password (422), then the 409 for oneself, then the 409 for "not enabled".
+Scenario 5 gives the same body and headers for every cause. Order of the checks: 404, 403, the body (password required; the owner's code required if the owner has two-factor on), the password lockout (429), the password (422, counted), the owner's second-factor lockout (429), the owner's second factor (422, counted), then the 409 for oneself, then the 409 for "not enabled".
 
 ## Notes
 

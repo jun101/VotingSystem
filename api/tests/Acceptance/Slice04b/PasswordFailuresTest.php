@@ -51,9 +51,9 @@ it('shares one counter between the settings routes, and the fifth wrong password
 
     $this->browser->post('/api/v1/auth/two-factor/setup', $wrong)->assertStatus(422);
     $this->browser->post('/api/v1/auth/two-factor/setup', $wrong)->assertStatus(422);
-    $this->browser->post('/api/v1/auth/two-factor/disable', $wrong)->assertStatus(422);
-    $this->browser->post('/api/v1/auth/two-factor/disable', $wrong)->assertStatus(422);
-    $this->browser->post('/api/v1/auth/two-factor/recovery-codes', $wrong)->assertStatus(401)->assertJsonPath('error.code', 'unauthenticated');
+    $this->browser->post('/api/v1/auth/two-factor/disable', $wrong + ['code' => '123456'])->assertStatus(422);
+    $this->browser->post('/api/v1/auth/two-factor/disable', $wrong + ['code' => '123456'])->assertStatus(422);
+    $this->browser->post('/api/v1/auth/two-factor/recovery-codes', $wrong + ['code' => '123456'])->assertStatus(401)->assertJsonPath('error.code', 'unauthenticated');
 
     $this->browser->get('/api/v1/auth/me')->assertStatus(401);
 });
@@ -69,7 +69,7 @@ it('answers 429 and keeps the session for a later attempt, even with the right p
     // The person signs in again: the settings routes answer 429, and nobody is signed out any more.
     $this->browser->login($user['email'], $user['password'])->assertOk();
     foreach (['setup', 'disable', 'recovery-codes'] as $route) {
-        $response = $this->browser->post("/api/v1/auth/two-factor/{$route}", ['password' => $user['password']]);
+        $response = $this->browser->post("/api/v1/auth/two-factor/{$route}", ['password' => $user['password'], 'code' => '123456']);
         $response->assertStatus(429)->assertJsonPath('error.code', 'too_many_attempts');
         expect((int) $response->headers->get('Retry-After'))->toBeGreaterThan(0);
     }

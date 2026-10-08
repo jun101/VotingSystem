@@ -332,21 +332,25 @@ it('clears the failed-password count of the address the password was typed from,
     $again->login($user['email'], 'not the password at all')->assertStatus(401);
 });
 
-it('clears the account\'s wrong-code count when the password is reset, so the real user is not locked out [FR-INST-04] (scenario 10)', function () {
+it('does not clear the account\'s wrong-code count when the password is reset: it runs out by itself [FR-INST-04, NFR-SEC-05] (scenario 10)', function () {
     $user = Accounts::user();
     $two = TwoFactor::enable($this, $user);
     $attacker = TwoFactor::pending($this, $user, new AuthClient($this));
     foreach (range(1, 5) as $i) {
         $attacker->post(CHALLENGE, ['code' => Totp::wrongCode($two['secret'])])->assertStatus(422);
     }
-    expect(TwoFactor::pending($this, $user, new AuthClient($this))->post(CHALLENGE, ['code' => Totp::code($two['secret'])])->getStatusCode())->toBe(429);
 
+    // Someone with the mailbox resets the password: that gives no fresh guesses.
     $token = Accounts::token();
     Accounts::plantToken('password_reset_tokens', $user['email'], $token);
     (new AuthClient($this))->post('/api/v1/auth/reset-password', ['token' => $token, 'password' => 'a brand new long password'])->assertSuccessful();
 
-    $real = TwoFactor::pending($this, ['email' => $user['email'], 'password' => 'a brand new long password'] + $user, new AuthClient($this));
-    $real->post(CHALLENGE, ['code' => Totp::code($two['secret'])])->assertOk();
+    $fresh = ['email' => $user['email'], 'password' => 'a brand new long password'] + $user;
+    TwoFactor::pending($this, $fresh, new AuthClient($this))->post(CHALLENGE, ['code' => Totp::code($two['secret'])])->assertStatus(429);
+
+    // After the window the person gets in.
+    $this->travel(16)->minutes();
+    TwoFactor::pending($this, $fresh, new AuthClient($this))->post(CHALLENGE, ['recovery_code' => $two['codes'][0]])->assertOk();
 });
 
 it('clears the account\'s wrong-code count when an owner or the operator turns its two-factor off [FR-INST-04] (scenario 10)', function () {

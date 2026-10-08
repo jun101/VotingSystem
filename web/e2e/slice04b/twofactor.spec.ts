@@ -193,19 +193,36 @@ test.describe('signing in', () => {
 });
 
 test.describe('turning it off and renewing the codes', () => {
-  test('turning it off asks for the password, and the next sign-in asks for the password only [FR-INST-04]', async ({ page }) => {
+  test('turning it off asks for the password and a current code, and the next sign-in asks for the password only [FR-INST-04]', async ({ page }) => {
     const { email } = await registerAndEnter(page);
-    await enableTwoFactor(page, PASSWORD, current);
+    const { secret } = await enableTwoFactor(page, PASSWORD, current);
     await openAccount(page);
 
     await page.getByTestId('two-factor-disable-open').click();
     await expect(page.getByTestId('two-factor-disable-dialog')).toBeVisible();
+
+    // The password alone is not enough.
+    await page.getByTestId('two-factor-password').fill(PASSWORD);
+    await page.getByTestId('two-factor-disable-confirm').click();
+    await expect(page.getByTestId('two-factor-code-error')).toBeVisible();
+    await expect(page.getByTestId('two-factor-status')).toContainText('Activée');
+
+    // A wrong password with a right code is refused under the password field.
     await page.getByTestId('two-factor-password').fill('pas le bon mot de passe');
+    await page.getByTestId('two-factor-code').fill(totp(secret, 1));
     await page.getByTestId('two-factor-disable-confirm').click();
     await expect(page.getByTestId('two-factor-password-error')).toBeVisible();
     await expect(page.getByTestId('two-factor-status')).toContainText('Activée');
 
+    // A wrong code with the right password is refused under the code field.
     await page.getByTestId('two-factor-password').fill(PASSWORD);
+    await page.getByTestId('two-factor-code').fill(wrongCode(secret));
+    await page.getByTestId('two-factor-disable-confirm').click();
+    await expect(page.getByTestId('two-factor-code-error')).toBeVisible();
+    await expect(page.getByTestId('two-factor-code-error')).not.toContainText('invalid');
+    await expect(page.getByTestId('two-factor-status')).toContainText('Activée');
+
+    await page.getByTestId('two-factor-code').fill(totp(secret, 1));
     await page.getByTestId('two-factor-disable-confirm').click();
     await expect(page.getByTestId('two-factor-disable-dialog')).toHaveCount(0);
     await expect(page.getByTestId('two-factor-status')).toContainText('Désactivée');
@@ -237,6 +254,9 @@ test.describe('turning it off and renewing the codes', () => {
 
     await page.getByTestId('two-factor-codes-open').click();
     await page.getByTestId('two-factor-password').fill(PASSWORD);
+    // The second factor can be a recovery code, as at sign-in.
+    await page.getByTestId('two-factor-recovery-toggle').click();
+    await page.getByTestId('two-factor-recovery-code').fill(oldCodes[7]!);
     await page.getByTestId('two-factor-codes-confirm').click();
 
     const fresh = await readRecoveryCodes(page);
@@ -310,6 +330,30 @@ test.describe('an owner and the users', () => {
     const manager = await acceptInNewBrowser(browser, await invite(page, uniqueEmail('manager'), 'manager'));
     await manager.goto('/admin/institution');
     await expect(manager.getByTestId(/^user-reset-two-factor-\d+$/)).toHaveCount(0);
+    await manager.context().close();
+  });
+
+  test('asks an owner who has two-factor on their own code too, to turn off a manager\'s [FR-INST-04, NFR-SEC-01]', async ({ page, browser }) => {
+    await registerAndEnter(page);
+    const managerEmail = uniqueEmail('manager');
+    const manager = await acceptInNewBrowser(browser, await invite(page, managerEmail, 'manager'), 'Jean Pierre');
+    await enableTwoFactor(manager, PASSWORD, current);
+    const owner = await enableTwoFactor(page, PASSWORD, current);
+
+    await page.goto('/admin/institution');
+    await page.getByTestId(/^user-reset-two-factor-\d+$/).click();
+    await page.getByTestId('user-reset-password').fill(PASSWORD);
+
+    // No code: refused under the code field.
+    await page.getByTestId('user-reset-confirm').click();
+    await expect(page.getByTestId('user-reset-code-error')).toBeVisible();
+    await expect(page.locator('[data-testid^="user-two-factor-"][data-enabled="true"]')).toHaveCount(2);
+
+    // A recovery code of the owner works.
+    await page.getByTestId('user-reset-recovery-toggle').click();
+    await page.getByTestId('user-reset-recovery-code').fill(owner.codes[0]!);
+    await page.getByTestId('user-reset-confirm').click();
+    await expect(page.locator('[data-testid^="user-two-factor-"][data-enabled="true"]')).toHaveCount(1);
     await manager.context().close();
   });
 });

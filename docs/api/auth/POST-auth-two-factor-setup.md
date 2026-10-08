@@ -87,3 +87,7 @@ minutes, a fixed window that starts at the first failure.
 - Sign-in itself is never refused because of this counter, and a successful sign-in does not clear it (a
   person who guessed the password gets no fresh start). A right password on these routes clears it while it
   is below 5.
+
+A missing password is answered 422 before the lockout is looked at, and a password reset does not clear the
+password failures: they run out by themselves. Anyone who knows only an email address can feed the count from
+sign-in and keep these routes at 429 (sign-in itself is never refused).
