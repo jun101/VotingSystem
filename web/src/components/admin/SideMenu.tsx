@@ -65,7 +65,7 @@ export function SideMenu({ user, searchRef, closeRef, onNavigate }: SideMenuProp
   }
 
   const itemClass = (selected: boolean) =>
-    `ui-control flex min-h-11 items-center gap-3 rounded px-3 text-base font-semibold text-surface ${
+    `ui-control flex min-h-11 shrink-0 items-center gap-3 rounded px-3 text-base font-semibold text-surface ${
       selected ? 'bg-navy-raised' : 'hover:bg-navy-raised'
     } ${navyFocus}`;
 
@@ -74,7 +74,7 @@ export function SideMenu({ user, searchRef, closeRef, onNavigate }: SideMenuProp
       data-testid="side-menu"
       className="flex h-full w-[272px] flex-col gap-1 overflow-y-auto bg-navy px-3.5 pt-4 pb-4 text-surface"
     >
-      <div className="flex items-center gap-2.5 px-1.5 pb-3">
+      <div className="flex shrink-0 items-center gap-2.5 px-1.5 pb-3">
         <span
           aria-hidden="true"
           className="flex size-[38px] shrink-0 items-center justify-center rounded bg-surface text-sm font-bold text-navy"
@@ -96,7 +96,7 @@ export function SideMenu({ user, searchRef, closeRef, onNavigate }: SideMenuProp
         </button>
       </div>
 
-      <div className="flex h-11 items-center gap-2 rounded border border-ink-2 bg-navy-raised px-2.5 focus-within:border-accent-light">
+      <div className="flex h-11 shrink-0 items-center gap-2 rounded border border-ink-2 bg-navy-raised px-2.5 focus-within:border-accent-light">
         <span className="text-primary-line">
           <Icon path={SEARCH} size={16} />
         </span>
@@ -127,13 +127,13 @@ export function SideMenu({ user, searchRef, closeRef, onNavigate }: SideMenuProp
         href="/admin/elections/new"
         onClick={onNavigate}
         data-testid="menu-new-election"
-        className={`ui-control my-1.5 flex h-11 items-center justify-center gap-2 rounded bg-surface text-base font-bold text-navy hover:bg-primary-soft ${navyFocus}`}
+        className={`ui-control my-1.5 flex h-11 shrink-0 items-center justify-center gap-2 rounded bg-surface text-base font-bold text-navy hover:bg-primary-soft ${navyFocus}`}
       >
         <Icon path={PLUS} size={16} />
         {t('admin.menu.newElection')}
       </Link>
 
-      <nav aria-label={t('admin.shell.menuLabel')} className="flex flex-col gap-1">
+      <nav aria-label={t('admin.shell.menuLabel')} className="flex shrink-0 flex-col gap-1">
         <span className="px-2.5 pt-2.5 pb-1 text-xs font-bold tracking-wider text-primary-line uppercase">
           {t('admin.menu.sectionInstitution')}
         </span>
@@ -164,7 +164,7 @@ export function SideMenu({ user, searchRef, closeRef, onNavigate }: SideMenuProp
       <section
         data-testid="menu-election-card"
         aria-labelledby="menu-election-title"
-        className="mt-3 flex flex-col gap-2 rounded-md border border-ink-2 bg-navy-raised p-3"
+        className="mt-3 flex shrink-0 flex-col gap-2 rounded-md border border-ink-2 bg-navy-raised p-3"
       >
         <p
           id="menu-election-title"
@@ -185,7 +185,7 @@ export function SideMenu({ user, searchRef, closeRef, onNavigate }: SideMenuProp
 
       <div className="min-h-4 flex-1" />
 
-      <div className="flex flex-col gap-3 border-t border-ink-2 pt-3">
+      <div className="flex shrink-0 flex-col gap-3 border-t border-ink-2 pt-3">
         <div className="flex items-center gap-2.5 px-1">
           <span
             aria-hidden="true"

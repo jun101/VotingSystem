@@ -5,6 +5,7 @@ namespace App\Models\Concerns;
 use App\Models\Scopes\InstitutionScope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Str;
 use LogicException;
 
@@ -35,6 +36,12 @@ trait BelongsToInstitution
 
             if ($named === null && $current !== null) {
                 $model->setAttribute('institution_id', $current);
+            }
+
+            // A signed-in institution user cannot create a record for another institution.
+            // Nobody signed in (sign-up) or a platform admin keeps the value the code named.
+            if ($named !== null && $current !== null && (! is_numeric($named) || (int) $named !== $current)) {
+                throw new LogicException('A signed-in user cannot create a record for another institution.');
             }
 
             if ($model->getAttribute('institution_id') === null && ! self::mayHaveNoInstitution($model)) {
@@ -82,5 +89,46 @@ trait BelongsToInstitution
         }
 
         return $this->resolveRouteBindingQuery($this, $value, $field)->first();
+    }
+
+    /**
+     * Same rule for a child bound through its parent (`scopeBindings()`).
+     *
+     * @param  string  $childType
+     * @param  mixed  $value
+     * @param  string|null  $field
+     */
+    public function resolveChildRouteBinding($childType, $value, $field): ?Model
+    {
+        if ($this->isNotUuidLookup($childType, $field, $value)) {
+            return null;
+        }
+
+        return parent::resolveChildRouteBinding($childType, $value, $field);
+    }
+
+    /**
+     * @param  string  $childType
+     * @param  mixed  $value
+     * @param  string|null  $field
+     */
+    public function resolveSoftDeletableChildRouteBinding($childType, $value, $field): ?Model
+    {
+        if ($this->isNotUuidLookup($childType, $field, $value)) {
+            return null;
+        }
+
+        return parent::resolveSoftDeletableChildRouteBinding($childType, $value, $field);
+    }
+
+    /** True when the child is looked up by `uuid` and the value is not a UUID. */
+    private function isNotUuidLookup(string $childType, ?string $field, mixed $value): bool
+    {
+        /** @var Relation<Model, Model, mixed>|Model $relation */
+        $relation = $this->{$this->childRouteBindingRelationshipName($childType)}();
+        $related = $relation instanceof Model ? $relation : $relation->getRelated();
+        $field ??= $related->getRouteKeyName();
+
+        return $field === 'uuid' && ! (is_string($value) && Str::isUuid($value));
     }
 }

@@ -114,6 +114,14 @@ Three layers, each enough on its own:
    institution's `uuid` gives **404**, the same answer as a `uuid` that does not exist.
 3. **Policies.** Every action checks the record's institution and the user's role.
 
+**Limit of the model rules.** The trait's rules (institution filled on create, refused when
+it names another institution, never changed on save) run in model events. A builder-level
+write (`Model::query()->update()`, `insert()`, `upsert()`, `DB::table()`) fires no model
+event, so none of them applies. The global scope still limits `query()->update()`, but
+`insert()`, `upsert()` and `DB::table()` are unscoped. Rule for later slices: write a tenant
+record through its model; never name `institution_id` in a builder-level write. A source
+test (`tests/Feature/TenantBuilderWriteTest.php`) fails when the application does.
+
 A test suite written in slice 03 creates two institutions and checks every route of the
 first against a user of the second. A test added to that suite fails if a new route is
 not covered.

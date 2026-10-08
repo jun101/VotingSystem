@@ -68,6 +68,20 @@ export function AdminShell({ user, children }: { user: CurrentUser; children: Re
     }
   }, [open]);
 
+  // From `lg` the menu is fixed in place: an open drawer ends there, so the content is not
+  // left inert behind a backdrop and a menu button that are both hidden.
+  useEffect(() => {
+    const wide = window.matchMedia('(min-width: 1024px)');
+
+    function onChange(event: MediaQueryListEvent) {
+      if (event.matches) setOpen(false);
+    }
+
+    wide.addEventListener('change', onChange);
+
+    return () => wide.removeEventListener('change', onChange);
+  }, []);
+
   // Escape closes the drawer; "/" goes to the search from anywhere but a field.
   useEffect(() => {
     function onKey(event: globalThis.KeyboardEvent) {

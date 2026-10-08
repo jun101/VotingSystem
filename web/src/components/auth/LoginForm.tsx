@@ -39,7 +39,11 @@ export function LoginForm({
       }),
     );
 
-    if (done) router.push('/admin');
+    if (done) {
+      // The page is rendered again, so <html lang> takes the language stored for this user.
+      router.push('/admin');
+      router.refresh();
+    }
   }
 
   return (

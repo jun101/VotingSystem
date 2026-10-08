@@ -103,6 +103,9 @@ returns a code that is not in this table.
 | **500** Internal Server Error | A fault on the server; the body holds only the code, a message and a `reference` | `server_error` |
 | **503** Service Unavailable | Maintenance, or a service the API depends on is down | `maintenance`, `dependency_unavailable` |
 
+For an endpoint that needs a signed-in user, **401 is checked before the CSRF check (419)**:
+a request with no session and no token answers 401.
+
 Choosing between the close ones:
 
 - Wrong shape or value of the input → **422**. Right input, wrong moment → **409**.
