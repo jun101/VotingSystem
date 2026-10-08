@@ -32,7 +32,8 @@ Body, JSON:
 | 3 | `user` is the caller | 409 | `cannot_reset_self` | |
 | 3a | `password` missing | 422 | `validation_failed` (`password: required`) | |
 | 3b | `password` wrong | 422 | `validation_failed` (`password: incorrect`) | |
-| 3c | The 5th wrong password in 15 minutes for the caller | 401 | `unauthenticated` (the session ends) | |
+| 3c | The 5th wrong password in 15 minutes for this user (counted across these routes, the owner reset and sign-in) | 401 | `unauthenticated` (the session ends) | |
+| 3c+ | Any later attempt while the count is at 5 or more | 429 | `too_many_attempts` (`Retry-After`; the session is kept) | |
 | 4 | The user has no two-factor turned on | 409 | `two_factor_not_enabled` | |
 | 5 | `user` is not a UUID, does not exist, is removed, belongs to another institution, or is a platform admin | 404 | `not_found` | |
 | 6 | The user is a manager | 403 | `forbidden` | |
@@ -66,10 +67,22 @@ Scenario 5 gives the same body and headers for every cause. Order of the checks:
 ## Notes
 
 - The owner's password is asked, like for their own factor, so that a stolen owner session cannot strip
-  the second factor of every other user. A wrong password counts for the same 5-in-15-minutes failures
-  as the own-settings routes ([setup](../auth/POST-auth-two-factor-setup.md)).
+  the second factor of every other user. Wrong passwords count as described in the section below.
 - An owner cannot turn off their own through this endpoint: they use
   [disable](../auth/POST-auth-two-factor-disable.md).
 - **The last owner locked out has no owner to ask.** The platform operator runs
   `php artisan auth:reset-two-factor {email}` on the server (see the brief of slice 04b). That is
   the only path outside the web application.
+
+## Password failures
+
+Wrong passwords on this endpoint, on the other settings routes of slice 04b, on the owner's reset and at
+[POST /auth/login](../auth/POST-auth-login.md) (from any address) feed **one counter per account**: 5 in 15
+minutes, a fixed window that starts at the first failure.
+
+- The fifth wrong password on one of the settings routes ends the session: 401 `unauthenticated`.
+- While the count is 5 or more, these routes answer **429** `too_many_attempts` with `Retry-After`, whatever
+  the password, and the session is kept.
+- Sign-in itself is never refused because of this counter, and a successful sign-in does not clear it (a
+  person who guessed the password gets no fresh start). A right password on these routes clears it while it
+  is below 5.

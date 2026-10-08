@@ -314,3 +314,58 @@ it('clears the failed-password count at a success, as a sign-in without two-fact
     $other->login($user['email'], 'not the password at all')->assertStatus(401);
     $other->login($user['email'], 'not the password at all')->assertStatus(401);
 });
+
+it('clears the failed-password count of the address the password was typed from, even if the code comes from another [FR-INST-04, NFR-SEC-05]', function () {
+    $user = Accounts::user();
+    $two = TwoFactor::enable($this, $user);
+    $phone = (new AuthClient($this))->fromAddress('10.1.0.1');
+    foreach (range(1, 4) as $i) {
+        $phone->login($user['email'], 'not the password at all')->assertStatus(401);
+    }
+    TwoFactor::pending($this, $user, $phone);
+    $phone->fromAddress('10.2.0.2');   // the network changed between the two steps
+    $phone->post(CHALLENGE, ['code' => Totp::code($two['secret'])])->assertOk();
+
+    // The count of the first address was cleared: two more typos from it are still answered 401.
+    $again = (new AuthClient($this))->fromAddress('10.1.0.1');
+    $again->login($user['email'], 'not the password at all')->assertStatus(401);
+    $again->login($user['email'], 'not the password at all')->assertStatus(401);
+});
+
+it('clears the account\'s wrong-code count when the password is reset, so the real user is not locked out [FR-INST-04] (scenario 10)', function () {
+    $user = Accounts::user();
+    $two = TwoFactor::enable($this, $user);
+    $attacker = TwoFactor::pending($this, $user, new AuthClient($this));
+    foreach (range(1, 5) as $i) {
+        $attacker->post(CHALLENGE, ['code' => Totp::wrongCode($two['secret'])])->assertStatus(422);
+    }
+    expect(TwoFactor::pending($this, $user, new AuthClient($this))->post(CHALLENGE, ['code' => Totp::code($two['secret'])])->getStatusCode())->toBe(429);
+
+    $token = Accounts::token();
+    Accounts::plantToken('password_reset_tokens', $user['email'], $token);
+    (new AuthClient($this))->post('/api/v1/auth/reset-password', ['token' => $token, 'password' => 'a brand new long password'])->assertSuccessful();
+
+    $real = TwoFactor::pending($this, ['email' => $user['email'], 'password' => 'a brand new long password'] + $user, new AuthClient($this));
+    $real->post(CHALLENGE, ['code' => Totp::code($two['secret'])])->assertOk();
+});
+
+it('clears the account\'s wrong-code count when an owner or the operator turns its two-factor off [FR-INST-04] (scenario 10)', function () {
+    $t = Tests\Support\Team::two();
+    $two = TwoFactor::enable($this, $t['a']['manager']);
+    $attacker = TwoFactor::pending($this, $t['a']['manager'], new AuthClient($this));
+    foreach (range(1, 5) as $i) {
+        $attacker->post(CHALLENGE, ['code' => Totp::wrongCode($two['secret'])])->assertStatus(422);
+    }
+    Tests\Support\Team::signIn($this, $t['a']['owner']);
+    $this->browser->post("/api/v1/users/{$t['a']['manager']['user']}/two-factor/reset", ['password' => $t['a']['owner']['password']])->assertNoContent();
+
+    // The person sets it up again, and their first sign-in with a code is not refused for the old attempts.
+    $manager = new AuthClient($this);
+    $manager->login($t['a']['manager']['email'], $t['a']['manager']['password'])->assertOk();
+    $secret = $manager->post('/api/v1/auth/two-factor/setup', ['password' => $t['a']['manager']['password']])->assertOk()->json('data.secret');
+    $manager->post('/api/v1/auth/two-factor/confirm', ['code' => Totp::code($secret)])->assertOk();
+    $manager->post('/api/v1/auth/logout')->assertNoContent();
+    TwoFactor::clearLastStep($t['a']['manager']['user']);
+
+    TwoFactor::pending($this, $t['a']['manager'], new AuthClient($this))->post(CHALLENGE, ['code' => Totp::code($secret)])->assertOk();
+});

@@ -79,7 +79,11 @@ The shared shapes, with the codes of the table.
 ## Side effects
 
 `last_login_at` is set. A hash that needs a rehash (cost parameters changed) is rewritten.
-A failed attempt is counted by the limiter and writes nothing in the database.
+A failed attempt is counted by the limiter and writes nothing in the database. A wrong password also
+adds to the **account's password failures** (5 in 15 minutes, from any address, shared with the
+two-factor settings routes of slice 04b): that counter never refuses a sign-in, but while it is at 5 or more
+those routes answer 429, so a stolen session cannot use them while someone is guessing the password. A
+successful sign-in does not clear it.
 
 ## Notes
 

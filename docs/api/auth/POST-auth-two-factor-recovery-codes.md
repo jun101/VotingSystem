@@ -22,7 +22,8 @@ Replaces the signed-in user's recovery codes with eight new ones; the old ones s
 | 1 | Right password, two-factor is turned on | 200 | | |
 | 2 | `password` missing | 422 | `validation_failed` (`password: required`) | |
 | 3 | `password` wrong | 422 | `validation_failed` (`password: incorrect`) | |
-| 3b | The 5th wrong password in 15 minutes for this user (across these routes and the owner reset) | 401 | `unauthenticated` (the session ends) | |
+| 3b | The 5th wrong password in 15 minutes for this user (counted across these routes, the owner reset and sign-in) | 401 | `unauthenticated` (the session ends) | |
+| 3b+ | Any later attempt while the count is at 5 or more | 429 | `too_many_attempts` (`Retry-After`; the session is kept) | |
 | 4 | Two-factor is not turned on | 409 | `two_factor_not_enabled` | |
 | 5 | Not signed in, or the session has expired | 401 | `unauthenticated` | |
 | 6 | The user's institution was suspended since sign-in | 403 | `institution_suspended` | |
@@ -46,3 +47,16 @@ The shared error shape of [API conventions](../README.md), with the codes of the
 ## Notes
 
 Wrong passwords count for the 5-in-15-minutes failures of the user: the fifth ends the session with a 401 (scenario 3b). Same rule as [setup](POST-auth-two-factor-setup.md).
+
+## Password failures
+
+Wrong passwords on this endpoint, on the other settings routes of slice 04b, on the owner's reset and at
+[POST /auth/login](../auth/POST-auth-login.md) (from any address) feed **one counter per account**: 5 in 15
+minutes, a fixed window that starts at the first failure.
+
+- The fifth wrong password on one of the settings routes ends the session: 401 `unauthenticated`.
+- While the count is 5 or more, these routes answer **429** `too_many_attempts` with `Retry-After`, whatever
+  the password, and the session is kept.
+- Sign-in itself is never refused because of this counter, and a successful sign-in does not clear it (a
+  person who guessed the password gets no fresh start). A right password on these routes clears it while it
+  is below 5.

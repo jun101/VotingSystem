@@ -114,3 +114,28 @@ it('signs out a user already signed in in this browser: only the pending sign-in
 
     $this->browser->get('/api/v1/auth/me')->assertStatus(401);
 });
+
+it('destroys the previous session of a user signed in in this browser, not only hides it [FR-INST-04, NFR-SEC-04] (scenario 10)', function () {
+    $a = Accounts::user();
+    $b = Accounts::user();
+    TwoFactor::enable($this, $b);
+    $this->browser->login($a['email'], $a['password'])->assertOk();
+    $copied = $this->browser->cookie(config('session.cookie'));   // someone copied A's session cookie
+
+    $this->browser->login($b['email'], $b['password'])->assertOk()->assertJsonPath('data.two_factor_required', true);
+
+    $old = (new AuthClient($this))->setCookie(config('session.cookie'), $copied);
+    $old->get('/api/v1/auth/me')->assertStatus(401);
+});
+
+it('ends a pending sign-in when a user without two-factor then signs in in the same session [FR-INST-04] (scenario 10)', function () {
+    $a = Accounts::user();
+    $two = Tests\Support\TwoFactor::enable($this, $a);
+    $b = Accounts::user();
+    TwoFactor::pending($this, $a, $this->browser);   // A's password is typed: A's sign-in is pending
+
+    $this->browser->login($b['email'], $b['password'])->assertOk()->assertJsonPath('data.id', $b['user']);
+    $this->browser->post('/api/v1/auth/two-factor-challenge', ['code' => Tests\Support\Totp::code($two['secret'])])
+        ->assertStatus(401)->assertJsonPath('error.code', 'unauthenticated');
+    $this->browser->get('/api/v1/auth/me')->assertOk()->assertJsonPath('data.id', $b['user']);
+});

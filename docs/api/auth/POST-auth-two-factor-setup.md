@@ -28,7 +28,8 @@ is not active until [confirmed](POST-auth-two-factor-confirm.md).
 | 2 | A setup was already started and not confirmed | 200 (a new secret replaces the old) | | |
 | 3 | `password` missing | 422 | `validation_failed` (`password: required`) | |
 | 4 | `password` wrong | 422 | `validation_failed` (`password: incorrect`) | |
-| 3b | The 5th wrong password in 15 minutes for this user (across these routes and the owner reset) | 401 | `unauthenticated` (the session ends) | |
+| 4b | The 5th wrong password in 15 minutes for this user (counted across these routes, the owner reset and sign-in) | 401 | `unauthenticated` (the session ends) | |
+| 4b+ | Any later attempt while the count is at 5 or more | 429 | `too_many_attempts` (`Retry-After`; the session is kept) | |
 | 5 | Two-factor is already turned on | 409 | `two_factor_already_enabled` | |
 | 6 | Not signed in, or the session has expired | 401 | `unauthenticated` | |
 | 7 | The user's institution was suspended since sign-in | 403 | `institution_suspended` | |
@@ -73,3 +74,16 @@ for a code. Nothing is logged but the request id and the outcome.
 ## Notes
 
 The password is asked again so that a stolen open session cannot change the second factor.
+
+## Password failures
+
+Wrong passwords on this endpoint, on the other settings routes of slice 04b, on the owner's reset and at
+[POST /auth/login](../auth/POST-auth-login.md) (from any address) feed **one counter per account**: 5 in 15
+minutes, a fixed window that starts at the first failure.
+
+- The fifth wrong password on one of the settings routes ends the session: 401 `unauthenticated`.
+- While the count is 5 or more, these routes answer **429** `too_many_attempts` with `Retry-After`, whatever
+  the password, and the session is kept.
+- Sign-in itself is never refused because of this counter, and a successful sign-in does not clear it (a
+  person who guessed the password gets no fresh start). A right password on these routes clears it while it
+  is below 5.

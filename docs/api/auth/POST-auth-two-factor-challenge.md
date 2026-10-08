@@ -39,8 +39,8 @@ If both are sent, `recovery_code` is the one that is checked.
 | 8 | CSRF token missing or wrong | 419 | `csrf_mismatch` | |
 | 9 | Body is not valid JSON | 400 | `malformed_request` | |
 | 10 | Too many requests from this address, or 5 wrong codes in the last 15 minutes for this account | 429 | `too_many_attempts` | |
-| 12 | The user's password changed since the first step (a reset) | 401 | `unauthenticated` | |
 | 11 | Another method than POST | 405 | `method_not_allowed` | |
+| 12 | The user's password changed since the first step (a reset) | 401 | `unauthenticated` | |
 
 ## Responses
 
@@ -66,7 +66,7 @@ The account limit is kept in the cache by user, not in the session and not by ad
 starting again with the password, or coming from another address, does not reset it. A value longer than 32 characters is refused as wrong without being hashed or compared. Every wrong
 `code`, wrong or used `recovery_code`, and refused period counts; a request with neither field
 does not. From the sixth, the answer is 429 with `Retry-After`, even for a right code, until the
-oldest wrong code is 15 minutes old. A success clears the count.
+oldest wrong code is 15 minutes old. A success clears the count, and so does a password reset or any reset of the user's two-factor. The window is fixed: it starts at the first wrong code since the last clearing.
 
 ## Side effects
 
@@ -78,7 +78,7 @@ oldest wrong code is 15 minutes old. A success clears the count.
 ## Notes
 
 - The pending sign-in records a hash of the user's password hash (as the session guard does): if the
-  password changed since the first step, the challenge answers 401 (scenario 13) and the person starts
+  password changed since the first step, the challenge answers 401 (scenario 12) and the person starts
   again. The first step regenerates the session id.
 - The first step already checked the password and the institution. The challenge only ever
   grants a session for the user that step recorded in this browser's session; there is no way
