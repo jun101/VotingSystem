@@ -4,6 +4,7 @@ namespace App\Actions\Users;
 
 use App\Enums\Role;
 use App\Exceptions\ApiException;
+use App\Models\Invitation;
 use App\Models\User;
 use App\Support\LinkTokens;
 use Illuminate\Support\Facades\DB;
@@ -13,7 +14,8 @@ use Illuminate\Support\Facades\Log;
  * Removes a user from the signed-in owner's institution (docs/api/users/DELETE-users-{user}.md).
  *
  * The row stays (`deleted_at`, the name is kept for the audit log); the address is rewritten
- * so that it is free again; the pending email and password links are deleted. The last-owner
+ * so that it is free again; the pending email and password links and the invitations
+ * they sent that were not accepted are deleted. The last-owner
  * rule is checked in the same transaction, with the owners' rows locked: two owners removing
  * each other cannot both succeed.
  */
@@ -38,6 +40,10 @@ final class RemoveUser
 
             DB::table(LinkTokens::VERIFICATION)->where('user_id', $locked->getKey())->delete();
             DB::table(LinkTokens::RESET)->where('user_id', $locked->getKey())->delete();
+
+            // The invitations this user sent and nobody accepted would still open an account
+            // in the institution in the name of someone who is no longer there.
+            Invitation::query()->where('invited_by_user_id', $locked->getKey())->whereNull('accepted_at')->delete();
 
             $locked->email = "removed-{$locked->uuid}@removed.invalid";
             $locked->save();

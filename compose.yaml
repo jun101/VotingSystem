@@ -155,6 +155,8 @@ services:
       - media:/var/www/media
       # The design tokens, which the email tests read (docs/design/email.md section 1).
       - ./web/src/styles:/var/www/web/src/styles:ro
+      # The time zone list of the profile form, which a test compares with PHP's.
+      - ./web/src/lib/format:/var/www/web/src/lib/format:ro
     environment:
       <<: *api-environment
       DB_MIGRATOR_USERNAME: migrator

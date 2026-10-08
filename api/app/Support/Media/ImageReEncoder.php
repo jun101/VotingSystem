@@ -41,6 +41,9 @@ final class ImageReEncoder
 
     private const QUALITY = 82;
 
+    /** The memory ceiling while a picture is decoded and reduced. */
+    private const DECODE_MEMORY = '512M';
+
     private const ALLOWED = [
         IMAGETYPE_JPEG => 'image/jpeg',
         IMAGETYPE_PNG => 'image/png',
@@ -55,6 +58,20 @@ final class ImageReEncoder
      * @throws ValidationException `file: dimensions`
      */
     public function store(string $path): string
+    {
+        // More memory than the usual request gets, for this work only (40 million pixels at
+        // 4 bytes each, and the copies GD makes); the previous ceiling is restored.
+        $previousLimit = ini_get('memory_limit');
+        ini_set('memory_limit', self::DECODE_MEMORY);
+
+        try {
+            return $this->reEncode($path);
+        } finally {
+            ini_set('memory_limit', $previousLimit);
+        }
+    }
+
+    private function reEncode(string $path): string
     {
         $source = $this->decode($path);
         $uuid = Str::uuid()->toString();
@@ -151,21 +168,62 @@ final class ImageReEncoder
             throw ValidationException::withMessages(['file' => ['dimensions']]);
         }
 
-        // 3. Only now is it decoded; a file that does not decode is not a picture.
+        // 2b. An animated picture is refused rather than reduced to its first frame.
         $contents = @file_get_contents($path);
-        $image = $contents === false ? false : @imagecreatefromstring($contents);
+
+        if ($contents === false || $this->isAnimated($contents, $mime)) {
+            throw new ApiException(415, 'file_type_not_allowed');
+        }
+
+        // 3. Only now is it decoded; a file that does not decode is not a picture.
+        $image = @imagecreatefromstring($contents);
         unset($contents);
+
+        if ($image instanceof GdImage) {
+            imagepalettetotruecolor($image);
+        }
 
         if (! $image instanceof GdImage) {
             throw new ApiException(415, 'file_type_not_allowed');
         }
 
-        imagepalettetotruecolor($image);
-
         return [
             'image' => $image,
             'orientation' => $mime === 'image/jpeg' ? $this->orientationOf($path) : 1,
         ];
+    }
+
+    /** Whether the picture holds more than one frame (animated WebP, APNG, GIF). */
+    private function isAnimated(string $contents, string $mime): bool
+    {
+        if ($mime === 'image/webp') {
+            // A WebP with animation is an extended file (`VP8X`) whose flag byte has bit 2 set.
+            return substr($contents, 12, 4) === 'VP8X' && (ord($contents[20] ?? "\0") & 0x02) !== 0;
+        }
+
+        if ($mime === 'image/png') {
+            // An `acTL` chunk before the first `IDAT` marks an animated PNG.
+            $offset = 8;
+            $length = strlen($contents);
+
+            while ($offset + 8 <= $length) {
+                $unpacked = unpack('Nsize', substr($contents, $offset, 4));
+                $size = is_array($unpacked) && is_int($unpacked['size']) ? $unpacked['size'] : 0;
+                $type = substr($contents, $offset + 4, 4);
+
+                if ($type === 'acTL') {
+                    return true;
+                }
+
+                if ($type === 'IDAT' || $type === 'IEND') {
+                    return false;
+                }
+
+                $offset += 12 + $size;
+            }
+        }
+
+        return false;
     }
 
     /** The EXIF orientation (1 to 8) of a JPEG; 1 when there is none. */

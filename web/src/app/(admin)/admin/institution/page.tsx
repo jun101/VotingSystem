@@ -12,7 +12,10 @@ export default async function InstitutionRoute() {
   const session = await fetchSession();
   const profile = await fetchInstitution();
 
-  if (session.status !== 'signed-in' || !profile) notFound();
+  if (session.status !== 'signed-in') notFound();
+
+  // Signed in, but the API did not answer (timeout, 5xx, network): the error page, not a 404.
+  if (!profile) throw new Error('The institution could not be read.');
 
   const owner = session.user.role === 'owner';
   const [members, invitations] = owner

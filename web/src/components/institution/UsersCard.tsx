@@ -6,7 +6,7 @@ import { Button, Card, ConfirmDialog, Notice, Pill } from '@/components/ui';
 import { initials } from '@/components/admin/menu';
 import { cancelInvitation, removeUser } from '@/lib/api/browser';
 import { ApiError, errorText } from '@/lib/api/errors';
-import type { PendingInvitation, TeamMember } from '@/lib/api/user';
+import type { Listing, PendingInvitation, TeamMember } from '@/lib/api/user';
 import { useI18n } from '@/lib/i18n/client';
 import type { MessageKey } from '@/lib/i18n/messages';
 import { InviteForm } from './InviteForm';
@@ -27,15 +27,15 @@ export function UsersCard({
   members: initialMembers,
   invitations: initialInvitations,
 }: {
-  members: TeamMember[];
-  invitations: PendingInvitation[];
+  members: Listing<TeamMember>;
+  invitations: Listing<PendingInvitation>;
 }) {
   const { t, tIfAny } = useI18n();
   const router = useRouter();
   const card = useRef<HTMLElement>(null);
   const inviteButton = useRef<HTMLButtonElement>(null);
-  const [members, setMembers] = useState(initialMembers);
-  const [invitations, setInvitations] = useState(initialInvitations);
+  const [members, setMembers] = useState(initialMembers.items);
+  const [invitations, setInvitations] = useState(initialInvitations.items);
   const [inviting, setInviting] = useState(false);
   const [target, setTarget] = useState<TeamMember | null>(null);
   const [removing, setRemoving] = useState(false);
@@ -144,6 +144,15 @@ export function UsersCard({
           </Notice>
         ) : null}
 
+        {initialMembers.total > initialMembers.items.length ? (
+          <p data-testid="users-truncated" className="text-sm text-ink-soft">
+            {t('institution.users.usersTruncated', {
+              count: initialMembers.items.length,
+              total: initialMembers.total,
+            })}
+          </p>
+        ) : null}
+
         <ul className="flex flex-col gap-3">
           {members.map((member, index) => (
             <li
@@ -200,6 +209,14 @@ export function UsersCard({
           <h3 id="invitations-title" className="text-md font-bold text-ink">
             {t('institution.users.invitationsTitle')}
           </h3>
+          {initialInvitations.total > initialInvitations.items.length ? (
+            <p data-testid="invitations-truncated" className="text-sm text-ink-soft">
+              {t('institution.users.invitationsTruncated', {
+                count: initialInvitations.items.length,
+                total: initialInvitations.total,
+              })}
+            </p>
+          ) : null}
           {invitations.length === 0 ? (
             <p className="text-base text-ink-soft">{t('institution.users.empty')}</p>
           ) : (

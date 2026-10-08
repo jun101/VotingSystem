@@ -431,6 +431,8 @@
       "removeConfirm": "Remove",
       "removeCancel": "Cancel",
       "invitationsTitle": "Pending invitations",
+      "usersTruncated": "{count} of {total}",
+      "invitationsTruncated": "{count} of {total}",
       "pendingToday": "pending since today",
       "pendingOne": "pending for 1 day",
       "pendingMany": "pending for {count} days",

@@ -25,6 +25,10 @@ class AcceptInvitationController extends Controller
      */
     public function __invoke(AcceptInvitationRequest $request, AcceptInvitation $accept): JsonResponse
     {
+        // A browser that is already signed in (as anyone) leaves that account first. The
+        // session itself stays, so the CSRF token still holds; it is regenerated at sign-in.
+        Auth::guard()->logout();
+
         /** @var array{token: string} $data */
         $data = $request->validated();
 

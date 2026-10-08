@@ -4,12 +4,14 @@
 }
 
 :8080 {
+	# The pictures under /media/ carry their own, stricter policy (see below).
+	@notMedia not path /media/*
+
 	header {
 		X-Content-Type-Options nosniff
 		Referrer-Policy strict-origin-when-cross-origin
 		# No page of the product is shown inside another site's frame (clickjacking).
 		X-Frame-Options DENY
-		Content-Security-Policy "frame-ancestors 'none'"
 		# No header names the software or its version.
 		-Server
 		-X-Powered-By
@@ -17,18 +19,32 @@
 		-Via
 	}
 
-	# The re-encoded pictures, read-only. The file name changes with every upload, so the
-	# answer can be cached for good. No listing of the folder, no other type than the file's.
+	header @notMedia Content-Security-Policy "frame-ancestors 'none'"
+
+	# The re-encoded pictures, read-only: only `*.webp` files that exist. The file name changes
+	# with every upload, so a file can be cached for good; every other answer (a missing file,
+	# another type, a folder) is a plain 404 that is not kept. No listing of the folder.
 	handle /media/* {
-		# The long cache is for files that exist; an answer "not found" is not kept.
-		@exists file {
-			root /srv
-			try_files {path}
+		@found {
+			path *.webp
+			file {
+				root /srv
+				try_files {path}
+			}
 		}
-		header @exists Cache-Control "public, max-age=31536000, immutable"
-		header X-Content-Type-Options nosniff
-		root * /srv
-		file_server
+		handle @found {
+			header {
+				Cache-Control "public, max-age=31536000, immutable"
+				X-Content-Type-Options nosniff
+				# A picture is shown as an image and runs nothing, even if opened by itself.
+				Content-Security-Policy "default-src 'none'; img-src 'self'; sandbox"
+			}
+			root * /srv
+			file_server
+		}
+		handle {
+			respond 404
+		}
 	}
 
 	handle /api/* {

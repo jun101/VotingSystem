@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Institution;
 use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\InstitutionProfileResource;
+use App\Models\Institution;
 use App\Models\User;
 use App\Support\Media\ImageReEncoder;
 use Illuminate\Http\Request;
@@ -41,10 +42,15 @@ class LogoController extends Controller
         $uuid = $images->store($file->getRealPath());
 
         $institution = $user->institution;
-        $previous = $institution->logo_file;
+        $previous = null;
 
         try {
-            DB::transaction(function () use ($institution, $uuid): void {
+            DB::transaction(function () use (&$institution, &$previous, $uuid): void {
+                // Two uploads at once: the second waits, and reads the first one's logo as the
+                // previous one, so no file is left behind.
+                $locked = Institution::query()->whereKey($institution->getKey())->lockForUpdate()->first();
+                $institution = $locked ?? $institution;
+                $previous = $institution->logo_file;
                 $institution->logo_file = $uuid;
                 $institution->save();
             });
@@ -55,7 +61,7 @@ class LogoController extends Controller
             throw $e;
         }
 
-        // The old files go once the database points at the new ones.
+        // The old files go once the transaction is committed: the database points at the new ones.
         $images->delete($previous);
 
         Log::info('institution.logo', ['outcome' => 'replaced']);

@@ -2,7 +2,13 @@ import { cookies } from 'next/headers';
 import { cache } from 'react';
 import { createApiClient } from './client';
 import { SESSION_COOKIE } from './session';
-import type { CurrentUser, InstitutionProfile, PendingInvitation, TeamMember } from './user';
+import type {
+  CurrentUser,
+  InstitutionProfile,
+  Listing,
+  PendingInvitation,
+  TeamMember,
+} from './user';
 
 /** Who the API says is behind the session cookie of this request. */
 export type SessionState =
@@ -76,7 +82,7 @@ export const fetchInstitution = cache(async (): Promise<InstitutionProfile | nul
 );
 
 /** The users of the institution (an owner only), the first 100. */
-export const fetchTeam = cache(async (): Promise<TeamMember[] | null> =>
+export const fetchTeam = cache(async (): Promise<Listing<TeamMember> | null> =>
   authorizedGet(async (headers) => {
     const { data, response } = await createApiClient().GET('/v1/users', {
       headers,
@@ -85,12 +91,12 @@ export const fetchTeam = cache(async (): Promise<TeamMember[] | null> =>
       signal: AbortSignal.timeout(4000),
     });
 
-    return response.ok && data ? data.data : null;
+    return response.ok && data ? { items: data.data, total: data.meta.total } : null;
   }),
 );
 
 /** The invitations not yet accepted (an owner only), the first 100. */
-export const fetchInvitations = cache(async (): Promise<PendingInvitation[] | null> =>
+export const fetchInvitations = cache(async (): Promise<Listing<PendingInvitation> | null> =>
   authorizedGet(async (headers) => {
     const { data, response } = await createApiClient().GET('/v1/invitations', {
       headers,
@@ -99,6 +105,6 @@ export const fetchInvitations = cache(async (): Promise<PendingInvitation[] | nu
       signal: AbortSignal.timeout(4000),
     });
 
-    return response.ok && data ? data.data : null;
+    return response.ok && data ? { items: data.data, total: data.meta.total } : null;
   }),
 );

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Reveal } from '@/components/motion';
 import { Card } from '@/components/ui';
 import { useAdminUser } from '@/components/admin/AdminUser';
-import type { InstitutionProfile, PendingInvitation, TeamMember } from '@/lib/api/user';
+import type { InstitutionProfile, Listing, PendingInvitation, TeamMember } from '@/lib/api/user';
 import { useI18n } from '@/lib/i18n/client';
 import { ProfileCard } from './ProfileCard';
 import { PublicAddress } from './PublicAddress';
@@ -22,8 +22,8 @@ export function InstitutionPage({
 }: {
   profile: InstitutionProfile;
   /** Null for a manager: the lists are for owners. */
-  members: TeamMember[] | null;
-  invitations: PendingInvitation[] | null;
+  members: Listing<TeamMember> | null;
+  invitations: Listing<PendingInvitation> | null;
 }) {
   const { t } = useI18n();
   const user = useAdminUser();

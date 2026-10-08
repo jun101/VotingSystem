@@ -3,6 +3,7 @@
 namespace App\Actions\Users;
 
 use App\Enums\Role;
+use App\Models\Institution;
 use App\Models\Invitation;
 use App\Models\User;
 use App\Notifications\InvitationNotification;
@@ -37,7 +38,11 @@ final class CreateInvitation
         $institution = $inviter->institution;
         $now = Carbon::now('UTC');
 
-        $invitation = DB::transaction(function () use ($inviterKey, $email, $role, $token, $now): Invitation {
+        $invitation = DB::transaction(function () use ($inviter, $inviterKey, $email, $role, $token, $now): Invitation {
+            // One writer at a time per institution: two requests for one address cannot both
+            // leave a live row, and the deletes below cannot deadlock each other.
+            Institution::query()->whereKey($inviter->institution_id)->lockForUpdate()->first();
+
             // The tenant scope limits this to the inviter's institution.
             Invitation::query()->where('email', $email)->whereNull('accepted_at')->delete();
 
@@ -46,6 +51,7 @@ final class CreateInvitation
             $invitation->role = $role;
             $invitation->token_hash = LinkTokens::hash($token);
             $invitation->invited_by_user_id = $inviterKey;
+            $invitation->created_at = $now;
             $invitation->expires_at = $now->copy()->addDays(self::VALID_DAYS);
             $invitation->save();
 

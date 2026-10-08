@@ -30,3 +30,6 @@ export type PendingInvitation =
   operations['invitation.index']['responses'][200]['content']['application/json']['data'][number];
 
 export type InvitedRole = 'owner' | 'manager';
+
+/** One page of a list, and how many items there are in all. */
+export type Listing<T> = { items: T[]; total: number };
