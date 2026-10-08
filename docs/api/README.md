@@ -262,3 +262,11 @@ Filled slice by slice: each slice adds its endpoints here with a link to their f
 | Auth | `POST /auth/two-factor/recovery-codes` | 04b | [auth/POST-auth-two-factor-recovery-codes.md](auth/POST-auth-two-factor-recovery-codes.md) |
 | Auth | `POST /auth/two-factor-challenge` | 04b | [auth/POST-auth-two-factor-challenge.md](auth/POST-auth-two-factor-challenge.md) |
 | Users | `POST /users/{user}/two-factor/reset` | 04b | [users/POST-users-{user}-two-factor-reset.md](users/POST-users-{user}-two-factor-reset.md) |
+| Elections | `GET /elections` | 05 | [elections/GET-elections.md](elections/GET-elections.md) |
+| Elections | `POST /elections` | 05 | [elections/POST-elections.md](elections/POST-elections.md) |
+| Elections | `GET /elections/{election}` | 05 | [elections/GET-elections-{election}.md](elections/GET-elections-{election}.md) |
+| Elections | `PATCH /elections/{election}` | 05 | [elections/PATCH-elections-{election}.md](elections/PATCH-elections-{election}.md) |
+| Elections | `DELETE /elections/{election}` | 05 | [elections/DELETE-elections-{election}.md](elections/DELETE-elections-{election}.md) |
+| Elections | `POST /elections/{election}/duplicate` | 05 | [elections/POST-elections-{election}-duplicate.md](elections/POST-elections-{election}-duplicate.md) |
+| Elections | `PUT /elections/{election}/cover` | 05 | [elections/PUT-elections-{election}-cover.md](elections/PUT-elections-{election}-cover.md) |
+| Elections | `DELETE /elections/{election}/cover` | 05 | [elections/DELETE-elections-{election}-cover.md](elections/DELETE-elections-{election}-cover.md) |
