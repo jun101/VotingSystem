@@ -41,3 +41,11 @@ pest()->beforeEach(function () {
     Tests\Support\Tenancy::installProbeTables();
     $this->browser = new Tests\Support\AuthClient($this);
 })->in('Acceptance/Slice04b');
+
+// Slice 05: the same, and an empty `media` disk (docs/slices/05-elections.md).
+pest()->beforeEach(function () {
+    Tests\Support\Accounts::reset();
+    Tests\Support\Tenancy::installProbeTables();
+    Tests\Support\Team::clearMedia();
+    $this->browser = new Tests\Support\AuthClient($this);
+})->in('Acceptance/Slice05');

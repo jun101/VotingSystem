@@ -201,6 +201,68 @@ final class Accounts
         return $query->orderBy('id')->get()->map(fn ($row) => (array) $row)->all();
     }
 
+    /**
+     * Writes an election directly, in any status and with any dates (slice 05 and after). Returns its
+     * uuid. `institution` is the uuid of its institution; dates are UTC strings or Carbon values.
+     *
+     * @param  array{institution: string, title?: string, description?: string|null, status?: string, starts_at?: Carbon|string, ends_at?: Carbon|string, timezone?: string, language?: string, candidate_order?: string, results_display?: string, cover_file?: string|null, created_at?: Carbon|string, parent?: string|null, opened_at?: Carbon|string|null, closed_at?: Carbon|string|null, published_at?: Carbon|string|null, archived_at?: Carbon|string|null}  $o
+     */
+    public static function plantElection(array $o): string
+    {
+        $db = DB::connection(useMigratorConnection());
+        $fmt = fn ($value) => $value === null ? null : Carbon::parse($value, 'UTC')->format('Y-m-d H:i:s');
+        $uuid = Uuid::uuid4()->toString();
+        $created = $fmt($o['created_at'] ?? Carbon::now('UTC'));
+
+        $db->table('elections')->insert([
+            'uuid' => $uuid,
+            'institution_id' => $db->table('institutions')->where('uuid', $o['institution'])->value('id'),
+            'parent_election_id' => isset($o['parent']) ? $db->table('elections')->where('uuid', $o['parent'])->value('id') : null,
+            'title' => $o['title'] ?? 'Élection '.bin2hex(random_bytes(3)),
+            'description' => $o['description'] ?? null,
+            'starts_at' => $fmt($o['starts_at'] ?? '2026-10-12 12:00:00'),
+            'ends_at' => $fmt($o['ends_at'] ?? '2026-10-16 19:00:00'),
+            'timezone' => $o['timezone'] ?? 'America/Port-au-Prince',
+            'language' => $o['language'] ?? 'fr',
+            'status' => $o['status'] ?? 'draft',
+            'cover_file' => $o['cover_file'] ?? null,
+            'candidate_order' => $o['candidate_order'] ?? 'manual',
+            'results_display' => $o['results_display'] ?? 'full',
+            'opened_at' => $fmt($o['opened_at'] ?? null),
+            'closed_at' => $fmt($o['closed_at'] ?? null),
+            'published_at' => $fmt($o['published_at'] ?? null),
+            'archived_at' => $fmt($o['archived_at'] ?? null),
+            'created_at' => $created,
+            'updated_at' => $created,
+        ]);
+
+        return $uuid;
+    }
+
+    /** One row of `elections` by uuid, as an array, or null. */
+    public static function electionRow(string $uuid): ?array
+    {
+        $row = DB::connection(useMigratorConnection())->table('elections')->where('uuid', $uuid)->first();
+
+        return $row === null ? null : (array) $row;
+    }
+
+    /**
+     * The rows of `elections`, optionally of one institution (its uuid), oldest first.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function electionRows(?string $institution = null): array
+    {
+        $db = DB::connection(useMigratorConnection());
+        $query = $db->table('elections');
+        if ($institution !== null) {
+            $query->where('institution_id', $db->table('institutions')->where('uuid', $institution)->value('id'));
+        }
+
+        return $query->orderBy('id')->get()->map(fn ($row) => (array) $row)->all();
+    }
+
     /** A new random token of the right shape: 64 hexadecimal characters. */
     public static function token(): string
     {
