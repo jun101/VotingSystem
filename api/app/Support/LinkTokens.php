@@ -25,7 +25,7 @@ final class LinkTokens
     /** Creates the user's token in this table, replacing the previous one. Returns the token itself. */
     public function issue(string $table, User $user, int $minutes): string
     {
-        $token = bin2hex(random_bytes(32));
+        $token = self::newToken();
         $now = Carbon::now('UTC');
 
         DB::table($table)->upsert(
@@ -50,7 +50,7 @@ final class LinkTokens
      */
     public function find(string $table, string $token, bool $lock = false): ?stdClass
     {
-        if (preg_match('/^[0-9a-f]{64}$/', $token) !== 1) {
+        if (! self::isWellFormed($token)) {
             return null;
         }
 
@@ -80,6 +80,18 @@ final class LinkTokens
     public function forget(string $table, stdClass $row): void
     {
         DB::table($table)->where('user_id', $row->user_id)->delete();
+    }
+
+    /** A new token: 64 hexadecimal characters from the system's secure random source. */
+    public static function newToken(): string
+    {
+        return bin2hex(random_bytes(32));
+    }
+
+    /** True when the value has the shape of a token (anything else cannot be one). */
+    public static function isWellFormed(string $token): bool
+    {
+        return preg_match('/^[0-9a-f]{64}$/', $token) === 1;
     }
 
     /** SHA-256, raw (32 bytes), as stored. */

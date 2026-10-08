@@ -26,4 +26,19 @@ return [
         'validity' => 'This link is valid for 60 minutes and can be used once.',
         'ignore' => 'If you did not make this request, ignore this message: your password stays the same.',
     ],
+
+    'invite' => [
+        'subject' => 'Invitation to join an institution',
+        'title' => 'Invitation to join an institution',
+        'line' => 'Join your institution in a few moments.',
+        'preheader' => 'Choose your name and a password to join an institution.',
+        'intro' => 'You are invited to join the institution “:institution” as :role. Choose your name and a password to get started.',
+        'button' => 'Accept the invitation',
+        'validity' => 'This link is valid for 7 days and can be used once.',
+        'ignore' => 'If you did not expect this invitation, ignore this message: nothing will be created.',
+        'roles' => [
+            'owner' => 'an owner',
+            'manager' => 'a manager',
+        ],
+    ],
 ];

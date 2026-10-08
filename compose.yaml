@@ -12,6 +12,8 @@ x-api: &api
   volumes:
     - ./api:/var/www/html
     - ./docs/api:/var/www/docs/api
+    # The re-encoded pictures (logos, later candidate photos); the proxy serves them.
+    - media:/var/www/media
   environment: &api-environment
     APP_NAME: ${APP_NAME:-New Voting System}
     # Production values when nothing is set; .env.example sets the development ones.
@@ -53,6 +55,7 @@ services:
       - "127.0.0.1:${HTTP_PORT:-8080}:8080"
     volumes:
       - ./docker/proxy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - media:/srv/media:ro
     depends_on:
       api:
         condition: service_healthy
@@ -149,6 +152,7 @@ services:
     volumes:
       - ./api:/var/www/html
       - ./docs/api:/var/www/docs/api
+      - media:/var/www/media
       # The design tokens, which the email tests read (docs/design/email.md section 1).
       - ./web/src/styles:/var/www/web/src/styles:ro
     environment:
@@ -270,3 +274,4 @@ configs:
 volumes:
   db_data:
   redis_data:
+  media:

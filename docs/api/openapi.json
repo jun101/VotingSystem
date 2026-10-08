@@ -12,6 +12,130 @@
         }
     ],
     "paths": {
+        "/v1/auth/accept-invitation": {
+            "post": {
+                "operationId": "auth.acceptInvitation",
+                "description": "The invited person chooses a name and a password and gets an account in the institution\nthat invited them, verified, with the invited role, and is signed in (the session id is\nregenerated). An unknown, used or cancelled token is 404; an expired one is 410; the order\nof the checks is in the endpoint file. Public. Limited to 10 requests per hour per IP address.",
+                "summary": "Accept an invitation",
+                "tags": [
+                    "AcceptInvitation"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/AcceptInvitationRequest"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "password": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "type": "string"
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "owner",
+                                                        "manager",
+                                                        "platform_admin"
+                                                    ]
+                                                },
+                                                "email_verified": {
+                                                    "type": "boolean"
+                                                },
+                                                "language": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "fr",
+                                                        "en"
+                                                    ]
+                                                },
+                                                "institution": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "string"
+                                                        },
+                                                        "name": {
+                                                            "type": "string"
+                                                        },
+                                                        "type": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "school",
+                                                                "university",
+                                                                "association",
+                                                                "other"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "id",
+                                                        "name",
+                                                        "type"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "name",
+                                                "email",
+                                                "role",
+                                                "email_verified",
+                                                "language",
+                                                "institution"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                },
+                "security": []
+            }
+        },
         "/v1/auth/csrf": {
             "get": {
                 "operationId": "auth.csrf",
@@ -113,6 +237,499 @@
                                 }
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/v1/institution": {
+            "get": {
+                "operationId": "institution.show",
+                "description": "The profile of the signed-in user's own institution; there is no way to name another. An\nowner or a manager may read it. A platform admin has no institution: 403. Signed-in user.",
+                "summary": "The institution's profile",
+                "tags": [
+                    "Institution"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "type": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "school",
+                                                        "university",
+                                                        "association",
+                                                        "other"
+                                                    ]
+                                                },
+                                                "description": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "address": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "city": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "phone": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "contact_email": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "timezone": {
+                                                    "type": "string"
+                                                },
+                                                "language": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "fr",
+                                                        "en"
+                                                    ]
+                                                },
+                                                "logo": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "sm": {
+                                                            "type": "string"
+                                                        },
+                                                        "md": {
+                                                            "type": "string"
+                                                        },
+                                                        "lg": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "sm",
+                                                        "md",
+                                                        "lg"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "name",
+                                                "type",
+                                                "description",
+                                                "address",
+                                                "city",
+                                                "phone",
+                                                "contact_email",
+                                                "timezone",
+                                                "language",
+                                                "logo"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "institution.update",
+                "description": "Every field is optional; only those sent change. Strings are trimmed, and an optional field\nsent empty is cleared. The suspension and the logo cannot be reached from here. Owner only.",
+                "summary": "Change the institution's profile",
+                "tags": [
+                    "Institution"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateInstitutionRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "type": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "school",
+                                                        "university",
+                                                        "association",
+                                                        "other"
+                                                    ]
+                                                },
+                                                "description": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "address": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "city": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "phone": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "contact_email": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "timezone": {
+                                                    "type": "string"
+                                                },
+                                                "language": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "fr",
+                                                        "en"
+                                                    ]
+                                                },
+                                                "logo": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "sm": {
+                                                            "type": "string"
+                                                        },
+                                                        "md": {
+                                                            "type": "string"
+                                                        },
+                                                        "lg": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "sm",
+                                                        "md",
+                                                        "lg"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "name",
+                                                "type",
+                                                "description",
+                                                "address",
+                                                "city",
+                                                "phone",
+                                                "contact_email",
+                                                "timezone",
+                                                "language",
+                                                "logo"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/v1/invitations": {
+            "get": {
+                "operationId": "invitation.index",
+                "description": "Live and expired ones, newest first. The token is never returned. Owner only.",
+                "summary": "The invitations that have not been accepted",
+                "tags": [
+                    "Invitation"
+                ],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 1000000
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "email": {
+                                                        "type": "string"
+                                                    },
+                                                    "role": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "owner",
+                                                            "manager"
+                                                        ]
+                                                    },
+                                                    "invited_by": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string"
+                                                    },
+                                                    "expires_at": {
+                                                        "type": "string"
+                                                    },
+                                                    "expired": {
+                                                        "type": "boolean"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "email",
+                                                    "role",
+                                                    "invited_by",
+                                                    "created_at",
+                                                    "expires_at",
+                                                    "expired"
+                                                ]
+                                            }
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "page": {
+                                                    "type": "integer"
+                                                },
+                                                "per_page": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "required": [
+                                                "page",
+                                                "per_page",
+                                                "total"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "meta"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "invitation.store",
+                "description": "Invites an address to join the institution as owner or manager, and sends the email in the\ninstitution's language. A live invitation for the same address is replaced: its link stops\nworking. Owner only. Limited to 20 requests per hour per user.",
+                "summary": "Invite a person",
+                "tags": [
+                    "Invitation"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateInvitationRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "`InvitationResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "type": "string"
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "owner",
+                                                        "manager"
+                                                    ]
+                                                },
+                                                "invited_by": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "created_at": {
+                                                    "type": "string"
+                                                },
+                                                "expires_at": {
+                                                    "type": "string"
+                                                },
+                                                "expired": {
+                                                    "type": "boolean"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "email",
+                                                "role",
+                                                "invited_by",
+                                                "created_at",
+                                                "expires_at",
+                                                "expired"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/v1/invitations/{invitation}": {
+            "delete": {
+                "operationId": "invitation.destroy",
+                "description": "Its link stops working; the row is deleted. An invitation that is unknown, already\naccepted, already cancelled or another institution's answers 404. Owner only.",
+                "summary": "Cancel an invitation",
+                "tags": [
+                    "Invitation"
+                ],
+                "parameters": [
+                    {
+                        "name": "invitation",
+                        "in": "path",
+                        "required": true,
+                        "description": "The invitation UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -225,6 +842,194 @@
                     }
                 },
                 "security": []
+            }
+        },
+        "/v1/institution/logo": {
+            "put": {
+                "operationId": "logo.update",
+                "description": "Send one `file` part (`multipart/form-data`): a JPEG, PNG or WebP of at most 5 MB, 8 000\npixels on a side and 40 million pixels. It is recognised by its content, re-encoded into\nthree WebP sizes (64, 160, 480 pixels), stripped of every piece of metadata, and the\nupload itself is never kept. The previous logo's files are deleted once the new one is\nstored. Owner only. Limited to 10 requests per hour per user.",
+                "summary": "Replace the institution's logo",
+                "tags": [
+                    "Logo"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "type": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "school",
+                                                        "university",
+                                                        "association",
+                                                        "other"
+                                                    ]
+                                                },
+                                                "description": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "address": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "city": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "phone": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "contact_email": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "timezone": {
+                                                    "type": "string"
+                                                },
+                                                "language": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "fr",
+                                                        "en"
+                                                    ]
+                                                },
+                                                "logo": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "sm": {
+                                                            "type": "string"
+                                                        },
+                                                        "md": {
+                                                            "type": "string"
+                                                        },
+                                                        "lg": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "sm",
+                                                        "md",
+                                                        "lg"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "name",
+                                                "type",
+                                                "description",
+                                                "address",
+                                                "city",
+                                                "phone",
+                                                "contact_email",
+                                                "timezone",
+                                                "language",
+                                                "logo"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                ""
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "logo.destroy",
+                "description": "The institution is shown with its initials again. Answers 204 whether or not there was a\nlogo. Owner only.",
+                "summary": "Remove the institution's logo",
+                "tags": [
+                    "Logo"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "403": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                ""
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
             }
         },
         "/v1/auth/logout": {
@@ -610,6 +1415,156 @@
                 "security": []
             }
         },
+        "/v1/users": {
+            "get": {
+                "operationId": "user.index",
+                "description": "Owners first, then managers, each by name (case and accents ignored), then by email. A\nremoved user is not listed. Owner only.",
+                "summary": "The users of the institution",
+                "tags": [
+                    "User"
+                ],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 1000000
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "email": {
+                                                        "type": "string"
+                                                    },
+                                                    "role": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "owner",
+                                                            "manager"
+                                                        ]
+                                                    },
+                                                    "email_verified": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "last_login_at": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "is_you": {
+                                                        "type": "boolean"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "name",
+                                                    "email",
+                                                    "role",
+                                                    "email_verified",
+                                                    "last_login_at",
+                                                    "is_you"
+                                                ]
+                                            }
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "page": {
+                                                    "type": "integer"
+                                                },
+                                                "per_page": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "required": [
+                                                "page",
+                                                "per_page",
+                                                "total"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "meta"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/v1/users/{user}": {
+            "delete": {
+                "operationId": "user.destroy",
+                "description": "The user can no longer sign in and their next request is refused. Their address is freed;\ntheir name is kept for the audit log. An institution keeps at least one owner. Removing\noneself also ends one's own session. Owner only.",
+                "summary": "Remove a user",
+                "tags": [
+                    "User"
+                ],
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "required": true,
+                        "description": "The user UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/v1/auth/verify-email": {
             "post": {
                 "operationId": "auth.verifyEmail",
@@ -642,6 +1597,40 @@
     },
     "components": {
         "schemas": {
+            "AcceptInvitationRequest": {
+                "type": "object",
+                "description": "docs/api/auth/POST-auth-accept-invitation.md. Only the token is judged here: the rest of\nthe body is judged after the token has been found (an unknown token answers 404 before any\n422, so a bad body never reveals whether a token is valid).",
+                "properties": {
+                    "token": {
+                        "type": "string",
+                        "maxLength": 1024
+                    }
+                },
+                "required": [
+                    "token"
+                ],
+                "title": "AcceptInvitationRequest"
+            },
+            "CreateInvitationRequest": {
+                "type": "object",
+                "description": "docs/api/users/POST-invitations.md",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "description": "`max` before `email`: an address that is far too long is told \"too long\".",
+                        "maxLength": 255
+                    },
+                    "role": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "email",
+                    "role"
+                ],
+                "title": "CreateInvitationRequest"
+            },
             "ForgotPasswordRequest": {
                 "type": "object",
                 "properties": {
@@ -655,6 +1644,11 @@
                     "email"
                 ],
                 "title": "ForgotPasswordRequest"
+            },
+            "InvitationResource": {
+                "type": "array",
+                "items": {},
+                "title": "InvitationResource"
             },
             "LoginRequest": {
                 "type": "object",
@@ -733,6 +1727,63 @@
                 ],
                 "title": "ResetPasswordRequest"
             },
+            "UpdateInstitutionRequest": {
+                "type": "object",
+                "description": "docs/api/institution/PATCH-institution.md: every field is optional, only those sent change.",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 150
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 500
+                    },
+                    "address": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "city": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 100
+                    },
+                    "phone": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "pattern": "^[0-9 +().\\-]*$",
+                        "maxLength": 30
+                    },
+                    "contact_email": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "email",
+                        "maxLength": 255
+                    },
+                    "timezone": {
+                        "type": "string"
+                    },
+                    "language": {
+                        "type": "string"
+                    }
+                },
+                "title": "UpdateInstitutionRequest"
+            },
             "UpdateMeRequest": {
                 "type": "object",
                 "properties": {
@@ -800,6 +1851,25 @@
             },
             "AuthenticationException": {
                 "description": "Unauthenticated",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "description": "Error overview."
+                                }
+                            },
+                            "required": [
+                                "message"
+                            ]
+                        }
+                    }
+                }
+            },
+            "ModelNotFoundException": {
+                "description": "Not found",
                 "content": {
                     "application/json": {
                         "schema": {

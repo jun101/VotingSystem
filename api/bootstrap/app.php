@@ -3,9 +3,11 @@
 use App\Exceptions\ApiErrorRenderer;
 use App\Http\Middleware\AssignRequestId;
 use App\Http\Middleware\EnsureInstitutionActive;
+use App\Http\Middleware\EnsureOwner;
 use App\Http\Middleware\RefuseOptions;
 use App\Http\Middleware\RejectMalformedJson;
 use App\Http\Middleware\ResetAuthState;
+use App\Http\Middleware\ThrottleWithoutCounters;
 use App\Http\Middleware\VerifyCsrfToken;
 use App\Support\TrustedHosts;
 use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
@@ -13,6 +15,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 
@@ -53,7 +56,11 @@ return Application::configure(basePath: dirname(__DIR__))
             VerifyCsrfToken::class,
             AuthenticateSession::class,
         ]);
-        $middleware->alias(['institution.active' => EnsureInstitutionActive::class]);
+        $middleware->alias([
+            'institution.active' => EnsureInstitutionActive::class,
+            'owner' => EnsureOwner::class,
+            'throttle.quiet' => ThrottleWithoutCounters::class,
+        ]);
 
         // This application serves the API only: a request that is not signed in is answered
         // 401 (see ApiErrorRenderer), never redirected to a sign-in page.
@@ -68,6 +75,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // sign-in problem, not a forgery.
         $middleware->appendToPriorityList(after: AuthenticatesRequests::class, append: VerifyCsrfToken::class);
         $middleware->appendToPriorityList(after: VerifyCsrfToken::class, append: EnsureInstitutionActive::class);
+        // The role is judged once the route's records are bound: another institution's record
+        // answers 404 before a manager is told 403.
+        $middleware->appendToPriorityList(after: SubstituteBindings::class, append: EnsureOwner::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // This application serves the API only: every answer is JSON, whatever the path

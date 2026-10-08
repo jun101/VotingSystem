@@ -27,6 +27,8 @@ type SideMenuProps = {
   closeRef: RefObject<HTMLButtonElement | null>;
   /** The drawer closes when a page is chosen (below `lg`). */
   onNavigate: () => void;
+  /** The address of the institution's logo (64 px), when it has one. */
+  logo?: string | null;
 };
 
 /**
@@ -34,7 +36,7 @@ type SideMenuProps = {
  * election button, the institution's pages, the chosen election, and the person at the
  * bottom. Without any election yet the card says so and the election section is absent.
  */
-export function SideMenu({ user, searchRef, closeRef, onNavigate }: SideMenuProps) {
+export function SideMenu({ user, searchRef, closeRef, onNavigate, logo = null }: SideMenuProps) {
   const { t } = useI18n();
   const router = useRouter();
   const pathname = usePathname();
@@ -75,12 +77,26 @@ export function SideMenu({ user, searchRef, closeRef, onNavigate }: SideMenuProp
       className="flex h-full w-[272px] flex-col gap-1 overflow-y-auto bg-navy px-3.5 pt-4 pb-4 text-surface"
     >
       <div className="flex shrink-0 items-center gap-2.5 px-1.5 pb-3">
-        <span
-          aria-hidden="true"
-          className="flex size-[38px] shrink-0 items-center justify-center rounded bg-surface text-sm font-bold text-navy"
-        >
-          {initials(institutionName)}
-        </span>
+        {logo ? (
+          // The files are already optimised (64 px): a plain image, with its size set. The name
+          // is written next to it, so the image says nothing more.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={logo}
+            alt=""
+            width={38}
+            height={38}
+            data-testid="menu-institution-logo"
+            className="size-[38px] shrink-0 rounded bg-surface object-cover"
+          />
+        ) : (
+          <span
+            aria-hidden="true"
+            className="flex size-[38px] shrink-0 items-center justify-center rounded bg-surface text-sm font-bold text-navy"
+          >
+            {initials(institutionName)}
+          </span>
+        )}
         <span className="flex min-w-0 flex-1 flex-col">
           <span className="font-display text-lg font-bold">{t('app.name')}</span>
           <span className="truncate text-xs text-primary-line">{institutionName}</span>

@@ -4,6 +4,29 @@
  */
 
 export interface paths {
+    "/v1/auth/accept-invitation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Accept an invitation
+         * @description The invited person chooses a name and a password and gets an account in the institution
+         *     that invited them, verified, with the invited role, and is signed in (the session id is
+         *     regenerated). An unknown, used or cancelled token is 404; an expired one is 410; the order
+         *     of the checks is in the endpoint file. Public. Limited to 10 requests per hour per IP address.
+         */
+        post: operations["auth.acceptInvitation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/auth/csrf": {
         parameters: {
             query?: never;
@@ -70,6 +93,79 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/institution": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The institution's profile
+         * @description The profile of the signed-in user's own institution; there is no way to name another. An
+         *     owner or a manager may read it. A platform admin has no institution: 403. Signed-in user.
+         */
+        get: operations["institution.show"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Change the institution's profile
+         * @description Every field is optional; only those sent change. Strings are trimmed, and an optional field
+         *     sent empty is cleared. The suspension and the logo cannot be reached from here. Owner only.
+         */
+        patch: operations["institution.update"];
+        trace?: never;
+    };
+    "/v1/invitations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The invitations that have not been accepted
+         * @description Live and expired ones, newest first. The token is never returned. Owner only.
+         */
+        get: operations["invitation.index"];
+        put?: never;
+        /**
+         * Invite a person
+         * @description Invites an address to join the institution as owner or manager, and sends the email in the
+         *     institution's language. A live invitation for the same address is replaced: its link stops
+         *     working. Owner only. Limited to 20 requests per hour per user.
+         */
+        post: operations["invitation.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/invitations/{invitation}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Cancel an invitation
+         * @description Its link stops working; the row is deleted. An invitation that is unknown, already
+         *     accepted, already cancelled or another institution's answers 404. Owner only.
+         */
+        delete: operations["invitation.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/auth/login": {
         parameters: {
             query?: never;
@@ -87,6 +183,35 @@ export interface paths {
          */
         post: operations["auth.login"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/institution/logo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Replace the institution's logo
+         * @description Send one `file` part (`multipart/form-data`): a JPEG, PNG or WebP of at most 5 MB, 8 000
+         *     pixels on a side and 40 million pixels. It is recognised by its content, re-encoded into
+         *     three WebP sizes (64, 160, 480 pixels), stripped of every piece of metadata, and the
+         *     upload itself is never kept. The previous logo's files are deleted once the new one is
+         *     stored. Owner only. Limited to 10 requests per hour per user.
+         */
+        put: operations["logo.update"];
+        post?: never;
+        /**
+         * Remove the institution's logo
+         * @description The institution is shown with its initials again. Answers 204 whether or not there was a
+         *     logo. Owner only.
+         */
+        delete: operations["logo.destroy"];
         options?: never;
         head?: never;
         patch?: never;
@@ -205,6 +330,49 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The users of the institution
+         * @description Owners first, then managers, each by name (case and accents ignored), then by email. A
+         *     removed user is not listed. Owner only.
+         */
+        get: operations["user.index"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/users/{user}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove a user
+         * @description The user can no longer sign in and their next request is refused. Their address is freed;
+         *     their name is kept for the audit log. An institution keeps at least one owner. Removing
+         *     oneself also ends one's own session. Owner only.
+         */
+        delete: operations["user.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/auth/verify-email": {
         parameters: {
             query?: never;
@@ -231,11 +399,34 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * AcceptInvitationRequest
+         * @description docs/api/auth/POST-auth-accept-invitation.md. Only the token is judged here: the rest of
+         *     the body is judged after the token has been found (an unknown token answers 404 before any
+         *     422, so a bad body never reveals whether a token is valid).
+         */
+        AcceptInvitationRequest: {
+            token: string;
+        };
+        /**
+         * CreateInvitationRequest
+         * @description docs/api/users/POST-invitations.md
+         */
+        CreateInvitationRequest: {
+            /**
+             * Format: email
+             * @description `max` before `email`: an address that is far too long is told "too long".
+             */
+            email: string;
+            role: string;
+        };
         /** ForgotPasswordRequest */
         ForgotPasswordRequest: {
             /** Format: email */
             email: string;
         };
+        /** InvitationResource */
+        InvitationResource: unknown[];
         /** LoginRequest */
         LoginRequest: {
             email: string;
@@ -255,6 +446,22 @@ export interface components {
         ResetPasswordRequest: {
             token: string;
             password: string;
+        };
+        /**
+         * UpdateInstitutionRequest
+         * @description docs/api/institution/PATCH-institution.md: every field is optional, only those sent change.
+         */
+        UpdateInstitutionRequest: {
+            name?: string;
+            type?: string;
+            description?: string | null;
+            address?: string | null;
+            city?: string | null;
+            phone?: string | null;
+            /** Format: email */
+            contact_email?: string | null;
+            timezone?: string;
+            language?: string;
         };
         /** UpdateMeRequest */
         UpdateMeRequest: {
@@ -297,6 +504,18 @@ export interface components {
                 };
             };
         };
+        /** @description Not found */
+        ModelNotFoundException: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    /** @description Error overview. */
+                    message: string;
+                };
+            };
+        };
     };
     parameters: never;
     requestBodies: never;
@@ -305,6 +524,50 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    "auth.acceptInvitation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["AcceptInvitationRequest"] & {
+                    name?: string;
+                    password?: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            name: string;
+                            email: string;
+                            /** @enum {string} */
+                            role: "owner" | "manager" | "platform_admin";
+                            email_verified: boolean;
+                            /** @enum {string} */
+                            language: "fr" | "en";
+                            institution: {
+                                id: string;
+                                name: string;
+                                /** @enum {string} */
+                                type: "school" | "university" | "association" | "other";
+                            } | null;
+                        };
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
     "auth.csrf": {
         parameters: {
             query?: never;
@@ -377,6 +640,191 @@ export interface operations {
             };
         };
     };
+    "institution.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            name: string;
+                            /** @enum {string} */
+                            type: "school" | "university" | "association" | "other";
+                            description: string | null;
+                            address: string | null;
+                            city: string | null;
+                            phone: string | null;
+                            contact_email: string | null;
+                            timezone: string;
+                            /** @enum {string} */
+                            language: "fr" | "en";
+                            logo: {
+                                sm: string;
+                                md: string;
+                                lg: string;
+                            } | null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "institution.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateInstitutionRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            name: string;
+                            /** @enum {string} */
+                            type: "school" | "university" | "association" | "other";
+                            description: string | null;
+                            address: string | null;
+                            city: string | null;
+                            phone: string | null;
+                            contact_email: string | null;
+                            timezone: string;
+                            /** @enum {string} */
+                            language: "fr" | "en";
+                            logo: {
+                                sm: string;
+                                md: string;
+                                lg: string;
+                            } | null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "invitation.index": {
+        parameters: {
+            query?: {
+                page?: number;
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            email: string;
+                            /** @enum {string} */
+                            role: "owner" | "manager";
+                            invited_by: string | null;
+                            created_at: string;
+                            expires_at: string;
+                            expired: boolean;
+                        }[];
+                        meta: {
+                            page: number;
+                            per_page: number;
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "invitation.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateInvitationRequest"];
+            };
+        };
+        responses: {
+            /** @description `InvitationResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            email: string;
+                            /** @enum {string} */
+                            role: "owner" | "manager";
+                            invited_by: string | null;
+                            created_at: string;
+                            expires_at: string;
+                            expired: boolean;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "invitation.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The invitation UUID */
+                invitation: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
     "auth.login": {
         parameters: {
             query?: never;
@@ -416,6 +864,96 @@ export interface operations {
                 };
             };
             422: components["responses"]["ValidationException"];
+        };
+    };
+    "logo.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            name: string;
+                            /** @enum {string} */
+                            type: "school" | "university" | "association" | "other";
+                            description: string | null;
+                            address: string | null;
+                            city: string | null;
+                            phone: string | null;
+                            contact_email: string | null;
+                            timezone: string;
+                            /** @enum {string} */
+                            language: "fr" | "en";
+                            logo: {
+                                sm: string;
+                                md: string;
+                                lg: string;
+                            } | null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            /** @description An error */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "logo.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["AuthenticationException"];
+            /** @description An error */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
+                    };
+                };
+            };
         };
     };
     "auth.logout": {
@@ -598,6 +1136,69 @@ export interface operations {
                 content?: never;
             };
             422: components["responses"]["ValidationException"];
+        };
+    };
+    "user.index": {
+        parameters: {
+            query?: {
+                page?: number;
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            name: string;
+                            email: string;
+                            /** @enum {string} */
+                            role: "owner" | "manager";
+                            email_verified: boolean;
+                            last_login_at: string | null;
+                            is_you: boolean;
+                        }[];
+                        meta: {
+                            page: number;
+                            per_page: number;
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "user.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The user UUID */
+                user: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
         };
     };
     "auth.verifyEmail": {

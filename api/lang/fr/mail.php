@@ -26,4 +26,19 @@ return [
         'validity' => 'Ce lien est valable 60 minutes et ne peut servir qu’une fois.',
         'ignore' => 'Si vous n’avez pas fait cette demande, ignorez ce message : votre mot de passe ne change pas.',
     ],
+
+    'invite' => [
+        'subject' => 'Invitation à rejoindre un établissement',
+        'title' => 'Invitation à rejoindre un établissement',
+        'line' => 'Rejoignez votre établissement en quelques instants.',
+        'preheader' => 'Choisissez votre nom et votre mot de passe pour rejoindre un établissement.',
+        'intro' => 'Vous êtes invité à rejoindre l’établissement « :institution » en tant que :role. Choisissez votre nom et votre mot de passe pour commencer.',
+        'button' => 'Accepter l’invitation',
+        'validity' => 'Ce lien est valable 7 jours et ne peut servir qu’une fois.',
+        'ignore' => 'Si vous ne vous attendiez pas à cette invitation, ignorez ce message : rien ne sera créé.',
+        'roles' => [
+            'owner' => 'propriétaire',
+            'manager' => 'gestionnaire',
+        ],
+    ],
 ];

@@ -3,7 +3,14 @@ import { apiBaseUrl } from './client';
 import { ApiError, parseApiError } from './errors';
 import { XSRF_COOKIE } from './session';
 import type { paths } from './schema';
-import type { CurrentUser, RegisterBody } from './user';
+import type {
+  CurrentUser,
+  InstitutionProfile,
+  InvitedRole,
+  PendingInvitation,
+  ProfileChanges,
+  RegisterBody,
+} from './user';
 
 /*
  * The calls the pages make from the browser (docs/api/auth/). Every one of them:
@@ -171,4 +178,93 @@ export async function forgotPassword(email: string): Promise<void> {
 
 export async function resetPassword(body: { token: string; password: string }): Promise<void> {
   await send((api) => api.POST('/v1/auth/reset-password', { body }));
+}
+
+export async function acceptInvitation(body: {
+  token: string;
+  name: string;
+  password: string;
+}): Promise<CurrentUser> {
+  const { data } = await send((api) => api.POST('/v1/auth/accept-invitation', { body }));
+
+  return data!.data;
+}
+
+/** `PATCH /institution`: the profile (an owner). */
+export async function updateInstitution(body: ProfileChanges): Promise<InstitutionProfile> {
+  const { data } = await send((api) => api.PATCH('/v1/institution', { body }));
+
+  return data!.data;
+}
+
+/**
+ * `PUT /institution/logo`: the picture, as one `file` part. Sent by hand (the schema has no
+ * multipart body); it follows the same rules as the other calls: the CSRF token, one retry on a
+ * 419, an `ApiError` for anything that is not a success.
+ */
+export async function uploadLogo(file: File): Promise<InstitutionProfile> {
+  for (let attempt = 0; ; attempt++) {
+    const body = new FormData();
+    body.append('file', file);
+
+    let response: Response;
+
+    try {
+      response = await fetch(`${apiBaseUrl()}/v1/institution/logo`, {
+        method: 'PUT',
+        body,
+        credentials: 'same-origin',
+        headers: {
+          Accept: 'application/json',
+          'Accept-Language': pageLanguage(),
+          'X-XSRF-TOKEN': await csrfToken(),
+        },
+      });
+    } catch (error) {
+      throw error instanceof ApiError ? error : new ApiError(0, 'network');
+    }
+
+    if (response.ok) return ((await response.json()) as { data: InstitutionProfile }).data;
+
+    let answer: unknown = null;
+
+    try {
+      answer = await response.json();
+    } catch {
+      // Not JSON: an `unknown` error.
+    }
+
+    const failure = parseApiError(response.status, answer, response.headers.get('Retry-After'));
+
+    if (failure.code === 'csrf_mismatch' && attempt === 0) {
+      await refreshCsrf();
+
+      continue;
+    }
+
+    throw failure;
+  }
+}
+
+export async function removeLogo(): Promise<void> {
+  await send((api) => api.DELETE('/v1/institution/logo'));
+}
+
+export async function inviteUser(body: {
+  email: string;
+  role: InvitedRole;
+}): Promise<PendingInvitation> {
+  const { data } = await send((api) => api.POST('/v1/invitations', { body }));
+
+  return data!.data;
+}
+
+export async function cancelInvitation(id: string): Promise<void> {
+  await send((api) =>
+    api.DELETE('/v1/invitations/{invitation}', { params: { path: { invitation: id } } }),
+  );
+}
+
+export async function removeUser(id: string): Promise<void> {
+  await send((api) => api.DELETE('/v1/users/{user}', { params: { path: { user: id } } }));
 }

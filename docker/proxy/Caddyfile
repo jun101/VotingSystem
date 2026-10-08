@@ -17,6 +17,20 @@
 		-Via
 	}
 
+	# The re-encoded pictures, read-only. The file name changes with every upload, so the
+	# answer can be cached for good. No listing of the folder, no other type than the file's.
+	handle /media/* {
+		# The long cache is for files that exist; an answer "not found" is not kept.
+		@exists file {
+			root /srv
+			try_files {path}
+		}
+		header @exists Cache-Control "public, max-age=31536000, immutable"
+		header X-Content-Type-Options nosniff
+		root * /srv
+		file_server
+	}
+
 	handle /api/* {
 		reverse_proxy api:8000
 	}
