@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
  * The sign-in that has the right password and waits for the second factor
  * (docs/api/auth/POST-auth-login.md scenario 10). It lives in the server-side session only:
  * the user's UUID, the time, a hash of the user's password hash (a password changed in between
- * ends it) and a random nonce that keys the wrong-code counter in the cache. It lasts five
+ * ends it) and a random nonce that keys the wrong-code counter in the cache, and the key of the failed-password counter of the address the password was typed from. It lasts five
  * minutes, and the fifth wrong code ends it. Nothing in a request can name the user.
  *
  * The wrong codes are counted in the cache, with one atomic increment per attempt made
@@ -27,13 +27,14 @@ final class PendingSignIn
 
     public const MAX_WRONG_CODES = 5;
 
-    public static function start(Session $session, User $user): void
+    public static function start(Session $session, User $user, ?string $failureKey = null): void
     {
         $session->put(self::KEY, [
             'user' => $user->uuid,
             'at' => now()->getTimestamp(),
             'pw' => self::passwordFingerprint($user),
             'nonce' => Str::random(40),
+            'fail' => $failureKey,
         ]);
     }
 
@@ -46,7 +47,7 @@ final class PendingSignIn
     /**
      * The pending sign-in, or null (none, expired, ended).
      *
-     * @return array{user: string, at: int, pw: string, nonce: string}|null
+     * @return array{user: string, at: int, pw: string, nonce: string, fail: string|null}|null
      */
     public static function current(Session $session): ?array
     {
@@ -57,13 +58,14 @@ final class PendingSignIn
             || ! is_int($pending['at'] ?? null)
             || ! is_string($pending['pw'] ?? null)
             || ! is_string($pending['nonce'] ?? null)
+            || ! (is_string($pending['fail'] ?? null) || ($pending['fail'] ?? null) === null)
             || now()->getTimestamp() - $pending['at'] > self::LIFETIME_SECONDS) {
             self::end($session);
 
             return null;
         }
 
-        return ['user' => $pending['user'], 'at' => $pending['at'], 'pw' => $pending['pw'], 'nonce' => $pending['nonce']];
+        return ['user' => $pending['user'], 'at' => $pending['at'], 'pw' => $pending['pw'], 'nonce' => $pending['nonce'], 'fail' => $pending['fail'] ?? null];
     }
 
     /**

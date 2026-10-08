@@ -2,6 +2,7 @@
 
 namespace App\Actions\Auth;
 
+use App\Auth\PasswordFailures;
 use App\Exceptions\ApiException;
 use App\Models\User;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
@@ -63,6 +64,12 @@ final class AttemptLogin
 
         if ($user === null || ! Hash::check($password, $user->password)) {
             RateLimiter::hit($key, 60);
+
+            if ($user !== null) {
+                // The account's shared counter, from any address (never refuses a sign-in).
+                PasswordFailures::hit($user);
+            }
+
             Log::info('auth.login', ['outcome' => 'invalid_credentials']);
 
             throw new ApiException(401, 'invalid_credentials');

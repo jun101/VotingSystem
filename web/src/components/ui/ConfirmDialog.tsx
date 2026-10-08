@@ -13,6 +13,8 @@ type ConfirmDialogProps = {
   busy?: boolean;
   /** Why the action did not happen; shown inside the dialog, which stays open. */
   error?: string | null;
+  /** The id of the element that describes the dialog; the whole body when not given (a body that holds a form should name its sentence). */
+  describedBy?: string;
   onConfirm: () => void;
   onCancel: () => void;
   /** `data-testid` of the dialog, of its two buttons and of its error. */
@@ -35,6 +37,7 @@ export function ConfirmDialog({
   cancelLabel,
   busy = false,
   error = null,
+  describedBy,
   onConfirm,
   onCancel,
   testIds = {},
@@ -92,7 +95,7 @@ export function ConfirmDialog({
       ref={dialog}
       data-testid={testIds.dialog}
       aria-labelledby={titleId}
-      aria-describedby={bodyId}
+      aria-describedby={describedBy ?? bodyId}
       onKeyDown={onKeyDown}
       onCancel={(event) => {
         // Escape: closed by dismiss(), so the focus goes back first.

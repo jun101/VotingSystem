@@ -9,6 +9,7 @@ use App\Support\LinkTokens;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -49,6 +50,9 @@ final class ResetPassword
             // Reaching this link proves the person reads the mailbox.
             $user->email_verified_at ??= now();
             $user->save();
+
+            // The new password starts without the wrong codes of the old one.
+            RateLimiter::clear(CompleteTwoFactorChallenge::accountKey($user));
 
             $this->tokens->forget(LinkTokens::RESET, $row);
             DB::table(LinkTokens::VERIFICATION)->where('user_id', $user->getKey())->delete();

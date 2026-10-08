@@ -110,8 +110,9 @@ final class CompleteTwoFactorChallenge
         RateLimiter::clear($accountKey);
         PendingSignIn::clearGuesses($pending);
         PendingSignIn::end($session);
-        // As a sign-in without two-factor does at its only step.
-        RateLimiter::clear(AttemptLogin::failureKeyForUser($user, $ip));
+        // As a sign-in without two-factor does at its only step: the counter of the address the
+        // password was typed from (kept in the pending state), not the challenge's own.
+        RateLimiter::clear($pending['fail'] ?? AttemptLogin::failureKeyForUser($user, $ip));
         $user->last_login_at = now();
         $user->save();
 

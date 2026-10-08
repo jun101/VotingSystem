@@ -62,17 +62,36 @@ class TwoFactorController extends Controller
         $user = $this->user($request);
         $this->checkPassword($request, $user);
 
+        // Checked here too, so the generated contract keeps the 409; read again under the lock.
         if ($user->hasTwoFactorEnabled()) {
             Log::info('auth.two_factor_setup', ['outcome' => 'already_enabled']);
 
             throw new ApiException(409, 'two_factor_already_enabled');
         }
 
-        $secret = $this->twoFactor->newSecret();
-        $user->two_factor_secret = $secret;
-        $user->two_factor_recovery_codes = null;
-        $user->two_factor_last_step = null;
-        $user->save();
+        // Under the row lock, like confirm: a setup cannot replace the secret of a confirmation
+        // that is running.
+        $secret = DB::transaction(function () use ($user): string {
+            $locked = $user->newModelQuery()->whereKey($user->getKey())->lockForUpdate()->first();
+
+            if (! $locked instanceof User) {
+                throw new ApiException(401, 'unauthenticated');
+            }
+
+            if ($locked->hasTwoFactorEnabled()) {
+                Log::info('auth.two_factor_setup', ['outcome' => 'already_enabled']);
+
+                throw new ApiException(409, 'two_factor_already_enabled');
+            }
+
+            $secret = $this->twoFactor->newSecret();
+            $locked->two_factor_secret = $secret;
+            $locked->two_factor_recovery_codes = null;
+            $locked->two_factor_last_step = null;
+            $locked->save();
+
+            return $secret;
+        });
 
         Log::info('auth.two_factor_setup', ['outcome' => 'started']);
 
@@ -97,6 +116,16 @@ class TwoFactorController extends Controller
     {
         $user = $this->user($request);
         $given = $request->input('code');
+
+        // Cheap checks first, so the generated contract keeps both 409s; they are made again
+        // under the lock below.
+        if ($user->hasTwoFactorEnabled()) {
+            throw new ApiException(409, 'two_factor_already_enabled');
+        }
+
+        if (! is_string($user->two_factor_secret)) {
+            throw new ApiException(409, 'two_factor_not_started');
+        }
 
         // The row is locked and its state read again inside the transaction: two confirmations
         // at once cannot both turn it on and return two different sets of recovery codes.

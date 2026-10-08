@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { PasswordField } from '@/components/auth/PasswordField';
 import { ConfirmDialog } from '@/components/ui';
 import { useI18n } from '@/lib/i18n/client';
@@ -33,6 +33,7 @@ export function PasswordDialog({
   const { busy, fieldError, problem, round, run } = useGuardedCall('password');
   const [password, setPassword] = useState('');
   const field = useRef<HTMLInputElement>(null);
+  const textId = useId();
   // Set at once, not at the next render: a double Enter sends one request.
   const running = useRef(false);
 
@@ -65,12 +66,13 @@ export function PasswordDialog({
       cancelLabel={t('account.dialog.cancel')}
       busy={busy}
       error={problem}
+      describedBy={textId}
       onConfirm={() => void confirm()}
       onCancel={onCancel}
       testIds={testIds}
     >
       <form method="post" noValidate onSubmit={submit} className="flex flex-col gap-4">
-        <p>{text}</p>
+        <p id={textId}>{text}</p>
         <PasswordField
           ref={field}
           label={t('account.dialog.password')}

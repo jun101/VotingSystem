@@ -205,6 +205,8 @@ function PasswordStep({
   const { busy, fieldError, problem, round, run } = useGuardedCall('password');
   const field = useRef<HTMLInputElement>(null);
   const alert = useRef<HTMLDivElement>(null);
+  // Set at once, not at the next render: a double Enter sends one request.
+  const running = useRef(false);
 
   useEffect(() => field.current?.focus(), []);
 
@@ -217,9 +219,16 @@ function PasswordStep({
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (running.current || busy) return;
+
+    running.current = true;
     const password = String(new FormData(event.currentTarget).get('password') ?? '');
 
-    await run(async () => onStarted(await startTwoFactorSetup(password)));
+    try {
+      await run(async () => onStarted(await startTwoFactorSetup(password)));
+    } finally {
+      running.current = false;
+    }
   }
 
   return (
@@ -287,6 +296,8 @@ function ScanStep({
   const { busy, fieldError, problem, round, run } = useGuardedCall('code');
   const field = useRef<HTMLInputElement>(null);
   const alert = useRef<HTMLDivElement>(null);
+  // Set at once, not at the next render: a double Enter sends one request.
+  const running = useRef(false);
 
   useEffect(() => field.current?.focus(), []);
 
@@ -298,9 +309,16 @@ function ScanStep({
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (running.current || busy) return;
+
+    running.current = true;
     const code = String(new FormData(event.currentTarget).get('code') ?? '');
 
-    await run(async () => onConfirmed(await confirmTwoFactor(code)));
+    try {
+      await run(async () => onConfirmed(await confirmTwoFactor(code)));
+    } finally {
+      running.current = false;
+    }
   }
 
   return (

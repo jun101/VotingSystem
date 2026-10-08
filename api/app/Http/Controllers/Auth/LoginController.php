@@ -33,16 +33,18 @@ class LoginController extends Controller
         $user = $attempt($data['email'], $data['password'], (string) $request->ip());
 
         if ($user->hasTwoFactorEnabled()) {
-            // Nobody stays signed in in this browser while another sign-in waits for its code;
-            // the session id is renewed, the session itself (and so the CSRF token) is kept.
+            // Nobody stays signed in in this browser while another sign-in waits for its code:
+            // the guard is logged out and the session id is renewed with the old session
+            // destroyed, so nothing of the previous one is carried over.
             Auth::guard()->logout();
-            $request->session()->regenerate();
-            PendingSignIn::start($request->session(), $user);
+            $request->session()->regenerate(true);
+            PendingSignIn::start($request->session(), $user, AttemptLogin::failureKeyForUser($user, (string) $request->ip()));
             $request->session()->regenerateToken();
 
             return response()->json(['data' => ['two_factor_required' => true]]);
         }
 
+        PendingSignIn::end($request->session());
         Auth::guard()->login($user);
         $request->session()->regenerateToken();
 

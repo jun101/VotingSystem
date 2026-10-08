@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { PasswordField } from '@/components/auth/PasswordField';
 import { Button, Card, ConfirmDialog, Notice, Pill } from '@/components/ui';
 import { initials } from '@/components/admin/menu';
@@ -48,6 +48,7 @@ export function UsersCard({
   const [resetPassword, setResetPassword] = useState('');
   const [resetFieldError, setResetFieldError] = useState<string | null>(null);
   const resetField = useRef<HTMLInputElement>(null);
+  const resetTextId = useId();
   // Set at once, not at the next render: a double Enter sends one request.
   const busyCalls = useRef({ removal: false, reset: false });
   const [problem, setProblem] = useState<string | null>(null);
@@ -398,6 +399,7 @@ export function UsersCard({
           cancelLabel={t('institution.users.resetCancel')}
           busy={resetting}
           error={resetError}
+          describedBy={resetTextId}
           onConfirm={confirmReset}
           onCancel={closeResetDialog}
           testIds={{
@@ -408,7 +410,7 @@ export function UsersCard({
           }}
         >
           <form method="post" noValidate onSubmit={submitReset} className="flex flex-col gap-4">
-            <p>{t('institution.users.resetText', { name: resetTarget.name })}</p>
+            <p id={resetTextId}>{t('institution.users.resetText', { name: resetTarget.name })}</p>
             <PasswordField
               ref={resetField}
               label={t('institution.users.resetPassword')}

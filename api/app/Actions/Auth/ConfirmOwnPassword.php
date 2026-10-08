@@ -2,62 +2,46 @@
 
 namespace App\Actions\Auth;
 
-use App\Exceptions\ApiException;
+use App\Auth\PasswordFailures;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 
 /**
  * The password asked again for a change of the second factor: the user's own at setup, disable
  * and recovery codes, and an owner's at the reset of another user's.
  *
- * Wrong passwords are counted for the user, in the cache, by one atomic increment made before
- * the password is judged (so parallel guesses cannot go over): the count is shared by the five
- * routes. A wrong one answers 422 `password: incorrect`; the fifth in 15 minutes, and every
- * attempt after it inside the window, ends the session and answers 401. A right password
- * clears the count.
+ * Wrong passwords are counted for the account in one shared counter (App\Auth\PasswordFailures,
+ * also fed by sign-in), by one atomic increment made before the password is judged, so parallel
+ * guesses cannot go over. A wrong one answers 422 `password: incorrect`; the fifth ends the
+ * session (401). While the count is over 5 any attempt answers 429 with Retry-After, whatever
+ * the password, and the session is kept. A right password clears the count while it is
+ * below 5.
  */
 final class ConfirmOwnPassword
 {
-    public const MAX_WRONG = 5;
-
-    public const WINDOW_SECONDS = 900;
-
     public function __invoke(Request $request, User $user, string $password): void
     {
-        $key = 'two-factor-password:'.hash('sha256', $user->uuid);
-        $attempts = RateLimiter::hit($key, self::WINDOW_SECONDS);
+        $attempts = PasswordFailures::hit($user);
 
-        if ($attempts > self::MAX_WRONG) {
-            $this->endSession($request);
+        if ($attempts > PasswordFailures::MAX) {
+            throw PasswordFailures::locked($user);
         }
 
         if (Hash::check($password, $user->password)) {
-            RateLimiter::clear($key);
+            PasswordFailures::clear($user);
 
             return;
         }
 
         Log::info('auth.two_factor_password', ['outcome' => 'incorrect']);
 
-        if ($attempts >= self::MAX_WRONG) {
-            $this->endSession($request);
+        if ($attempts >= PasswordFailures::MAX) {
+            PasswordFailures::endSession($request);
         }
 
         throw ValidationException::withMessages(['password' => ['incorrect']]);
-    }
-
-    private function endSession(Request $request): never
-    {
-        Auth::guard()->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        Log::info('auth.two_factor_password', ['outcome' => 'locked']);
-
-        throw new ApiException(401, 'unauthenticated');
     }
 }
