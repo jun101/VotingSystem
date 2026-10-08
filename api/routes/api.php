@@ -9,6 +9,8 @@ use App\Http\Controllers\Auth\MeController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResendVerificationController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\TwoFactorChallengeController;
+use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\Institution\InstitutionController;
@@ -35,6 +37,17 @@ Route::prefix('v1')->group(function (): void {
             ->middleware(['auth', 'institution.active', 'throttle:auth-resend']);
         Route::post('/forgot-password', ForgotPasswordController::class)->middleware('throttle:auth-forgot-password');
         Route::post('/reset-password', ResetPasswordController::class)->middleware('throttle:auth-reset-password');
+        // Two-factor authentication (slice 04b). The challenge finishes a sign-in the password
+        // step started in this session; the others are the signed-in user's own settings, with
+        // one shared limiter.
+        Route::post('/two-factor-challenge', TwoFactorChallengeController::class)->middleware('throttle:auth-two-factor-challenge');
+        Route::middleware(['auth', 'institution.active'])->prefix('two-factor')->group(function (): void {
+            Route::get('/', [TwoFactorController::class, 'show']);
+            Route::post('/setup', [TwoFactorController::class, 'setup'])->middleware('throttle:two-factor');
+            Route::post('/confirm', [TwoFactorController::class, 'confirm'])->middleware('throttle:two-factor');
+            Route::post('/disable', [TwoFactorController::class, 'disable'])->middleware('throttle:two-factor');
+            Route::post('/recovery-codes', [TwoFactorController::class, 'recoveryCodes'])->middleware('throttle:two-factor');
+        });
         Route::post('/accept-invitation', AcceptInvitationController::class)->middleware('throttle.quiet:auth-accept-invitation');
     });
 
@@ -50,6 +63,7 @@ Route::prefix('v1')->group(function (): void {
         Route::middleware('owner')->group(function (): void {
             Route::get('/users', [UserController::class, 'index']);
             Route::delete('/users/{user}', [UserController::class, 'destroy']);
+            Route::post('/users/{user}/two-factor/reset', [UserController::class, 'resetTwoFactor'])->middleware('throttle:two-factor');
             Route::get('/invitations', [InvitationController::class, 'index']);
             Route::post('/invitations', [InvitationController::class, 'store'])->middleware('throttle:invitations-create');
             Route::delete('/invitations/{invitation}', [InvitationController::class, 'destroy']);

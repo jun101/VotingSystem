@@ -39,6 +39,25 @@ return [
             ],
         ],
 
+        // For the tests, which read what was written (tests/bootstrap.php). Same format and the
+        // same redaction as the stderr channel; production writes to standard error.
+        'file' => [
+            'driver' => 'monolog',
+            'level' => env('LOG_LEVEL', 'info'),
+            'handler' => StreamHandler::class,
+            'handler_with' => [
+                'stream' => storage_path('logs/test.log'),
+            ],
+            'formatter' => JsonFormatter::class,
+            'formatter_with' => [
+                'appendNewline' => true,
+            ],
+            'processors' => [
+                PsrLogMessageProcessor::class,
+                RedactSensitiveFields::class,
+            ],
+        ],
+
         'null' => [
             'driver' => 'monolog',
             'handler' => NullHandler::class,

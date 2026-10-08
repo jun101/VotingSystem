@@ -59,6 +59,14 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('auth-csrf', fn (Request $request) => Limit::perMinute($times(60))->by($ip($request)));
         RateLimiter::for('auth-register', fn (Request $request) => Limit::perHour($times(10))->by($ip($request)));
         RateLimiter::for('auth-login', fn (Request $request) => Limit::perMinute($times(10))->by($ip($request)));
+        // Slice 04b: 10 codes a minute from one address at the challenge, and 10 requests a minute
+        // for one user at setup, confirm, disable and recovery codes (one counter for the four).
+        RateLimiter::for('auth-two-factor-challenge', fn (Request $request) => Limit::perMinute($times(10))->by($ip($request)));
+        RateLimiter::for('two-factor', function (Request $request) use ($times, $ip) {
+            $user = $request->user();
+
+            return Limit::perMinute($times(10))->by($user instanceof User ? 'user:'.$user->uuid : $ip($request));
+        });
         RateLimiter::for('auth-verify-email', fn (Request $request) => Limit::perMinute($times(10))->by($ip($request)));
         RateLimiter::for('auth-reset-password', fn (Request $request) => Limit::perHour($times(10))->by($ip($request)));
 

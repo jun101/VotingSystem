@@ -25,7 +25,9 @@ $settings = [
     'QUEUE_CONNECTION' => 'sync',
     'SESSION_DRIVER' => 'array',
     'MAIL_MAILER' => 'array',
-    'LOG_CHANNEL' => 'null',
+    // A file the tests can read (storage/logs/test.log), emptied at the start of each run: the
+    // tests that check what is logged look in storage/logs/*.log.
+    'LOG_CHANNEL' => 'file',
     // The rate limits of docs/api/auth/ are tested at their real value; the development stack
     // and the browser tests raise them (many sign-ups from one address).
     'AUTH_RATE_LIMIT_FACTOR' => '1',
@@ -36,6 +38,8 @@ foreach ($settings as $name => $value) {
     $_ENV[$name] = $value;
     $_SERVER[$name] = $value;
 }
+
+@unlink(__DIR__.'/../storage/logs/test.log');
 
 require __DIR__.'/../vendor/autoload.php';
 require __DIR__.'/migrator.php';

@@ -26,6 +26,10 @@ use Illuminate\Support\Carbon;
  * @property string $language
  * @property Carbon|null $email_verified_at
  * @property Carbon|null $last_login_at
+ * @property string|null $two_factor_secret
+ * @property string|null $two_factor_recovery_codes
+ * @property Carbon|null $two_factor_confirmed_at
+ * @property int|null $two_factor_last_step
  * @property int|null $institution_id
  * @property Institution|null $institution
  */
@@ -45,7 +49,7 @@ class User extends Authenticatable implements HasLocalePreference
     protected $fillable = ['name', 'email', 'password', 'language'];
 
     /** @var list<string> */
-    protected $hidden = ['password', 'two_factor_secret', 'two_factor_recovery_codes', 'two_factor_confirmed_at'];
+    protected $hidden = ['password', 'two_factor_secret', 'two_factor_recovery_codes', 'two_factor_confirmed_at', 'two_factor_last_step'];
 
     /** @return array<string, string> */
     protected function casts(): array
@@ -58,6 +62,7 @@ class User extends Authenticatable implements HasLocalePreference
             'two_factor_secret' => 'encrypted',
             'two_factor_recovery_codes' => 'encrypted',
             'two_factor_confirmed_at' => 'datetime',
+            'two_factor_last_step' => 'integer',
         ];
     }
 
@@ -74,6 +79,12 @@ class User extends Authenticatable implements HasLocalePreference
     public function allowsNoInstitution(): bool
     {
         return true;
+    }
+
+    /** Two-factor authentication is on once the person confirmed it; a started setup does not count. */
+    public function hasTwoFactorEnabled(): bool
+    {
+        return $this->two_factor_confirmed_at !== null;
     }
 
     public function hasVerifiedEmail(): bool

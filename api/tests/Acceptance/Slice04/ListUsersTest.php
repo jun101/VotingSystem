@@ -22,12 +22,12 @@ it('lists the users of the institution, owners first then by name, with the shap
         ->and($response->json('meta'))->toBe(['page' => 1, 'per_page' => 25, 'total' => 3])
         ->and(array_column($response->json('data'), 'name'))->toBe(['Alice Owner A', 'Aline Second A', 'Armand Manager A'])
         ->and(array_column($response->json('data'), 'role'))->toBe(['owner', 'owner', 'manager'])
-        ->and(array_keys($response->json('data.0')))->toEqualCanonicalizing(['id', 'name', 'email', 'role', 'email_verified', 'last_login_at', 'is_you'])
+        ->and(array_keys($response->json('data.0')))->toEqualCanonicalizing(['id', 'name', 'email', 'role', 'email_verified', 'last_login_at', 'two_factor_enabled', 'is_you'])
         ->and($response->json('data.0'))->toMatchArray(['id' => $t['a']['owner']['user'], 'email' => 'alice.a@example.test', 'email_verified' => true, 'is_you' => true])
         ->and($response->json('data.1.is_you'))->toBeFalse()
         ->and($response->json('data.0.id'))->toMatch(UUID_V4);
 
-    expect($response->getContent())->not->toContain('password')->not->toContain('institution_id')->not->toContain('two_factor');
+    expect($response->getContent())->not->toContain('password')->not->toContain('institution_id')->not->toContain('two_factor_secret')->not->toContain('two_factor_recovery')->not->toContain('two_factor_confirmed');
 });
 
 it('shows last_login_at in UTC and null before the first sign-in [FR-INST-03] (scenario 1)', function () {

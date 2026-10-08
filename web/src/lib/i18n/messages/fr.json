@@ -191,6 +191,18 @@
       "takenTitle": "Adresse déjà utilisée",
       "taken": "Cette adresse est déjà utilisée par un compte. Connectez-vous avec ce compte.",
       "signIn": "Aller à la connexion"
+    },
+    "challenge": {
+      "title": "Vérification en deux étapes",
+      "lede": "Saisissez le code à 6 chiffres affiché par votre application d’authentification.",
+      "code": "Code à 6 chiffres",
+      "recoveryLede": "Saisissez l’un de vos codes de récupération. Chaque code ne sert qu’une fois.",
+      "recoveryCode": "Code de récupération",
+      "useRecovery": "Utiliser un code de récupération",
+      "useCode": "Utiliser le code de l’application",
+      "submit": "Vérifier",
+      "cancel": "Annuler",
+      "expired": "Votre connexion a expiré, ou trop de codes erronés ont été saisis. Saisissez de nouveau votre mot de passe."
     }
   },
   "admin": {
@@ -205,7 +217,8 @@
       "elections": "Élections",
       "institution": "Établissement",
       "audit": "Journal d'audit",
-      "newElection": "Nouvelle élection"
+      "newElection": "Nouvelle élection",
+      "account": "Mon compte"
     },
     "menu": {
       "search": "Aller à…",
@@ -220,7 +233,8 @@
     },
     "user": {
       "menu": "Menu de {name}",
-      "signOut": "Se déconnecter"
+      "signOut": "Se déconnecter",
+      "account": "Mon compte"
     },
     "roles": {
       "owner": "Propriétaire",
@@ -299,7 +313,13 @@
     "file_too_large": "Ce fichier dépasse 5 Mo. Choisissez une image plus légère.",
     "file_type_not_allowed": "Ce fichier n’est pas une image JPEG, PNG ou WebP.",
     "last_owner": "Un établissement doit garder au moins un propriétaire. Invitez d’abord un autre propriétaire.",
-    "email_taken": "Cette adresse est déjà utilisée par un compte."
+    "email_taken": "Cette adresse est déjà utilisée par un compte.",
+    "two_factor_already_enabled": "La double authentification est déjà activée. Rechargez la page.",
+    "two_factor_not_started": "La configuration n’a pas été commencée. Recommencez avec « Activer ».",
+    "two_factor_not_enabled": "La double authentification n’est pas activée. Rechargez la page.",
+    "cannot_reset_self": "Pour votre propre compte, utilisez la page « Mon compte ».",
+    "too_many_attempts_wait_one": "Trop de tentatives. Réessayez dans 1 minute.",
+    "too_many_attempts_wait_many": "Trop de tentatives. Réessayez dans {minutes} minutes."
   },
   "validation": {
     "required": "Ce champ est obligatoire.",
@@ -376,6 +396,30 @@
         "dimensions": "Cette image est trop grande : 8 000 pixels au plus d’un côté, 40 millions de pixels au total.",
         "required": "Choisissez une image.",
         "invalid": "Ce fichier n’a pas pu être envoyé. Réessayez."
+      }
+    },
+    "challenge": {
+      "code": {
+        "required": "Saisissez le code à 6 chiffres.",
+        "invalid": "Ce code n’est pas bon ou a déjà servi. Attendez le code suivant, puis réessayez."
+      },
+      "recovery_code": {
+        "required": "Saisissez un code de récupération.",
+        "invalid": "Ce code de récupération n’est pas bon ou a déjà servi."
+      }
+    },
+    "twofactor": {
+      "password": {
+        "required": "Saisissez votre mot de passe.",
+        "incorrect": "Ce mot de passe n’est pas le bon."
+      },
+      "code": {
+        "required": "Saisissez le code à 6 chiffres.",
+        "invalid": "Ce code n’est pas bon ou a déjà servi. Attendez le code suivant, puis réessayez."
+      },
+      "recovery_code": {
+        "required": "Saisissez un code de récupération.",
+        "invalid": "Ce code de récupération n’est pas bon ou a déjà servi."
       }
     }
   },
@@ -454,7 +498,84 @@
         "close": "Fermer"
       },
       "managerNote": "Seul un propriétaire gère les utilisateurs et ce profil. Contactez un propriétaire pour toute modification.",
-      "managerNoteTitle": "Utilisateurs"
+      "managerNoteTitle": "Utilisateurs",
+      "twoFactorOn": "Double authentification activée",
+      "twoFactorOff": "Sans double authentification",
+      "resetTwoFactor": "Réinitialiser",
+      "resetTwoFactorLabel": "Réinitialiser la double authentification de {name}",
+      "resetTitle": "Réinitialiser la double authentification de {name} ?",
+      "resetText": "{name} pourra se connecter avec son mot de passe seul, puis la réactiver depuis « Mon compte ». À faire seulement si la personne a perdu son téléphone et ses codes de récupération.",
+      "resetPassword": "Votre mot de passe",
+      "resetPasswordHelp": "Saisissez votre propre mot de passe pour confirmer.",
+      "resetConfirm": "Réinitialiser",
+      "resetCancel": "Annuler",
+      "resetCode": "Votre code à 6 chiffres",
+      "resetCodeHelp": "Votre propre code de l’application d’authentification, pour confirmer.",
+      "resetRecoveryCode": "Votre code de récupération",
+      "resetRecoveryHelp": "Un de vos propres codes de récupération. Chaque code ne sert qu’une fois."
+    }
+  },
+  "account": {
+    "security": {
+      "title": "Sécurité",
+      "lede": "Ajoutez un code de votre téléphone à votre mot de passe pour mieux protéger votre compte.",
+      "label": "Double authentification",
+      "on": "Activée",
+      "off": "Désactivée",
+      "codesLeftOne": "{count} code de récupération restant",
+      "codesLeftMany": "{count} codes de récupération restants",
+      "enable": "Activer",
+      "disable": "Désactiver",
+      "renew": "Renouveler les codes"
+    },
+    "setup": {
+      "passwordTitle": "Confirmez votre mot de passe",
+      "passwordHelp": "Pour votre sécurité, saisissez de nouveau votre mot de passe.",
+      "password": "Mot de passe",
+      "continue": "Continuer",
+      "cancel": "Annuler",
+      "scanTitle": "Scannez le code QR",
+      "scanText": "Ouvrez votre application d’authentification, puis scannez ce code.",
+      "qrLabel": "Code QR de configuration. Scannez-le avec votre application d’authentification, ou saisissez la clé indiquée à côté.",
+      "manual": "Vous ne pouvez pas scanner ? Saisissez cette clé dans l’application :",
+      "code": "Code à 6 chiffres",
+      "codeHelp": "Saisissez le code que l’application affiche en ce moment.",
+      "confirm": "Confirmer"
+    },
+    "codes": {
+      "title": "Vos codes de récupération",
+      "lede": "Gardez-les en lieu sûr. Chaque code ne sert qu’une fois, pour vous connecter si vous perdez votre téléphone. Ils ne seront plus affichés.",
+      "warning": "Si vous quittez cette page avant de terminer, ces codes seront perdus. La double authentification est déjà active : vous pourrez en générer de nouveaux.",
+      "leave": "Ces codes ne seront plus affichés et seront perdus. Quitter cette page sans les avoir conservés ?",
+      "list": "Codes de récupération",
+      "copy": "Copier",
+      "copied": "Codes copiés.",
+      "copyFailed": "La copie n’a pas fonctionné. Utilisez le téléchargement.",
+      "download": "Télécharger",
+      "saved": "J’ai conservé ces codes",
+      "done": "Terminer"
+    },
+    "disable": {
+      "title": "Désactiver la double authentification ?",
+      "text": "Votre compte ne sera plus protégé que par votre mot de passe. Saisissez-le avec un code valide pour confirmer.",
+      "confirm": "Désactiver"
+    },
+    "renew": {
+      "title": "Renouveler les codes de récupération ?",
+      "text": "Les anciens codes cesseront de fonctionner. Saisissez votre mot de passe et un code valide pour confirmer.",
+      "confirm": "Renouveler"
+    },
+    "dialog": {
+      "password": "Mot de passe",
+      "cancel": "Annuler"
+    },
+    "secondFactor": {
+      "code": "Code à 6 chiffres",
+      "codeHelp": "Le code affiché par votre application d’authentification.",
+      "recoveryCode": "Code de récupération",
+      "recoveryHelp": "Un de vos codes de récupération. Chaque code ne sert qu’une fois.",
+      "useRecovery": "Utiliser un code de récupération",
+      "useCode": "Utiliser le code de l’application"
     }
   }
 }

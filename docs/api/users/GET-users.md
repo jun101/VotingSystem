@@ -43,6 +43,7 @@ ignored), then by email.
       "role": "owner",
       "email_verified": true,
       "last_login_at": "2026-10-07T14:03:00Z",
+      "two_factor_enabled": true,
       "is_you": true
     },
     {
@@ -52,6 +53,7 @@ ignored), then by email.
       "role": "manager",
       "email_verified": true,
       "last_login_at": null,
+      "two_factor_enabled": false,
       "is_you": false
     }
   ],
@@ -60,7 +62,7 @@ ignored), then by email.
 ```
 
 `role` is `owner` or `manager`. `last_login_at` is `null` before the first sign-in.
-`is_you` is true for the signed-in user. No numeric key, hash or secret appears.
+`two_factor_enabled` is true once the person has confirmed their second factor (slice 04b). `is_you` is true for the signed-in user. No numeric key, hash or secret appears.
 
 ### 403, 401, 422, 405
 
@@ -68,5 +70,5 @@ The shared error shape of [API conventions](../README.md), with the codes of the
 
 ## Notes
 
-The users table has no two-factor information on this screen yet: slice 04b adds
-`two_factor_enabled` to the resource.
+`two_factor_enabled` says nothing about the secret or the recovery codes, which never leave the
+server.

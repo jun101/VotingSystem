@@ -58,6 +58,7 @@ final class ApiErrorRenderer
         'unique' => 'taken',
         'in' => 'invalid',
         'string' => 'invalid',
+        'required_without' => 'required',
     ];
 
     /**

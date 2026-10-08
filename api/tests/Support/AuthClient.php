@@ -58,6 +58,14 @@ final class AuthClient
         return $this->cookies[$name] ?? null;
     }
 
+    /** Plants a cookie, as a browser that kept an old value (a session id copied earlier). */
+    public function setCookie(string $name, string $value): self
+    {
+        $this->cookies[$name] = $value;
+
+        return $this;
+    }
+
     /** Forgets every cookie, as a browser that was closed and cleaned. */
     public function forgetCookies(): void
     {

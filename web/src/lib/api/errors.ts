@@ -70,3 +70,20 @@ export function fieldText(field: string, code: string, find: FindMessage): strin
     code
   );
 }
+
+/**
+ * The text for an error that belongs to no field, where a 429 tells how long to wait: the
+ * `Retry-After` in minutes, rounded up. Any other error (or a 429 without the header) gives
+ * `errorText`.
+ */
+export function waitText(error: ApiError, find: FindMessage): string {
+  if (error.status !== 429 || error.retryAfter === null) return errorText(error, find);
+
+  const minutes = Math.max(1, Math.ceil(error.retryAfter / 60));
+  const text = find(
+    minutes === 1 ? 'errors.too_many_attempts_wait_one' : 'errors.too_many_attempts_wait_many',
+    { minutes },
+  );
+
+  return text ?? errorText(error, find);
+}

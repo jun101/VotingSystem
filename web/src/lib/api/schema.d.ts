@@ -178,7 +178,9 @@ export interface paths {
         /**
          * Sign in
          * @description Signs a user in with email and password. The session id is regenerated. A platform
-         *     admin signs in here too. Public. Limited to 10 requests per minute per IP address, and
+         *     admin signs in here too. A user with two-factor authentication is not signed in yet: the
+         *     answer is `{"data":{"two_factor_required":true}}` and the sign-in is finished by
+         *     `POST /auth/two-factor-challenge`. Public. Limited to 10 requests per minute per IP address, and
          *     5 failed attempts per minute for one email address from one IP address.
          */
         post: operations["auth.login"];
@@ -330,6 +332,149 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/auth/two-factor": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The state of the signed-in user's two-factor authentication
+         * @description `enabled`: confirmed and asked at sign-in. `setup_started`: a secret was issued and not
+         *     confirmed. `recovery_codes_left`: how many unused recovery codes remain, `null` when not
+         *     enabled. Neither the secret nor a code is returned. Signed-in user.
+         */
+        get: operations["twoFactor.show"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/two-factor/setup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start turning two-factor on
+         * @description Issues a new secret (a setup not yet confirmed is replaced) after the password is checked.
+         *     Not active until confirmed. The answer holds the secret and the `otpauth` link; the web
+         *     page draws the QR code in the browser. Signed-in user. Limited to 10 requests per minute
+         *     per user, shared with confirm, disable and recovery codes.
+         */
+        post: operations["twoFactor.setup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/two-factor/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Turn two-factor on
+         * @description Confirms the setup with a first code from the authenticator application (6 digits; the
+         *     previous and the next period are accepted; a period already used is not) and returns
+         *     the eight recovery codes, shown only here and in the renewal. Open sessions stay open. A
+         *     wrong code does not end the setup. Signed-in user. Limited to 10 requests per minute per
+         *     user, shared with setup, disable and recovery codes.
+         */
+        post: operations["twoFactor.confirm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/two-factor/disable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Turn two-factor off
+         * @description Clears the secret, the recovery codes, the confirmation time and the stored period after
+         *     the password and a current second factor (`code`, or `recovery_code`, checked first when
+         *     both are sent) are checked. A setup that was never confirmed counts as not turned on.
+         *     Signed-in user. Limited to 10 requests per minute per user, shared with setup, confirm and
+         *     recovery codes.
+         */
+        post: operations["twoFactor.disable"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/two-factor/recovery-codes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Renew the recovery codes
+         * @description Replaces the recovery codes with eight new ones after the password and a current second
+         *     factor (`code`, or `recovery_code`, checked first when both are sent) are checked; the old
+         *     ones stop working. Shown only here. Signed-in user. Limited to 10 requests per minute per
+         *     user, shared with setup, confirm and disable.
+         */
+        post: operations["twoFactor.recoveryCodes"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/two-factor-challenge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Finish signing in with a code
+         * @description The second step of signing in for a person who has two-factor authentication turned on:
+         *     one `code` from the authenticator application (6 digits; the previous and the next
+         *     30-second period are accepted, a period already used is not) or one `recovery_code`
+         *     (checked first when both are sent; used up by a success). It only ever finishes the
+         *     sign-in that the password step recorded in this browser's session, for five minutes;
+         *     five wrong codes end it. Five wrong codes in 15 minutes for one account, from any browser or
+         *     address, answer 429 even for a right code. The session id is regenerated. Public. Limited to 10 requests
+         *     per minute per IP address.
+         */
+        post: operations["auth.twoFactorChallenge"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/users": {
         parameters: {
             query?: never;
@@ -368,6 +513,32 @@ export interface paths {
          *     oneself also ends one's own session. Owner only.
          */
         delete: operations["user.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/users/{user}/two-factor/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Turn off another user's two-factor authentication
+         * @description For a person who has lost both their device and their recovery codes: the secret, the
+         *     recovery codes, the confirmation time and the stored period are cleared; their open
+         *     sessions stay open and their next sign-in asks for the password only. The owner's own
+         *     password is asked: a wrong one is a 422, and the fifth in 15 minutes ends the owner's
+         *     session (401). An owner who has two-factor on also gives a current `code` or `recovery_code`
+         *     (a wrong one is a 422, counted with the wrong codes at sign-in; the sixth is a 429). Not for oneself (the page "Mon compte" asks for the password). Owner only.
+         *     Limited to 10 requests per minute per user, shared with the own-settings routes.
+         */
+        post: operations["user.resetTwoFactor"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -432,6 +603,13 @@ export interface components {
             email: string;
             password: string;
         };
+        /**
+         * PasswordRequest
+         * @description The password of the signed-in user, asked again to change the second factor.
+         */
+        PasswordRequest: {
+            password: string;
+        };
         /** RegisterRequest */
         RegisterRequest: {
             institution_name: string;
@@ -446,6 +624,34 @@ export interface components {
         ResetPasswordRequest: {
             token: string;
             password: string;
+        };
+        /**
+         * ResetTwoFactorRequest
+         * @description The owner's password, and the owner's own second factor when the owner has two-factor on and
+         *     the user named is somebody else (a reset of oneself is refused with 409 after the password).
+         */
+        ResetTwoFactorRequest: {
+            password: string;
+        };
+        /**
+         * SecondFactorRequest
+         * @description The password and a current second factor (`code` or `recovery_code`), asked to turn
+         *     two-factor off and to renew the recovery codes. Only the presence of the second factor is
+         *     judged here: anything that is not a right value (a short code, a list, a long text) is answered
+         *     `invalid` by the action, and counted.
+         */
+        SecondFactorRequest: {
+            password: string;
+            code?: string;
+        };
+        /**
+         * TwoFactorCodeRequest
+         * @description The code of the authenticator application that confirms a setup. Only its presence is judged
+         *     here: anything that is not exactly 6 digits (a number, a list, a long text) is answered
+         *     `code: invalid` by the controller.
+         */
+        TwoFactorCodeRequest: {
+            code: string;
         };
         /**
          * UpdateInstitutionRequest
@@ -859,6 +1065,8 @@ export interface operations {
                                 /** @enum {string} */
                                 type: "school" | "university" | "association" | "other";
                             } | null;
+                        } | {
+                            two_factor_required: boolean;
                         };
                     };
                 };
@@ -1138,6 +1346,251 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
+    "twoFactor.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            enabled: boolean;
+                            setup_started: boolean;
+                            recovery_codes_left: number | null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "twoFactor.setup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasswordRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            secret: string;
+                            otpauth_url: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            /** @description An error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "twoFactor.confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TwoFactorCodeRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            recovery_codes: string[];
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            /** @description An error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "twoFactor.disable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["SecondFactorRequest"] & {
+                    recovery_code?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["AuthenticationException"];
+            /** @description An error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "twoFactor.recoveryCodes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["SecondFactorRequest"] & {
+                    recovery_code?: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            recovery_codes: string[];
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            /** @description An error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "auth.twoFactorChallenge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    code?: string;
+                    recovery_code?: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            name: string;
+                            email: string;
+                            /** @enum {string} */
+                            role: "owner" | "manager" | "platform_admin";
+                            email_verified: boolean;
+                            /** @enum {string} */
+                            language: "fr" | "en";
+                            institution: {
+                                id: string;
+                                name: string;
+                                /** @enum {string} */
+                                type: "school" | "university" | "association" | "other";
+                            } | null;
+                        };
+                    };
+                };
+            };
+        };
+    };
     "user.index": {
         parameters: {
             query?: {
@@ -1164,6 +1617,7 @@ export interface operations {
                             role: "owner" | "manager";
                             email_verified: boolean;
                             last_login_at: string | null;
+                            two_factor_enabled: boolean;
                             is_you: boolean;
                         }[];
                         meta: {
@@ -1199,6 +1653,52 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "user.resetTwoFactor": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The user UUID */
+                user: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ResetTwoFactorRequest"] & {
+                    code?: string;
+                    recovery_code?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            /** @description An error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
         };
     };
     "auth.verifyEmail": {

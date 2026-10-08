@@ -2,11 +2,12 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import type { FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Button, Input, Notice } from '@/components/ui';
 import { login } from '@/lib/api/browser';
 import { useI18n } from '@/lib/i18n/client';
 import { PasswordField } from './PasswordField';
+import { TwoFactorChallengeForm } from './TwoFactorChallengeForm';
 import { useAuthForm } from './useAuthForm';
 
 const FIELDS = ['email', 'password'] as const;
@@ -26,24 +27,67 @@ export function LoginForm({
 }) {
   const { t } = useI18n();
   const router = useRouter();
-  const { form, busy, fields, formError, run } = useAuthForm(FIELDS);
+  const { form, busy, fields, formError, run, idle } = useAuthForm(FIELDS);
+  // After the password, a person with two-factor authentication gets the code step on this same
+  // page. The password is not kept: only the address, to fill the field again if they cancel.
+  const [step, setStep] = useState<'password' | 'code'>('password');
+  const [ended, setEnded] = useState<'expired' | 'suspended' | null>(null);
+  const [email, setEmail] = useState('');
+  const passwordField = useRef<HTMLInputElement>(null);
+  // Goes up at each return from the code step (cancelled, expired or suspended).
+  const [returns, setReturns] = useState(0);
+
+  // Back on the password step: the email is already filled in, so the focus goes to the password.
+  useEffect(() => {
+    if (step === 'password' && returns > 0) passwordField.current?.focus();
+  }, [step, returns]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
+    const next = { needsCode: false };
 
-    const done = await run(() =>
-      login({
+    setEmail(String(data.get('email') ?? ''));
+
+    const done = await run(async () => {
+      const result = await login({
         email: String(data.get('email') ?? ''),
         password: String(data.get('password') ?? ''),
-      }),
-    );
+      });
 
-    if (done) {
-      // The page is rendered again, so <html lang> takes the language stored for this user.
-      router.push('/admin');
-      router.refresh();
+      next.needsCode = 'two_factor_required' in result;
+    });
+
+    if (!done) return;
+
+    if (next.needsCode) {
+      setEnded(null);
+      setStep('code');
+      idle();
+
+      return;
     }
+
+    // The page is rendered again, so <html lang> takes the language stored for this user.
+    router.push('/admin');
+    router.refresh();
+  }
+
+  if (step === 'code') {
+    return (
+      <TwoFactorChallengeForm
+        onCancel={() => {
+          setEnded(null);
+          setStep('password');
+          setReturns((count) => count + 1);
+        }}
+        onEnded={(reason) => {
+          setEnded(reason);
+          setStep('password');
+          setReturns((count) => count + 1);
+        }}
+      />
+    );
   }
 
   return (
@@ -66,7 +110,13 @@ export function LoginForm({
         </Notice>
       ) : null}
 
-      {suspended ? (
+      {ended === 'expired' ? (
+        <Notice tone="warm" role="status" data-testid="challenge-expired">
+          {t('auth.challenge.expired')}
+        </Notice>
+      ) : null}
+
+      {suspended || ended === 'suspended' ? (
         <Notice tone="warm" role="alert" data-testid="login-suspended">
           {t('auth.login.suspended')}
         </Notice>
@@ -87,6 +137,7 @@ export function LoginForm({
       <Input
         label={t('auth.login.email')}
         name="email"
+        defaultValue={email}
         type="email"
         autoComplete="email"
         autoCapitalize="none"
@@ -97,6 +148,7 @@ export function LoginForm({
         errorTestId="field-error-email"
       />
       <PasswordField
+        ref={passwordField}
         label={t('auth.login.password')}
         name="password"
         autoComplete="current-password"

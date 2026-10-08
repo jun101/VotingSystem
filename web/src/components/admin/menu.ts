@@ -48,8 +48,16 @@ export function entryOf(pathname: string): MenuEntry {
   return found ?? MENU_ENTRIES[0]!;
 }
 
-/** The title of the page of a path: the label of its entry, or the one of the new-election page. */
+/** "Mon compte": reached from the user menu, it is not an entry of the side menu. */
+export const ACCOUNT_PATH = '/admin/account';
+
+/**
+ * The title of the page of a path: the label of its entry, or the one of the new-election page
+ * or of the account page.
+ */
 export function titleKeyOf(pathname: string): MessageKey {
+  if (pathname === ACCOUNT_PATH) return 'admin.nav.account';
+
   return pathname === '/admin/elections/new' ? 'admin.nav.newElection' : entryOf(pathname).label;
 }
 

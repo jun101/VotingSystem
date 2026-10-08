@@ -255,3 +255,10 @@ Filled slice by slice: each slice adds its endpoints here with a link to their f
 | Users | `GET /invitations` | 04 | [users/GET-invitations.md](users/GET-invitations.md) |
 | Users | `POST /invitations` | 04 | [users/POST-invitations.md](users/POST-invitations.md) |
 | Users | `DELETE /invitations/{invitation}` | 04 | [users/DELETE-invitations-{invitation}.md](users/DELETE-invitations-{invitation}.md) |
+| Auth | `GET /auth/two-factor` | 04b | [auth/GET-auth-two-factor.md](auth/GET-auth-two-factor.md) |
+| Auth | `POST /auth/two-factor/setup` | 04b | [auth/POST-auth-two-factor-setup.md](auth/POST-auth-two-factor-setup.md) |
+| Auth | `POST /auth/two-factor/confirm` | 04b | [auth/POST-auth-two-factor-confirm.md](auth/POST-auth-two-factor-confirm.md) |
+| Auth | `POST /auth/two-factor/disable` | 04b | [auth/POST-auth-two-factor-disable.md](auth/POST-auth-two-factor-disable.md) |
+| Auth | `POST /auth/two-factor/recovery-codes` | 04b | [auth/POST-auth-two-factor-recovery-codes.md](auth/POST-auth-two-factor-recovery-codes.md) |
+| Auth | `POST /auth/two-factor-challenge` | 04b | [auth/POST-auth-two-factor-challenge.md](auth/POST-auth-two-factor-challenge.md) |
+| Users | `POST /users/{user}/two-factor/reset` | 04b | [users/POST-users-{user}-two-factor-reset.md](users/POST-users-{user}-two-factor-reset.md) |

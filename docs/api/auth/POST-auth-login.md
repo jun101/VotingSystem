@@ -33,12 +33,27 @@ Signs a user in with email and password.
 | 7 | CSRF token missing | 419 | `csrf_mismatch` | |
 | 8 | Too many requests or failed attempts | 429 | `too_many_attempts` | |
 | 9 | Another method than POST | 405 | `method_not_allowed` | |
+| 10 | Right email and password, the user has two-factor authentication turned on | 200 (`two_factor_required`) | | |
 
 ## Responses
 
 ### 200 — scenario 1
 
 The same body as [GET /auth/me](GET-auth-me.md). The session id is regenerated.
+
+### 200 — scenario 10
+
+The password is right but the person is **not signed in yet**: the answer holds no user.
+
+```json
+{ "data": { "two_factor_required": true } }
+```
+
+The session keeps a pending sign-in for five minutes (the user, the time, the number of wrong codes).
+The session id is regenerated at this step, and a user already signed in in this browser is signed out (the session is the pending sign-in of the new person, nothing more). Nothing else is granted: `GET /auth/me` still answers 401. The person finishes with
+[POST /auth/two-factor-challenge](POST-auth-two-factor-challenge.md). `last_login_at` is **not**
+set yet, and the session id is regenerated again at that second step. The suspended-institution check
+(scenario 6) happens here, before the challenge.
 
 ### 401 — scenarios 3 to 5
 
@@ -64,12 +79,17 @@ The shared shapes, with the codes of the table.
 ## Side effects
 
 `last_login_at` is set. A hash that needs a rehash (cost parameters changed) is rewritten.
-A failed attempt is counted by the limiter and writes nothing in the database.
+A failed attempt is counted by the limiter and writes nothing in the database. A wrong password also
+adds to the **account's password failures** (5 in 15 minutes, from any address, shared with the
+two-factor settings routes of slice 04b): that counter never refuses a sign-in, but while it is at 5 or more
+those routes answer 429, so a stolen session cannot use them while someone is guessing the password. A
+successful sign-in does not clear it.
 
 ## Notes
 
 A platform admin signs in here too; their `institution` is `null`.
-Two-factor authentication is added in slice 04.
+Two-factor authentication is added in slice 04b (scenario 10): a person with it turned on never
+receives a session from this endpoint, only from the challenge.
 
 When the hashing cost parameters are raised, the first sign-in of a user rewrites their hash;
 the user's other sessions then end (they carry a hash of the old password hash), and the person
