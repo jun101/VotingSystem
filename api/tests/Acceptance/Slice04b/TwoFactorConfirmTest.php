@@ -86,6 +86,9 @@ it('answers 422 for a wrong code or one that is not 6 digits, and the person can
         'short' => '12345',
         'letters' => 'abcdef',
         'old period' => Totp::code($secret, Totp::step() - 3),
+        'very long' => str_repeat('1', 5000),
+        'a number' => 123456,
+        'a list' => ['123456'],
     };
 
     $response = $this->browser->post(TF_CONFIRM, ['code' => $code]);
@@ -96,7 +99,7 @@ it('answers 422 for a wrong code or one that is not 6 digits, and the person can
 
     // The setup is still there.
     $this->browser->post(TF_CONFIRM, ['code' => Totp::code($secret)])->assertOk();
-})->with(['wrong', 'short', 'letters', 'old period']);
+})->with(['wrong', 'short', 'letters', 'old period', 'very long', 'a number', 'a list']);
 
 it('answers 409 when no setup was started [FR-INST-04] (scenario 4)', function () {
     $user = Accounts::user();

@@ -261,4 +261,4 @@ Filled slice by slice: each slice adds its endpoints here with a link to their f
 | Auth | `POST /auth/two-factor/disable` | 04b | [auth/POST-auth-two-factor-disable.md](auth/POST-auth-two-factor-disable.md) |
 | Auth | `POST /auth/two-factor/recovery-codes` | 04b | [auth/POST-auth-two-factor-recovery-codes.md](auth/POST-auth-two-factor-recovery-codes.md) |
 | Auth | `POST /auth/two-factor-challenge` | 04b | [auth/POST-auth-two-factor-challenge.md](auth/POST-auth-two-factor-challenge.md) |
-| Users | `DELETE /users/{user}/two-factor` | 04b | [users/DELETE-users-{user}-two-factor.md](users/DELETE-users-{user}-two-factor.md) |
+| Users | `POST /users/{user}/two-factor/reset` | 04b | [users/POST-users-{user}-two-factor-reset.md](users/POST-users-{user}-two-factor-reset.md) |

@@ -50,9 +50,9 @@ The password is right but the person is **not signed in yet**: the answer holds 
 ```
 
 The session keeps a pending sign-in for five minutes (the user, the time, the number of wrong codes).
-Nothing else is granted: `GET /auth/me` still answers 401. The person finishes with
+The session id is regenerated at this step, and a user already signed in in this browser is signed out (the session is the pending sign-in of the new person, nothing more). Nothing else is granted: `GET /auth/me` still answers 401. The person finishes with
 [POST /auth/two-factor-challenge](POST-auth-two-factor-challenge.md). `last_login_at` is **not**
-set yet, and the session id is regenerated at that second step. The suspended-institution check
+set yet, and the session id is regenerated again at that second step. The suspended-institution check
 (scenario 6) happens here, before the challenge.
 
 ### 401 — scenarios 3 to 5

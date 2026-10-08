@@ -91,3 +91,26 @@ it('writes nothing to the log but the outcome, never a code or an address [FR-IN
         expect(file_get_contents($log))->not->toContain('quiet.owner@example.test');
     }
 });
+
+it('regenerates the session id at the first step [NFR-SEC-04] (scenario 10)', function () {
+    $user = Accounts::user();
+    TwoFactor::enable($this, $user);
+    $this->browser->csrf();
+    $before = $this->browser->cookie(config('session.cookie'));
+
+    $this->browser->login($user['email'], $user['password'])->assertOk()->assertJsonPath('data.two_factor_required', true);
+
+    expect($this->browser->cookie(config('session.cookie')))->not->toBe($before);
+});
+
+it('signs out a user already signed in in this browser: only the pending sign-in remains [FR-INST-04] (scenario 10)', function () {
+    $a = Accounts::user();
+    $b = Accounts::user();
+    TwoFactor::enable($this, $b);
+    $this->browser->login($a['email'], $a['password'])->assertOk();
+    $this->browser->get('/api/v1/auth/me')->assertOk()->assertJsonPath('data.id', $a['user']);
+
+    $this->browser->login($b['email'], $b['password'])->assertOk()->assertJsonPath('data.two_factor_required', true);
+
+    $this->browser->get('/api/v1/auth/me')->assertStatus(401);
+});

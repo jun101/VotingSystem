@@ -109,10 +109,23 @@ it('answers 429 above 10 requests a minute from one user [NFR-SEC-05] (scenario 
 
     // Turning two-factor on took two of the ten requests of the minute (setup and confirm).
     foreach (range(1, 8) as $i) {
-        $this->browser->post(TF_CODES, ['password' => 'not the password at all'])->assertStatus(422);
+        $this->browser->post(TF_CODES, ['password' => $user['password']])->assertOk();
     }
 
     $this->browser->post(TF_CODES, ['password' => $user['password']])->assertStatus(429)->assertJsonPath('error.code', 'too_many_attempts');
+});
+
+it('ends the session at the 5th wrong password in 15 minutes and keeps the codes [NFR-SEC-01, NFR-SEC-05] (scenario 3b)', function () {
+    [$user, $two] = codesSignedIn($this);
+    $before = TwoFactor::storedRecoveryHashes($user['user']);
+
+    foreach (range(1, 4) as $i) {
+        $this->browser->post(TF_CODES, ['password' => 'not the password at all'])->assertStatus(422);
+    }
+
+    $this->browser->post(TF_CODES, ['password' => 'not the password at all'])->assertStatus(401)->assertJsonPath('error.code', 'unauthenticated');
+    $this->browser->get('/api/v1/auth/me')->assertStatus(401);
+    expect(TwoFactor::storedRecoveryHashes($user['user']))->toBe($before);
 });
 
 it('answers 405 to another method than POST [NFR-SEC-01] (scenario 10)', function (string $method) {

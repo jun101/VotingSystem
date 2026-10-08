@@ -77,7 +77,7 @@ final class Tenancy
         'GET api/v1/invitations' => 'Slice04/ListInvitationsTest.php',
         'POST api/v1/invitations' => 'Slice04/CreateInvitationTest.php',
         'DELETE api/v1/invitations/{invitation}' => 'Slice04/CancelInvitationTest.php',
-        'DELETE api/v1/users/{user}/two-factor' => 'Slice04b/ResetUserTwoFactorTest.php',
+        'POST api/v1/users/{user}/two-factor/reset' => 'Slice04b/ResetUserTwoFactorTest.php',
     ];
 
     /**

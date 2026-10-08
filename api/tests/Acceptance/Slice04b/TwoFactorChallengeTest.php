@@ -98,6 +98,7 @@ it('answers 422 for a wrong code, one that is not 6 digits, or an already used p
         'letters' => 'abcdef',
         'old period' => Totp::code($two['secret'], Totp::step() - 3),
         'next but one' => Totp::code($two['secret'], Totp::step() + 3),
+        'very long' => str_repeat('1', 5000),
     };
 
     $response = $this->browser->post(CHALLENGE, ['code' => $code]);
@@ -105,7 +106,7 @@ it('answers 422 for a wrong code, one that is not 6 digits, or an already used p
     $response->assertStatus(422)->assertJsonPath('error.code', 'validation_failed');
     expect($response->json('error.fields.code'))->toContain('invalid');
     $this->browser->get('/api/v1/auth/me')->assertStatus(401);
-})->with(['wrong', 'short', 'long', 'letters', 'old period', 'next but one']);
+})->with(['wrong', 'short', 'long', 'letters', 'old period', 'next but one', 'very long']);
 
 it('refuses a code that was already used, even in the same period [FR-INST-04, NFR-SEC-01] (scenario 4)', function () {
     [$user, $two] = challengeSetUp($this);
@@ -157,10 +158,6 @@ it('ends the pending sign-in at the fifth wrong code, even for a right one after
 
     $this->browser->post(CHALLENGE, ['code' => Totp::code($two['secret'])])->assertStatus(401)->assertJsonPath('error.code', 'unauthenticated');
     $this->browser->get('/api/v1/auth/me')->assertStatus(401);
-
-    // Starting again with the password works.
-    $again = TwoFactor::pending($this, $user, new AuthClient($this));
-    $again->post(CHALLENGE, ['code' => Totp::code($two['secret'])])->assertOk();
 });
 
 it('counts a wrong recovery code like a wrong code [FR-INST-04] (scenario 6)', function () {
@@ -239,4 +236,81 @@ it('does not log a code, a recovery code or the address [FR-INST-04, NFR-SEC-05]
         $content = file_get_contents($log);
         expect($content)->not->toContain('challenge.quiet@example.test')->not->toContain($two['codes'][0])->not->toContain($two['secret']);
     }
+});
+
+it('stops guesses for the whole account after 5 wrong codes in 15 minutes, from any session or address [FR-INST-04, NFR-SEC-05] (scenario 10)', function () {
+    $user = Accounts::user();
+    $two = TwoFactor::enable($this, $user);
+
+    $first = TwoFactor::pending($this, $user, (new AuthClient($this))->fromAddress('10.0.0.1'));
+    foreach (range(1, 5) as $i) {
+        $first->post(CHALLENGE, ['code' => Totp::wrongCode($two['secret'])])->assertStatus(422);
+    }
+
+    // Another browser, another address, a fresh pending sign-in with the right password: still stopped.
+    $second = TwoFactor::pending($this, $user, (new AuthClient($this))->fromAddress('10.0.0.2'));
+    $response = $second->post(CHALLENGE, ['code' => Totp::code($two['secret'])]);
+    $response->assertStatus(429)->assertJsonPath('error.code', 'too_many_attempts');
+    expect((int) $response->headers->get('Retry-After'))->toBeGreaterThan(0);
+    $second->get('/api/v1/auth/me')->assertStatus(401);
+
+    // Recovery codes are stopped as well, and so is a wrong code.
+    $second->post(CHALLENGE, ['recovery_code' => $two['codes'][0]])->assertStatus(429);
+
+    // After the window the person gets in again.
+    $this->travel(16)->minutes();
+    $third = TwoFactor::pending($this, $user, (new AuthClient($this))->fromAddress('10.0.0.3'));
+    $third->post(CHALLENGE, ['recovery_code' => $two['codes'][0]])->assertOk();
+});
+
+it('does not reset the count when the password is typed again in the same session [FR-INST-04, NFR-SEC-05] (scenario 10)', function () {
+    [$user, $two] = challengeSetUp($this);
+
+    foreach (range(1, 4) as $i) {
+        $this->browser->post(CHALLENGE, ['code' => Totp::wrongCode($two['secret'])])->assertStatus(422);
+    }
+    TwoFactor::pending($this, $user, $this->browser);   // the password again, same browser and session
+    $this->browser->post(CHALLENGE, ['code' => Totp::wrongCode($two['secret'])])->assertStatus(422);   // the fifth
+
+    $this->browser->post(CHALLENGE, ['code' => Totp::code($two['secret'])])->assertStatus(429);
+});
+
+it('does not count a request with no field, and a success clears the count [FR-INST-04] (scenario 10)', function () {
+    [$user, $two] = challengeSetUp($this);
+
+    foreach (range(1, 4) as $i) {
+        $this->browser->post(CHALLENGE, ['code' => Totp::wrongCode($two['secret'])])->assertStatus(422);
+    }
+    $this->browser->post(CHALLENGE, [])->assertStatus(422);
+    $this->browser->post(CHALLENGE, ['code' => Totp::code($two['secret'])])->assertOk();
+
+    // The count was cleared by the success: four more wrong codes are still answered 422.
+    $again = TwoFactor::pending($this, $user, new AuthClient($this));
+    foreach (range(1, 4) as $i) {
+        $again->post(CHALLENGE, ['code' => Totp::wrongCode($two['secret'])])->assertStatus(422);
+    }
+});
+
+it('answers 401 when the password changed since the first step [FR-INST-04, NFR-SEC-01] (scenario 12)', function () {
+    [$user, $two] = challengeSetUp($this);
+    Illuminate\Support\Facades\DB::connection(useMigratorConnection())->table('users')->where('uuid', $user['user'])
+        ->update(['password' => Illuminate\Support\Facades\Hash::make('a brand new password, reset by the owner')]);
+
+    $this->browser->post(CHALLENGE, ['code' => Totp::code($two['secret'])])->assertStatus(401)->assertJsonPath('error.code', 'unauthenticated');
+    $this->browser->get('/api/v1/auth/me')->assertStatus(401);
+});
+
+it('clears the failed-password count at a success, as a sign-in without two-factor does [FR-INST-04, NFR-SEC-05]', function () {
+    $user = Accounts::user();
+    $two = TwoFactor::enable($this, $user);
+    foreach (range(1, 4) as $i) {
+        $this->browser->login($user['email'], 'not the password at all')->assertStatus(401);
+    }
+    TwoFactor::pending($this, $user, $this->browser);
+    $this->browser->post(CHALLENGE, ['code' => Totp::code($two['secret'])])->assertOk();
+
+    // Without the clearing, the second typo here would answer 429.
+    $other = new AuthClient($this);
+    $other->login($user['email'], 'not the password at all')->assertStatus(401);
+    $other->login($user['email'], 'not the password at all')->assertStatus(401);
 });

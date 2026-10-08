@@ -22,6 +22,7 @@ Turns the signed-in user's own two-factor authentication off.
 | 1 | Right password, two-factor is turned on | 204 | | |
 | 2 | `password` missing | 422 | `validation_failed` (`password: required`) | |
 | 3 | `password` wrong | 422 | `validation_failed` (`password: incorrect`) | |
+| 3b | The 5th wrong password in 15 minutes for this user (across these routes and the owner reset) | 401 | `unauthenticated` (the session ends) | |
 | 4 | Two-factor is not turned on (a setup that was never confirmed counts as not turned on) | 409 | `two_factor_not_enabled` | |
 | 5 | Not signed in, or the session has expired | 401 | `unauthenticated` | |
 | 6 | The user's institution was suspended since sign-in | 403 | `institution_suspended` | |
@@ -46,3 +47,7 @@ the next sign-in asks for the password only.
 ### 422, 401, 403, 419, 400, 429, 405
 
 The shared error shape of [API conventions](../README.md), with the codes of the table.
+
+## Notes
+
+Wrong passwords count for the 5-in-15-minutes failures of the user: the fifth ends the session with a 401 (scenario 3b). Same rule as [setup](POST-auth-two-factor-setup.md).

@@ -187,6 +187,8 @@ test.describe('signing in', () => {
 
     await expect(page.getByTestId('login-form')).toBeVisible();
     await expect(page.getByTestId('challenge-form')).toHaveCount(0);
+    // The focus lands on the password field (the email is already filled), not on the page body.
+    await expect(page.getByTestId('login-password')).toBeFocused();
   });
 });
 
@@ -274,8 +276,20 @@ test.describe('an owner and the users', () => {
     await expect(page.locator('[data-testid^="user-two-factor-"][data-enabled="true"]')).toHaveCount(1);
 
     await page.getByTestId(/^user-reset-two-factor-\d+$/).click();
+    // The owner's own password is asked: a wrong one is refused under the field and nothing changes.
+    await page.getByTestId('user-reset-password').fill('pas le bon mot de passe');
+    await page.getByTestId('user-reset-confirm').click();
+    await expect(page.getByTestId('user-reset-password-error')).toBeVisible();
+    await expect(page.getByTestId('user-reset-password-error')).not.toContainText('incorrect');
+    await expect(page.locator('[data-testid^="user-two-factor-"][data-enabled="true"]')).toHaveCount(1);
+
+    await page.getByTestId('user-reset-password').fill(PASSWORD);
     await page.getByTestId('user-reset-confirm').click();
     await expect(page.locator('[data-testid^="user-two-factor-"][data-enabled="true"]')).toHaveCount(0);
+    // The keyboard focus is not lost to the page body when the dialog closes and the button is gone.
+    await expect
+      .poll(() => page.evaluate(() => document.activeElement !== document.body && document.activeElement !== null))
+      .toBe(true);
 
     // The manager signs in with the password only.
     await manager.getByTestId('user-menu').click();

@@ -112,17 +112,36 @@ it('answers 400 when the body is not valid JSON [NFR-SEC-01] (scenario 9)', func
     $this->browser->postRaw(TF_SETUP, '{"password": "x"')->assertStatus(400)->assertJsonPath('error.code', 'malformed_request');
 });
 
-it('answers 429 above 10 requests a minute from one user, wrong passwords included [NFR-SEC-05] (scenario 10)', function () {
-    setupSignedIn($this);
+it('answers 429 above 10 requests a minute from one user [NFR-SEC-05] (scenario 10)', function () {
+    $user = setupSignedIn($this);
 
     foreach (range(1, 10) as $i) {
+        $this->browser->post(TF_SETUP, ['password' => $user['password']])->assertOk();
+    }
+
+    $response = $this->browser->post(TF_SETUP, ['password' => $user['password']]);
+
+    $response->assertStatus(429)->assertJsonPath('error.code', 'too_many_attempts');
+    expect((int) $response->headers->get('Retry-After'))->toBeGreaterThan(0);
+});
+
+it('ends the session at the 5th wrong password in 15 minutes, and a right password clears the count [NFR-SEC-01, NFR-SEC-05] (scenario 4b)', function () {
+    $user = setupSignedIn($this);
+
+    foreach (range(1, 4) as $i) {
+        $this->browser->post(TF_SETUP, ['password' => 'not the password at all'])->assertStatus(422);
+    }
+    // A right password clears the count: four more wrong ones are answered 422 again.
+    $this->browser->post(TF_SETUP, ['password' => $user['password']])->assertOk();
+    foreach (range(1, 4) as $i) {
         $this->browser->post(TF_SETUP, ['password' => 'not the password at all'])->assertStatus(422);
     }
 
     $response = $this->browser->post(TF_SETUP, ['password' => 'not the password at all']);
 
-    $response->assertStatus(429)->assertJsonPath('error.code', 'too_many_attempts');
-    expect((int) $response->headers->get('Retry-After'))->toBeGreaterThan(0);
+    $response->assertStatus(401)->assertJsonPath('error.code', 'unauthenticated');
+    $this->browser->get('/api/v1/auth/me')->assertStatus(401);
+    expect(TwoFactor::row($user['user'])['two_factor_confirmed_at'])->toBeNull();
 });
 
 it('answers 405 to another method than POST [NFR-SEC-01] (scenario 11)', function (string $method) {

@@ -39,7 +39,7 @@ route joins the isolation suite), NFR-UX-03 (accessibility).
 | `POST /auth/two-factor/confirm` | [auth/](../api/auth/POST-auth-two-factor-confirm.md) |
 | `POST /auth/two-factor/disable` | [auth/](../api/auth/POST-auth-two-factor-disable.md) |
 | `POST /auth/two-factor/recovery-codes` | [auth/](../api/auth/POST-auth-two-factor-recovery-codes.md) |
-| `DELETE /users/{user}/two-factor` (owner) | [users/](../api/users/DELETE-users-{user}-two-factor.md) |
+| `POST /users/{user}/two-factor/reset` (owner, with the owner's password) | [users/](../api/users/POST-users-{user}-two-factor-reset.md) |
 | `GET /users` gains `two_factor_enabled` | [users/GET-users.md](../api/users/GET-users.md) |
 
 `GET /auth/me`, the login, register, accept and `PATCH /auth/me` bodies do **not** change: the
@@ -57,10 +57,10 @@ route joins the isolation suite), NFR-UX-03 (accessibility).
 | Pending sign-in | `POST /auth/login` for a user with `two_factor_confirmed_at` set checks everything it does today (password, suspension, throttling counters) and then stores in the session **only** the user's key, the time and a counter of wrong codes, answers scenario 10, and does **not** sign in, set `last_login_at`, or clear the failure counter. It expires after 5 minutes. The challenge reads that, never a request value; a request body cannot name a user |
 | Challenge | Checks the pending sign-in (401 if missing, expired or ended), re-checks that the institution is not suspended (403), verifies `recovery_code` if present, else `code`; a wrong one counts, the fifth ends the pending sign-in; on success logs the user in, regenerates the session id and the CSRF token, removes the pending state, sets `last_login_at`, answers the `UserResource`. Limiters: `auth-two-factor-challenge` 10 per minute per IP, multiplied by `AUTH_RATE_LIMIT_FACTOR` like the others |
 | Own settings | `setup`, `confirm`, `disable`, `recovery-codes`: group `cookie-session`, `auth`, `institution.active`, one shared limiter `two-factor` 10 per minute per user (multiplied by the factor). The password is checked with the same hash check as sign-in (a rehash if needed is not done here). A wrong password is a 422 `password: incorrect`, never a 401 (the person is signed in) |
-| Owner reset | `DELETE /users/{user}/two-factor`: the `owner` middleware and binding of slice 04 (404 before 403); the 409 for oneself comes before the 409 for "not enabled" |
+| Owner reset | `POST /users/{user}/two-factor/reset` with the owner's `password`: the `owner` middleware and binding of slice 04 (404 before 403), then the password (422), then the 409 for oneself, then the 409 for "not enabled" |
 | Operator command | `php artisan auth:reset-two-factor {email}`: clears the second factor of the user with that email. Exit 0 and a line naming the user's uuid, never the email; exit 1 and a neutral line when there is no such user or none is enabled. It writes one log line (`two_factor.operator_reset`, the user's uuid, the outcome); no address in it. The only path outside the web application for a locked-out last owner |
 | Users resource | `TeamMemberResource` gains `two_factor_enabled` (true when `two_factor_confirmed_at` is set) |
-| Tenant suite | `api/tests/Support/Tenancy.php` lists the new routes: the own-settings routes in `OWN_USER_ROUTES`, the challenge in `PUBLIC_ROUTES`, `DELETE /users/{user}/two-factor` in `TENANT_ROUTES` |
+| Tenant suite | `api/tests/Support/Tenancy.php` lists the new routes: the own-settings routes in `OWN_USER_ROUTES`, the challenge in `PUBLIC_ROUTES`, `POST /users/{user}/two-factor/reset` in `TENANT_ROUTES` |
 | Logs | Never a code, a secret, a recovery code, a password or an address; the request id and the outcome only |
 | Generated files | `docs/api/openapi.json` and `schema.d.ts` regenerated, never by hand |
 
@@ -73,7 +73,7 @@ route joins the isolation suite), NFR-UX-03 (accessibility).
 | Page `/admin/account` | In the admin shell, title "Mon compte" / "My account". A **Sécurité** card: the state pill ("Activée" / "Désactivée"), the number of recovery codes left, and the actions. Cards, no table. No "change my name or password" yet (out of scope) |
 | Set up | "Activer" asks for the password; then a card shows the **QR code** (drawn in the browser from the `otpauth` link with a small library; the link or the secret never goes to any other service) and the secret in groups of four for manual entry, a field for the first code, and "Confirmer". Then the **recovery codes** are shown once: a list, "Copier", "Télécharger" (a text file named `codes-de-recuperation.txt`, no address or institution name in it), and a checkbox "J'ai conservé ces codes" that enables "Terminer". Leaving the page before finishing says the codes are lost (the setup is already active; they can be renewed) |
 | Disable, renew | "Désactiver" and "Renouveler les codes" each open a dialog with the password (`ConfirmDialog` of slice 04: focus trap, Escape, focus returned). The renewed codes show in the same list as above |
-| Users card | Each user card shows a chip "Double authentification activée" / "Sans double authentification" (the mockup); for an owner looking at another user whose second factor is on, a "Réinitialiser" action with a confirmation naming the person, which calls the reset |
+| Users card | Each user card shows a chip "Double authentification activée" / "Sans double authentification" (the mockup); for an owner looking at another user whose second factor is on, a "Réinitialiser" action with a confirmation naming the person and asking the owner's own password, which calls the reset |
 | Messages | Every text in the French and English files, none in a component |
 | Motion and tokens | Reveal kit of slice 01b, off under reduced motion; tokens only |
 | Accessibility | Labels and `aria-describedby`; the QR code has a text alternative (the secret is next to it); focus moves to the first error after a failed step and to the recovery list after confirming; usable from 320 px by keyboard alone |
@@ -88,7 +88,7 @@ route joins the isolation suite), NFR-UX-03 (accessibility).
 | Set up | `two-factor-setup-open`, `two-factor-password`, `two-factor-password-error`, `two-factor-setup-submit`, `two-factor-qr` (an `svg` or `img` with a text alternative), `two-factor-secret` (the secret in groups of four), `two-factor-code`, `two-factor-code-error`, `two-factor-confirm`, `two-factor-error` |
 | Recovery codes | `recovery-codes` (the list), `recovery-code-<n>` (n from 1), `recovery-copy`, `recovery-download`, `recovery-saved` (the checkbox), `recovery-done` |
 | Disable, renew | `two-factor-disable-open`, `two-factor-disable-dialog`, `two-factor-disable-confirm`, `two-factor-disable-cancel`, `two-factor-codes-open`, `two-factor-codes-dialog`, `two-factor-codes-confirm`, `two-factor-codes-cancel` (the dialogs use `two-factor-password` and `two-factor-password-error` too) |
-| Users card | `user-two-factor-<n>` (the chip, `data-enabled` = `true`/`false`), `user-reset-two-factor-<n>`, `user-reset-dialog`, `user-reset-confirm`, `user-reset-cancel`, `user-reset-error` |
+| Users card | `user-two-factor-<n>` (the chip, `data-enabled` = `true`/`false`), `user-reset-two-factor-<n>`, `user-reset-dialog`, `user-reset-password`, `user-reset-password-error`, `user-reset-confirm`, `user-reset-cancel`, `user-reset-error` |
 
 Words checked by tests, French first: the pill "Activée" / "On" and "Désactivée" / "Off"; the chip
 "Double authentification activée" / "Two-factor on" and "Sans double authentification" / "No
@@ -107,7 +107,7 @@ two-factor".
    once; renewing kills the old ones; no code, secret or hash in any answer, log or mail.
 5. **Re-authentication:** setup, disable and renewal refuse a wrong password with 422; a stolen open
    session without the password cannot change the second factor.
-6. **Isolation:** `DELETE /users/{user}/two-factor` answers 404 for another institution's user, the
+6. **Isolation:** `POST /users/{user}/two-factor/reset` answers 404 for another institution's user, the
    same as an unknown one, and 403 for a manager.
 7. **Operator command:** resets a live user, writes a log line without the address, exits 1 for an
    unknown or not-enabled user.
@@ -163,3 +163,10 @@ Proposed here, for Jun to veto at the checkpoint: eight recovery codes of ten ch
 codes end the pending sign-in; the pending sign-in lasts five minutes; open sessions stay open when the
 second factor changes; the platform admin can use two-factor too; a person cannot reset their own
 through the owner endpoint.
+
+Changed after the review of 2026-10-08, confirmed by Jun: 5 wrong codes per 15 minutes per account (cache, by
+user; the sixth is 429 even for a right code); 5 wrong passwords in 15 minutes on the settings routes and the
+owner reset end the session (401); the owner's reset asks the owner's password and is a POST (the DELETE with a
+body is gone); the pending sign-in records a hash of the password hash and the session id is regenerated at the
+first step; the challenge refuses a value over 32 characters; two confirmations at once cannot return two sets
+of recovery codes.

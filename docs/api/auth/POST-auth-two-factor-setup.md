@@ -28,6 +28,7 @@ is not active until [confirmed](POST-auth-two-factor-confirm.md).
 | 2 | A setup was already started and not confirmed | 200 (a new secret replaces the old) | | |
 | 3 | `password` missing | 422 | `validation_failed` (`password: required`) | |
 | 4 | `password` wrong | 422 | `validation_failed` (`password: incorrect`) | |
+| 3b | The 5th wrong password in 15 minutes for this user (across these routes and the owner reset) | 401 | `unauthenticated` (the session ends) | |
 | 5 | Two-factor is already turned on | 409 | `two_factor_already_enabled` | |
 | 6 | Not signed in, or the session has expired | 401 | `unauthenticated` | |
 | 7 | The user's institution was suspended since sign-in | 403 | `institution_suspended` | |

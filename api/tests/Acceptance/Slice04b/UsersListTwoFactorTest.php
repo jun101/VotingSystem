@@ -32,7 +32,7 @@ it('shows it off again after the owner reset it [FR-INST-04] (GET /users)', func
     $t = Team::two();
     TwoFactor::enable($this, $t['a']['manager']);
     Team::signIn($this, $t['a']['owner']);
-    $this->browser->delete("/api/v1/users/{$t['a']['manager']['user']}/two-factor")->assertNoContent();
+    $this->browser->post("/api/v1/users/{$t['a']['manager']['user']}/two-factor/reset", ['password' => $t['a']['owner']['password']])->assertNoContent();
 
     $users = $this->browser->get('/api/v1/users')->assertOk()->json('data');
 

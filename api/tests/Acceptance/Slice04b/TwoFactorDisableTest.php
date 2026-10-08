@@ -97,12 +97,24 @@ it('answers 400 when the body is not valid JSON [NFR-SEC-01] (scenario 8)', func
 it('answers 429 above 10 requests a minute from one user [NFR-SEC-05] (scenario 9)', function () {
     [$user, $two] = disableSignedIn($this);
 
-    // Turning two-factor on took two of the ten requests of the minute (setup and confirm).
+    // Turning two-factor on took two of the ten requests of the minute (setup and confirm). The first
+    // disable succeeds; the others find it off (409), and still count.
     foreach (range(1, 8) as $i) {
-        $this->browser->post(TF_DISABLE, ['password' => 'not the password at all'])->assertStatus(422);
+        expect($this->browser->post(TF_DISABLE, ['password' => $user['password']])->getStatusCode())->not->toBe(429);
     }
 
     $this->browser->post(TF_DISABLE, ['password' => $user['password']])->assertStatus(429)->assertJsonPath('error.code', 'too_many_attempts');
+});
+
+it('ends the session at the 5th wrong password in 15 minutes and keeps two-factor on [NFR-SEC-01, NFR-SEC-05] (scenario 3b)', function () {
+    [$user, $two] = disableSignedIn($this);
+
+    foreach (range(1, 4) as $i) {
+        $this->browser->post(TF_DISABLE, ['password' => 'not the password at all'])->assertStatus(422);
+    }
+
+    $this->browser->post(TF_DISABLE, ['password' => 'not the password at all'])->assertStatus(401)->assertJsonPath('error.code', 'unauthenticated');
+    $this->browser->get('/api/v1/auth/me')->assertStatus(401);
     expect(TwoFactor::row($user['user'])['two_factor_confirmed_at'])->not->toBeNull();
 });
 
