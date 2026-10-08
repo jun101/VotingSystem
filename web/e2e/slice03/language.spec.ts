@@ -71,7 +71,10 @@ test.describe('registered in French', () => {
       await page.goto(path);
       await expect(page.locator('html')).toHaveAttribute('lang', 'en');
       await expect(page.getByTestId('top-bar-title')).toHaveText(title);
-      await expect(page.getByTestId('coming-soon')).not.toContainText('disponible');
+      // The institution page is built in slice 04 and has no "not available yet" notice.
+      if (path !== '/admin/institution') {
+        await expect(page.getByTestId('coming-soon')).not.toContainText('disponible');
+      }
     }
   });
 
