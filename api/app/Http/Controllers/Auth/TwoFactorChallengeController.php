@@ -18,7 +18,8 @@ class TwoFactorChallengeController extends Controller
      * 30-second period are accepted, a period already used is not) or one `recovery_code`
      * (checked first when both are sent; used up by a success). It only ever finishes the
      * sign-in that the password step recorded in this browser's session, for five minutes;
-     * five wrong codes end it. The session id is regenerated. Public. Limited to 10 requests
+     * five wrong codes end it. Five wrong codes in 15 minutes for one account, from any browser or
+     * address, answer 429 even for a right code. The session id is regenerated. Public. Limited to 10 requests
      * per minute per IP address.
      *
      * @unauthenticated
@@ -27,7 +28,7 @@ class TwoFactorChallengeController extends Controller
      */
     public function __invoke(Request $request, CompleteTwoFactorChallenge $complete): UserResource
     {
-        $user = $complete($request->session(), $request->input('code'), $request->input('recovery_code'));
+        $user = $complete($request->session(), $request->input('code'), $request->input('recovery_code'), (string) $request->ip());
 
         Auth::guard()->login($user);
         $request->session()->regenerateToken();

@@ -122,6 +122,7 @@ export function UserMenu() {
             loading={signingOut}
             onClick={signOut}
             data-testid="signout-button"
+            data-leaves-page=""
           >
             {t('admin.user.signOut')}
           </Button>

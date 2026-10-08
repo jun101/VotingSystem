@@ -499,6 +499,8 @@
       "resetTwoFactorLabel": "Reset the two-factor authentication of {name}",
       "resetTitle": "Reset the two-factor authentication of {name}?",
       "resetText": "{name} will be able to sign in with a password alone, then turn it on again from “My account”. Do this only if the person lost their phone and their recovery codes.",
+      "resetPassword": "Your password",
+      "resetPasswordHelp": "Enter your own password to confirm.",
       "resetConfirm": "Reset",
       "resetCancel": "Cancel"
     }
@@ -534,6 +536,7 @@
       "title": "Your recovery codes",
       "lede": "Keep them somewhere safe. Each code works only once, to sign in if you lose your phone. They will not be shown again.",
       "warning": "If you leave this page before finishing, these codes are lost. Two-factor is already on: you can generate new ones.",
+      "leave": "These codes will not be shown again and will be lost. Leave this page without having kept them?",
       "list": "Recovery codes",
       "copy": "Copy",
       "copied": "Codes copied.",

@@ -1,11 +1,12 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { PasswordField } from '@/components/auth/PasswordField';
 import { Button, Card, ConfirmDialog, Notice, Pill } from '@/components/ui';
 import { initials } from '@/components/admin/menu';
 import { cancelInvitation, removeUser, resetUserTwoFactor } from '@/lib/api/browser';
-import { ApiError, errorText } from '@/lib/api/errors';
+import { ApiError, errorText, fieldText } from '@/lib/api/errors';
 import type { Listing, PendingInvitation, TeamMember } from '@/lib/api/user';
 import { useI18n } from '@/lib/i18n/client';
 import type { MessageKey } from '@/lib/i18n/messages';
@@ -43,6 +44,12 @@ export function UsersCard({
   const [resetTarget, setResetTarget] = useState<TeamMember | null>(null);
   const [resetting, setResetting] = useState(false);
   const [resetError, setResetError] = useState<string | null>(null);
+  const [refocus, setRefocus] = useState(0);
+  const [resetPassword, setResetPassword] = useState('');
+  const [resetFieldError, setResetFieldError] = useState<string | null>(null);
+  const resetField = useRef<HTMLInputElement>(null);
+  // Set at once, not at the next render: a double Enter sends one request.
+  const busyCalls = useRef({ removal: false, reset: false });
   const [problem, setProblem] = useState<string | null>(null);
   // "Pending for N days" is counted from the moment the page was drawn.
   const [now] = useState(() => Date.now());
@@ -73,9 +80,22 @@ export function UsersCard({
     }
   }
 
-  async function confirmRemoval() {
-    if (!target) return;
+  // The dialog is closed by the page, and the control that opened it is gone: the focus goes to
+  // the card once the dialog has been removed, never to the page body.
+  function focusCardLater() {
+    setRefocus((count) => count + 1);
+  }
 
+  // Runs after the render that removed the dialog (its cleanup has closed it by then), so the
+  // card can take the focus: while the modal is open the rest of the page cannot.
+  useEffect(() => {
+    if (refocus > 0) card.current?.focus();
+  }, [refocus]);
+
+  async function confirmRemoval() {
+    if (!target || busyCalls.current.removal) return;
+
+    busyCalls.current.removal = true;
     setRemoving(true);
     setRemoveError(null);
 
@@ -86,6 +106,8 @@ export function UsersCard({
       setRemoving(false);
 
       return;
+    } finally {
+      busyCalls.current.removal = false;
     }
 
     if (target.is_you) {
@@ -99,7 +121,7 @@ export function UsersCard({
     setMembers((current) => current.filter((member) => member.id !== target.id));
     setTarget(null);
     setRemoving(false);
-    card.current?.focus();
+    focusCardLater();
   }
 
   function closeDialog() {
@@ -108,33 +130,63 @@ export function UsersCard({
   }
 
   async function confirmReset() {
-    if (!resetTarget) return;
+    if (!resetTarget || busyCalls.current.reset) return;
 
+    busyCalls.current.reset = true;
     setResetting(true);
     setResetError(null);
+    setResetFieldError(null);
 
     try {
-      await resetUserTwoFactor(resetTarget.id);
+      await resetUserTwoFactor(resetTarget.id, resetPassword);
     } catch (caught) {
-      setResetError(readable(caught));
+      const failure = caught instanceof ApiError ? caught : new ApiError(0, 'unknown');
+      const code = failure.fields.password?.[0];
+
+      if (failure.status === 401) {
+        // Too many wrong passwords end the session.
+        router.push('/login');
+        router.refresh();
+
+        return;
+      }
+
+      if (code && Object.keys(failure.fields).every((name) => name === 'password')) {
+        setResetFieldError(fieldText('twofactor.password', code, tIfAny));
+      } else {
+        setResetError(readable(caught));
+      }
+
       setResetting(false);
+      window.setTimeout(() => resetField.current?.focus(), 0);
 
       return;
+    } finally {
+      busyCalls.current.reset = false;
     }
+
+    const id = resetTarget.id;
 
     setMembers((current) =>
       current.map((member) =>
-        member.id === resetTarget.id ? { ...member, two_factor_enabled: false } : member,
+        member.id === id ? { ...member, two_factor_enabled: false } : member,
       ),
     );
-    setResetTarget(null);
+    closeResetDialog();
     setResetting(false);
-    card.current?.focus();
+    focusCardLater();
+  }
+
+  function submitReset(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    void confirmReset();
   }
 
   function closeResetDialog() {
     setResetTarget(null);
     setResetError(null);
+    setResetFieldError(null);
+    setResetPassword('');
   }
 
   function pending(invitation: PendingInvitation): string {
@@ -355,7 +407,22 @@ export function UsersCard({
             error: 'user-reset-error',
           }}
         >
-          {t('institution.users.resetText', { name: resetTarget.name })}
+          <form method="post" noValidate onSubmit={submitReset} className="flex flex-col gap-4">
+            <p>{t('institution.users.resetText', { name: resetTarget.name })}</p>
+            <PasswordField
+              ref={resetField}
+              label={t('institution.users.resetPassword')}
+              help={t('institution.users.resetPasswordHelp')}
+              name="password"
+              autoComplete="current-password"
+              value={resetPassword}
+              onChange={(event) => setResetPassword(event.target.value)}
+              data-testid="user-reset-password"
+              toggleTestId="user-reset-password-toggle"
+              error={resetFieldError ?? undefined}
+              errorTestId="user-reset-password-error"
+            />
+          </form>
         </ConfirmDialog>
       ) : null}
     </Card>

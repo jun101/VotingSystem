@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Users;
 
 use App\Actions\Auth\ClearTwoFactor;
+use App\Actions\Auth\ConfirmOwnPassword;
 use App\Actions\Users\RemoveUser;
 use App\Enums\Role;
 use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\PasswordRequest;
 use App\Http\Requests\Users\ListRequest;
 use App\Http\Resources\PageOf;
 use App\Http\Resources\TeamMemberResource;
@@ -64,12 +66,19 @@ class UserController extends Controller
      *
      * For a person who has lost both their device and their recovery codes: the secret, the
      * recovery codes, the confirmation time and the stored period are cleared; their open
-     * sessions stay open and their next sign-in asks for the password only. Not for oneself
-     * (the page "Mon compte" asks for the password). Owner only.
+     * sessions stay open and their next sign-in asks for the password only. The owner's own
+     * password is asked: a wrong one is a 422, and the fifth in 15 minutes ends the owner's
+     * session (401). Not for oneself (the page "Mon compte" asks for the password). Owner only.
+     * Limited to 10 requests per minute per user, shared with the own-settings routes.
      */
-    public function resetTwoFactor(Request $request, User $user, ClearTwoFactor $clear): Response
+    public function resetTwoFactor(PasswordRequest $request, User $user, ClearTwoFactor $clear, ConfirmOwnPassword $confirmPassword): Response
     {
-        if ($request->user()?->is($user) === true) {
+        $owner = $request->user();
+        assert($owner instanceof User);
+
+        $confirmPassword($request, $owner, $request->string('password')->toString());
+
+        if ($owner->is($user)) {
             throw new ApiException(409, 'cannot_reset_self');
         }
 

@@ -63,7 +63,7 @@ Route::prefix('v1')->group(function (): void {
         Route::middleware('owner')->group(function (): void {
             Route::get('/users', [UserController::class, 'index']);
             Route::delete('/users/{user}', [UserController::class, 'destroy']);
-            Route::delete('/users/{user}/two-factor', [UserController::class, 'resetTwoFactor']);
+            Route::post('/users/{user}/two-factor/reset', [UserController::class, 'resetTwoFactor'])->middleware('throttle:two-factor');
             Route::get('/invitations', [InvitationController::class, 'index']);
             Route::post('/invitations', [InvitationController::class, 'store'])->middleware('throttle:invitations-create');
             Route::delete('/invitations/{invitation}', [InvitationController::class, 'destroy']);

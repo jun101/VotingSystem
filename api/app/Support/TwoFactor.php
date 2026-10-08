@@ -37,7 +37,9 @@ final class TwoFactor
     /** The link an authenticator application reads from a QR code. */
     public function otpauthUrl(string $secret, string $email): string
     {
-        $label = rawurlencode(self::ISSUER.':'.$email);
+        // Issuer and account are encoded apart and joined by a literal colon, as authenticator
+        // applications expect (Key URI format).
+        $label = rawurlencode(self::ISSUER).':'.rawurlencode($email);
 
         return 'otpauth://totp/'.$label.'?'.http_build_query([
             'secret' => $secret,

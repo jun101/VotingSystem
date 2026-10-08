@@ -33,12 +33,14 @@ export function LoginForm({
   const [step, setStep] = useState<'password' | 'code'>('password');
   const [ended, setEnded] = useState<'expired' | 'suspended' | null>(null);
   const [email, setEmail] = useState('');
-  const emailField = useRef<HTMLInputElement>(null);
+  const passwordField = useRef<HTMLInputElement>(null);
+  // Goes up at each return from the code step (cancelled, expired or suspended).
+  const [returns, setReturns] = useState(0);
 
-  // Back on the password step because the code step ended: the focus goes to the first field.
+  // Back on the password step: the email is already filled in, so the focus goes to the password.
   useEffect(() => {
-    if (step === 'password' && ended) emailField.current?.focus();
-  }, [step, ended]);
+    if (step === 'password' && returns > 0) passwordField.current?.focus();
+  }, [step, returns]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -77,10 +79,12 @@ export function LoginForm({
         onCancel={() => {
           setEnded(null);
           setStep('password');
+          setReturns((count) => count + 1);
         }}
         onEnded={(reason) => {
           setEnded(reason);
           setStep('password');
+          setReturns((count) => count + 1);
         }}
       />
     );
@@ -131,7 +135,6 @@ export function LoginForm({
       ) : null}
 
       <Input
-        ref={emailField}
         label={t('auth.login.email')}
         name="email"
         defaultValue={email}
@@ -145,6 +148,7 @@ export function LoginForm({
         errorTestId="field-error-email"
       />
       <PasswordField
+        ref={passwordField}
         label={t('auth.login.password')}
         name="password"
         autoComplete="current-password"

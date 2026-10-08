@@ -33,6 +33,8 @@ export function PasswordDialog({
   const { busy, fieldError, problem, round, run } = useGuardedCall('password');
   const [password, setPassword] = useState('');
   const field = useRef<HTMLInputElement>(null);
+  // Set at once, not at the next render: a double Enter sends one request.
+  const running = useRef(false);
 
   // A failed attempt puts the focus back on the field, where the error is read.
   useEffect(() => {
@@ -40,7 +42,15 @@ export function PasswordDialog({
   }, [round]);
 
   async function confirm() {
-    if (await run(() => action(password))) onDone();
+    if (running.current || busy) return;
+
+    running.current = true;
+
+    try {
+      if (await run(() => action(password))) onDone();
+    } finally {
+      running.current = false;
+    }
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {

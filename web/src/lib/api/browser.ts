@@ -201,10 +201,16 @@ export async function renewRecoveryCodes(password: string): Promise<string[]> {
   return data!.data.recovery_codes;
 }
 
-/** `DELETE /users/{user}/two-factor`: an owner turns off another user's two-factor. */
-export async function resetUserTwoFactor(id: string): Promise<void> {
+/**
+ * `POST /users/{user}/two-factor/reset`: an owner turns off another user's two-factor, with
+ * the owner's own password.
+ */
+export async function resetUserTwoFactor(id: string, password: string): Promise<void> {
   await send((api) =>
-    api.DELETE('/v1/users/{user}/two-factor', { params: { path: { user: id } } }),
+    api.POST('/v1/users/{user}/two-factor/reset', {
+      params: { path: { user: id } },
+      body: { password },
+    }),
   );
 }
 

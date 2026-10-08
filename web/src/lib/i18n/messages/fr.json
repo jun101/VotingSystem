@@ -499,6 +499,8 @@
       "resetTwoFactorLabel": "Réinitialiser la double authentification de {name}",
       "resetTitle": "Réinitialiser la double authentification de {name} ?",
       "resetText": "{name} pourra se connecter avec son mot de passe seul, puis la réactiver depuis « Mon compte ». À faire seulement si la personne a perdu son téléphone et ses codes de récupération.",
+      "resetPassword": "Votre mot de passe",
+      "resetPasswordHelp": "Saisissez votre propre mot de passe pour confirmer.",
       "resetConfirm": "Réinitialiser",
       "resetCancel": "Annuler"
     }
@@ -534,6 +536,7 @@
       "title": "Vos codes de récupération",
       "lede": "Gardez-les en lieu sûr. Chaque code ne sert qu’une fois, pour vous connecter si vous perdez votre téléphone. Ils ne seront plus affichés.",
       "warning": "Si vous quittez cette page avant de terminer, ces codes seront perdus. La double authentification est déjà active : vous pourrez en générer de nouveaux.",
+      "leave": "Ces codes ne seront plus affichés et seront perdus. Quitter cette page sans les avoir conservés ?",
       "list": "Codes de récupération",
       "copy": "Copier",
       "copied": "Codes copiés.",

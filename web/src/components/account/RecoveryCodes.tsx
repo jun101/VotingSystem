@@ -18,16 +18,53 @@ export function RecoveryCodes({ codes, onDone }: { codes: string[]; onDone: () =
 
   useEffect(() => list.current?.focus(), []);
 
-  // Closing or reloading the page loses the codes: the browser asks first.
+  // While the codes are not kept, leaving loses them. Closing or reloading the page: the
+  // browser asks. A link of the application, or a control marked `data-leaves-page` (sign
+  // out): the person is asked here, and may still leave. Back and forward are left to the
+  // browser's own warning, which the framework's router does not let us intercept.
   useEffect(() => {
+    if (saved) return;
+
     function warn(event: BeforeUnloadEvent) {
       event.preventDefault();
+      event.returnValue = '';
+    }
+
+    function guard(event: MouseEvent) {
+      if (!(event.target instanceof Element)) return;
+
+      const control = event.target.closest<HTMLElement>('a[href], [data-leaves-page]');
+
+      if (!control) return;
+
+      if (control instanceof HTMLAnchorElement) {
+        const sameOrigin = control.origin === window.location.origin;
+        const samePage = control.pathname === window.location.pathname;
+
+        if (
+          !sameOrigin ||
+          samePage ||
+          control.target === '_blank' ||
+          control.hasAttribute('download')
+        ) {
+          return;
+        }
+      }
+
+      if (!window.confirm(t('account.codes.leave'))) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
     }
 
     window.addEventListener('beforeunload', warn);
+    document.addEventListener('click', guard, true);
 
-    return () => window.removeEventListener('beforeunload', warn);
-  }, []);
+    return () => {
+      window.removeEventListener('beforeunload', warn);
+      document.removeEventListener('click', guard, true);
+    };
+  }, [saved, t]);
 
   async function copyAll() {
     try {

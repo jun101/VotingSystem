@@ -1610,28 +1610,6 @@
                             }
                         }
                     },
-                    "409": {
-                        "description": "An error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "description": "Error overview.",
-                                            "examples": [
-                                                ""
-                                            ]
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        }
-                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
                     },
@@ -1776,7 +1754,7 @@
         "/v1/auth/two-factor-challenge": {
             "post": {
                 "operationId": "auth.twoFactorChallenge",
-                "description": "The second step of signing in for a person who has two-factor authentication turned on:\none `code` from the authenticator application (6 digits; the previous and the next\n30-second period are accepted, a period already used is not) or one `recovery_code`\n(checked first when both are sent; used up by a success). It only ever finishes the\nsign-in that the password step recorded in this browser's session, for five minutes;\nfive wrong codes end it. The session id is regenerated. Public. Limited to 10 requests\nper minute per IP address.",
+                "description": "The second step of signing in for a person who has two-factor authentication turned on:\none `code` from the authenticator application (6 digits; the previous and the next\n30-second period are accepted, a period already used is not) or one `recovery_code`\n(checked first when both are sent; used up by a success). It only ever finishes the\nsign-in that the password step recorded in this browser's session, for five minutes;\nfive wrong codes end it. Five wrong codes in 15 minutes for one account, from any browser or\naddress, answer 429 even for a right code. The session id is regenerated. Public. Limited to 10 requests\nper minute per IP address.",
                 "summary": "Finish signing in with a code",
                 "tags": [
                     "TwoFactorChallenge"
@@ -2041,10 +2019,10 @@
                 }
             }
         },
-        "/v1/users/{user}/two-factor": {
-            "delete": {
+        "/v1/users/{user}/two-factor/reset": {
+            "post": {
                 "operationId": "user.resetTwoFactor",
-                "description": "For a person who has lost both their device and their recovery codes: the secret, the\nrecovery codes, the confirmation time and the stored period are cleared; their open\nsessions stay open and their next sign-in asks for the password only. Not for oneself\n(the page \"Mon compte\" asks for the password). Owner only.",
+                "description": "For a person who has lost both their device and their recovery codes: the secret, the\nrecovery codes, the confirmation time and the stored period are cleared; their open\nsessions stay open and their next sign-in asks for the password only. The owner's own\npassword is asked: a wrong one is a 422, and the fifth in 15 minutes ends the owner's\nsession (401). Not for oneself (the page \"Mon compte\" asks for the password). Owner only.\nLimited to 10 requests per minute per user, shared with the own-settings routes.",
                 "summary": "Turn off another user's two-factor authentication",
                 "tags": [
                     "User"
@@ -2060,6 +2038,16 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PasswordRequest"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "204": {
                         "description": "No content"
@@ -2091,6 +2079,9 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
                     }
                 }
             }
@@ -2273,11 +2264,10 @@
             },
             "TwoFactorCodeRequest": {
                 "type": "object",
-                "description": "The code of the authenticator application that confirms a setup.",
+                "description": "The code of the authenticator application that confirms a setup. Only its presence is judged\nhere: anything that is not exactly 6 digits (a number, a list, a long text) is answered\n`code: invalid` by the controller.",
                 "properties": {
                     "code": {
-                        "type": "string",
-                        "maxLength": 32
+                        "type": "string"
                     }
                 },
                 "required": [

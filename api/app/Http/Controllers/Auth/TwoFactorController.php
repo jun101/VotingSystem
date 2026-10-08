@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Actions\Auth\ClearTwoFactor;
+use App\Actions\Auth\ConfirmOwnPassword;
 use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\PasswordRequest;
@@ -12,19 +13,19 @@ use App\Support\TwoFactor;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 /**
  * The signed-in user's own two-factor authentication (docs/api/auth/GET-auth-two-factor.md and
  * the four POST files beside it). Every change asks for the password again: a wrong one is a
- * 422 `password: incorrect` (the person is signed in, so never a 401). Nothing is logged but
- * the outcome.
+ * 422 `password: incorrect`; the fifth wrong one in 15 minutes ends the session (401), see
+ * ConfirmOwnPassword. Nothing is logged but the outcome.
  */
 class TwoFactorController extends Controller
 {
-    public function __construct(private readonly TwoFactor $twoFactor) {}
+    public function __construct(private readonly TwoFactor $twoFactor, private readonly ConfirmOwnPassword $confirmPassword) {}
 
     /**
      * The state of the signed-in user's two-factor authentication.
@@ -95,28 +96,43 @@ class TwoFactorController extends Controller
     public function confirm(TwoFactorCodeRequest $request): JsonResponse
     {
         $user = $this->user($request);
+        $given = $request->input('code');
 
-        if ($user->hasTwoFactorEnabled()) {
-            throw new ApiException(409, 'two_factor_already_enabled');
-        }
+        // The row is locked and its state read again inside the transaction: two confirmations
+        // at once cannot both turn it on and return two different sets of recovery codes.
+        $codes = DB::transaction(function () use ($user, $given): array {
+            $locked = $user->newModelQuery()->whereKey($user->getKey())->lockForUpdate()->first();
 
-        if (! is_string($user->two_factor_secret)) {
-            throw new ApiException(409, 'two_factor_not_started');
-        }
+            if (! $locked instanceof User) {
+                throw new ApiException(401, 'unauthenticated');
+            }
 
-        $step = $this->twoFactor->matchingStep($user->two_factor_secret, $request->string('code')->toString(), $user->two_factor_last_step);
+            if ($locked->hasTwoFactorEnabled()) {
+                throw new ApiException(409, 'two_factor_already_enabled');
+            }
 
-        if ($step === null || ! $this->twoFactor->claimStep($user, $step)) {
-            Log::info('auth.two_factor_confirm', ['outcome' => 'invalid']);
+            if (! is_string($locked->two_factor_secret)) {
+                throw new ApiException(409, 'two_factor_not_started');
+            }
 
-            throw ValidationException::withMessages(['code' => ['invalid']]);
-        }
+            $step = is_string($given) && strlen($given) <= 32
+                ? $this->twoFactor->matchingStep($locked->two_factor_secret, $given, $locked->two_factor_last_step)
+                : null;
 
-        $codes = $this->twoFactor->newRecoveryCodes();
-        $user->two_factor_recovery_codes = null;
-        $this->twoFactor->storeRecoveryHashes($user, $codes['hashes']);
-        $user->two_factor_confirmed_at = now();
-        $user->save();
+            if ($step === null || ! $this->twoFactor->claimStep($locked, $step)) {
+                Log::info('auth.two_factor_confirm', ['outcome' => 'invalid']);
+
+                throw ValidationException::withMessages(['code' => ['invalid']]);
+            }
+
+            $codes = $this->twoFactor->newRecoveryCodes();
+            $locked->two_factor_recovery_codes = null;
+            $this->twoFactor->storeRecoveryHashes($locked, $codes['hashes']);
+            $locked->two_factor_confirmed_at = now();
+            $locked->save();
+
+            return $codes;
+        });
 
         Log::info('auth.two_factor_confirm', ['outcome' => 'enabled']);
 
@@ -165,10 +181,25 @@ class TwoFactorController extends Controller
             throw new ApiException(409, 'two_factor_not_enabled');
         }
 
-        $codes = $this->twoFactor->newRecoveryCodes();
+        // Under the same row lock as the sign-in with a recovery code: a renewal and a
+        // recovery sign-in cannot both write the list.
+        $codes = DB::transaction(function () use ($user): array {
+            $locked = $user->newModelQuery()->whereKey($user->getKey())->lockForUpdate()->first();
 
-        $this->twoFactor->storeRecoveryHashes($user, $codes['hashes']);
-        $user->save();
+            if (! $locked instanceof User) {
+                throw new ApiException(401, 'unauthenticated');
+            }
+
+            if (! $locked->hasTwoFactorEnabled()) {
+                throw new ApiException(409, 'two_factor_not_enabled');
+            }
+
+            $codes = $this->twoFactor->newRecoveryCodes();
+            $this->twoFactor->storeRecoveryHashes($locked, $codes['hashes']);
+            $locked->save();
+
+            return $codes;
+        });
 
         Log::info('auth.two_factor_recovery_codes', ['outcome' => 'renewed']);
 
@@ -183,13 +214,8 @@ class TwoFactorController extends Controller
         return $user;
     }
 
-    /** The same hash check as sign-in. A wrong password is a validation error, not a 401. */
     private function checkPassword(PasswordRequest $request, User $user): void
     {
-        if (! Hash::check($request->string('password')->toString(), $user->password)) {
-            Log::info('auth.two_factor_password', ['outcome' => 'incorrect']);
-
-            throw ValidationException::withMessages(['password' => ['incorrect']]);
-        }
+        ($this->confirmPassword)($request, $user, $request->string('password')->toString());
     }
 }

@@ -462,7 +462,8 @@ export interface paths {
          *     30-second period are accepted, a period already used is not) or one `recovery_code`
          *     (checked first when both are sent; used up by a success). It only ever finishes the
          *     sign-in that the password step recorded in this browser's session, for five minutes;
-         *     five wrong codes end it. The session id is regenerated. Public. Limited to 10 requests
+         *     five wrong codes end it. Five wrong codes in 15 minutes for one account, from any browser or
+         *     address, answer 429 even for a right code. The session id is regenerated. Public. Limited to 10 requests
          *     per minute per IP address.
          */
         post: operations["auth.twoFactorChallenge"];
@@ -515,7 +516,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/users/{user}/two-factor": {
+    "/v1/users/{user}/two-factor/reset": {
         parameters: {
             query?: never;
             header?: never;
@@ -524,15 +525,17 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post?: never;
         /**
          * Turn off another user's two-factor authentication
          * @description For a person who has lost both their device and their recovery codes: the secret, the
          *     recovery codes, the confirmation time and the stored period are cleared; their open
-         *     sessions stay open and their next sign-in asks for the password only. Not for oneself
-         *     (the page "Mon compte" asks for the password). Owner only.
+         *     sessions stay open and their next sign-in asks for the password only. The owner's own
+         *     password is asked: a wrong one is a 422, and the fifth in 15 minutes ends the owner's
+         *     session (401). Not for oneself (the page "Mon compte" asks for the password). Owner only.
+         *     Limited to 10 requests per minute per user, shared with the own-settings routes.
          */
-        delete: operations["user.resetTwoFactor"];
+        post: operations["user.resetTwoFactor"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -621,7 +624,9 @@ export interface components {
         };
         /**
          * TwoFactorCodeRequest
-         * @description The code of the authenticator application that confirms a setup.
+         * @description The code of the authenticator application that confirms a setup. Only its presence is judged
+         *     here: anything that is not exactly 6 digits (a number, a list, a long text) is answered
+         *     `code: invalid` by the controller.
          */
         TwoFactorCodeRequest: {
             code: string;
@@ -1416,21 +1421,6 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
-            /** @description An error */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /**
-                         * @description Error overview.
-                         * @example
-                         */
-                        message: string;
-                    };
-                };
-            };
             422: components["responses"]["ValidationException"];
         };
     };
@@ -1634,7 +1624,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasswordRequest"];
+            };
+        };
         responses: {
             /** @description No content */
             204: {
@@ -1660,6 +1654,7 @@ export interface operations {
                     };
                 };
             };
+            422: components["responses"]["ValidationException"];
         };
     };
     "auth.verifyEmail": {

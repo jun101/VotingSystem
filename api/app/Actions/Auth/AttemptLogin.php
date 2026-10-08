@@ -26,6 +26,17 @@ final class AttemptLogin
 {
     private const MAX_FAILURES_PER_MINUTE = 5;
 
+    /** The failed-password counter of a user and an address (cleared by a success, here or at the second step). */
+    public static function failureKeyForUser(User $user, string $ip): string
+    {
+        return self::failureKey('user:'.$user->uuid, $ip);
+    }
+
+    private static function failureKey(string $subject, string $ip): string
+    {
+        return 'login-failures:'.hash('sha256', $subject.'|'.$ip);
+    }
+
     public function __invoke(string $email, string $password, string $ip): User
     {
         $email = mb_strtolower(trim($email));
@@ -36,7 +47,7 @@ final class AttemptLogin
         // The counter follows the account, not the spelling: the database ignores accents and
         // case, so `josé@` and `jose@` are one user. An address with no account is counted by
         // its text. Either way the key is a hash.
-        $key = 'login-failures:'.hash('sha256', ($user === null ? 'email:'.$email : 'user:'.$user->uuid).'|'.$ip);
+        $key = self::failureKey($user === null ? 'email:'.$email : 'user:'.$user->uuid, $ip);
         $max = self::MAX_FAILURES_PER_MINUTE * Config::integer('auth.rate_limit_factor');
 
         if (RateLimiter::tooManyAttempts($key, $max)) {

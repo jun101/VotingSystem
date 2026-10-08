@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { ApiError, errorText, fieldText } from '@/lib/api/errors';
 import { useI18n } from '@/lib/i18n/client';
@@ -11,6 +12,7 @@ import { useI18n } from '@/lib/i18n/client';
  */
 export function useGuardedCall(field: 'password' | 'code') {
   const { tIfAny } = useI18n();
+  const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
@@ -30,6 +32,13 @@ export function useGuardedCall(field: 'password' | 'code') {
     } catch (caught) {
       const error = caught instanceof ApiError ? caught : new ApiError(0, 'unknown');
       const code = error.fields[field]?.[0];
+
+      // Too many wrong passwords end the session (401): back to the sign-in page.
+      if (error.status === 401) {
+        router.push('/login');
+        router.refresh();
+      }
+
       const foreign = Object.keys(error.fields).some((name) => name !== field);
 
       if (code && !foreign) {
