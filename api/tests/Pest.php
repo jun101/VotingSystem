@@ -34,3 +34,10 @@ pest()->beforeEach(function () {
     Tests\Support\Team::clearMedia();
     $this->browser = new Tests\Support\AuthClient($this);
 })->in('Acceptance/Slice04');
+
+// Slice 04b: the same (docs/slices/04b-two-factor.md).
+pest()->beforeEach(function () {
+    Tests\Support\Accounts::reset();
+    Tests\Support\Tenancy::installProbeTables();
+    $this->browser = new Tests\Support\AuthClient($this);
+})->in('Acceptance/Slice04b');

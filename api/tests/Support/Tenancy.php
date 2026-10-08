@@ -37,6 +37,8 @@ final class Tenancy
         'POST api/v1/auth/forgot-password',
         'POST api/v1/auth/reset-password',
         'POST api/v1/auth/accept-invitation',
+        // Slice 04b: finishes a sign-in started with a password; a pending sign-in in the session is its only input.
+        'POST api/v1/auth/two-factor-challenge',
     ];
 
     /**
@@ -54,6 +56,12 @@ final class Tenancy
         'PATCH api/v1/institution',
         'PUT api/v1/institution/logo',
         'DELETE api/v1/institution/logo',
+        // Slice 04b: the user's own second factor; no record is named.
+        'GET api/v1/auth/two-factor',
+        'POST api/v1/auth/two-factor/setup',
+        'POST api/v1/auth/two-factor/confirm',
+        'POST api/v1/auth/two-factor/disable',
+        'POST api/v1/auth/two-factor/recovery-codes',
     ];
 
     /**
@@ -69,6 +77,7 @@ final class Tenancy
         'GET api/v1/invitations' => 'Slice04/ListInvitationsTest.php',
         'POST api/v1/invitations' => 'Slice04/CreateInvitationTest.php',
         'DELETE api/v1/invitations/{invitation}' => 'Slice04/CancelInvitationTest.php',
+        'DELETE api/v1/users/{user}/two-factor' => 'Slice04b/ResetUserTwoFactorTest.php',
     ];
 
     /**
