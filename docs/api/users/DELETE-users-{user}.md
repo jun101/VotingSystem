@@ -58,7 +58,9 @@ Scenarios 5 and 6 answer with the same body and headers.
 - The user's pending email-verification and password-reset tokens are deleted.
 - Their next request answers 401 `unauthenticated` (a removed user has no session), and
   signing in fails like an unknown email.
-- Invitations the user sent stay valid.
+- The invitations the user sent that were **not yet accepted** are deleted, so a removed user
+  cannot bring someone back in through a link they sent earlier. Invitations already accepted
+  stay as a record; invitations sent by other users are untouched.
 - In scenario 3 the answering request also ends the caller's own session.
 
 ## Notes

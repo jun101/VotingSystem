@@ -148,6 +148,10 @@ test.describe('the logo', () => {
 
     const directory = await request.get('/media/');
     expect(directory.status()).not.toBe(200);
+    // An answer that is not a file is never cached for a year.
+    expect(directory.headers()['cache-control'] ?? '').not.toContain('immutable');
+    expect((await request.get('/media/anything.svg')).status()).toBe(404);
+    expect((await request.get('/media/anything.html')).status()).toBe(404);
     const missing = await request.get('/media/00000000-0000-4000-8000-000000000000-64.webp');
     expect(missing.status()).toBe(404);
   });

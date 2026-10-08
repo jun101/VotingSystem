@@ -67,14 +67,20 @@ it('deletes the pending verification and reset tokens of the removed user [FR-IN
     }
 });
 
-it('keeps the invitations the removed user sent [FR-INST-03] (scenario 1)', function () {
+it('deletes the unaccepted invitations the removed user sent, and keeps the others [FR-INST-03] (scenario 1)', function () {
     $t = Team::two();
-    Accounts::plantInvitation(['institution' => $t['a']['owner']['institution'], 'invited_by' => $t['a']['owner2']['user'], 'email' => 'guest@example.test', 'token' => Accounts::token()]);
+    $institution = $t['a']['owner']['institution'];
+    $theirs = Accounts::plantInvitation(['institution' => $institution, 'invited_by' => $t['a']['owner2']['user'], 'email' => 'theirs@example.test', 'role' => 'owner', 'token' => Accounts::token()]);
+    $theirsAccepted = Accounts::plantInvitation(['institution' => $institution, 'invited_by' => $t['a']['owner2']['user'], 'email' => 'done@example.test', 'token' => Accounts::token(), 'accepted' => true]);
+    $mine = Accounts::plantInvitation(['institution' => $institution, 'invited_by' => $t['a']['owner']['user'], 'email' => 'mine@example.test', 'token' => Accounts::token()]);
+    $other = Accounts::plantInvitation(['institution' => $t['b']['owner']['institution'], 'invited_by' => $t['b']['owner']['user'], 'email' => 'other@example.test', 'token' => Accounts::token()]);
     Team::signIn($this, $t['a']['owner']);
 
     $this->browser->delete(removeUrl($t['a']['owner2']['user']))->assertNoContent();
 
-    expect(Accounts::invitationRows($t['a']['owner']['institution']))->toHaveCount(1);
+    $left = array_column(Accounts::invitationRows(), 'uuid');
+    expect($left)->not->toContain($theirs)
+        ->and($left)->toContain($theirsAccepted)->toContain($mine)->toContain($other);
 });
 
 it('removes another owner while an owner remains [FR-INST-03] (scenario 2)', function () {

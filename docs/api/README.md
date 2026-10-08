@@ -106,6 +106,9 @@ returns a code that is not in this table.
 For an endpoint that needs a signed-in user, **401 is checked before the CSRF check (419)**:
 a request with no session and no token answers 401.
 
+For an endpoint reserved for owners, the **role is checked before the rate limit**: a manager
+who calls it again and again gets 403 every time, never 429.
+
 Choosing between the close ones:
 
 - Wrong shape or value of the input → **422**. Right input, wrong moment → **409**.

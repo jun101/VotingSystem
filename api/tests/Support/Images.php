@@ -53,6 +53,37 @@ final class Images
         return substr($jpeg, 0, 2).$app1.$comment.substr($jpeg, 2);
     }
 
+    /**
+     * An animated WebP: the extended header with the animation flag, the animation chunk and two
+     * frames (each the picture of a plain WebP).
+     */
+    public static function animatedWebp(int $width = 40, int $height = 20): string
+    {
+        $plain = self::webp($width, $height);
+        $frame = substr($plain, 12);   // the chunk(s) after "RIFF....WEBP"
+        $le24 = fn (int $n) => substr(pack('V', $n), 0, 3);
+        $chunk = fn (string $type, string $data) => $type.pack('V', strlen($data)).$data.(strlen($data) % 2 ? "\x00" : '');
+
+        $anmf = $le24(0).$le24(0).$le24($width - 1).$le24($height - 1).$le24(100)."\x00".$frame;
+        $body = 'WEBP'
+            .$chunk('VP8X', "\x02\x00\x00\x00".$le24($width - 1).$le24($height - 1))
+            .$chunk('ANIM', "\x00\x00\x00\x00".pack('v', 0))
+            .$chunk('ANMF', $anmf)
+            .$chunk('ANMF', $anmf);
+
+        return 'RIFF'.pack('V', strlen($body)).$body;
+    }
+
+    /** An animated PNG: a valid PNG with an `acTL` chunk before the image data. */
+    public static function animatedPng(int $width = 40, int $height = 20): string
+    {
+        $png = self::png($width, $height);
+        $chunk = fn (string $type, string $data) => pack('N', strlen($data)).$type.$data.pack('N', crc32($type.$data));
+        $position = 8 + 25;   // signature, then the 25 bytes of the IHDR chunk
+
+        return substr($png, 0, $position).$chunk('acTL', pack('NN', 2, 0)).substr($png, $position);
+    }
+
     /** A PDF: not an image. */
     public static function pdf(): string
     {

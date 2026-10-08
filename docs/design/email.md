@@ -72,3 +72,12 @@ It is recomputed when an email changes in a way that adds an element or a proper
 2. Add the texts in `lang/fr/mail.php` and `lang/en/mail.php`.
 3. Add the email to `MailDesignTest`'s list so the rules of this page apply to it.
 4. If it uses a feature the audit does not list, add it to the audit and check the score.
+
+## Free text in an email
+
+Some emails carry a text typed by an owner: the institution's name in the invitation. It is
+escaped (never markup), and the greeting and the subject never hold a person's name (slice 02
+review, S6; slice 04 review). What remains is accepted and known: an owner could write a link or
+a sentence in the institution's name and a mail program could make the link clickable inside our
+email. Only an owner can set it, and the email goes to an address that owner chose. Revisit if
+institutions can be created by anyone other than their own owner.

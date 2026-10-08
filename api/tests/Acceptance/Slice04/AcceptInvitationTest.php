@@ -247,3 +247,25 @@ it('does not log the token, the address or the password [NFR-SEC-05]', function 
         expect($content)->not->toContain($invited['token'])->not->toContain('quiet.person@example.test')->not->toContain(NEW_PASSWORD);
     }
 });
+
+it('replaces the session of a user of another institution already signed in in the same browser [FR-INST-03] (scenario 1)', function () {
+    $invited = invitedBy(['email' => 'switch@example.test']);
+    $someoneElse = Accounts::user();
+    Team::signIn($this, $someoneElse);
+    $this->browser->get('/api/v1/auth/me')->assertOk()->assertJsonPath('data.email', $someoneElse['email']);
+
+    $response = $this->browser->post(ACCEPT, acceptBody($invited));
+
+    $response->assertOk()->assertJsonPath('data.email', 'switch@example.test');
+    $this->browser->get('/api/v1/auth/me')->assertOk()->assertJsonPath('data.email', 'switch@example.test')
+        ->assertJsonPath('data.institution.id', $invited['owner']['institution']);
+    expect(Accounts::userRow($someoneElse['email'])['deleted_at'])->toBeNull();
+});
+
+it('does the same for a user of the inviting institution itself [FR-INST-03] (scenario 1)', function () {
+    $invited = invitedBy(['email' => 'colleague@example.test']);
+    Team::signIn($this, $invited['owner']);
+
+    $this->browser->post(ACCEPT, acceptBody($invited))->assertOk()->assertJsonPath('data.email', 'colleague@example.test');
+    $this->browser->get('/api/v1/auth/me')->assertOk()->assertJsonPath('data.email', 'colleague@example.test');
+});

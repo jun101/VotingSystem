@@ -26,7 +26,7 @@ re-encoded versions; the uploaded file is never stored or served.
 | 2 | A logo already exists | 200 | | |
 | 3 | `file` missing | 422 | `validation_failed` (`file: required`) | |
 | 4 | More than 5 MB | 413 | `file_too_large` | |
-| 5 | The content is not a JPEG, PNG or WebP (a GIF, a PDF, a script renamed `.png`) | 415 | `file_type_not_allowed` | |
+| 5 | The content is not a JPEG, PNG or WebP (a GIF, a PDF, a script renamed `.png`), or the picture is animated (animated WebP, APNG) | 415 | `file_type_not_allowed` | |
 | 6 | A JPEG, PNG or WebP that cannot be decoded (corrupt, truncated) | 415 | `file_type_not_allowed` | |
 | 7 | Larger than 8 000 pixels on a side, or 40 million pixels | 422 | `validation_failed` (`file: dimensions`) | |
 | 8 | The user is a manager | 403 | `forbidden` | |
@@ -62,9 +62,10 @@ The shared error shape of [API conventions](../README.md), with the codes of the
 
 - Three WebP files are written to public storage, named `{uuid}-{size}.webp` with a new
   random UUID: `64`, `160` and `480` pixels on the longest side, ratio kept, never enlarged
-  (a smaller source gives its own size for every version). Metadata (EXIF, GPS, colour
-  profile) is dropped; the rotation in the EXIF data is applied first. An animated image
-  keeps its first frame.
+  (a smaller source gives its own size for every version). All metadata (EXIF, GPS, colour
+  profile) is dropped. For a JPEG, the rotation in its EXIF data is applied first; PNG and WebP
+  carry no orientation that is read. An animated picture is refused (scenario 5), never reduced
+  to its first frame.
 - The UUID is stored in `institutions.logo_file`, then the files of the previous logo are
   deleted. If the re-encoding fails nothing changes: the previous logo stays.
 

@@ -91,6 +91,8 @@ it('answers 415 when the content is not a JPEG, PNG or WebP, whatever the name s
     'a script named .png' => fn () => [Images::script(), 'logo.png'],
     'a script named .php' => fn () => [Images::script(), 'logo.php'],
     'text named .jpg' => fn () => ['hello', 'logo.jpg'],
+    'an animated WebP' => fn () => [Images::animatedWebp(), 'logo.webp'],
+    'an animated PNG' => fn () => [Images::animatedPng(), 'logo.png'],
 ]);
 
 it('answers 415 for a PNG that cannot be decoded [NFR-SEC-06] (scenario 6)', function () {
@@ -160,3 +162,11 @@ it('answers 405 to another method than PUT or DELETE [NFR-SEC-01] (scenario 13)'
     $allow = array_map('trim', explode(',', (string) $response->headers->get('Allow')));
     expect($allow)->toContain('PUT')->toContain('DELETE')->not->toContain($method);
 })->with(['GET', 'POST', 'PATCH']);
+
+it('checks the role before the rate limit: a manager gets 403 every time, never 429 [NFR-SEC-05] (scenario 8)', function () {
+    logoSignedIn($this, 'manager');
+
+    foreach (range(1, 12) as $i) {
+        putLogo($this, Images::png())->assertStatus(403);
+    }
+});

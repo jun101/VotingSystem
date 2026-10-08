@@ -88,7 +88,7 @@ route without a test, and on a tenant route without `auth` and `institution.acti
 
 | Where | `data-testid` values |
 |---|---|
-| Page | `institution-page`, `profile-card`, `users-card`, `users-manager-note` (manager only), `public-address`, `public-address-copy` |
+| Page | `institution-page`, `profile-card`, `users-card`, `users-manager-note` (manager only), `public-address`, `public-address-copy`, `users-truncated` and `invitations-truncated` (shown only when the list holds more than the 100 loaded; text "100 sur N" / "100 of N") |
 | Profile | `profile-name`, `profile-type`, `profile-city`, `profile-phone`, `profile-timezone`, `profile-language`, `profile-description`, `profile-address`, `profile-contact-email`, `profile-save`, `profile-saved`, `profile-form-error`, and one error per field `profile-<field>-error` |
 | Logo | `logo-preview` (the `img`, absent without a logo), `logo-initials`, `logo-input` (the file input), `logo-remove`, `logo-error`, and in the menu `menu-institution-logo` (absent without a logo) |
 | Users | `user-card-<n>` (n from 1 in list order), `user-name-<n>`, `user-email-<n>`, `user-role-<n>`, `user-you` (on the signed-in user), `user-remove-<n>`, `user-remove-dialog` (the confirmation, naming the person), `user-remove-confirm`, `user-remove-cancel`, `user-remove-error` (inside the dialog; the buttons `user-remove-<n>` match `^user-remove-\d+$`) |
@@ -168,3 +168,10 @@ Confirmed by Jun on 2026-10-07.
 Proposed in the endpoint files, for Jun to veto at the checkpoint: a user can remove
 themself when another owner exists; removing rewrites the email and keeps the name for the
 audit log; a manager can read the profile but not change it; invitations last 7 days.
+
+Changed after the review of 2026-10-08, confirmed by Jun: a picture that is animated (WebP, PNG) is
+refused with 415 rather than reduced to its first frame; removing a user deletes the invitations
+they sent that were not yet accepted; the role of an owner-only route is checked before its rate
+limit; EXIF rotation is applied to JPEG only; the memory for a 40-million-pixel decode is raised
+only around the decode, not for every request; the institution's name in the invitation email is
+free text and the risk is accepted and written in `docs/design/email.md`.

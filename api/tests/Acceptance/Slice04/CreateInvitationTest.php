@@ -229,3 +229,12 @@ it('does not log the address or the token [FR-INST-03, NFR-SEC-05]', function ()
         expect($content)->not->toContain('quiet.guest@example.test')->not->toContain((string) $token);
     }
 });
+
+it('checks the role before the rate limit: a manager gets 403 every time, never 429 [NFR-SEC-05] (scenario 8)', function () {
+    $t = Team::two();
+    Team::signIn($this, $t['a']['manager']);
+
+    foreach (range(1, 22) as $i) {
+        $this->browser->post(INVITE, ['email' => "guest{$i}@example.test", 'role' => 'manager'])->assertStatus(403);
+    }
+});

@@ -68,6 +68,8 @@ Scenario 6 gives the same body and headers for every cause.
 
 - A user is created: `email_verified_at` set (the link proved the address), `language` the
   institution's default, `role` the invited one, Argon2id password. `last_login_at` is set.
+- If the browser already holds a session (a user of this or another institution), that session
+  ends and is replaced by the new user's. Nothing of the former user is kept or changed.
 - The invitation is marked accepted and can no longer be used; the token is single-use.
 - Order of the checks: the token (404), its expiry (410), the body's rules (422), the
   institution's state (403), then the address still being free (409). A bad body never
