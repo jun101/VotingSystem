@@ -317,7 +317,9 @@
     "two_factor_already_enabled": "Two-factor authentication is already on. Reload the page.",
     "two_factor_not_started": "The setup was not started. Start again with “Turn on”.",
     "two_factor_not_enabled": "Two-factor authentication is not on. Reload the page.",
-    "cannot_reset_self": "For your own account, use the “My account” page."
+    "cannot_reset_self": "For your own account, use the “My account” page.",
+    "too_many_attempts_wait_one": "Too many attempts. Try again in 1 minute.",
+    "too_many_attempts_wait_many": "Too many attempts. Try again in {minutes} minutes."
   },
   "validation": {
     "required": "This field is required.",
@@ -414,6 +416,10 @@
       "code": {
         "required": "Enter the 6-digit code.",
         "invalid": "That code is wrong or was already used. Wait for the next code and try again."
+      },
+      "recovery_code": {
+        "required": "Enter a recovery code.",
+        "invalid": "That recovery code is wrong or was already used."
       }
     }
   },
@@ -502,7 +508,11 @@
       "resetPassword": "Your password",
       "resetPasswordHelp": "Enter your own password to confirm.",
       "resetConfirm": "Reset",
-      "resetCancel": "Cancel"
+      "resetCancel": "Cancel",
+      "resetCode": "Your 6-digit code",
+      "resetCodeHelp": "Your own code from the authenticator app, to confirm.",
+      "resetRecoveryCode": "Your recovery code",
+      "resetRecoveryHelp": "One of your own recovery codes. Each code works only once."
     }
   },
   "account": {
@@ -547,17 +557,25 @@
     },
     "disable": {
       "title": "Turn off two-factor authentication?",
-      "text": "Your account will be protected by your password alone. Enter it to confirm.",
+      "text": "Your account will be protected by your password alone. Enter it and a current code to confirm.",
       "confirm": "Turn off"
     },
     "renew": {
       "title": "Renew the recovery codes?",
-      "text": "The old codes will stop working. Enter your password to confirm.",
+      "text": "The old codes will stop working. Enter your password and a current code to confirm.",
       "confirm": "Renew"
     },
     "dialog": {
       "password": "Password",
       "cancel": "Cancel"
+    },
+    "secondFactor": {
+      "code": "6-digit code",
+      "codeHelp": "The code shown by your authenticator app.",
+      "recoveryCode": "Recovery code",
+      "recoveryHelp": "One of your recovery codes. Each code works only once.",
+      "useRecovery": "Use a recovery code",
+      "useCode": "Use the app code"
     }
   }
 }

@@ -151,7 +151,7 @@ export function SecurityCard({ initial }: { initial: TwoFactorState }) {
           title={t('account.disable.title')}
           text={t('account.disable.text')}
           confirmLabel={t('account.disable.confirm')}
-          action={disableTwoFactor}
+          action={(password, factor) => disableTwoFactor(password, factor)}
           onDone={() => {
             setState({ enabled: false, setup_started: false, recovery_codes_left: null });
             setDialog(null);
@@ -171,8 +171,8 @@ export function SecurityCard({ initial }: { initial: TwoFactorState }) {
           title={t('account.renew.title')}
           text={t('account.renew.text')}
           confirmLabel={t('account.renew.confirm')}
-          action={async (password) => {
-            const fresh = await renewRecoveryCodes(password);
+          action={async (password, factor) => {
+            const fresh = await renewRecoveryCodes(password, factor);
 
             setCodes(fresh);
             setState({ enabled: true, setup_started: false, recovery_codes_left: fresh.length });

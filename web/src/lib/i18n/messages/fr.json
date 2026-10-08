@@ -317,7 +317,9 @@
     "two_factor_already_enabled": "La double authentification est déjà activée. Rechargez la page.",
     "two_factor_not_started": "La configuration n’a pas été commencée. Recommencez avec « Activer ».",
     "two_factor_not_enabled": "La double authentification n’est pas activée. Rechargez la page.",
-    "cannot_reset_self": "Pour votre propre compte, utilisez la page « Mon compte »."
+    "cannot_reset_self": "Pour votre propre compte, utilisez la page « Mon compte ».",
+    "too_many_attempts_wait_one": "Trop de tentatives. Réessayez dans 1 minute.",
+    "too_many_attempts_wait_many": "Trop de tentatives. Réessayez dans {minutes} minutes."
   },
   "validation": {
     "required": "Ce champ est obligatoire.",
@@ -414,6 +416,10 @@
       "code": {
         "required": "Saisissez le code à 6 chiffres.",
         "invalid": "Ce code n’est pas bon ou a déjà servi. Attendez le code suivant, puis réessayez."
+      },
+      "recovery_code": {
+        "required": "Saisissez un code de récupération.",
+        "invalid": "Ce code de récupération n’est pas bon ou a déjà servi."
       }
     }
   },
@@ -502,7 +508,11 @@
       "resetPassword": "Votre mot de passe",
       "resetPasswordHelp": "Saisissez votre propre mot de passe pour confirmer.",
       "resetConfirm": "Réinitialiser",
-      "resetCancel": "Annuler"
+      "resetCancel": "Annuler",
+      "resetCode": "Votre code à 6 chiffres",
+      "resetCodeHelp": "Votre propre code de l’application d’authentification, pour confirmer.",
+      "resetRecoveryCode": "Votre code de récupération",
+      "resetRecoveryHelp": "Un de vos propres codes de récupération. Chaque code ne sert qu’une fois."
     }
   },
   "account": {
@@ -547,17 +557,25 @@
     },
     "disable": {
       "title": "Désactiver la double authentification ?",
-      "text": "Votre compte ne sera plus protégé que par votre mot de passe. Saisissez-le pour confirmer.",
+      "text": "Votre compte ne sera plus protégé que par votre mot de passe. Saisissez-le avec un code valide pour confirmer.",
       "confirm": "Désactiver"
     },
     "renew": {
       "title": "Renouveler les codes de récupération ?",
-      "text": "Les anciens codes cesseront de fonctionner. Saisissez votre mot de passe pour confirmer.",
+      "text": "Les anciens codes cesseront de fonctionner. Saisissez votre mot de passe et un code valide pour confirmer.",
       "confirm": "Renouveler"
     },
     "dialog": {
       "password": "Mot de passe",
       "cancel": "Annuler"
+    },
+    "secondFactor": {
+      "code": "Code à 6 chiffres",
+      "codeHelp": "Le code affiché par votre application d’authentification.",
+      "recoveryCode": "Code de récupération",
+      "recoveryHelp": "Un de vos codes de récupération. Chaque code ne sert qu’une fois.",
+      "useRecovery": "Utiliser un code de récupération",
+      "useCode": "Utiliser le code de l’application"
     }
   }
 }

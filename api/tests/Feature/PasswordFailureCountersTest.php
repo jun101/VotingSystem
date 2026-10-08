@@ -47,7 +47,7 @@ it('answers 429 with a Retry-After on the settings routes once the counter is at
     }
 
     foreach (['wrong password here', $account['password']] as $password) {
-        $response = $session->post('/api/v1/auth/two-factor/disable', ['password' => $password]);
+        $response = $session->post('/api/v1/auth/two-factor/disable', ['password' => $password, 'code' => '123456']);
         $response->assertStatus(429)->assertJsonPath('error.code', 'too_many_attempts');
         expect((int) $response->headers->get('Retry-After'))->toBeGreaterThan(0)->toBeLessThanOrEqual(900);
     }
@@ -65,6 +65,13 @@ it('clears the counter on a right password only while it is below five', functio
     RateLimiter::hit(PasswordFailures::key($user), 900);
     $session->post('/api/v1/auth/two-factor/setup', ['password' => $account['password']])->assertOk();
     expect(RateLimiter::attempts(PasswordFailures::key($user)))->toBe(0);
+
+    // At the lock a right password clears nothing.
+    foreach (range(1, 5) as $i) {
+        RateLimiter::hit(PasswordFailures::key($user), 900);
+    }
+    $session->post('/api/v1/auth/two-factor/setup', ['password' => $account['password']])->assertStatus(429);
+    expect(RateLimiter::attempts(PasswordFailures::key($user)))->toBeGreaterThanOrEqual(5);
 });
 
 it('keeps the key of the address the password was typed from in the pending state', function () {
@@ -86,17 +93,19 @@ it('clears the wrong-code counter when the second factor is cleared', function (
     expect(RateLimiter::attempts($key))->toBe(0);
 });
 
-it('clears the wrong-code counter when the password is reset', function () {
+it('does not clear the wrong-code or the password-failure counter when the password is reset', function () {
     $account = Accounts::user();
     $user = modelOf($account);
     $key = CompleteTwoFactorChallenge::accountKey($user);
     RateLimiter::hit($key, 900);
+    RateLimiter::hit(PasswordFailures::key($user), 900);
     $token = Accounts::token();
     Accounts::plantToken('password_reset_tokens', $account['email'], $token);
 
     app(ResetPassword::class)($token, 'A brand new passphrase 42');
 
-    expect(RateLimiter::attempts($key))->toBe(0);
+    expect(RateLimiter::attempts($key))->toBe(1)
+        ->and(RateLimiter::attempts(PasswordFailures::key($user)))->toBe(1);
 });
 
 it('ends a pending sign-in when a sign-in without two-factor succeeds in the same browser', function () {
@@ -106,10 +115,10 @@ it('ends a pending sign-in when a sign-in without two-factor succeeds in the sam
 
     $browser = TwoFactor::pending($this, $withFactor);
     $browser->login($plain['email'], $plain['password'])->assertOk();
-    $browser->post('/api/v1/auth/logout')->assertNoContent();
 
-    // The first sign-in's pending state is gone: the code opens nothing.
+    // The first sign-in's pending state is gone: the code opens nothing, and the second user stays signed in.
     $browser->post('/api/v1/auth/two-factor-challenge', ['code' => Totp::code($two['secret'])])->assertStatus(401);
+    $browser->get('/api/v1/auth/me')->assertOk()->assertJsonPath('data.id', $plain['user']);
 });
 
 it('clears the failed-password counter of the address the password was typed from at a challenge success', function () {
@@ -126,4 +135,29 @@ it('clears the failed-password counter of the address the password was typed fro
     $browser->fromAddress('10.3.0.9')->post('/api/v1/auth/two-factor-challenge', ['code' => Totp::code($two['secret'])])->assertOk();
 
     expect(RateLimiter::attempts($key))->toBe(0);
+});
+
+it('counts a wrong second factor on disable in the account counter of the challenge, and a success clears it', function () {
+    $account = Accounts::user();
+    $user = modelOf($account);
+    $two = TwoFactor::enable($this, $account);
+    $browser = TwoFactor::pending($this, $account, new AuthClient($this));
+    $browser->post('/api/v1/auth/two-factor-challenge', ['code' => Totp::code($two['secret'])])->assertOk();
+    $key = CompleteTwoFactorChallenge::accountKey($user);
+
+    $browser->post('/api/v1/auth/two-factor/recovery-codes', ['password' => $account['password'], 'recovery_code' => 'abcde-fghij'])->assertStatus(422);
+    $browser->post('/api/v1/auth/two-factor/disable', ['password' => $account['password'], 'code' => '000000'])->assertStatus(422);
+    expect(RateLimiter::attempts($key))->toBe(2);
+
+    $browser->post('/api/v1/auth/two-factor/disable', ['password' => $account['password'], 'recovery_code' => $two['codes'][0]])->assertNoContent();
+    expect(RateLimiter::attempts($key))->toBe(0);
+});
+
+it('marks no-store on the answers that carry the secret or recovery codes', function () {
+    $account = Accounts::user();
+    $browser = new AuthClient($this);
+    $browser->login($account['email'], $account['password'])->assertOk();
+
+    $response = $browser->post('/api/v1/auth/two-factor/setup', ['password' => $account['password']])->assertOk();
+    expect($response->headers->get('Cache-Control'))->toContain('no-store');
 });

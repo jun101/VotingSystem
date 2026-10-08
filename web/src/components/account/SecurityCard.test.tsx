@@ -92,3 +92,44 @@ describe('SecurityCard double submit', () => {
     expect(calls.disable).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('SecurityCard second factor', () => {
+  it('sends the password and the code, or the recovery code after the link', () => {
+    calls.disable.mockReturnValue(new Promise(() => {}));
+    renderIn('fr', <SecurityCard initial={ON} />);
+    fireEvent.click(screen.getByTestId('two-factor-disable-open'));
+    type('two-factor-password', 'secret-value');
+    type('two-factor-code', '123456');
+    fireEvent.submit(screen.getByTestId('two-factor-password').closest('form')!);
+
+    expect(calls.disable).toHaveBeenLastCalledWith('secret-value', { code: '123456' });
+
+    fireEvent.click(screen.getByTestId('two-factor-recovery-toggle'));
+    expect(screen.queryByTestId('two-factor-code')).toBeNull();
+    expect(screen.getByTestId('two-factor-recovery-code')).toBeTruthy();
+  });
+
+  it('tells a wrong code under the code field and the wait of a 429 in minutes', async () => {
+    const { ApiError } = await import('@/lib/api/errors');
+
+    calls.disable.mockRejectedValueOnce(
+      new ApiError(422, 'validation_failed', { code: ['invalid'] }),
+    );
+    renderIn('fr', <SecurityCard initial={ON} />);
+    fireEvent.click(screen.getByTestId('two-factor-disable-open'));
+    type('two-factor-password', 'secret-value');
+    type('two-factor-code', '000000');
+    await act(async () => {
+      fireEvent.submit(screen.getByTestId('two-factor-password').closest('form')!);
+    });
+
+    expect(screen.getByTestId('two-factor-code-error')).toBeTruthy();
+
+    calls.disable.mockRejectedValueOnce(new ApiError(429, 'too_many_attempts', {}, null, 61));
+    await act(async () => {
+      fireEvent.submit(screen.getByTestId('two-factor-password').closest('form')!);
+    });
+
+    expect(screen.getByText(/2 minutes/)).toBeTruthy();
+  });
+});

@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Auth;
 
 use App\Actions\Auth\ClearTwoFactor;
 use App\Actions\Auth\ConfirmOwnPassword;
+use App\Actions\Auth\VerifySecondFactor;
 use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\PasswordRequest;
+use App\Http\Requests\Auth\SecondFactorRequest;
 use App\Http\Requests\Auth\TwoFactorCodeRequest;
 use App\Models\User;
 use App\Support\TwoFactor;
@@ -25,7 +27,7 @@ use Illuminate\Validation\ValidationException;
  */
 class TwoFactorController extends Controller
 {
-    public function __construct(private readonly TwoFactor $twoFactor, private readonly ConfirmOwnPassword $confirmPassword) {}
+    public function __construct(private readonly TwoFactor $twoFactor, private readonly ConfirmOwnPassword $confirmPassword, private readonly VerifySecondFactor $verifySecondFactor) {}
 
     /**
      * The state of the signed-in user's two-factor authentication.
@@ -98,7 +100,7 @@ class TwoFactorController extends Controller
         return response()->json(['data' => [
             'secret' => $secret,
             'otpauth_url' => $this->twoFactor->otpauthUrl($secret, $user->email),
-        ]]);
+        ]])->header('Cache-Control', 'no-store');
     }
 
     /**
@@ -165,18 +167,19 @@ class TwoFactorController extends Controller
 
         Log::info('auth.two_factor_confirm', ['outcome' => 'enabled']);
 
-        return response()->json(['data' => ['recovery_codes' => $codes['plain']]]);
+        return response()->json(['data' => ['recovery_codes' => $codes['plain']]])->header('Cache-Control', 'no-store');
     }
 
     /**
      * Turn two-factor off.
      *
      * Clears the secret, the recovery codes, the confirmation time and the stored period after
-     * the password is checked. A setup that was never confirmed counts as not turned on.
+     * the password and a current second factor (`code`, or `recovery_code`, checked first when
+     * both are sent) are checked. A setup that was never confirmed counts as not turned on.
      * Signed-in user. Limited to 10 requests per minute per user, shared with setup, confirm and
      * recovery codes.
      */
-    public function disable(PasswordRequest $request, ClearTwoFactor $clear): Response
+    public function disable(SecondFactorRequest $request, ClearTwoFactor $clear): Response
     {
         $user = $this->user($request);
         $this->checkPassword($request, $user);
@@ -184,6 +187,8 @@ class TwoFactorController extends Controller
         if (! $user->hasTwoFactorEnabled()) {
             throw new ApiException(409, 'two_factor_not_enabled');
         }
+
+        ($this->verifySecondFactor)($user, $request->input('code'), $request->input('recovery_code'));
 
         $clear($user);
 
@@ -195,13 +200,14 @@ class TwoFactorController extends Controller
     /**
      * Renew the recovery codes.
      *
-     * Replaces the recovery codes with eight new ones after the password is checked; the old
+     * Replaces the recovery codes with eight new ones after the password and a current second
+     * factor (`code`, or `recovery_code`, checked first when both are sent) are checked; the old
      * ones stop working. Shown only here. Signed-in user. Limited to 10 requests per minute per
      * user, shared with setup, confirm and disable.
      *
      * @response array{data: array{recovery_codes: list<string>}}
      */
-    public function recoveryCodes(PasswordRequest $request): JsonResponse
+    public function recoveryCodes(SecondFactorRequest $request): JsonResponse
     {
         $user = $this->user($request);
         $this->checkPassword($request, $user);
@@ -209,6 +215,8 @@ class TwoFactorController extends Controller
         if (! $user->hasTwoFactorEnabled()) {
             throw new ApiException(409, 'two_factor_not_enabled');
         }
+
+        ($this->verifySecondFactor)($user, $request->input('code'), $request->input('recovery_code'));
 
         // Under the same row lock as the sign-in with a recovery code: a renewal and a
         // recovery sign-in cannot both write the list.
@@ -232,7 +240,7 @@ class TwoFactorController extends Controller
 
         Log::info('auth.two_factor_recovery_codes', ['outcome' => 'renewed']);
 
-        return response()->json(['data' => ['recovery_codes' => $codes['plain']]]);
+        return response()->json(['data' => ['recovery_codes' => $codes['plain']]])->header('Cache-Control', 'no-store');
     }
 
     private function user(Request $request): User

@@ -2,11 +2,12 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
+import { SecondFactorField, useSecondFactor } from '@/components/account/SecondFactorField';
 import { PasswordField } from '@/components/auth/PasswordField';
 import { Button, Card, ConfirmDialog, Notice, Pill } from '@/components/ui';
 import { initials } from '@/components/admin/menu';
 import { cancelInvitation, removeUser, resetUserTwoFactor } from '@/lib/api/browser';
-import { ApiError, errorText, fieldText } from '@/lib/api/errors';
+import { ApiError, errorText, fieldText, waitText } from '@/lib/api/errors';
 import type { Listing, PendingInvitation, TeamMember } from '@/lib/api/user';
 import { useI18n } from '@/lib/i18n/client';
 import type { MessageKey } from '@/lib/i18n/messages';
@@ -47,6 +48,11 @@ export function UsersCard({
   const [refocus, setRefocus] = useState(0);
   const [resetPassword, setResetPassword] = useState('');
   const [resetFieldError, setResetFieldError] = useState<string | null>(null);
+  const [resetSecondError, setResetSecondError] = useState<string | null>(null);
+  const [secondRound, setSecondRound] = useState(0);
+  const second = useSecondFactor();
+  // The owner's own second factor is asked when the owner has one (the row marked "you").
+  const ownerHasTwoFactor = members.some((member) => member.is_you && member.two_factor_enabled);
   const resetField = useRef<HTMLInputElement>(null);
   const resetTextId = useId();
   // Set at once, not at the next render: a double Enter sends one request.
@@ -57,6 +63,11 @@ export function UsersCard({
 
   function readable(caught: unknown): string {
     return errorText(caught instanceof ApiError ? caught : new ApiError(0, 'unknown'), tIfAny);
+  }
+
+  /** As `readable`, and a 429 tells how many minutes to wait. */
+  function readableWait(caught: unknown): string {
+    return waitText(caught instanceof ApiError ? caught : new ApiError(0, 'unknown'), tIfAny);
   }
 
   function invited(invitation: PendingInvitation) {
@@ -137,12 +148,19 @@ export function UsersCard({
     setResetting(true);
     setResetError(null);
     setResetFieldError(null);
+    setResetSecondError(null);
 
     try {
-      await resetUserTwoFactor(resetTarget.id, resetPassword);
+      await resetUserTwoFactor(
+        resetTarget.id,
+        resetPassword,
+        ownerHasTwoFactor ? second.factor() : undefined,
+      );
     } catch (caught) {
       const failure = caught instanceof ApiError ? caught : new ApiError(0, 'unknown');
-      const code = failure.fields.password?.[0];
+      const password = failure.fields.password?.[0];
+      const code = failure.fields.code?.[0];
+      const recovery = failure.fields.recovery_code?.[0];
 
       if (failure.status === 401) {
         // Too many wrong passwords end the session.
@@ -152,14 +170,30 @@ export function UsersCard({
         return;
       }
 
-      if (code && Object.keys(failure.fields).every((name) => name === 'password')) {
-        setResetFieldError(fieldText('twofactor.password', code, tIfAny));
+      const own = (password || code || recovery) !== undefined;
+      const foreign = Object.keys(failure.fields).some(
+        (name) => !['password', 'code', 'recovery_code'].includes(name),
+      );
+
+      if (own && !foreign) {
+        if (password) setResetFieldError(fieldText('twofactor.password', password, tIfAny));
+
+        // The API has one "missing" answer (`code: required`), told under the field shown.
+        if (second.mode === 'recovery' && (recovery || code)) {
+          setResetSecondError(
+            fieldText('twofactor.recovery_code', recovery ?? code ?? 'invalid', tIfAny),
+          );
+        } else if (second.mode === 'code' && code) {
+          setResetSecondError(fieldText('twofactor.code', code, tIfAny));
+        }
       } else {
-        setResetError(readable(caught));
+        setResetError(readableWait(caught));
       }
 
       setResetting(false);
-      window.setTimeout(() => resetField.current?.focus(), 0);
+
+      if (password || !(code || recovery)) window.setTimeout(() => resetField.current?.focus(), 0);
+      else setSecondRound((n) => n + 1);
 
       return;
     } finally {
@@ -187,7 +221,10 @@ export function UsersCard({
     setResetTarget(null);
     setResetError(null);
     setResetFieldError(null);
+    setResetSecondError(null);
+    setSecondRound(0);
     setResetPassword('');
+    second.reset();
   }
 
   function pending(invitation: PendingInvitation): string {
@@ -424,6 +461,29 @@ export function UsersCard({
               error={resetFieldError ?? undefined}
               errorTestId="user-reset-password-error"
             />
+            {ownerHasTwoFactor ? (
+              <SecondFactorField
+                mode={second.mode}
+                value={second.value}
+                onChange={second.setValue}
+                onSwap={second.swap}
+                error={resetSecondError ?? undefined}
+                focusRound={secondRound}
+                labels={{
+                  code: t('institution.users.resetCode'),
+                  codeHelp: t('institution.users.resetCodeHelp'),
+                  recovery: t('institution.users.resetRecoveryCode'),
+                  recoveryHelp: t('institution.users.resetRecoveryHelp'),
+                }}
+                testIds={{
+                  code: 'user-reset-code',
+                  codeError: 'user-reset-code-error',
+                  recovery: 'user-reset-recovery-code',
+                  recoveryError: 'user-reset-recovery-code-error',
+                  toggle: 'user-reset-recovery-toggle',
+                }}
+              />
+            ) : null}
           </form>
         </ConfirmDialog>
       ) : null}

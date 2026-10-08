@@ -4,12 +4,13 @@ namespace App\Http\Controllers\Users;
 
 use App\Actions\Auth\ClearTwoFactor;
 use App\Actions\Auth\ConfirmOwnPassword;
+use App\Actions\Auth\VerifySecondFactor;
 use App\Actions\Users\RemoveUser;
 use App\Enums\Role;
 use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\PasswordRequest;
 use App\Http\Requests\Users\ListRequest;
+use App\Http\Requests\Users\ResetTwoFactorRequest;
 use App\Http\Resources\PageOf;
 use App\Http\Resources\TeamMemberResource;
 use App\Models\User;
@@ -68,10 +69,11 @@ class UserController extends Controller
      * recovery codes, the confirmation time and the stored period are cleared; their open
      * sessions stay open and their next sign-in asks for the password only. The owner's own
      * password is asked: a wrong one is a 422, and the fifth in 15 minutes ends the owner's
-     * session (401). Not for oneself (the page "Mon compte" asks for the password). Owner only.
+     * session (401). An owner who has two-factor on also gives a current `code` or `recovery_code`
+     * (a wrong one is a 422, counted with the wrong codes at sign-in; the sixth is a 429). Not for oneself (the page "Mon compte" asks for the password). Owner only.
      * Limited to 10 requests per minute per user, shared with the own-settings routes.
      */
-    public function resetTwoFactor(PasswordRequest $request, User $user, ClearTwoFactor $clear, ConfirmOwnPassword $confirmPassword): Response
+    public function resetTwoFactor(ResetTwoFactorRequest $request, User $user, ClearTwoFactor $clear, ConfirmOwnPassword $confirmPassword, VerifySecondFactor $verifySecondFactor): Response
     {
         $owner = $request->user();
         assert($owner instanceof User);
@@ -80,6 +82,11 @@ class UserController extends Controller
 
         if ($owner->is($user)) {
             throw new ApiException(409, 'cannot_reset_self');
+        }
+
+        // An owner who has two-factor on gives a current second factor too.
+        if ($owner->hasTwoFactorEnabled()) {
+            $verifySecondFactor($owner, $request->input('code'), $request->input('recovery_code'));
         }
 
         if (! $user->hasTwoFactorEnabled()) {

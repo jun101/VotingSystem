@@ -187,15 +187,24 @@ export async function confirmTwoFactor(code: string): Promise<string[]> {
   return data!.data.recovery_codes;
 }
 
-/** `POST /auth/two-factor/disable`. */
-export async function disableTwoFactor(password: string): Promise<void> {
-  await send((api) => api.POST('/v1/auth/two-factor/disable', { body: { password } }));
+/**
+ * The second factor asked with the password: a `code` of the authenticator application or a
+ * `recovery_code` (one of the two).
+ */
+export type SecondFactor = { code: string } | { recovery_code: string };
+
+/** `POST /auth/two-factor/disable`: the password and a current second factor. */
+export async function disableTwoFactor(password: string, factor: SecondFactor): Promise<void> {
+  await send((api) => api.POST('/v1/auth/two-factor/disable', { body: { password, ...factor } }));
 }
 
 /** `POST /auth/two-factor/recovery-codes`: eight new codes; the old ones stop working. */
-export async function renewRecoveryCodes(password: string): Promise<string[]> {
+export async function renewRecoveryCodes(
+  password: string,
+  factor: SecondFactor,
+): Promise<string[]> {
   const { data } = await send((api) =>
-    api.POST('/v1/auth/two-factor/recovery-codes', { body: { password } }),
+    api.POST('/v1/auth/two-factor/recovery-codes', { body: { password, ...factor } }),
   );
 
   return data!.data.recovery_codes;
@@ -203,13 +212,17 @@ export async function renewRecoveryCodes(password: string): Promise<string[]> {
 
 /**
  * `POST /users/{user}/two-factor/reset`: an owner turns off another user's two-factor, with
- * the owner's own password.
+ * the owner's own password, and the owner's own second factor when the owner has two-factor on.
  */
-export async function resetUserTwoFactor(id: string, password: string): Promise<void> {
+export async function resetUserTwoFactor(
+  id: string,
+  password: string,
+  factor?: SecondFactor,
+): Promise<void> {
   await send((api) =>
     api.POST('/v1/users/{user}/two-factor/reset', {
       params: { path: { user: id } },
-      body: { password },
+      body: { password, ...factor },
     }),
   );
 }

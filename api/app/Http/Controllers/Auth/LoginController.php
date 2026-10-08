@@ -33,10 +33,12 @@ class LoginController extends Controller
         $user = $attempt($data['email'], $data['password'], (string) $request->ip());
 
         if ($user->hasTwoFactorEnabled()) {
-            // Nobody stays signed in in this browser while another sign-in waits for its code:
-            // the guard is logged out and the session id is renewed with the old session
-            // destroyed, so nothing of the previous one is carried over.
+            // Nobody stays signed in in this browser while another sign-in waits for its code.
+            // regenerate(true) destroys the old stored session and gives a new id; the guard's
+            // login key is logged out; and the attributes still in memory are flushed, so that no
+            // session key, present or added later, survives into the pending sign-in.
             Auth::guard()->logout();
+            $request->session()->flush();
             $request->session()->regenerate(true);
             PendingSignIn::start($request->session(), $user, AttemptLogin::failureKeyForUser($user, (string) $request->ip()));
             $request->session()->regenerateToken();

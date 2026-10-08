@@ -67,7 +67,7 @@ Their open sessions stay open; their next sign-in asks for the password only.
 ### 422, 404, 403, 401, 419, 400, 429, 405
 
 The shared error shape of [API conventions](../README.md), with the codes of the table.
-Scenario 5 gives the same body and headers for every cause. Order of the checks: 404, 403, the body (password required; the owner's code required if the owner has two-factor on), the password lockout (429), the password (422, counted), the owner's second-factor lockout (429), the owner's second factor (422, counted), then the 409 for oneself, then the 409 for "not enabled".
+Scenario 5 gives the same body and headers for every cause. Order of the checks: 404, 403, the body (password required; the owner's code required if the owner has two-factor on, **unless `user` is the caller**), the password lockout (429), the password (422, counted), the 409 for oneself (so a reset aimed at oneself never asks for a second factor: it is refused anyway), the owner's second-factor lockout (429), the owner's second factor (422, counted), then the 409 for "not enabled".
 
 ## Notes
 

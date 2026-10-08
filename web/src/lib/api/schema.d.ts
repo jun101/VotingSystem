@@ -413,7 +413,8 @@ export interface paths {
         /**
          * Turn two-factor off
          * @description Clears the secret, the recovery codes, the confirmation time and the stored period after
-         *     the password is checked. A setup that was never confirmed counts as not turned on.
+         *     the password and a current second factor (`code`, or `recovery_code`, checked first when
+         *     both are sent) are checked. A setup that was never confirmed counts as not turned on.
          *     Signed-in user. Limited to 10 requests per minute per user, shared with setup, confirm and
          *     recovery codes.
          */
@@ -435,7 +436,8 @@ export interface paths {
         put?: never;
         /**
          * Renew the recovery codes
-         * @description Replaces the recovery codes with eight new ones after the password is checked; the old
+         * @description Replaces the recovery codes with eight new ones after the password and a current second
+         *     factor (`code`, or `recovery_code`, checked first when both are sent) are checked; the old
          *     ones stop working. Shown only here. Signed-in user. Limited to 10 requests per minute per
          *     user, shared with setup, confirm and disable.
          */
@@ -531,7 +533,8 @@ export interface paths {
          *     recovery codes, the confirmation time and the stored period are cleared; their open
          *     sessions stay open and their next sign-in asks for the password only. The owner's own
          *     password is asked: a wrong one is a 422, and the fifth in 15 minutes ends the owner's
-         *     session (401). Not for oneself (the page "Mon compte" asks for the password). Owner only.
+         *     session (401). An owner who has two-factor on also gives a current `code` or `recovery_code`
+         *     (a wrong one is a 422, counted with the wrong codes at sign-in; the sixth is a 429). Not for oneself (the page "Mon compte" asks for the password). Owner only.
          *     Limited to 10 requests per minute per user, shared with the own-settings routes.
          */
         post: operations["user.resetTwoFactor"];
@@ -621,6 +624,25 @@ export interface components {
         ResetPasswordRequest: {
             token: string;
             password: string;
+        };
+        /**
+         * ResetTwoFactorRequest
+         * @description The owner's password, and the owner's own second factor when the owner has two-factor on and
+         *     the user named is somebody else (a reset of oneself is refused with 409 after the password).
+         */
+        ResetTwoFactorRequest: {
+            password: string;
+        };
+        /**
+         * SecondFactorRequest
+         * @description The password and a current second factor (`code` or `recovery_code`), asked to turn
+         *     two-factor off and to renew the recovery codes. Only the presence of the second factor is
+         *     judged here: anything that is not a right value (a short code, a list, a long text) is answered
+         *     `invalid` by the action, and counted.
+         */
+        SecondFactorRequest: {
+            password: string;
+            code?: string;
         };
         /**
          * TwoFactorCodeRequest
@@ -1446,9 +1468,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody: {
+        requestBody?: {
             content: {
-                "application/json": components["schemas"]["PasswordRequest"];
+                "application/json": components["schemas"]["SecondFactorRequest"] & {
+                    recovery_code?: string;
+                };
             };
         };
         responses: {
@@ -1485,9 +1509,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody: {
+        requestBody?: {
             content: {
-                "application/json": components["schemas"]["PasswordRequest"];
+                "application/json": components["schemas"]["SecondFactorRequest"] & {
+                    recovery_code?: string;
+                };
             };
         };
         responses: {
@@ -1639,9 +1665,12 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody: {
+        requestBody?: {
             content: {
-                "application/json": components["schemas"]["PasswordRequest"];
+                "application/json": components["schemas"]["ResetTwoFactorRequest"] & {
+                    code?: string;
+                    recovery_code?: string;
+                };
             };
         };
         responses: {

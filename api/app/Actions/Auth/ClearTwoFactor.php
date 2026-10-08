@@ -14,6 +14,9 @@ final class ClearTwoFactor
 {
     public function __invoke(User $user): void
     {
+        // Read again: a period claimed or a recovery code used a moment ago was written by
+        // statements that did not touch this copy, and a field that looks unchanged would not be saved.
+        $user->refresh();
         $user->two_factor_secret = null;
         $user->two_factor_recovery_codes = null;
         $user->two_factor_confirmed_at = null;

@@ -1644,17 +1644,28 @@
         "/v1/auth/two-factor/disable": {
             "post": {
                 "operationId": "twoFactor.disable",
-                "description": "Clears the secret, the recovery codes, the confirmation time and the stored period after\nthe password is checked. A setup that was never confirmed counts as not turned on.\nSigned-in user. Limited to 10 requests per minute per user, shared with setup, confirm and\nrecovery codes.",
+                "description": "Clears the secret, the recovery codes, the confirmation time and the stored period after\nthe password and a current second factor (`code`, or `recovery_code`, checked first when\nboth are sent) are checked. A setup that was never confirmed counts as not turned on.\nSigned-in user. Limited to 10 requests per minute per user, shared with setup, confirm and\nrecovery codes.",
                 "summary": "Turn two-factor off",
                 "tags": [
                     "TwoFactor"
                 ],
                 "requestBody": {
-                    "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/PasswordRequest"
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/SecondFactorRequest"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "recovery_code": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                ]
                             }
                         }
                     }
@@ -1697,17 +1708,28 @@
         "/v1/auth/two-factor/recovery-codes": {
             "post": {
                 "operationId": "twoFactor.recoveryCodes",
-                "description": "Replaces the recovery codes with eight new ones after the password is checked; the old\nones stop working. Shown only here. Signed-in user. Limited to 10 requests per minute per\nuser, shared with setup, confirm and disable.",
+                "description": "Replaces the recovery codes with eight new ones after the password and a current second\nfactor (`code`, or `recovery_code`, checked first when both are sent) are checked; the old\nones stop working. Shown only here. Signed-in user. Limited to 10 requests per minute per\nuser, shared with setup, confirm and disable.",
                 "summary": "Renew the recovery codes",
                 "tags": [
                     "TwoFactor"
                 ],
                 "requestBody": {
-                    "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/PasswordRequest"
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/SecondFactorRequest"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "recovery_code": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                ]
                             }
                         }
                     }
@@ -2044,7 +2066,7 @@
         "/v1/users/{user}/two-factor/reset": {
             "post": {
                 "operationId": "user.resetTwoFactor",
-                "description": "For a person who has lost both their device and their recovery codes: the secret, the\nrecovery codes, the confirmation time and the stored period are cleared; their open\nsessions stay open and their next sign-in asks for the password only. The owner's own\npassword is asked: a wrong one is a 422, and the fifth in 15 minutes ends the owner's\nsession (401). Not for oneself (the page \"Mon compte\" asks for the password). Owner only.\nLimited to 10 requests per minute per user, shared with the own-settings routes.",
+                "description": "For a person who has lost both their device and their recovery codes: the secret, the\nrecovery codes, the confirmation time and the stored period are cleared; their open\nsessions stay open and their next sign-in asks for the password only. The owner's own\npassword is asked: a wrong one is a 422, and the fifth in 15 minutes ends the owner's\nsession (401). An owner who has two-factor on also gives a current `code` or `recovery_code`\n(a wrong one is a 422, counted with the wrong codes at sign-in; the sixth is a 429). Not for oneself (the page \"Mon compte\" asks for the password). Owner only.\nLimited to 10 requests per minute per user, shared with the own-settings routes.",
                 "summary": "Turn off another user's two-factor authentication",
                 "tags": [
                     "User"
@@ -2061,11 +2083,25 @@
                     }
                 ],
                 "requestBody": {
-                    "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/PasswordRequest"
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/ResetTwoFactorRequest"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "code": {
+                                                "type": "string"
+                                            },
+                                            "recovery_code": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                ]
                             }
                         }
                     }
@@ -2283,6 +2319,37 @@
                     "password"
                 ],
                 "title": "ResetPasswordRequest"
+            },
+            "ResetTwoFactorRequest": {
+                "type": "object",
+                "description": "The owner's password, and the owner's own second factor when the owner has two-factor on and\nthe user named is somebody else (a reset of oneself is refused with 409 after the password).",
+                "properties": {
+                    "password": {
+                        "type": "string",
+                        "maxLength": 1024
+                    }
+                },
+                "required": [
+                    "password"
+                ],
+                "title": "ResetTwoFactorRequest"
+            },
+            "SecondFactorRequest": {
+                "type": "object",
+                "description": "The password and a current second factor (`code` or `recovery_code`), asked to turn\ntwo-factor off and to renew the recovery codes. Only the presence of the second factor is\njudged here: anything that is not a right value (a short code, a list, a long text) is answered\n`invalid` by the action, and counted.",
+                "properties": {
+                    "password": {
+                        "type": "string",
+                        "maxLength": 1024
+                    },
+                    "code": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "password"
+                ],
+                "title": "SecondFactorRequest"
             },
             "TwoFactorCodeRequest": {
                 "type": "object",

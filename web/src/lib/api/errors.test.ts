@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import en from '@/lib/i18n/messages/en.json';
 import fr from '@/lib/i18n/messages/fr.json';
 import { translateIfAny } from '@/lib/i18n/messages';
-import { ApiError, errorText, fieldText, parseApiError } from './errors';
+import { ApiError, errorText, fieldText, parseApiError, waitText } from './errors';
 
 const finder = (messages: unknown) => (key: string, params?: Record<string, string | number>) =>
   translateIfAny(messages, key, params);
@@ -121,5 +121,26 @@ describe('parseApiError', () => {
 
       expect(error).toMatchObject({ status: 502, code: 'unknown', fields: {}, retryAfter: null });
     }
+  });
+});
+
+describe('waitText', () => {
+  const find = (key: string, params?: Record<string, string | number>) =>
+    key === 'errors.too_many_attempts_wait_one'
+      ? 'one minute'
+      : key === 'errors.too_many_attempts_wait_many'
+        ? `${params?.minutes} minutes`
+        : key === 'errors.too_many_attempts'
+          ? 'generic'
+          : null;
+
+  it('rounds the wait up to whole minutes', () => {
+    expect(waitText(new ApiError(429, 'too_many_attempts', {}, null, 1), find)).toBe('one minute');
+    expect(waitText(new ApiError(429, 'too_many_attempts', {}, null, 61), find)).toBe('2 minutes');
+  });
+
+  it('falls back to the generic text without a wait or for another status', () => {
+    expect(waitText(new ApiError(429, 'too_many_attempts'), find)).toBe('generic');
+    expect(waitText(new ApiError(500, 'too_many_attempts', {}, null, 90), find)).toBe('generic');
   });
 });
