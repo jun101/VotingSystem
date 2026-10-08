@@ -27,7 +27,7 @@ it('lists the users of the institution, owners first then by name, with the shap
         ->and($response->json('data.1.is_you'))->toBeFalse()
         ->and($response->json('data.0.id'))->toMatch(UUID_V4);
 
-    expect($response->getContent())->not->toContain('password')->not->toContain('institution_id')->not->toContain('two_factor');
+    expect($response->getContent())->not->toContain('password')->not->toContain('institution_id')->not->toContain('two_factor_secret')->not->toContain('two_factor_recovery')->not->toContain('two_factor_confirmed');
 });
 
 it('shows last_login_at in UTC and null before the first sign-in [FR-INST-03] (scenario 1)', function () {

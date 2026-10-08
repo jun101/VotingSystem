@@ -262,7 +262,7 @@ test.describe('an owner and the users', () => {
     await enableTwoFactor(manager, PASSWORD, current);
 
     await page.goto('/admin/institution');
-    const chip = page.locator('[data-testid^="user-two-factor-"]', { hasText: /activée|on/i });
+    const chip = page.locator('[data-testid^="user-two-factor-"][data-enabled="true"]');
     await expect(page.locator('[data-testid^="user-two-factor-"][data-enabled="true"]')).toHaveCount(1);
     await expect(page.locator('[data-testid^="user-two-factor-"][data-enabled="false"]')).toHaveCount(1);
     await expect(chip.first()).toContainText('Double authentification activée');

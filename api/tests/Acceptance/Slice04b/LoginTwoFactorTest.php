@@ -11,17 +11,19 @@ use Tests\Support\TwoFactor;
 
 it('does not sign in a user with two-factor: it asks for the second step [FR-INST-04] (scenario 10)', function () {
     $user = Accounts::user();
-    TwoFactor::enable($this, $user);
+    TwoFactor::enable($this, $user);   // signs in once with the password alone, which sets last_login_at
+    $before = TwoFactor::row($user['user'])['last_login_at'];
 
+    $this->travel(2)->minutes();
     $response = $this->browser->login($user['email'], $user['password']);
 
     $response->assertOk();
     expect($response->json())->toBe(['data' => ['two_factor_required' => true]]);
 
-    // Nothing is granted yet.
+    // Nothing is granted yet, and the time of the last sign-in has not moved.
     $this->browser->get('/api/v1/auth/me')->assertStatus(401)->assertJsonPath('error.code', 'unauthenticated');
     $this->browser->get('/api/v1/institution')->assertStatus(401);
-    expect(TwoFactor::row($user['user'])['last_login_at'])->toBeNull();
+    expect(TwoFactor::row($user['user'])['last_login_at'])->toBe($before);
 });
 
 it('signs in as before a user who has no two-factor [FR-INST-04] (scenario 1)', function () {

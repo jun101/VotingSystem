@@ -59,15 +59,17 @@ it('signs in with a right recovery code, which then works no more [FR-INST-04] (
     $again->post(CHALLENGE, ['recovery_code' => $two['codes'][1]])->assertOk();
 });
 
-it('accepts a recovery code in any letter case, with or without the dash [FR-INST-04] (scenario 2)', function (callable $shape) {
+it('accepts a recovery code in any letter case, with or without the dash [FR-INST-04] (scenario 2)', function (string $shape) {
     [$user, $two] = challengeSetUp($this);
+    $code = $two['codes'][2];
+    $sent = match ($shape) {
+        'upper case' => strtoupper($code),
+        'no dash' => str_replace('-', '', $code),
+        'with spaces' => ' '.str_replace('-', ' ', $code).' ',
+    };
 
-    $this->browser->post(CHALLENGE, ['recovery_code' => $shape($two['codes'][2])])->assertOk();
-})->with([
-    'upper case' => fn () => fn (string $code) => strtoupper($code),
-    'no dash' => fn () => fn (string $code) => str_replace('-', '', $code),
-    'with spaces' => fn () => fn (string $code) => ' '.str_replace('-', ' ', $code).' ',
-]);
+    $this->browser->post(CHALLENGE, ['recovery_code' => $sent])->assertOk();
+})->with(['upper case', 'no dash', 'with spaces']);
 
 it('checks the recovery code when both fields are sent [FR-INST-04] (scenario 2)', function () {
     [$user, $two] = challengeSetUp($this);
