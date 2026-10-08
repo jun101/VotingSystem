@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\UpdateMeRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -22,6 +23,25 @@ class MeController extends Controller
     {
         /** @var User $user */
         $user = $request->user();
+
+        return new UserResource($user);
+    }
+
+    /**
+     * Change the signed-in user's settings.
+     *
+     * In this slice, the language of the admin area (`fr` or `en`). It also becomes the language of
+     * the emails sent to this user from then on. Only the signed-in user's own row changes; any
+     * other field of the body is ignored. Signed-in user.
+     *
+     * @response array{data: array{id: string, name: string, email: string, role: 'owner'|'manager'|'platform_admin', email_verified: bool, language: 'fr'|'en', institution: array{id: string, name: string, type: 'school'|'university'|'association'|'other'}|null}}
+     */
+    public function update(UpdateMeRequest $request): UserResource
+    {
+        /** @var User $user */
+        $user = $request->user();
+        $user->language = $request->string('language')->toString();
+        $user->save();
 
         return new UserResource($user);
     }

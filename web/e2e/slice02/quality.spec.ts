@@ -45,7 +45,7 @@ for (const locale of [
       await expectAccessible(page);
     });
 
-    test('the admin placeholder is accessible, with its banner [NFR-UX-03]', async ({ page }) => {
+    test('the admin dashboard is accessible, with its banner [NFR-UX-03]', async ({ page }) => {
       await page.goto('/register');
       await page.getByTestId('register-institution-name').fill('Collège');
       await page.getByTestId('register-name').fill('Marie');

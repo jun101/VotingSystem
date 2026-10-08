@@ -11,8 +11,19 @@ import { useAuthForm } from './useAuthForm';
 
 const FIELDS = ['email', 'password'] as const;
 
-/** Sign in. `reset` is true after a password change: a short confirmation is shown. */
-export function LoginForm({ reset }: { reset: boolean }) {
+/**
+ * Sign in. `reset` is true after a password change: a short confirmation is shown.
+ * `suspended` and `platformAdmin` explain why the admin area sent the person back here.
+ */
+export function LoginForm({
+  reset,
+  suspended = false,
+  platformAdmin = false,
+}: {
+  reset: boolean;
+  suspended?: boolean;
+  platformAdmin?: boolean;
+}) {
   const { t } = useI18n();
   const router = useRouter();
   const { form, busy, fields, formError, run } = useAuthForm(FIELDS);
@@ -28,7 +39,11 @@ export function LoginForm({ reset }: { reset: boolean }) {
       }),
     );
 
-    if (done) router.push('/admin');
+    if (done) {
+      // The page is rendered again, so <html lang> takes the language stored for this user.
+      router.push('/admin');
+      router.refresh();
+    }
   }
 
   return (
@@ -48,6 +63,18 @@ export function LoginForm({ reset }: { reset: boolean }) {
       {reset ? (
         <Notice tone="teal" role="status" data-testid="login-notice">
           {t('auth.login.notice')}
+        </Notice>
+      ) : null}
+
+      {suspended ? (
+        <Notice tone="warm" role="alert" data-testid="login-suspended">
+          {t('auth.login.suspended')}
+        </Notice>
+      ) : null}
+
+      {platformAdmin ? (
+        <Notice tone="warm" role="alert" data-testid="login-platform-admin">
+          {t('auth.login.platformAdmin')}
         </Notice>
       ) : null}
 

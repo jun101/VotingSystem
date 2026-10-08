@@ -8,6 +8,7 @@ use App\Models\User;
 use Database\Factories\UserFactory;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
@@ -89,9 +90,13 @@ it('outputs the current user with a uuid as id and no database key [NFR-SEC-08]'
 it('removes a user with deleted_at and then treats them as nobody [FR-INST-06]', function () {
     $user = User::factory()->create();
     $user->delete();
+    // Someone of the same institution is signed in, so the scope shows the institution's users.
+    $colleague = User::factory()->create(['institution_id' => $user->institution_id]);
+    Auth::setUser($colleague);
 
+    // The scope is removed on purpose below: the row of a removed user must still be there.
     expect(User::query()->where('email', $user->email)->exists())->toBeFalse()
-        ->and(User::withTrashed()->where('email', $user->email)->exists())->toBeTrue();
+        ->and(User::withoutInstitutionScope()->withTrashed()->where('email', $user->email)->exists())->toBeTrue();
 });
 
 it('refuses a user with an institution and the role platform_admin, and the reverse [FR-INST-01]', function () {

@@ -132,7 +132,13 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * Change the signed-in user's settings
+         * @description In this slice, the language of the admin area (`fr` or `en`). It also becomes the language of
+         *     the emails sent to this user from then on. Only the signed-in user's own row changes; any
+         *     other field of the body is ignored. Signed-in user.
+         */
+        patch: operations["me.update"];
         trace?: never;
     };
     "/v1/auth/register": {
@@ -249,6 +255,11 @@ export interface components {
         ResetPasswordRequest: {
             token: string;
             password: string;
+        };
+        /** UpdateMeRequest */
+        UpdateMeRequest: {
+            /** @enum {string} */
+            language: "fr" | "en";
         };
         /** UserResource */
         UserResource: unknown[];
@@ -461,6 +472,48 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "me.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateMeRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            name: string;
+                            email: string;
+                            /** @enum {string} */
+                            role: "owner" | "manager" | "platform_admin";
+                            email_verified: boolean;
+                            /** @enum {string} */
+                            language: "fr" | "en";
+                            institution: {
+                                id: string;
+                                name: string;
+                                /** @enum {string} */
+                                type: "school" | "university" | "association" | "other";
+                            } | null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
         };
     };
     "auth.register": {

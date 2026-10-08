@@ -1,10 +1,13 @@
 import { expect, test, type Page } from '@playwright/test';
+import { signOut } from '../support/admin';
 import { linkIn, uniqueEmail, waitForMails } from '../support/mail';
 
 /*
  * Slice 02 — the whole path of a person, in French and in English:
  * register, verify the email, sign out, sign in, forget the password, reset it.
  * docs/slices/02-sign-up-and-sign-in.md, "Goal" and "Copy the tests rely on".
+ * Updated in slice 03: the placeholder is now the dashboard of the admin shell, and the
+ * sign-out button is in the user menu.
  */
 
 const PASSWORD = 'un mot de passe long et sûr';
@@ -56,8 +59,8 @@ for (const language of languages) {
       await register(page, email);
       await expect(page).toHaveURL(/\/admin$/);
       await expect(page.locator('html')).toHaveAttribute('lang', language.lang);
-      await expect(page.getByTestId('admin-welcome')).toContainText('Marie Joseph');
-      await expect(page.getByTestId('admin-institution')).toContainText('Collège Les Flamboyants');
+      await expect(page.getByTestId('dashboard-welcome')).toContainText('Marie Joseph');
+      await expect(page.getByTestId('dashboard-institution')).toContainText('Collège Les Flamboyants');
       await expect(page.getByTestId('verify-banner')).toBeVisible();
 
       // The verification email, in the right language, with a link that holds a token only.
@@ -71,19 +74,19 @@ for (const language of languages) {
       await page.goto(verifyLink!);
       await expect(page.getByTestId('verify-state')).toHaveAttribute('data-state', 'success');
       await page.goto('/admin');
-      await expect(page.getByTestId('admin-welcome')).toBeVisible();
+      await expect(page.getByTestId('dashboard-welcome')).toBeVisible();
       await expect(page.getByTestId('verify-banner')).toHaveCount(0);
 
       // Sign out, then back in.
-      await page.getByTestId('signout-button').click();
+      await signOut(page);
       await expect(page).toHaveURL(/\/login$/);
       await page.goto('/admin');
       await expect(page).toHaveURL(/\/login$/);
 
       await signIn(page, email, PASSWORD);
       await expect(page).toHaveURL(/\/admin$/);
-      await expect(page.getByTestId('admin-welcome')).toContainText('Marie Joseph');
-      await page.getByTestId('signout-button').click();
+      await expect(page.getByTestId('dashboard-welcome')).toContainText('Marie Joseph');
+      await signOut(page);
       await expect(page).toHaveURL(/\/login$/);
 
       // Forgot the password.

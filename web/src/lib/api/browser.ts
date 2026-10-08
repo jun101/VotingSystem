@@ -146,6 +146,13 @@ export async function login(body: { email: string; password: string }): Promise<
   return data!.data;
 }
 
+/** `PATCH /auth/me`: the language of the admin area, stored on the user. */
+export async function updateLanguage(language: 'fr' | 'en'): Promise<CurrentUser> {
+  const { data } = await send((api) => api.PATCH('/v1/auth/me', { body: { language } }));
+
+  return data!.data;
+}
+
 export async function logout(): Promise<void> {
   await send((api) => api.POST('/v1/auth/logout'));
 }

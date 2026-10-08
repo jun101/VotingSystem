@@ -239,6 +239,28 @@
     animation: slide-right 300ms var(--ease-out-soft) both;
   }
 
+  /* ---- Drawer: the side menu below `lg` slides in from the left; fixed from `lg` ---- */
+
+  @media (max-width: 1023.98px) {
+    .menu-drawer {
+      transition-property: transform, visibility;
+      transition-duration: var(--duration-base), 0s;
+      transition-delay: 0s, var(--duration-base);
+      transition-timing-function: var(--ease-out-soft), linear;
+    }
+
+    .menu-drawer[data-open='false'] {
+      visibility: hidden;
+      transform: translateX(-100%);
+    }
+
+    .menu-drawer[data-open='true'] {
+      visibility: visible;
+      transform: translateX(0);
+      transition-delay: 0s, 0s;
+    }
+  }
+
   /* ---- Hero: the lights that drift, the accent word ---- */
 
   .hero-light {

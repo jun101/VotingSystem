@@ -24,6 +24,7 @@ Route::prefix('v1')->group(function (): void {
         Route::post('/login', LoginController::class)->middleware('throttle:auth-login');
         Route::post('/logout', LogoutController::class)->middleware('auth');
         Route::get('/me', MeController::class)->middleware(['auth', 'institution.active']);
+        Route::patch('/me', [MeController::class, 'update'])->middleware(['auth', 'institution.active']);
         Route::post('/verify-email', VerifyEmailController::class)->middleware('throttle:auth-verify-email');
         Route::post('/verify-email/resend', ResendVerificationController::class)
             ->middleware(['auth', 'institution.active', 'throttle:auth-resend']);

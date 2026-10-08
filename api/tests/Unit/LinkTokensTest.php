@@ -11,7 +11,9 @@ function userRow(): User
 {
     $made = Accounts::user();
 
-    return User::query()->where('uuid', $made['user'])->firstOrFail();
+    // Test setup: nobody is signed in, so the institution scope is removed on purpose.
+
+    return User::withoutInstitutionScope()->where('uuid', $made['user'])->firstOrFail();
 }
 
 it('issues a 64-hex token from a secure random source and stores only its SHA-256 hash [NFR-SEC-02]', function () {

@@ -19,7 +19,8 @@ return [
 
     'providers' => [
         'users' => [
-            'driver' => 'eloquent',
+            // Finds users without the institution scope: see App\Auth\SessionUserProvider.
+            'driver' => 'institution-session',
             'model' => User::class,
         ],
     ],

@@ -18,7 +18,7 @@ final class VerifyEmail
     {
         DB::transaction(function () use ($token): void {
             $row = $this->tokens->find(LinkTokens::VERIFICATION, $token, lock: true);
-            $user = $row === null ? null : User::query()->whereKey($row->user_id)->first();
+            $user = $row === null ? null : $this->userOf($row->user_id);
 
             if ($row === null || $user === null) {
                 Log::info('auth.verify_email', ['outcome' => 'invalid']);
@@ -39,5 +39,13 @@ final class VerifyEmail
         });
 
         Log::info('auth.verify_email', ['outcome' => 'verified']);
+    }
+
+    /** The owner of a token row. */
+    private function userOf(mixed $key): ?User
+    {
+        // The link is opened with nobody signed in, so the token's owner is found across
+        // every institution.
+        return User::withoutInstitutionScope()->whereKey($key)->first();
     }
 }

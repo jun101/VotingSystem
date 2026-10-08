@@ -103,6 +103,9 @@ returns a code that is not in this table.
 | **500** Internal Server Error | A fault on the server; the body holds only the code, a message and a `reference` | `server_error` |
 | **503** Service Unavailable | Maintenance, or a service the API depends on is down | `maintenance`, `dependency_unavailable` |
 
+For an endpoint that needs a signed-in user, **401 is checked before the CSRF check (419)**:
+a request with no session and no token answers 401.
+
 Choosing between the close ones:
 
 - Wrong shape or value of the input → **422**. Right input, wrong moment → **409**.
@@ -236,5 +239,6 @@ Filled slice by slice: each slice adds its endpoints here with a link to their f
 | Auth | `POST /auth/login` | 02 | [auth/POST-auth-login.md](auth/POST-auth-login.md) |
 | Auth | `POST /auth/logout` | 02 | [auth/POST-auth-logout.md](auth/POST-auth-logout.md) |
 | Auth | `GET /auth/me` | 02 | [auth/GET-auth-me.md](auth/GET-auth-me.md) |
+| Auth | `PATCH /auth/me` | 03 | [auth/PATCH-auth-me.md](auth/PATCH-auth-me.md) |
 | Auth | `POST /auth/forgot-password` | 02 | [auth/POST-auth-forgot-password.md](auth/POST-auth-forgot-password.md) |
 | Auth | `POST /auth/reset-password` | 02 | [auth/POST-auth-reset-password.md](auth/POST-auth-reset-password.md) |
