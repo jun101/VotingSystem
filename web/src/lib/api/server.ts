@@ -8,6 +8,7 @@ import type {
   Listing,
   PendingInvitation,
   TeamMember,
+  TwoFactorState,
 } from './user';
 
 /** Who the API says is behind the session cookie of this request. */
@@ -106,5 +107,18 @@ export const fetchInvitations = cache(async (): Promise<Listing<PendingInvitatio
     });
 
     return response.ok && data ? { items: data.data, total: data.meta.total } : null;
+  }),
+);
+
+/** The signed-in user's own two-factor state, or null when the API does not give it. */
+export const fetchTwoFactor = cache(async (): Promise<TwoFactorState | null> =>
+  authorizedGet(async (headers) => {
+    const { data, response } = await createApiClient().GET('/v1/auth/two-factor', {
+      headers,
+      cache: 'no-store',
+      signal: AbortSignal.timeout(4000),
+    });
+
+    return response.ok && data ? data.data : null;
   }),
 );

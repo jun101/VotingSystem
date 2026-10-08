@@ -33,3 +33,14 @@ export type InvitedRole = 'owner' | 'manager';
 
 /** One page of a list, and how many items there are in all. */
 export type Listing<T> = { items: T[]; total: number };
+
+/** The state of the signed-in user's own two-factor authentication: the `data` of `GET /auth/two-factor`. */
+export type TwoFactorState =
+  operations['twoFactor.show']['responses'][200]['content']['application/json']['data'];
+
+/** The secret and the `otpauth` link of a setup that is not confirmed yet. */
+export type TwoFactorSetup =
+  operations['twoFactor.setup']['responses'][200]['content']['application/json']['data'];
+
+/** What `POST /auth/login` answers when the password is right but a code is still needed. */
+export type TwoFactorRequired = { two_factor_required: boolean };

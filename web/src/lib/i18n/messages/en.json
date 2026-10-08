@@ -191,6 +191,18 @@
       "takenTitle": "Address already used",
       "taken": "This address is already used by an account. Sign in with that account.",
       "signIn": "Go to sign-in"
+    },
+    "challenge": {
+      "title": "Two-step verification",
+      "lede": "Enter the 6-digit code shown by your authenticator app.",
+      "code": "6-digit code",
+      "recoveryLede": "Enter one of your recovery codes. Each code works only once.",
+      "recoveryCode": "Recovery code",
+      "useRecovery": "Use a recovery code",
+      "useCode": "Use the app code",
+      "submit": "Verify",
+      "cancel": "Cancel",
+      "expired": "Your sign-in expired, or too many wrong codes were entered. Enter your password again."
     }
   },
   "admin": {
@@ -205,7 +217,8 @@
       "elections": "Elections",
       "institution": "Institution",
       "audit": "Audit log",
-      "newElection": "New election"
+      "newElection": "New election",
+      "account": "My account"
     },
     "menu": {
       "search": "Go to…",
@@ -220,7 +233,8 @@
     },
     "user": {
       "menu": "{name}'s menu",
-      "signOut": "Sign out"
+      "signOut": "Sign out",
+      "account": "My account"
     },
     "roles": {
       "owner": "Owner",
@@ -299,7 +313,11 @@
     "file_too_large": "This file is over 5 MB. Choose a lighter image.",
     "file_type_not_allowed": "This file is not a JPEG, PNG or WebP image.",
     "last_owner": "An institution must keep at least one owner. Invite another owner first.",
-    "email_taken": "This address is already used by an account."
+    "email_taken": "This address is already used by an account.",
+    "two_factor_already_enabled": "Two-factor authentication is already on. Reload the page.",
+    "two_factor_not_started": "The setup was not started. Start again with “Turn on”.",
+    "two_factor_not_enabled": "Two-factor authentication is not on. Reload the page.",
+    "cannot_reset_self": "For your own account, use the “My account” page."
   },
   "validation": {
     "required": "This field is required.",
@@ -376,6 +394,26 @@
         "dimensions": "This image is too large: 8,000 pixels at most on a side, 40 million pixels in all.",
         "required": "Choose an image.",
         "invalid": "This file could not be sent. Try again."
+      }
+    },
+    "challenge": {
+      "code": {
+        "required": "Enter the 6-digit code.",
+        "invalid": "That code is wrong or was already used. Wait for the next code and try again."
+      },
+      "recovery_code": {
+        "required": "Enter a recovery code.",
+        "invalid": "That recovery code is wrong or was already used."
+      }
+    },
+    "twofactor": {
+      "password": {
+        "required": "Enter your password.",
+        "incorrect": "That is not your password."
+      },
+      "code": {
+        "required": "Enter the 6-digit code.",
+        "invalid": "That code is wrong or was already used. Wait for the next code and try again."
       }
     }
   },
@@ -454,7 +492,69 @@
         "close": "Close"
       },
       "managerNote": "Only an owner manages the users and this profile. Contact an owner for any change.",
-      "managerNoteTitle": "Users"
+      "managerNoteTitle": "Users",
+      "twoFactorOn": "Two-factor on",
+      "twoFactorOff": "No two-factor",
+      "resetTwoFactor": "Reset",
+      "resetTwoFactorLabel": "Reset the two-factor authentication of {name}",
+      "resetTitle": "Reset the two-factor authentication of {name}?",
+      "resetText": "{name} will be able to sign in with a password alone, then turn it on again from “My account”. Do this only if the person lost their phone and their recovery codes.",
+      "resetConfirm": "Reset",
+      "resetCancel": "Cancel"
+    }
+  },
+  "account": {
+    "security": {
+      "title": "Security",
+      "lede": "Add a code from your phone to your password to protect your account better.",
+      "label": "Two-factor authentication",
+      "on": "On",
+      "off": "Off",
+      "codesLeftOne": "{count} recovery code left",
+      "codesLeftMany": "{count} recovery codes left",
+      "enable": "Turn on",
+      "disable": "Turn off",
+      "renew": "Renew the codes"
+    },
+    "setup": {
+      "passwordTitle": "Confirm your password",
+      "passwordHelp": "For your security, enter your password again.",
+      "password": "Password",
+      "continue": "Continue",
+      "cancel": "Cancel",
+      "scanTitle": "Scan the QR code",
+      "scanText": "Open your authenticator app, then scan this code.",
+      "qrLabel": "Setup QR code. Scan it with your authenticator app, or type the key shown next to it.",
+      "manual": "Cannot scan? Type this key into the app:",
+      "code": "6-digit code",
+      "codeHelp": "Enter the code the app shows right now.",
+      "confirm": "Confirm"
+    },
+    "codes": {
+      "title": "Your recovery codes",
+      "lede": "Keep them somewhere safe. Each code works only once, to sign in if you lose your phone. They will not be shown again.",
+      "warning": "If you leave this page before finishing, these codes are lost. Two-factor is already on: you can generate new ones.",
+      "list": "Recovery codes",
+      "copy": "Copy",
+      "copied": "Codes copied.",
+      "copyFailed": "Copying did not work. Use the download.",
+      "download": "Download",
+      "saved": "I kept these codes",
+      "done": "Finish"
+    },
+    "disable": {
+      "title": "Turn off two-factor authentication?",
+      "text": "Your account will be protected by your password alone. Enter it to confirm.",
+      "confirm": "Turn off"
+    },
+    "renew": {
+      "title": "Renew the recovery codes?",
+      "text": "The old codes will stop working. Enter your password to confirm.",
+      "confirm": "Renew"
+    },
+    "dialog": {
+      "password": "Password",
+      "cancel": "Cancel"
     }
   }
 }

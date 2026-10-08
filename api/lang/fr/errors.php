@@ -21,4 +21,8 @@ return [
     'last_owner' => 'Un établissement doit garder au moins un propriétaire.',
     'email_taken' => 'Cette adresse est déjà utilisée par un compte.',
     'dependency_unavailable' => 'Le service est momentanément indisponible.',
+    'two_factor_already_enabled' => 'La double authentification est déjà activée.',
+    'two_factor_not_started' => "Commencez d'abord la configuration.",
+    'two_factor_not_enabled' => "La double authentification n'est pas activée.",
+    'cannot_reset_self' => 'Utilisez votre page « Mon compte » pour désactiver votre propre double authentification.',
 ];

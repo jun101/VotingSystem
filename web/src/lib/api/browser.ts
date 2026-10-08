@@ -10,6 +10,8 @@ import type {
   PendingInvitation,
   ProfileChanges,
   RegisterBody,
+  TwoFactorRequired,
+  TwoFactorSetup,
 } from './user';
 
 /*
@@ -147,10 +149,63 @@ export async function register(body: RegisterBody): Promise<CurrentUser> {
   return data!.data;
 }
 
-export async function login(body: { email: string; password: string }): Promise<CurrentUser> {
+/**
+ * `POST /auth/login`. A user with two-factor authentication is not signed in yet: the answer is
+ * `{ two_factor_required: true }` and the sign-in is finished with `twoFactorChallenge`.
+ */
+export async function login(body: {
+  email: string;
+  password: string;
+}): Promise<CurrentUser | TwoFactorRequired> {
   const { data } = await send((api) => api.POST('/v1/auth/login', { body }));
 
   return data!.data;
+}
+
+/** `POST /auth/two-factor-challenge`: the second step of signing in, with a code or a recovery code. */
+export async function twoFactorChallenge(
+  body: { code: string } | { recovery_code: string },
+): Promise<CurrentUser> {
+  const { data } = await send((api) => api.POST('/v1/auth/two-factor-challenge', { body }));
+
+  return data!.data;
+}
+
+/** `POST /auth/two-factor/setup`: a new secret, after the password is checked. */
+export async function startTwoFactorSetup(password: string): Promise<TwoFactorSetup> {
+  const { data } = await send((api) =>
+    api.POST('/v1/auth/two-factor/setup', { body: { password } }),
+  );
+
+  return data!.data;
+}
+
+/** `POST /auth/two-factor/confirm`: turns it on; the eight recovery codes, shown once. */
+export async function confirmTwoFactor(code: string): Promise<string[]> {
+  const { data } = await send((api) => api.POST('/v1/auth/two-factor/confirm', { body: { code } }));
+
+  return data!.data.recovery_codes;
+}
+
+/** `POST /auth/two-factor/disable`. */
+export async function disableTwoFactor(password: string): Promise<void> {
+  await send((api) => api.POST('/v1/auth/two-factor/disable', { body: { password } }));
+}
+
+/** `POST /auth/two-factor/recovery-codes`: eight new codes; the old ones stop working. */
+export async function renewRecoveryCodes(password: string): Promise<string[]> {
+  const { data } = await send((api) =>
+    api.POST('/v1/auth/two-factor/recovery-codes', { body: { password } }),
+  );
+
+  return data!.data.recovery_codes;
+}
+
+/** `DELETE /users/{user}/two-factor`: an owner turns off another user's two-factor. */
+export async function resetUserTwoFactor(id: string): Promise<void> {
+  await send((api) =>
+    api.DELETE('/v1/users/{user}/two-factor', { params: { path: { user: id } } }),
+  );
 }
 
 /** `PATCH /auth/me`: the language of the admin area, stored on the user. */

@@ -9,7 +9,7 @@ import type { MessageKey } from '@/lib/i18n/messages';
 import { navyFocus } from './classes';
 import { Icon } from './Icon';
 import { LanguageSwitch } from './LanguageSwitch';
-import { entryOf, fold, initials, MENU_ENTRIES } from './menu';
+import { ACCOUNT_PATH, entryOf, fold, initials, MENU_ENTRIES } from './menu';
 
 const SEARCH = 'M11 17.5a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13zM16 16l4.5 4.5';
 const PLUS = 'M12 5v14M5 12h14';
@@ -41,7 +41,8 @@ export function SideMenu({ user, searchRef, closeRef, onNavigate, logo = null }:
   const router = useRouter();
   const pathname = usePathname();
   const [query, setQuery] = useState('');
-  const current = entryOf(pathname).key;
+  // The account page belongs to no entry of the menu: none is marked as the current one.
+  const current = pathname === ACCOUNT_PATH ? null : entryOf(pathname).key;
 
   const matches = useMemo(() => {
     const wanted = fold(query.trim());

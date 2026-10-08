@@ -21,4 +21,8 @@ return [
     'last_owner' => 'An institution must keep at least one owner.',
     'email_taken' => 'This address is already used by an account.',
     'dependency_unavailable' => 'The service is temporarily unavailable.',
+    'two_factor_already_enabled' => 'Two-factor authentication is already turned on.',
+    'two_factor_not_started' => 'Start the setup first.',
+    'two_factor_not_enabled' => 'Two-factor authentication is not turned on.',
+    'cannot_reset_self' => 'Use your "My account" page to turn off your own two-factor authentication.',
 ];

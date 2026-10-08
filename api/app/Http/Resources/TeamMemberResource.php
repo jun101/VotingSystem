@@ -25,6 +25,7 @@ final class TeamMemberResource extends ApiResource
             'role' => $user->role->value,
             'email_verified' => $user->hasVerifiedEmail(),
             'last_login_at' => $user->last_login_at?->utc()->format('Y-m-d\TH:i:s\Z'),
+            'two_factor_enabled' => $user->hasTwoFactorEnabled(),
             'is_you' => $viewer instanceof User && $viewer->is($user),
         ];
     }

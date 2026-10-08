@@ -12,7 +12,9 @@ use Illuminate\Support\Facades\RateLimiter;
 
 /**
  * Checks an email and a password (docs/api/auth/POST-auth-login.md). It does not open the
- * session: the controller does, with the user returned.
+ * session: the controller does, with the user returned (or, for a user with two-factor
+ * authentication, starts the pending sign-in: `last_login_at` and the failure counter are left
+ * for the second step).
  *
  * - Five failed attempts a minute for one account (or one unknown email) and one address, then 429 even with the
  *   right password. The counter holds a hash of the pair, never the address itself.
@@ -61,11 +63,20 @@ final class AttemptLogin
             throw new ApiException(403, 'institution_suspended');
         }
 
-        RateLimiter::clear($key);
-
         if (Hash::needsRehash($user->password)) {
             $user->password = Hash::make($password);
+            $user->save();
         }
+
+        // With two-factor on, this is the first step only: the failure counter and
+        // `last_login_at` wait for the second (POST /auth/two-factor-challenge).
+        if ($user->hasTwoFactorEnabled()) {
+            Log::info('auth.login', ['outcome' => 'two_factor_required']);
+
+            return $user;
+        }
+
+        RateLimiter::clear($key);
 
         $user->last_login_at = now();
         $user->save();

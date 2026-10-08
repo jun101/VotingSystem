@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui';
@@ -7,8 +8,8 @@ import { logout } from '@/lib/api/browser';
 import { ApiError, errorText } from '@/lib/api/errors';
 import { useI18n } from '@/lib/i18n/client';
 import { useAdminUser } from './AdminUser';
-import { focusRing } from './classes';
-import { initials } from './menu';
+import { focusRing, linkSecondary } from './classes';
+import { ACCOUNT_PATH, initials } from './menu';
 import { ROLE_KEYS } from './SideMenu';
 
 /**
@@ -108,6 +109,14 @@ export function UserMenu() {
               {problem}
             </p>
           ) : null}
+          <Link
+            href={ACCOUNT_PATH}
+            data-testid="user-menu-account"
+            onClick={() => setOpen(false)}
+            className={linkSecondary}
+          >
+            {t('admin.user.account')}
+          </Link>
           <Button
             variant="secondary"
             loading={signingOut}

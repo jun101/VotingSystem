@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Users;
 
+use App\Actions\Auth\ClearTwoFactor;
 use App\Actions\Users\RemoveUser;
 use App\Enums\Role;
+use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Users\ListRequest;
 use App\Http\Resources\PageOf;
@@ -12,6 +14,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -21,7 +24,7 @@ class UserController extends Controller
      * Owners first, then managers, each by name (case and accents ignored), then by email. A
      * removed user is not listed. Owner only.
      *
-     * @response array{data: list<array{id: string, name: string, email: string, role: 'owner'|'manager', email_verified: bool, last_login_at: string|null, is_you: bool}>, meta: array{page: int, per_page: int, total: int}}
+     * @response array{data: list<array{id: string, name: string, email: string, role: 'owner'|'manager', email_verified: bool, last_login_at: string|null, two_factor_enabled: bool, is_you: bool}>, meta: array{page: int, per_page: int, total: int}}
      */
     public function index(ListRequest $request): PageOf
     {
@@ -52,6 +55,31 @@ class UserController extends Controller
             $request->session()->invalidate();
             $request->session()->regenerateToken();
         }
+
+        return response()->noContent();
+    }
+
+    /**
+     * Turn off another user's two-factor authentication.
+     *
+     * For a person who has lost both their device and their recovery codes: the secret, the
+     * recovery codes, the confirmation time and the stored period are cleared; their open
+     * sessions stay open and their next sign-in asks for the password only. Not for oneself
+     * (the page "Mon compte" asks for the password). Owner only.
+     */
+    public function resetTwoFactor(Request $request, User $user, ClearTwoFactor $clear): Response
+    {
+        if ($request->user()?->is($user) === true) {
+            throw new ApiException(409, 'cannot_reset_self');
+        }
+
+        if (! $user->hasTwoFactorEnabled()) {
+            throw new ApiException(409, 'two_factor_not_enabled');
+        }
+
+        $clear($user);
+
+        Log::info('users.reset_two_factor', ['outcome' => 'reset']);
 
         return response()->noContent();
     }

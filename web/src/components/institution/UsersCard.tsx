@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 import { Button, Card, ConfirmDialog, Notice, Pill } from '@/components/ui';
 import { initials } from '@/components/admin/menu';
-import { cancelInvitation, removeUser } from '@/lib/api/browser';
+import { cancelInvitation, removeUser, resetUserTwoFactor } from '@/lib/api/browser';
 import { ApiError, errorText } from '@/lib/api/errors';
 import type { Listing, PendingInvitation, TeamMember } from '@/lib/api/user';
 import { useI18n } from '@/lib/i18n/client';
@@ -40,6 +40,9 @@ export function UsersCard({
   const [target, setTarget] = useState<TeamMember | null>(null);
   const [removing, setRemoving] = useState(false);
   const [removeError, setRemoveError] = useState<string | null>(null);
+  const [resetTarget, setResetTarget] = useState<TeamMember | null>(null);
+  const [resetting, setResetting] = useState(false);
+  const [resetError, setResetError] = useState<string | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
   // "Pending for N days" is counted from the moment the page was drawn.
   const [now] = useState(() => Date.now());
@@ -102,6 +105,36 @@ export function UsersCard({
   function closeDialog() {
     setTarget(null);
     setRemoveError(null);
+  }
+
+  async function confirmReset() {
+    if (!resetTarget) return;
+
+    setResetting(true);
+    setResetError(null);
+
+    try {
+      await resetUserTwoFactor(resetTarget.id);
+    } catch (caught) {
+      setResetError(readable(caught));
+      setResetting(false);
+
+      return;
+    }
+
+    setMembers((current) =>
+      current.map((member) =>
+        member.id === resetTarget.id ? { ...member, two_factor_enabled: false } : member,
+      ),
+    );
+    setResetTarget(null);
+    setResetting(false);
+    card.current?.focus();
+  }
+
+  function closeResetDialog() {
+    setResetTarget(null);
+    setResetError(null);
   }
 
   function pending(invitation: PendingInvitation): string {
@@ -192,7 +225,28 @@ export function UsersCard({
                     {t('institution.users.you')}
                   </Pill>
                 ) : null}
+                <Pill
+                  tone={member.two_factor_enabled ? 'teal' : 'neutral'}
+                  data-enabled={member.two_factor_enabled ? 'true' : 'false'}
+                  data-testid={`user-two-factor-${index + 1}`}
+                >
+                  {t(
+                    member.two_factor_enabled
+                      ? 'institution.users.twoFactorOn'
+                      : 'institution.users.twoFactorOff',
+                  )}
+                </Pill>
               </div>
+              {member.two_factor_enabled && !member.is_you ? (
+                <Button
+                  variant="secondary"
+                  aria-label={t('institution.users.resetTwoFactorLabel', { name: member.name })}
+                  onClick={() => setResetTarget(member)}
+                  data-testid={`user-reset-two-factor-${index + 1}`}
+                >
+                  {t('institution.users.resetTwoFactor')}
+                </Button>
+              ) : null}
               <Button
                 variant="danger"
                 aria-label={t('institution.users.removeLabel', { name: member.name })}
@@ -282,6 +336,26 @@ export function UsersCard({
           {t(target.is_you ? 'institution.users.removeSelfText' : 'institution.users.removeText', {
             name: target.name,
           })}
+        </ConfirmDialog>
+      ) : null}
+
+      {resetTarget ? (
+        <ConfirmDialog
+          title={t('institution.users.resetTitle', { name: resetTarget.name })}
+          confirmLabel={t('institution.users.resetConfirm')}
+          cancelLabel={t('institution.users.resetCancel')}
+          busy={resetting}
+          error={resetError}
+          onConfirm={confirmReset}
+          onCancel={closeResetDialog}
+          testIds={{
+            dialog: 'user-reset-dialog',
+            confirm: 'user-reset-confirm',
+            cancel: 'user-reset-cancel',
+            error: 'user-reset-error',
+          }}
+        >
+          {t('institution.users.resetText', { name: resetTarget.name })}
         </ConfirmDialog>
       ) : null}
     </Card>
