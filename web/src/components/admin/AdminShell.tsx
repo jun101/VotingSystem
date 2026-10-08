@@ -35,7 +35,16 @@ function isTyping(target: EventTarget | null): boolean {
  * left. The drawer closes with Escape, a tap outside or the choice of a page; the focus moves
  * into it when it opens, stays in it while it is open and goes back to the menu button.
  */
-export function AdminShell({ user, children }: { user: CurrentUser; children: ReactNode }) {
+export function AdminShell({
+  user,
+  logo = null,
+  children,
+}: {
+  user: CurrentUser;
+  /** The address of the institution's logo (64 px), when it has one. */
+  logo?: string | null;
+  children: ReactNode;
+}) {
   const { t } = useI18n();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -162,7 +171,13 @@ export function AdminShell({ user, children }: { user: CurrentUser; children: Re
           onKeyDown={keepFocusInside}
           className="menu-drawer fixed inset-y-0 start-0 z-40 w-[272px]"
         >
-          <SideMenu user={user} searchRef={search} closeRef={closeButton} onNavigate={close} />
+          <SideMenu
+            user={user}
+            logo={logo}
+            searchRef={search}
+            closeRef={closeButton}
+            onNavigate={close}
+          />
         </div>
 
         <div inert={open} className="flex min-h-screen flex-col lg:pl-[272px]">

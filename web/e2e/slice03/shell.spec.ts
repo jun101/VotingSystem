@@ -75,7 +75,8 @@ test.describe('the shell after sign-up [FR-NAV-02, FR-NAV-03]', () => {
       await expect(page.getByTestId('top-bar-title')).toHaveText(entry.fr);
       await expect(page.locator('h1')).toHaveCount(1);
 
-      if (entry.key !== 'dashboard') {
+      // The institution page is built in slice 04; the dashboard is real since slice 03.
+      if (entry.key !== 'dashboard' && entry.key !== 'institution') {
         await expect(page.getByTestId('coming-soon')).toBeVisible();
       }
 

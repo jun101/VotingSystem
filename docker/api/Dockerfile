@@ -7,9 +7,13 @@ COPY --from=composer:2.10.3 /usr/bin/composer /usr/local/bin/composer
 RUN apt-get update \
     && apt-get install -y --no-install-recommends git unzip curl \
     && rm -rf /var/lib/apt/lists/* \
-    && install-php-extensions pdo_mysql pcntl bcmath opcache
+    && install-php-extensions pdo_mysql pcntl bcmath opcache gd exif
 
 COPY docker/api/php.ini /usr/local/etc/php/conf.d/zz-app.ini
+
+# Where the re-encoded pictures are written (the `media` disk). A named volume mounted here
+# starts with these rights, so the container user can write to it.
+RUN mkdir -p /var/www/media && chmod 1777 /var/www/media
 
 # Containers run as the host user (see compose.yaml); these must be writable by anyone.
 ENV HOME=/tmp \

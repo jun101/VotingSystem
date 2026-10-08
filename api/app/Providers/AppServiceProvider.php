@@ -42,6 +42,7 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('health', fn (Request $request) => Limit::perMinute(60)->by((string) $request->ip()));
 
         $this->configureAuthRateLimiters();
+        $this->configureTeamRateLimiters();
     }
 
     /**
@@ -86,5 +87,24 @@ class AppServiceProvider extends ServiceProvider
 
             return $limits;
         });
+    }
+
+    /**
+     * Invitations and uploads (docs/api/users/POST-invitations.md, docs/api/institution/PUT-institution-logo.md),
+     * counted per user, and the acceptance of an invitation, counted per address; multiplied by
+     * the same factor as the auth limits.
+     */
+    private function configureTeamRateLimiters(): void
+    {
+        $times = static fn (int $limit): int => $limit * Config::integer('auth.rate_limit_factor');
+        $byUser = static function (Request $request): string {
+            $user = $request->user();
+
+            return $user instanceof User ? 'user:'.$user->uuid : 'ip:'.(string) $request->ip();
+        };
+
+        RateLimiter::for('invitations-create', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
+        RateLimiter::for('logo-upload', fn (Request $request) => Limit::perHour($times(10))->by($byUser($request)));
+        RateLimiter::for('auth-accept-invitation', fn (Request $request) => Limit::perHour($times(10))->by((string) $request->ip()));
     }
 }

@@ -34,7 +34,7 @@ it('names an existing test file, mentioning the route, for every tenant route [N
         expect(is_file($path))->toBeTrue("{$route}: {$file} does not exist");
 
         $uri = explode(' ', $route, 2)[1];
-        expect(file_get_contents($path))->toContain($uri, "{$route}: {$file} never mentions the route");
+        expect(str_contains(file_get_contents($path), $uri))->toBeTrue("{$route}: {$file} never mentions the route");
     }
 });
 

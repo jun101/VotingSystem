@@ -36,6 +36,7 @@ final class Tenancy
         'POST api/v1/auth/verify-email',
         'POST api/v1/auth/forgot-password',
         'POST api/v1/auth/reset-password',
+        'POST api/v1/auth/accept-invitation',
     ];
 
     /**
@@ -48,6 +49,11 @@ final class Tenancy
         'GET api/v1/auth/me',
         'PATCH api/v1/auth/me',
         'POST api/v1/auth/verify-email/resend',
+        // Slice 04: the institution is the tenant itself; these routes name no record of it.
+        'GET api/v1/institution',
+        'PATCH api/v1/institution',
+        'PUT api/v1/institution/logo',
+        'DELETE api/v1/institution/logo',
     ];
 
     /**
@@ -57,7 +63,13 @@ final class Tenancy
      *
      * @var array<string, string>
      */
-    public const TENANT_ROUTES = [];
+    public const TENANT_ROUTES = [
+        'GET api/v1/users' => 'Slice04/ListUsersTest.php',
+        'DELETE api/v1/users/{user}' => 'Slice04/RemoveUserTest.php',
+        'GET api/v1/invitations' => 'Slice04/ListInvitationsTest.php',
+        'POST api/v1/invitations' => 'Slice04/CreateInvitationTest.php',
+        'DELETE api/v1/invitations/{invitation}' => 'Slice04/CancelInvitationTest.php',
+    ];
 
     /**
      * Tables with an `institution_id` column that have no model with the trait, with the

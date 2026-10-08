@@ -15,9 +15,10 @@ import { useI18n } from '@/lib/i18n/client';
  *
  * `shown` names the fields the form has. An error on another field (the token of a link, a
  * field the page does not show) goes in the alert. `handle` can take an error over (return
- * true) before anything is shown.
+ * true) before anything is shown. `scope` puts the form's own field messages under
+ * `validation.<scope>.<field>.<rule>` (the same field name can mean another thing in another form).
  */
-export function useAuthForm(shown: readonly string[]) {
+export function useAuthForm(shown: readonly string[], scope?: string) {
   const { tIfAny } = useI18n();
   const form = useRef<HTMLFormElement>(null);
   const [busy, setBusy] = useState(false);
@@ -67,8 +68,9 @@ export function useAuthForm(shown: readonly string[]) {
       let foreign = false;
 
       for (const [field, codes] of Object.entries(error.fields)) {
-        if (shown.includes(field) && codes[0]) own[field] = fieldText(field, codes[0], tIfAny);
-        else foreign = true;
+        if (shown.includes(field) && codes[0]) {
+          own[field] = fieldText(scope ? `${scope}.${field}` : field, codes[0], tIfAny);
+        } else foreign = true;
       }
 
       setFields(own);

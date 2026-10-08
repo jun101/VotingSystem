@@ -176,6 +176,21 @@
       "failed": "The verification could not be done right now. Try again in a moment.",
       "signIn": "Sign in",
       "retry": "Try again"
+    },
+    "accept": {
+      "title": "Join your institution",
+      "lede": "Choose your name and a password. Your address is already verified.",
+      "name": "Your name",
+      "password": "Password",
+      "passwordHelp": "At least 12 characters.",
+      "submit": "Create my account",
+      "invalidTitle": "Invitation not found",
+      "invalid": "This link is no longer valid: the invitation was used, cancelled or replaced. Ask an owner of the institution for a new one.",
+      "expiredTitle": "Invitation expired",
+      "expired": "This invitation has expired. Ask an owner of the institution for a new one.",
+      "takenTitle": "Address already used",
+      "taken": "This address is already used by an account. Sign in with that account.",
+      "signIn": "Go to sign-in"
     }
   },
   "admin": {
@@ -278,7 +293,13 @@
     "maintenance": "The service is under maintenance. Try again later.",
     "network": "The server cannot be reached. Check your connection, then try again.",
     "unknown": "An unexpected error occurred.",
-    "reference": "Reference to give to support: {reference}"
+    "reference": "Reference to give to support: {reference}",
+    "forbidden": "You are not allowed to do this.",
+    "not_found": "This item no longer exists. Reload the page.",
+    "file_too_large": "This file is over 5 MB. Choose a lighter image.",
+    "file_type_not_allowed": "This file is not a JPEG, PNG or WebP image.",
+    "last_owner": "An institution must keep at least one owner. Invite another owner first.",
+    "email_taken": "This address is already used by an account."
   },
   "validation": {
     "required": "This field is required.",
@@ -304,6 +325,136 @@
     },
     "language": {
       "invalid": "This language is not available."
+    },
+    "profile": {
+      "name": {
+        "required": "The institution’s name is required.",
+        "max": "The name must be 150 characters or fewer."
+      },
+      "type": {
+        "in": "Choose a type from the list."
+      },
+      "description": {
+        "max": "The description must be 500 characters or fewer."
+      },
+      "address": {
+        "max": "The address must be 255 characters or fewer."
+      },
+      "city": {
+        "max": "The city must be 100 characters or fewer."
+      },
+      "phone": {
+        "max": "The phone number must be 30 characters or fewer.",
+        "format": "Use only digits, spaces and the signs + ( ) . -"
+      },
+      "contact_email": {
+        "email": "Enter a valid email address.",
+        "max": "This address is too long (255 characters at most)."
+      },
+      "timezone": {
+        "timezone": "Choose a time zone from the list.",
+        "required": "Choose a time zone."
+      },
+      "language": {
+        "in": "Choose French or English."
+      }
+    },
+    "invite": {
+      "email": {
+        "required": "Enter the person’s email address.",
+        "email": "Enter a valid email address.",
+        "max": "This address is too long (255 characters at most).",
+        "taken": "This address already has an account: it cannot be invited."
+      },
+      "role": {
+        "required": "Choose a role.",
+        "in": "Choose a role from the list."
+      }
+    },
+    "logo": {
+      "file": {
+        "dimensions": "This image is too large: 8,000 pixels at most on a side, 40 million pixels in all.",
+        "required": "Choose an image.",
+        "invalid": "This file could not be sent. Try again."
+      }
+    }
+  },
+  "institution": {
+    "profile": {
+      "title": "Institution profile",
+      "logo": {
+        "title": "Logo",
+        "alt": "Institution logo",
+        "change": "Change",
+        "add": "Add a logo",
+        "remove": "Remove",
+        "help": "JPEG, PNG or WebP, 5 MB at most.",
+        "uploading": "Uploading…"
+      },
+      "name": "Institution name",
+      "type": "Type",
+      "types": {
+        "school": "School",
+        "university": "University",
+        "association": "Association",
+        "other": "Other"
+      },
+      "city": "City",
+      "phone": "Phone",
+      "timezone": "Time zone",
+      "language": "Default language",
+      "languages": {
+        "fr": "French",
+        "en": "English"
+      },
+      "description": "Short description",
+      "descriptionCount": "{count} / {max} characters",
+      "address": "Address",
+      "contactEmail": "Contact email",
+      "save": "Save",
+      "saved": "Changes saved.",
+      "readOnly": "You can read this profile, but only an owner can change it."
+    },
+    "publicAddress": {
+      "label": "Institution’s public address",
+      "copy": "Copy the address",
+      "copied": "Address copied.",
+      "soon": "This page will be available soon."
+    },
+    "users": {
+      "title": "Users",
+      "you": "You",
+      "remove": "Remove",
+      "removeTitle": "Remove {name}?",
+      "removeText": "{name} will no longer be able to sign in. Their address will be freed and can be invited again.",
+      "removeSelfText": "You are about to remove yourself: your session will end right away.",
+      "removeConfirm": "Remove",
+      "removeCancel": "Cancel",
+      "invitationsTitle": "Pending invitations",
+      "usersTruncated": "{count} of {total}",
+      "invitationsTruncated": "{count} of {total}",
+      "pendingToday": "pending since today",
+      "pendingOne": "pending for 1 day",
+      "pendingMany": "pending for {count} days",
+      "expired": "expired",
+      "cancel": "Cancel",
+      "cancelLabel": "Cancel the invitation of {email}",
+      "removeLabel": "Remove {name}",
+      "empty": "No pending invitation.",
+      "invite": {
+        "open": "Invite",
+        "title": "Invite a person",
+        "email": "Email address",
+        "role": "Role",
+        "roles": {
+          "owner": "Owner: manages the profile and the users",
+          "manager": "Manager: prepares the elections"
+        },
+        "submit": "Send the invitation",
+        "close": "Close"
+      },
+      "managerNote": "Only an owner manages the users and this profile. Contact an owner for any change.",
+      "managerNoteTitle": "Users"
     }
   }
 }

@@ -18,5 +18,7 @@ return [
     'invalid_credentials' => 'Email or password is incorrect.',
     'institution_suspended' => 'This institution is suspended.',
     'already_verified' => 'Your email is already verified.',
+    'last_owner' => 'An institution must keep at least one owner.',
+    'email_taken' => 'This address is already used by an account.',
     'dependency_unavailable' => 'The service is temporarily unavailable.',
 ];

@@ -11,3 +11,25 @@ export type RegisterBody = {
   password: string;
   language: 'fr' | 'en';
 };
+
+/** The profile of the institution: the `data` of `GET /institution`. */
+export type InstitutionProfile =
+  operations['institution.show']['responses'][200]['content']['application/json']['data'];
+
+/** The fields `PATCH /institution` takes (all optional). */
+export type ProfileChanges = NonNullable<
+  operations['institution.update']['requestBody']
+>['content']['application/json'];
+
+/** One item of `GET /users`. */
+export type TeamMember =
+  operations['user.index']['responses'][200]['content']['application/json']['data'][number];
+
+/** One item of `GET /invitations`, and the answer of `POST /invitations`. */
+export type PendingInvitation =
+  operations['invitation.index']['responses'][200]['content']['application/json']['data'][number];
+
+export type InvitedRole = 'owner' | 'manager';
+
+/** One page of a list, and how many items there are in all. */
+export type Listing<T> = { items: T[]; total: number };

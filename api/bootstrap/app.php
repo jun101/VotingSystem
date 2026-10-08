@@ -3,18 +3,29 @@
 use App\Exceptions\ApiErrorRenderer;
 use App\Http\Middleware\AssignRequestId;
 use App\Http\Middleware\EnsureInstitutionActive;
+use App\Http\Middleware\EnsureOwner;
 use App\Http\Middleware\RefuseOptions;
 use App\Http\Middleware\RejectMalformedJson;
 use App\Http\Middleware\ResetAuthState;
+use App\Http\Middleware\ThrottleWithoutCounters;
 use App\Http\Middleware\VerifyCsrfToken;
 use App\Support\TrustedHosts;
+use Illuminate\Auth\Middleware\Authorize;
 use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
+use Illuminate\Contracts\Session\Middleware\AuthenticatesSessions;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Middleware\SubstituteBindings;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Routing\Middleware\ThrottleRequestsWithRedis;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -53,21 +64,42 @@ return Application::configure(basePath: dirname(__DIR__))
             VerifyCsrfToken::class,
             AuthenticateSession::class,
         ]);
-        $middleware->alias(['institution.active' => EnsureInstitutionActive::class]);
+        $middleware->alias([
+            'institution.active' => EnsureInstitutionActive::class,
+            'owner' => EnsureOwner::class,
+            'throttle.quiet' => ThrottleWithoutCounters::class,
+        ]);
 
         // This application serves the API only: a request that is not signed in is answered
         // 401 (see ApiErrorRenderer), never redirected to a sign-in page.
         $middleware->redirectGuestsTo(fn () => null);
 
         // The framework sorts the middleware of a route by its priority list, and puts those
-        // it does not know after the others: say where ours go.
-        $middleware->prependToPriorityList(before: StartSession::class, prepend: ResetAuthState::class);
-        $middleware->prependToPriorityList(before: StartSession::class, prepend: RejectMalformedJson::class);
-        // A signed-out request is answered 401 before its CSRF token is judged: after the
-        // session ended, the token the page still holds no longer matches, and that is a
-        // sign-in problem, not a forgery.
-        $middleware->appendToPriorityList(after: AuthenticatesRequests::class, append: VerifyCsrfToken::class);
-        $middleware->appendToPriorityList(after: VerifyCsrfToken::class, append: EnsureInstitutionActive::class);
+        // it does not know after the others: this is the whole list, with ours in place.
+        // - A signed-out request is answered 401 before its CSRF token is judged: after the
+        //   session ended, the token the page still holds no longer matches, and that is a
+        //   sign-in problem, not a forgery.
+        // - The route's records are bound, then the role is judged, then the rate limit is
+        //   counted: another institution's record answers 404 before a manager is told 403,
+        //   and a manager's refused requests do not use up the owner's allowance.
+        $middleware->priority([
+            ResetAuthState::class,
+            RejectMalformedJson::class,
+            HandlePrecognitiveRequests::class,
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
+            ShareErrorsFromSession::class,
+            AuthenticatesRequests::class,
+            VerifyCsrfToken::class,
+            EnsureInstitutionActive::class,
+            AuthenticatesSessions::class,
+            SubstituteBindings::class,
+            EnsureOwner::class,
+            ThrottleRequests::class,
+            ThrottleRequestsWithRedis::class,
+            Authorize::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // This application serves the API only: every answer is JSON, whatever the path

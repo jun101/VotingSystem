@@ -18,5 +18,7 @@ return [
     'invalid_credentials' => 'Courriel ou mot de passe incorrect.',
     'institution_suspended' => 'Cet établissement est suspendu.',
     'already_verified' => 'Votre courriel est déjà vérifié.',
+    'last_owner' => 'Un établissement doit garder au moins un propriétaire.',
+    'email_taken' => 'Cette adresse est déjà utilisée par un compte.',
     'dependency_unavailable' => 'Le service est momentanément indisponible.',
 ];

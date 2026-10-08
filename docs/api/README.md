@@ -106,6 +106,9 @@ returns a code that is not in this table.
 For an endpoint that needs a signed-in user, **401 is checked before the CSRF check (419)**:
 a request with no session and no token answers 401.
 
+For an endpoint reserved for owners, the **role is checked before the rate limit**: a manager
+who calls it again and again gets 403 every time, never 429.
+
 Choosing between the close ones:
 
 - Wrong shape or value of the input → **422**. Right input, wrong moment → **409**.
@@ -242,3 +245,13 @@ Filled slice by slice: each slice adds its endpoints here with a link to their f
 | Auth | `PATCH /auth/me` | 03 | [auth/PATCH-auth-me.md](auth/PATCH-auth-me.md) |
 | Auth | `POST /auth/forgot-password` | 02 | [auth/POST-auth-forgot-password.md](auth/POST-auth-forgot-password.md) |
 | Auth | `POST /auth/reset-password` | 02 | [auth/POST-auth-reset-password.md](auth/POST-auth-reset-password.md) |
+| Auth | `POST /auth/accept-invitation` | 04 | [auth/POST-auth-accept-invitation.md](auth/POST-auth-accept-invitation.md) |
+| Institution | `GET /institution` | 04 | [institution/GET-institution.md](institution/GET-institution.md) |
+| Institution | `PATCH /institution` | 04 | [institution/PATCH-institution.md](institution/PATCH-institution.md) |
+| Institution | `PUT /institution/logo` | 04 | [institution/PUT-institution-logo.md](institution/PUT-institution-logo.md) |
+| Institution | `DELETE /institution/logo` | 04 | [institution/DELETE-institution-logo.md](institution/DELETE-institution-logo.md) |
+| Users | `GET /users` | 04 | [users/GET-users.md](users/GET-users.md) |
+| Users | `DELETE /users/{user}` | 04 | [users/DELETE-users-{user}.md](users/DELETE-users-{user}.md) |
+| Users | `GET /invitations` | 04 | [users/GET-invitations.md](users/GET-invitations.md) |
+| Users | `POST /invitations` | 04 | [users/POST-invitations.md](users/POST-invitations.md) |
+| Users | `DELETE /invitations/{invitation}` | 04 | [users/DELETE-invitations-{invitation}.md](users/DELETE-invitations-{invitation}.md) |

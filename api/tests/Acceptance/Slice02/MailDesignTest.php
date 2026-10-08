@@ -3,7 +3,8 @@
 /*
  * docs/design/email.md — the look and the build of the emails the system sends.
  * Slice 02 sends two: the verification email and the password reset email, each in
- * French and English. A later slice adds its emails to `mailsToCheck()`.
+ * French and English. Slice 04 adds the invitation. A later slice adds its emails to
+ * `mailsToCheck()`.
  */
 
 use Tests\Support\Accounts;
@@ -31,7 +32,20 @@ function mailsToCheck($test): array
         }
     }
 
-    expect($found)->toHaveCount(4);
+    // Slice 04: the invitation of a user, in the language of the inviting institution.
+    foreach (['fr', 'en'] as $language) {
+        $owner = Accounts::user(['language' => $language]);
+        $browser = new AuthClient($test);
+        $browser->login($owner['email'], $owner['password'])->assertOk();
+        $invited = "invited.{$language}@example.test";
+        $browser->post('/api/v1/invitations', ['email' => $invited, 'role' => 'manager'])->assertCreated();
+
+        foreach (Accounts::mailTo($invited) as $mail) {
+            $found[] = ['label' => "{$language} /accept-invitation", 'mail' => $mail, 'path' => '/accept-invitation'];
+        }
+    }
+
+    expect($found)->toHaveCount(6);
 
     return $found;
 }
@@ -193,4 +207,20 @@ it('does not use the person\'s name anywhere in the email [security review S6]',
     foreach (Accounts::mailTo($user['email']) as $mail) {
         expect($mail['html'].$mail['text'])->not->toContain('Zebulon')->not->toContain('Quxwyvern');
     }
+});
+
+it('names the institution in the invitation but never the inviter [security review S6, slice 04]', function () {
+    $owner = Accounts::user(['email' => 'inviter@example.test']);
+    \Illuminate\Support\Facades\DB::connection(useMigratorConnection())->table('users')
+        ->where('uuid', $owner['user'])->update(['name' => 'Zebulon Quxwyvern']);
+    \Illuminate\Support\Facades\DB::connection(useMigratorConnection())->table('institutions')
+        ->where('uuid', $owner['institution'])->update(['name' => 'Collège Les Hirondelles']);
+
+    $browser = new AuthClient($this);
+    $browser->login($owner['email'], $owner['password'])->assertOk();
+    $browser->post('/api/v1/invitations', ['email' => 'guest@example.test', 'role' => 'manager'])->assertCreated();
+
+    $mail = Accounts::mailTo('guest@example.test')[0];
+    expect($mail['html'].$mail['text'])->not->toContain('Zebulon')->not->toContain('Quxwyvern')
+        ->and($mail['html'].$mail['text'])->toContain('Les Hirondelles');
 });

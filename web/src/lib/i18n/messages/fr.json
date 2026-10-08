@@ -176,6 +176,21 @@
       "failed": "La vérification n’a pas pu être faite pour le moment. Réessayez dans un instant.",
       "signIn": "Se connecter",
       "retry": "Réessayer"
+    },
+    "accept": {
+      "title": "Rejoindre votre établissement",
+      "lede": "Choisissez votre nom et un mot de passe. Votre adresse est déjà vérifiée.",
+      "name": "Votre nom",
+      "password": "Mot de passe",
+      "passwordHelp": "12 caractères au minimum.",
+      "submit": "Créer mon compte",
+      "invalidTitle": "Invitation introuvable",
+      "invalid": "Ce lien n’est plus valable : l’invitation a été utilisée, annulée ou remplacée. Demandez-en une nouvelle à un propriétaire de l’établissement.",
+      "expiredTitle": "Invitation expirée",
+      "expired": "Cette invitation a expiré. Demandez-en une nouvelle à un propriétaire de l’établissement.",
+      "takenTitle": "Adresse déjà utilisée",
+      "taken": "Cette adresse est déjà utilisée par un compte. Connectez-vous avec ce compte.",
+      "signIn": "Aller à la connexion"
     }
   },
   "admin": {
@@ -278,7 +293,13 @@
     "maintenance": "Le service est en maintenance. Réessayez plus tard.",
     "network": "Impossible de joindre le serveur. Vérifiez votre connexion, puis réessayez.",
     "unknown": "Une erreur inattendue est survenue.",
-    "reference": "Référence à indiquer au support : {reference}"
+    "reference": "Référence à indiquer au support : {reference}",
+    "forbidden": "Vous n’avez pas le droit de faire cela.",
+    "not_found": "Cet élément n’existe plus. Rechargez la page.",
+    "file_too_large": "Ce fichier dépasse 5 Mo. Choisissez une image plus légère.",
+    "file_type_not_allowed": "Ce fichier n’est pas une image JPEG, PNG ou WebP.",
+    "last_owner": "Un établissement doit garder au moins un propriétaire. Invitez d’abord un autre propriétaire.",
+    "email_taken": "Cette adresse est déjà utilisée par un compte."
   },
   "validation": {
     "required": "Ce champ est obligatoire.",
@@ -304,6 +325,136 @@
     },
     "language": {
       "invalid": "Cette langue n’est pas disponible."
+    },
+    "profile": {
+      "name": {
+        "required": "Le nom de l’établissement est obligatoire.",
+        "max": "Le nom doit avoir 150 caractères au plus."
+      },
+      "type": {
+        "in": "Choisissez un type dans la liste."
+      },
+      "description": {
+        "max": "La description doit avoir 500 caractères au plus."
+      },
+      "address": {
+        "max": "L’adresse doit avoir 255 caractères au plus."
+      },
+      "city": {
+        "max": "La ville doit avoir 100 caractères au plus."
+      },
+      "phone": {
+        "max": "Le téléphone doit avoir 30 caractères au plus.",
+        "format": "Utilisez seulement des chiffres, des espaces et les signes + ( ) . -"
+      },
+      "contact_email": {
+        "email": "Saisissez une adresse courriel valide.",
+        "max": "Cette adresse est trop longue (255 caractères au plus)."
+      },
+      "timezone": {
+        "timezone": "Choisissez un fuseau horaire dans la liste.",
+        "required": "Choisissez un fuseau horaire."
+      },
+      "language": {
+        "in": "Choisissez le français ou l’anglais."
+      }
+    },
+    "invite": {
+      "email": {
+        "required": "Saisissez l’adresse courriel de la personne.",
+        "email": "Saisissez une adresse courriel valide.",
+        "max": "Cette adresse est trop longue (255 caractères au plus).",
+        "taken": "Cette adresse a déjà un compte : elle ne peut pas être invitée."
+      },
+      "role": {
+        "required": "Choisissez un rôle.",
+        "in": "Choisissez un rôle dans la liste."
+      }
+    },
+    "logo": {
+      "file": {
+        "dimensions": "Cette image est trop grande : 8 000 pixels au plus d’un côté, 40 millions de pixels au total.",
+        "required": "Choisissez une image.",
+        "invalid": "Ce fichier n’a pas pu être envoyé. Réessayez."
+      }
+    }
+  },
+  "institution": {
+    "profile": {
+      "title": "Profil de l’établissement",
+      "logo": {
+        "title": "Logo",
+        "alt": "Logo de l’établissement",
+        "change": "Changer",
+        "add": "Ajouter un logo",
+        "remove": "Retirer",
+        "help": "JPEG, PNG ou WebP, 5 Mo au plus.",
+        "uploading": "Envoi en cours…"
+      },
+      "name": "Nom de l’établissement",
+      "type": "Type",
+      "types": {
+        "school": "École",
+        "university": "Université",
+        "association": "Association",
+        "other": "Autre"
+      },
+      "city": "Ville",
+      "phone": "Téléphone",
+      "timezone": "Fuseau horaire",
+      "language": "Langue par défaut",
+      "languages": {
+        "fr": "Français",
+        "en": "Anglais"
+      },
+      "description": "Courte description",
+      "descriptionCount": "{count} / {max} caractères",
+      "address": "Adresse",
+      "contactEmail": "Courriel de contact",
+      "save": "Enregistrer",
+      "saved": "Modifications enregistrées.",
+      "readOnly": "Vous pouvez consulter ce profil, mais seul un propriétaire peut le modifier."
+    },
+    "publicAddress": {
+      "label": "Adresse publique de l’établissement",
+      "copy": "Copier l’adresse",
+      "copied": "Adresse copiée.",
+      "soon": "Cette page sera disponible bientôt."
+    },
+    "users": {
+      "title": "Utilisateurs",
+      "you": "Vous",
+      "remove": "Retirer",
+      "removeTitle": "Retirer {name} ?",
+      "removeText": "{name} ne pourra plus se connecter. Son adresse sera libérée et pourra être invitée de nouveau.",
+      "removeSelfText": "Vous allez vous retirer vous-même : votre session prendra fin tout de suite.",
+      "removeConfirm": "Retirer",
+      "removeCancel": "Annuler",
+      "invitationsTitle": "Invitations en attente",
+      "usersTruncated": "{count} sur {total}",
+      "invitationsTruncated": "{count} sur {total}",
+      "pendingToday": "en attente depuis aujourd’hui",
+      "pendingOne": "en attente depuis 1 jour",
+      "pendingMany": "en attente depuis {count} jours",
+      "expired": "expirée",
+      "cancel": "Annuler",
+      "cancelLabel": "Annuler l’invitation de {email}",
+      "removeLabel": "Retirer {name}",
+      "empty": "Aucune invitation en attente.",
+      "invite": {
+        "open": "Inviter",
+        "title": "Inviter une personne",
+        "email": "Adresse courriel",
+        "role": "Rôle",
+        "roles": {
+          "owner": "Propriétaire : gère le profil et les utilisateurs",
+          "manager": "Gestionnaire : prépare les élections"
+        },
+        "submit": "Envoyer l’invitation",
+        "close": "Fermer"
+      },
+      "managerNote": "Seul un propriétaire gère les utilisateurs et ce profil. Contactez un propriétaire pour toute modification.",
+      "managerNoteTitle": "Utilisateurs"
     }
   }
 }

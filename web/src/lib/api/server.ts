@@ -2,7 +2,13 @@ import { cookies } from 'next/headers';
 import { cache } from 'react';
 import { createApiClient } from './client';
 import { SESSION_COOKIE } from './session';
-import type { CurrentUser } from './user';
+import type {
+  CurrentUser,
+  InstitutionProfile,
+  Listing,
+  PendingInvitation,
+  TeamMember,
+} from './user';
 
 /** Who the API says is behind the session cookie of this request. */
 export type SessionState =
@@ -46,3 +52,59 @@ export async function fetchCurrentUser(): Promise<CurrentUser | null> {
 
   return state.status === 'signed-in' ? state.user : null;
 }
+
+/** What a page of the admin area asks the API on the server, with the session cookie alone. */
+async function authorizedGet<T>(
+  read: (headers: { Cookie: string }) => Promise<T | null>,
+): Promise<T | null> {
+  const session = (await cookies()).get(SESSION_COOKIE)?.value;
+
+  if (!session) return null;
+
+  try {
+    return await read({ Cookie: `${SESSION_COOKIE}=${session}` });
+  } catch {
+    return null;
+  }
+}
+
+/** The profile of the signed-in user's institution, or null when the API does not give it. */
+export const fetchInstitution = cache(async (): Promise<InstitutionProfile | null> =>
+  authorizedGet(async (headers) => {
+    const { data, response } = await createApiClient().GET('/v1/institution', {
+      headers,
+      cache: 'no-store',
+      signal: AbortSignal.timeout(4000),
+    });
+
+    return response.ok && data ? data.data : null;
+  }),
+);
+
+/** The users of the institution (an owner only), the first 100. */
+export const fetchTeam = cache(async (): Promise<Listing<TeamMember> | null> =>
+  authorizedGet(async (headers) => {
+    const { data, response } = await createApiClient().GET('/v1/users', {
+      headers,
+      params: { query: { per_page: 100 } },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(4000),
+    });
+
+    return response.ok && data ? { items: data.data, total: data.meta.total } : null;
+  }),
+);
+
+/** The invitations not yet accepted (an owner only), the first 100. */
+export const fetchInvitations = cache(async (): Promise<Listing<PendingInvitation> | null> =>
+  authorizedGet(async (headers) => {
+    const { data, response } = await createApiClient().GET('/v1/invitations', {
+      headers,
+      params: { query: { per_page: 100 } },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(4000),
+    });
+
+    return response.ok && data ? { items: data.data, total: data.meta.total } : null;
+  }),
+);
