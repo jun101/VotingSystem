@@ -274,7 +274,7 @@
         "title": "Open election",
         "empty": "No election is open right now.",
         "live": "Live",
-        "ends": "Ends on {date}",
+        "ends": "Ends on {day} at {time}",
         "elapsed": "Time elapsed",
         "positions": "Positions",
         "voters": "Voters",
@@ -319,7 +319,7 @@
         "done": "Done",
         "steps": {
           "email": {
-            "title": "Verify your e-mail",
+            "title": "Verify your email",
             "hint": "Open the link sent to your inbox"
           },
           "institution": {

@@ -274,7 +274,7 @@
         "title": "Élection ouverte",
         "empty": "Aucune élection n’est ouverte pour le moment.",
         "live": "En cours",
-        "ends": "Se termine le {date}",
+        "ends": "Se termine le {day} à {time}",
         "elapsed": "Temps écoulé",
         "positions": "Postes",
         "voters": "Électeurs",

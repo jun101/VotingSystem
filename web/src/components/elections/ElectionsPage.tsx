@@ -277,11 +277,14 @@ export function ElectionsPage({ list, filters }: { list: ElectionList; filters: 
       ) : null}
 
       <div className="flex items-start gap-4">
-        <div className="flex min-w-0 flex-1 flex-col gap-4">
+        <div
+          data-testid="elections-zone"
+          className="flex min-w-0 flex-1 flex-col gap-4 rounded-2xl border border-line bg-surface p-3 shadow-1 2xl:p-5"
+        >
           <RevealList
             aria-label={t('elections.list.gridLabel')}
             data-testid="elections-grid"
-            className="grid grid-cols-[repeat(auto-fill,minmax(min(18.75rem,100%),1fr))] gap-4 2xl:grid-cols-[repeat(auto-fill,minmax(min(23.75rem,100%),1fr))]"
+            className="grid grid-cols-[repeat(auto-fill,minmax(min(17rem,100%),1fr))] gap-4 2xl:grid-cols-[repeat(auto-fill,minmax(min(23.75rem,100%),1fr))]"
           >
             <li
               data-testid="election-new-tile"

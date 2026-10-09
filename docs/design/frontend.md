@@ -291,6 +291,20 @@ at 1280 and at 1920.
    page background, the rail beside it. The zone's padding is 12 px below 1600 px and 20 px from 1600 px, and the grid's
    column floor is lowered below 1600 px so three columns still fit at 1280. An empty list shows the zone with the
    creation tile in it.
+7. **The election page** ([material-election.html](mockups/material-election.html)). A back link and the account at the top;
+   then a gradient **header band** (about 176 px, a large faint status icon, a slow light turning across it): the status
+   badge, the title (40 px), the description, chips (dates, duration, language) and the actions on the right (edit as
+   the coral main action, duplicate in glass, delete in white with the danger colour). Below it the **white zone** holds
+   12-column cards with coloured headers and icons: **Calendrier** (5 columns: start and end as day badges, the times
+   in the display font, a line between them with the duration, the time zone), **Réglages du vote** (4: icon rows for
+   language, candidate order, results display), **Affiche** (3: the cover, or a gradient with a floating icon when
+   there is none, and a change button), then **Postes et électeurs** (4: three fact tiles) and **Ce qui vient ensuite**
+   (8: a horizontal path of four steps, each a coloured icon circle joined by dotted lines, with a "Bientôt" tag while
+   the step does not exist). Below 1500 px the cards take 6 columns, below 900 px they stack. Only data that exists is
+   shown: no invented rows.
+8. **The election form** gets the same language: the white zone, a coloured header and icon on each section
+   (Informations, Calendrier with the picker, Réglages du vote, Affiche), the side panel (schedule in words, duration,
+   cover preview, next steps) in the same card style, nothing left empty at 1920.
 
 ### Motion
 
