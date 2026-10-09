@@ -658,7 +658,13 @@
       "duplicate": "Dupliquer",
       "duplicateLabel": "Dupliquer {title}",
       "delete": "Supprimer",
-      "deleteLabel": "Supprimer {title}"
+      "deleteLabel": "Supprimer {title}",
+      "facts": {
+        "positions": "Postes",
+        "voters": "Électeurs",
+        "ballots": "Bulletins",
+        "group": "Chiffres de l’élection"
+      }
     },
     "dates": {
       "sameDay": "{date}",
@@ -771,6 +777,56 @@
       "nextTitle": "Ce qui vient ensuite",
       "soon": "Pas encore disponible",
       "coverTitle": "Couverture"
+    },
+    "rail": {
+      "label": "Calendrier et tâches",
+      "calendar": {
+        "title": "Calendrier des élections",
+        "eventDay": "élection en cours ce jour"
+      },
+      "todo": {
+        "title": "À faire",
+        "draft": "Terminer le brouillon",
+        "soon": "Préparer le démarrage",
+        "today": "commence aujourd’hui",
+        "tomorrow": "commence demain",
+        "days": "commence dans {count} jours",
+        "withWhen": "{title} · {when}",
+        "emptyFirst": "Rien à faire pour le moment. Créez votre première élection pour commencer.",
+        "emptyCreate": "Créer la première élection",
+        "emptyDone": "Rien à faire pour le moment : tout est en ordre."
+      }
+    },
+    "picker": {
+      "planning": "Dates du vote",
+      "title": "Choisir les dates",
+      "start": "Début",
+      "end": "Fin",
+      "empty": "À choisir",
+      "presetsLabel": "Choix rapides",
+      "presets": {
+        "tomorrow": "Demain",
+        "nextMonday": "Lundi prochain · 5 jours",
+        "inAWeek": "Dans une semaine",
+        "oneDay": "Un jour, 8 h à 17 h"
+      },
+      "previousMonth": "Mois précédent",
+      "nextMonth": "Mois suivant",
+      "dayStart": "début du vote",
+      "dayEnd": "fin du vote",
+      "timeStart": "Début · {date}",
+      "timeEnd": "Fin · {date}",
+      "timeNone": "à choisir",
+      "chipsLabel": "Heures courantes",
+      "hour": "Heures",
+      "minute": "Minutes",
+      "hourPlus": "Heure suivante",
+      "hourMinus": "Heure précédente",
+      "minutePlus": "5 minutes de plus",
+      "minuteMinus": "5 minutes de moins",
+      "zone": "Fuseau horaire : {zone}",
+      "cancel": "Annuler",
+      "apply": "Valider les dates"
     }
   }
 }

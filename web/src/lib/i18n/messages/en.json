@@ -658,7 +658,13 @@
       "duplicate": "Duplicate",
       "duplicateLabel": "Duplicate {title}",
       "delete": "Delete",
-      "deleteLabel": "Delete {title}"
+      "deleteLabel": "Delete {title}",
+      "facts": {
+        "positions": "Positions",
+        "voters": "Voters",
+        "ballots": "Ballots",
+        "group": "Election figures"
+      }
     },
     "dates": {
       "sameDay": "{date}",
@@ -771,6 +777,56 @@
       "nextTitle": "What comes next",
       "soon": "Not available yet",
       "coverTitle": "Cover"
+    },
+    "rail": {
+      "label": "Calendar and tasks",
+      "calendar": {
+        "title": "Elections calendar",
+        "eventDay": "an election is running this day"
+      },
+      "todo": {
+        "title": "To do",
+        "draft": "Finish the draft",
+        "soon": "Get ready to start",
+        "today": "starts today",
+        "tomorrow": "starts tomorrow",
+        "days": "starts in {count} days",
+        "withWhen": "{title} · {when}",
+        "emptyFirst": "Nothing to do yet. Create your first election to get started.",
+        "emptyCreate": "Create the first election",
+        "emptyDone": "Nothing to do right now: all is in order."
+      }
+    },
+    "picker": {
+      "planning": "Voting dates",
+      "title": "Choose the dates",
+      "start": "Start",
+      "end": "End",
+      "empty": "To be chosen",
+      "presetsLabel": "Quick choices",
+      "presets": {
+        "tomorrow": "Tomorrow",
+        "nextMonday": "Next Monday · 5 days",
+        "inAWeek": "In a week",
+        "oneDay": "One day, 8 am to 5 pm"
+      },
+      "previousMonth": "Previous month",
+      "nextMonth": "Next month",
+      "dayStart": "voting starts",
+      "dayEnd": "voting ends",
+      "timeStart": "Start · {date}",
+      "timeEnd": "End · {date}",
+      "timeNone": "to be chosen",
+      "chipsLabel": "Common times",
+      "hour": "Hours",
+      "minute": "Minutes",
+      "hourPlus": "Next hour",
+      "hourMinus": "Previous hour",
+      "minutePlus": "5 minutes later",
+      "minuteMinus": "5 minutes earlier",
+      "zone": "Time zone: {zone}",
+      "cancel": "Cancel",
+      "apply": "Apply the dates"
     }
   }
 }

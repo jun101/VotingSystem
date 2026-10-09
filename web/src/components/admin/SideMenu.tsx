@@ -13,7 +13,6 @@ import { LanguageSwitch } from './LanguageSwitch';
 import { ACCOUNT_PATH, entryOf, fold, initials, MENU_ENTRIES } from './menu';
 
 const SEARCH = 'M11 17.5a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13zM16 16l4.5 4.5';
-const PLUS = 'M12 5v14M5 12h14';
 const CLOSE = 'M6 6l12 12M18 6L6 18';
 
 export const ROLE_KEYS = {
@@ -122,7 +121,7 @@ export function SideMenu({ user, searchRef, closeRef, onNavigate, logo = null }:
         data-testid="menu-new-election"
         className={`ui-control lift-sm my-1 flex h-11 shrink-0 items-center justify-center gap-2 rounded-full bg-surface text-base font-bold text-primary-hover shadow-2 hover:bg-primary-soft ${panelFocus}`}
       >
-        <Icon path={PLUS} size={16} />
+        <Icon name="plus" size={16} />
         {t('admin.menu.newElection')}
       </Link>
 
@@ -139,7 +138,7 @@ export function SideMenu({ user, searchRef, closeRef, onNavigate, logo = null }:
             data-testid={`menu-link-${entry.key}`}
             className={itemClass(entry.key === current)}
           >
-            <Icon path={entry.icon} size={22} />
+            <Icon name={entry.icon} size={22} />
             {t(entry.label)}
           </Link>
         ))}

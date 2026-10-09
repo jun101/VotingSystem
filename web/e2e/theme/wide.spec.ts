@@ -25,7 +25,9 @@ const localDay = (date: Date) => date.toLocaleDateString('sv-SE', { timeZone: 'A
 
 test.describe('at 1920 x 1080', () => {
   test.use({ viewport: WIDE });
-  test.skip(({}, testInfo) => testInfo.project.name === 'phone', 'a large-screen test');
+  test.beforeEach(({}, testInfo) => {
+    test.skip(testInfo.project.name === 'phone', 'a large-screen test');
+  });
 
   test('the cards are big and the grid fills the width beside the rail, nothing left empty [NFR-UX-02]', async ({ page }) => {
     await registerAndEnter(page);
@@ -34,18 +36,20 @@ test.describe('at 1920 x 1080', () => {
     await expect(page.locator('[data-testid^="election-card-"]')).toHaveCount(6);
 
     const cards = await boxesOf(page, '[data-testid^="election-card-"]');
+    // The creation tile is the first cell of the grid, so a row counts it.
+    const cells = await boxesOf(page, '[data-testid="election-new-tile"], [data-testid^="election-card-"]');
     const grid = (await boxesOf(page, '[data-testid="elections-grid"]'))[0]!;
     const rail = (await boxesOf(page, '[data-testid="elections-rail"]'))[0]!;
 
     for (const card of cards) expect(card.width).toBeGreaterThanOrEqual(380);
-    const firstRow = cards.filter((card) => Math.abs(card.y - cards[0]!.y) <= 3);
+    const firstRow = cells.filter((cell) => Math.abs(cell.y - cells[0]!.y) <= 3);
     expect(firstRow.length).toBeGreaterThanOrEqual(3);
     // The grid reaches the rail and the rail reaches the right edge of the content.
     expect(rail.x - grid.right).toBeLessThanOrEqual(24);
     expect(WIDE.width - rail.right).toBeLessThanOrEqual(40);
     expect(rail.width).toBeGreaterThanOrEqual(320);
     // The last card of a full row ends where the grid ends.
-    expect(grid.right - Math.max(...firstRow.map((card) => card.right))).toBeLessThanOrEqual(20);
+    expect(grid.right - Math.max(...firstRow.map((cell) => cell.right))).toBeLessThanOrEqual(20);
     await expectNoSidewaysScroll(page);
   });
 
@@ -76,7 +80,7 @@ test.describe('at 1920 x 1080', () => {
     expect(await page.getByTestId('menu-link-elections').locator('svg').count()).toBeGreaterThan(0);
   });
 
-  test('the rail has a calendar marking the election days and today, on the month of the next election [NFR-UX-02]', async ({ page }) => {
+  test('the rail has a calendar marking the day an election starts, on the month of the next election [NFR-UX-02]', async ({ page }) => {
     await registerAndEnter(page);
     const start = plusDays(10);
     await createElection(page, 'Bientôt', start.toISOString().slice(0, 19) + 'Z', plusDays(12).toISOString().slice(0, 19) + 'Z');
@@ -84,7 +88,6 @@ test.describe('at 1920 x 1080', () => {
 
     await expect(page.getByTestId('rail-calendar')).toBeVisible();
     await expect(page.getByTestId(`rail-day-${localDay(start)}`)).toHaveAttribute('data-event', 'true');
-    await expect(page.getByTestId(`rail-day-${localDay(plusDays(11))}`)).toHaveAttribute('data-event', 'true');
   });
 
   test('the rail lists what is left to do, and invites a first election when there is none [NFR-UX-02]', async ({ page }) => {
@@ -116,7 +119,9 @@ test.describe('at 1920 x 1080', () => {
 });
 
 test.describe('at 1280 x 800', () => {
-  test.skip(({}, testInfo) => testInfo.project.name === 'phone', 'a desktop test');
+  test.beforeEach(({}, testInfo) => {
+    test.skip(testInfo.project.name === 'phone', 'a desktop test');
+  });
 
   test('the rail is not shown, never squeezed, and the grid keeps three columns [NFR-UX-02]', async ({ page }) => {
     await registerAndEnter(page);

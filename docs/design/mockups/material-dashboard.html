@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Tableau de bord, établissement actif</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;family=Archivo:wght@700;800&amp;display=swap" rel="stylesheet">
+<style>
+:root{--primary:#5468D4;--primary-hover:#4458C2;--ink:#14162B;--muted:#565B76;--line:#DDE0F2;--bg:#F1F2FC;--accent:#F29A76;--deep:#1E2A5A}
+body{margin:0;font-family:Roboto,system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+a{color:inherit;text-decoration:none}
+svg.i{width:1em;height:1em;flex:none}
+.app{display:flex;flex-wrap:wrap;min-height:1080px}
+.nav{flex:0 0 272px;box-sizing:border-box;background:linear-gradient(180deg,#5468D4 0%,#6A57CC 55%,#7A4FC4 100%);color:#fff;padding:22px 14px 18px;display:flex;flex-direction:column;gap:6px;border-radius:0 28px 28px 0}
+.main{flex:999 1 560px;min-width:0;box-sizing:border-box;padding:22px 32px 32px;display:flex;flex-direction:column;gap:18px}
+.item{display:flex;align-items:center;gap:14px;height:52px;padding:0 18px;border-radius:26px;font-size:16px;font-weight:500;color:#fff}
+.item svg{font-size:22px}.item.on{background:#fff;color:#3A4DC0;box-shadow:0 6px 14px -4px rgba(20,22,43,.35)}
+.top{display:flex;align-items:center;gap:14px}
+.pillinfo{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 14px;border-radius:17px;background:#D9F2EE;color:#0B5750;font-size:13px;font-weight:700}
+.avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#A8349A,#5468D4);color:#fff;font:800 16px Archivo,sans-serif;display:grid;place-items:center}
+.welcome{position:relative;overflow:hidden;border-radius:28px;padding:22px 28px;color:#fff;background:linear-gradient(135deg,#A8349A,#7C5BD0 45%,#5468D4);display:flex;align-items:center;gap:24px;flex-wrap:wrap;animation:rise .6s both}
+.welcome::after{content:"";position:absolute;inset:-60%;background:radial-gradient(circle at 30% 40%,rgba(255,255,255,.22),transparent 35%);animation:sweep 12s linear infinite}
+@keyframes sweep{to{transform:rotate(360deg)}}
+.welcome>*{position:relative;z-index:1}
+.quick{display:flex;gap:10px;flex-wrap:wrap;margin-left:auto}
+.q{display:inline-flex;align-items:center;gap:10px;height:48px;padding:0 20px 0 14px;border-radius:24px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);color:#fff;font:500 15px Roboto,sans-serif;transition:background .2s,transform .2s}
+.q:hover{background:rgba(255,255,255,.3);transform:translateY(-2px)}
+.q.main-q{background:#F29A76;border-color:#F29A76;color:#1E2A5A;font-weight:700}
+.q svg{font-size:22px}
+.zone{background:#fff;border:1px solid var(--line);border-radius:32px;padding:20px;box-shadow:0 1px 2px rgba(20,22,43,.08);animation:rise .6s .1s both}
+.zone-h{display:flex;align-items:center;gap:12px;margin:0 4px 16px;font:800 18px Archivo,sans-serif}
+.zone-h small{font:500 14px Roboto,sans-serif;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:18px}
+.card{border-radius:24px;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);box-shadow:0 1px 2px rgba(20,22,43,.1),0 8px 18px -12px rgba(20,22,43,.3);min-height:300px;transition:transform .25s,box-shadow .25s;animation:rise .6s both}
+.card:hover{transform:translateY(-5px);box-shadow:0 2px 4px rgba(20,22,43,.12),0 22px 36px -16px rgba(84,104,212,.6)}
+.ch{display:flex;align-items:center;gap:12px;padding:0 20px;height:68px;color:#fff;position:relative;overflow:hidden}
+.ch::after{content:"";position:absolute;right:-20px;top:-30px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.14)}
+.ch .ic{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.22);display:grid;place-items:center;font-size:22px;flex:none}
+.ch h3{margin:0;font:800 18px Archivo,sans-serif;flex:1}
+.ch .more{position:relative;z-index:1;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:4px;height:30px;padding:0 12px;border-radius:15px;background:rgba(255,255,255,.22)}
+.ch.warm{color:#1E2A5A}.ch.warm .ic,.ch.warm .more{background:rgba(255,255,255,.45)}
+.cb{padding:18px 20px 20px;display:flex;flex-direction:column;gap:14px;flex:1}
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;color:var(--muted);font-size:15px}
+.empty .art{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;font-size:40px;background:var(--bgc);color:var(--c);animation:floaty 6s ease-in-out infinite}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.btn{display:inline-flex;align-items:center;gap:8px;height:46px;padding:0 22px;border-radius:23px;background:var(--primary);color:#fff;font:500 15px Roboto,sans-serif;box-shadow:0 2px 4px rgba(84,104,212,.35),0 8px 16px -6px rgba(84,104,212,.6);transition:transform .2s}
+.btn:hover{transform:translateY(-2px)}.btn svg{font-size:20px}
+.step{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:16px;font-size:15px;font-weight:500;transition:background .2s}
+.step:hover{background:#F4F5FD}
+.step .n{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:18px;flex:none;background:#E3E8FF;color:var(--primary)}
+.step.done .n{background:#DDF3E7;color:#17623D}.step.done b{text-decoration:line-through;color:var(--muted)}
+.step small{display:block;color:var(--muted);font-weight:400;font-size:13px}
+.ring{width:84px;height:84px;border-radius:50%;background:conic-gradient(#5468D4 0 33%,#E3E8FF 0);display:grid;place-items:center;animation:spin 1.2s cubic-bezier(.2,.8,.2,1) both}
+.ring::before{content:"";width:62px;height:62px;border-radius:50%;background:#fff;position:absolute}
+.ring b{position:relative;font:800 20px Archivo,sans-serif}
+@keyframes spin{from{transform:rotate(-90deg);opacity:.2}to{transform:none;opacity:1}}
+@keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+.grid>*:nth-child(2){animation-delay:.1s}.grid>*:nth-child(3){animation-delay:.18s}.grid>*:nth-child(4){animation-delay:.26s}.grid>*:nth-child(5){animation-delay:.34s}.grid>*:nth-child(6){animation-delay:.42s}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.stat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat div{background:#F4F5FD;border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:2px}
+.stat svg{font-size:20px;color:var(--primary)}.stat b{font:800 24px Archivo,sans-serif}.stat span{font-size:12px;color:var(--muted);font-weight:500}
+.bar{height:12px;border-radius:6px;background:#E6E9F7;overflow:hidden}.bar i{display:block;height:100%;width:64%;border-radius:6px;background:linear-gradient(90deg,#2FA36B,#5468D4);transform-origin:left;animation:grow 1.4s .5s cubic-bezier(.2,.8,.2,1) both}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.row{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:16px;font-size:15px;font-weight:500;transition:background .2s}.row:hover{background:#F4F5FD}
+.row .n{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:19px;flex:none;background:var(--bgc);color:var(--c)}
+.row small{display:block;color:var(--muted);font-weight:400;font-size:13px}.row .when{margin-left:auto;font-size:12px;color:var(--muted);white-space:nowrap}
+.chipst{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:12px;font-size:12px;font-weight:700;background:var(--bgc);color:var(--c);margin-left:auto}
+.live{width:9px;height:9px;border-radius:50%;background:#1F7A4D;animation:pulse 1.8s ease-out infinite}@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(31,122,77,.6)}100%{box-shadow:0 0 0 10px rgba(31,122,77,0)}}
+</style>
+</helmet>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-grid" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></g></symbol>
+<symbol id="i-vote" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="18" height="9" rx="2"/><path d="M8 12V6l4-3 4 3v6"/><path d="M9 7.5l2 2 4-4"/></g></symbol>
+<symbol id="i-people" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><path d="M16 5a3.5 3.5 0 010 6.5M18 14.8c2 .6 3.2 2.4 3.5 5.2"/></g></symbol>
+<symbol id="i-log" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></g></symbol>
+<symbol id="i-school" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-6 9 6M5 10v10h14V10M10 20v-5h4v5"/></g></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></symbol>
+<symbol id="i-flag" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></g></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></g></symbol>
+<symbol id="i-pulse" viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-list" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></g></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12l5 5 9-10" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-mail" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 8l9 6 9-6"/></g></symbol>
+<symbol id="i-rocket" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 15c-1 1-2 4-2 6 2 0 5-1 6-2M14 5c3-2 6-2 7-2 0 1 0 4-2 7l-6 6-5-5z"/><circle cx="15" cy="9" r="1.5"/></g></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></g></symbol>
+<symbol id="i-open" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></g></symbol>
+</defs></svg>
+<div class="app">
+  <nav class="nav" aria-label="Navigation principale">
+    <div style="display:flex;align-items:center;gap:12px;padding:4px 8px 16px"><svg width="48" height="48" viewBox="0 0 48 48" role="img" aria-label="Vote"><rect width="48" height="48" rx="14" fill="#fff"/><path d="M13 25l7 7 15-17" fill="none" stroke="#5F73E6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg><span style="font:800 22px Archivo,sans-serif">New Voting System</span></div>
+    <div style="display:flex;align-items:center;gap:10px;height:46px;padding:0 16px;border-radius:23px;background:rgba(255,255,255,.18);font-size:15px"><svg class="i" style="font-size:20px"><use href="#i-search"/></svg>Aller à…</div>
+    <a class="item on" href="#"><svg class="i"><use href="#i-grid"/></svg>Tableau de bord</a>
+    <a class="item" href="#"><svg class="i"><use href="#i-vote"/></svg>Élections</a>
+    <a class="item" href="#"><svg class="i"><use href="#i-school"/></svg>Établissement</a>
+    <a class="item" href="#"><svg class="i"><use href="#i-log"/></svg>Journal d'audit</a>
+  </nav>
+  <main class="main">
+    <header class="top"><h1 style="margin:0;font:800 34px Archivo,sans-serif;flex:1;letter-spacing:-.5px">Tableau de bord</h1><span class="pillinfo">✓ Courriel vérifié</span><div class="avatar">MN</div></header>
+
+    <section class="welcome">
+      <div><div style="font:800 30px Archivo,sans-serif;letter-spacing:-.4px">Bienvenue, [Prénom]</div><div style="margin-top:4px;font-size:16px;color:#fff">[Nom de l'établissement] · Propriétaire</div></div>
+      <div class="quick">
+        <a class="q main-q" href="#"><svg class="i"><use href="#i-plus"/></svg>Nouvelle élection</a>
+        <a class="q" href="#"><svg class="i"><use href="#i-people"/></svg>Inviter un collègue</a>
+        <a class="q" href="#"><svg class="i"><use href="#i-school"/></svg>Mon établissement</a>
+      </div>
+    </section>
+
+    <section class="zone" aria-label="Vue d'ensemble">
+      <div class="zone-h"><svg class="i" style="font-size:24px;color:#5468D4"><use href="#i-pulse"/></svg>Vue d'ensemble <small>aujourd'hui, 9 octobre 2026</small></div>
+      <div class="grid">
+        <article class="card"><div class="ch" style="background:linear-gradient(120deg,#2FA36B,#5468D4)"><span class="ic"><svg class="i"><use href="#i-flag"/></svg></span><h3>Élection ouverte</h3><span class="more"><span class="live"></span>En cours</span></div>
+          <div class="cb"><div style="font:800 21px Archivo,sans-serif">[Élection exemple A]</div><div style="color:var(--muted);font-size:14px">Se termine le 16 oct. 2026 · 19:00</div>
+            <div><div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px"><span style="color:var(--muted)">Participation</span><b>64 %</b></div><div class="bar"><i></i></div></div>
+            <div class="stat"><div><svg class="i"><use href="#i-people"/></svg><b>412</b><span>Électeurs</span></div><div><svg class="i"><use href="#i-vote"/></svg><b>264</b><span>Bulletins</span></div><div><svg class="i"><use href="#i-flag"/></svg><b>3</b><span>Postes</span></div></div>
+            <a class="btn" style="align-self:flex-start;margin-top:auto" href="#"><svg class="i"><use href="#i-open"/></svg>Suivre en direct</a></div></article>
+        <article class="card"><div class="ch warm" style="background:linear-gradient(120deg,#F29A76,#F7C9A6)"><span class="ic"><svg class="i"><use href="#i-list"/></svg></span><h3>À faire</h3><span class="more">3</span></div>
+          <div class="cb" style="gap:4px">
+            <a class="row" href="#" style="--bgc:#FFE8D6;--c:#C2410C"><span class="n"><svg class="i"><use href="#i-people"/></svg></span><span>Importer les électeurs<small>[Élection exemple C] · 0 électeur</small></span></a>
+            <a class="row" href="#" style="--bgc:#E3E8FF;--c:#5468D4"><span class="n"><svg class="i"><use href="#i-flag"/></svg></span><span>Ajouter les candidats<small>[Élection exemple C] · aucun poste</small></span></a>
+            <a class="row" href="#" style="--bgc:#D9F2EE;--c:#0F766E"><span class="n"><svg class="i"><use href="#i-mail"/></svg></span><span>Préparer les codes d'accès<small>[Élection exemple B] · avant le 20 oct.</small></span></a></div></article>
+        <article class="card"><div class="ch" style="background:linear-gradient(120deg,#0F766E,#2FA36B)"><span class="ic"><svg class="i"><use href="#i-chart"/></svg></span><h3>Chiffres clés</h3></div>
+          <div class="cb"><div class="stat" style="grid-template-columns:repeat(2,1fr)"><div><svg class="i"><use href="#i-vote"/></svg><b>4</b><span>Élections</span></div><div><svg class="i"><use href="#i-people"/></svg><b>1 071</b><span>Électeurs inscrits</span></div><div><svg class="i"><use href="#i-check"/></svg><b>676</b><span>Bulletins déposés</span></div><div><svg class="i"><use href="#i-pulse"/></svg><b>82 %</b><span>Participation moyenne</span></div></div></div></article>
+        <article class="card"><div class="ch" style="background:linear-gradient(120deg,#A8349A,#7C5BD0)"><span class="ic"><svg class="i"><use href="#i-pulse"/></svg></span><h3>Activité récente</h3><span class="more">Journal <svg class="i" style="font-size:14px"><use href="#i-open"/></svg></span></div>
+          <div class="cb" style="gap:4px">
+            <div class="row" style="--bgc:#DDF3E7;--c:#17623D"><span class="n"><svg class="i"><use href="#i-vote"/></svg></span><span>Vote enregistré<small>[Élection exemple A]</small></span><span class="when">il y a 2 min</span></div>
+            <div class="row" style="--bgc:#E3E8FF;--c:#5468D4"><span class="n"><svg class="i"><use href="#i-plus"/></svg></span><span>Élection créée<small>par [Prénom]</small></span><span class="when">il y a 3 h</span></div>
+            <div class="row" style="--bgc:#F0E3FB;--c:#6B2DA8"><span class="n"><svg class="i"><use href="#i-people"/></svg></span><span>Collègue invité<small>rôle gestionnaire</small></span><span class="when">hier</span></div></div></article>
+        <article class="card"><div class="ch" style="background:linear-gradient(120deg,#5468D4,#7A92EE)"><span class="ic"><svg class="i"><use href="#i-vote"/></svg></span><h3>Dernières élections</h3><span class="more">Tout voir <svg class="i" style="font-size:14px"><use href="#i-open"/></svg></span></div>
+          <div class="cb" style="gap:4px">
+            <a class="row" href="#" style="--bgc:#DDF3E7;--c:#17623D"><span class="n"><svg class="i"><use href="#i-flag"/></svg></span><span>[Élection exemple A]<small>16 oct. 2026</small></span><span class="chipst" style="--bgc:#DDF3E7;--c:#17623D">En cours</span></a>
+            <a class="row" href="#" style="--bgc:#E3E8FF;--c:#2E3FA8"><span class="n"><svg class="i"><use href="#i-vote"/></svg></span><span>[Élection exemple B]<small>20 oct. 2026</small></span><span class="chipst" style="--bgc:#E3E8FF;--c:#2E3FA8">Programmée</span></a>
+            <a class="row" href="#" style="--bgc:#F0E3FB;--c:#6B2DA8"><span class="n"><svg class="i"><use href="#i-chart"/></svg></span><span>[Élection exemple D]<small>14 mai 2025</small></span><span class="chipst" style="--bgc:#F0E3FB;--c:#6B2DA8">Publiée</span></a></div></article>
+        <article class="card"><div class="ch" style="background:linear-gradient(120deg,#7C5BD0,#5468D4)"><span class="ic"><svg class="i"><use href="#i-school"/></svg></span><h3>Établissement</h3></div>
+          <div class="cb"><div class="row" style="--bgc:#E3E8FF;--c:#5468D4"><span class="n"><svg class="i"><use href="#i-people"/></svg></span><span>3 utilisateurs<small>1 propriétaire · 2 gestionnaires</small></span></div>
+            <div class="row" style="--bgc:#D9F2EE;--c:#0F766E"><span class="n"><svg class="i"><use href="#i-log"/></svg></span><span>Double authentification<small>Activée pour votre compte</small></span></div>
+            <a class="btn" style="align-self:flex-start;margin-top:auto" href="#"><svg class="i"><use href="#i-people"/></svg>Inviter un collègue</a></div></article>
+      </div>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1920,"height":1080}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -127,6 +127,7 @@
   --breakpoint-md: 768px;
   --breakpoint-lg: 1024px;
   --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1600px;
 
   /* Depth is elevation: a card at rest, in a grid, lifted by hover, and the main button */
   --shadow-*: initial;

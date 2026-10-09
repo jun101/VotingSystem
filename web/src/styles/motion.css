@@ -780,6 +780,124 @@
 }
 
 /*
+ * The date and time picker (docs/design/frontend.md, "Large screens, icons and the date picker").
+ * The popover rises and fades in, the day circles pop, the band of the voting days grows from
+ * its start; only transform and opacity move. The reduced-motion block below stops all of it.
+ */
+@layer components {
+  .bg-day-start {
+    background-image: linear-gradient(160deg, var(--color-hero-from), var(--color-primary));
+  }
+
+  .bg-day-end {
+    background-image: linear-gradient(160deg, var(--color-hero-from), var(--color-warm));
+  }
+
+  .picker-rise {
+    animation: picker-rise var(--duration-base) var(--ease-out-soft) both;
+  }
+
+  @keyframes picker-rise {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes picker-pop {
+    from {
+      transform: scale(0.4);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+
+  .picker-day {
+    position: relative;
+    display: grid;
+    place-items: center;
+    height: 38px;
+    font-size: var(--text-base);
+    color: var(--color-ink);
+    cursor: pointer;
+  }
+
+  .picker-day-n {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-full);
+    transition: background-color var(--duration-fast) var(--ease-out-soft);
+  }
+
+  .picker-day:hover .picker-day-n {
+    background-color: var(--color-line-soft);
+  }
+
+  .picker-day:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: -2px;
+    border-radius: var(--radius-full);
+  }
+
+  /* The band of the voting days: whole for a day inside, half for the first and the last. */
+  .picker-day[data-range]::before {
+    content: '';
+    position: absolute;
+    inset: 2px 0;
+    background-color: var(--color-primary-soft);
+    transform-origin: left center;
+    animation: grow-line var(--duration-base) var(--ease-out-soft) both;
+  }
+
+  .picker-day[data-range='start']::before {
+    left: 50%;
+  }
+
+  .picker-day[data-range='end']::before {
+    right: 50%;
+    transform-origin: right center;
+  }
+
+  .picker-day[data-single]::before {
+    display: none;
+  }
+
+  .picker-day[data-range='in'] .picker-day-n {
+    color: var(--color-status-scheduled);
+  }
+
+  /* The first and the last day are circles: primary, and the magenta of the end. */
+  .picker-day[data-range='start'] .picker-day-n,
+  .picker-day[data-range='end'] .picker-day-n {
+    color: var(--color-surface);
+    font-weight: 700;
+    animation: picker-pop 350ms var(--ease-spring) both;
+  }
+
+  .picker-day[data-range='start'] .picker-day-n {
+    background-color: var(--color-primary);
+  }
+
+  .picker-day[data-range='end'] .picker-day-n {
+    background-color: var(--color-hero-from);
+  }
+
+  .picker-day[data-today]:not([data-range='start']):not([data-range='end']) .picker-day-n {
+    outline: 2px solid var(--color-primary);
+    outline-offset: -2px;
+  }
+}
+
+/*
  * Reduced motion: every effect becomes an instant change. Nothing is lost but the
  * movement, so the final state is shown at once. Outside the layer so it always wins.
  */

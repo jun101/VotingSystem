@@ -20,6 +20,7 @@ import { useI18n } from '@/lib/i18n/client';
 import { CoverField, usePickedCover } from './CoverField';
 import { CoverPreview } from './CoverPreview';
 import { dateFields } from './dateFields';
+import { DateRangePicker } from './DateRangePicker';
 import { NextSteps } from './NextSteps';
 import { SchedulePanel } from './SchedulePanel';
 
@@ -225,29 +226,15 @@ export function ElectionForm({
           errorTestId="election-description-error"
         />
 
+        <DateRangePicker
+          starts={values.starts}
+          ends={values.ends}
+          zone={values.timezone}
+          onChange={(next) => setValues((current) => ({ ...current, ...next }))}
+          errors={{ starts: fields.starts_at, ends: fields.ends_at }}
+        />
+
         <div className="grid gap-4 sm:grid-cols-2">
-          <Input
-            label={t('elections.form.starts')}
-            name="starts_at"
-            type="datetime-local"
-            required
-            value={values.starts}
-            onChange={change('starts')}
-            data-testid="election-starts"
-            error={fields.starts_at}
-            errorTestId="election-starts-error"
-          />
-          <Input
-            label={t('elections.form.ends')}
-            name="ends_at"
-            type="datetime-local"
-            required
-            value={values.ends}
-            onChange={change('ends')}
-            data-testid="election-ends"
-            error={fields.ends_at}
-            errorTestId="election-ends-error"
-          />
           <Select
             label={t('elections.form.timezone')}
             name="timezone"
