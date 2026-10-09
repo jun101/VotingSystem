@@ -216,7 +216,7 @@ screens; their look follows these rules.
    on load. The selected tile is `primary` with white text. On a gradient surface a
    figure sits in a translucent glass tile (`glass`, `glass-line`).
 5. **One highlighted figure per gradient surface**, in `accent-light`.
-6. **A card is led by its own cover.** An election card starts with a 76 px gradient
+6. **A card is led by its own cover.** An election card starts with a 120 px gradient
    cover (a slow light turning across it), then the status chip, the title, the dates, the
    one figure that matters (a progress bar for an open election), and a row of actions.
    The status keeps its chip colours; a tie or a warning uses `warm`.

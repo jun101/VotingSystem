@@ -33,7 +33,7 @@ behaviour, same test ids, new theme. The rules he wants kept: **as little free s
 6. **Admin**: side menu 256 px, gradient panel, rounded outer corners, white pill for the current item, coral badge;
    top bar with the title, the "go to" search, notifications, language, avatar; no hero band; elections list as in
    material-admin.html (tiles + year chips + main button on one row, creation tile first, 3-column grid at 1280 px, cards
-   with a 76 px gradient cover, status chip, one key figure, an action row).
+   with a 120 px gradient cover, status chip, one key figure, an action row).
 7. **Motion** per frontend.md Motion (drift, float, sweep, lift, float label, bob, strength, reveal, grow, live dot), all
    stopped by "reduce motion"; no animation library.
 

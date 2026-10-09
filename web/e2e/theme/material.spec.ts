@@ -131,7 +131,7 @@ test.describe('admin', () => {
     await expect(page.getByTestId('top-bar-title')).toBeVisible();
   });
 
-  test('an election card: 20 px corners, resting shadow, a 76 px gradient cover, lifts on hover [NFR-UX-02]', async ({ page }) => {
+  test('an election card: 20 px corners, resting shadow, a 120 px gradient cover, lifts on hover [NFR-UX-02]', async ({ page }) => {
     await registerAndEnter(page);
     await createElection(page, 'Conseil des élèves', '2026-11-02T12:00:00Z', '2026-11-03T12:00:00Z');
     await page.goto('/admin/elections');
@@ -141,7 +141,7 @@ test.describe('admin', () => {
     expect(await card.evaluate((e) => getComputedStyle(e).boxShadow)).not.toBe('none');
 
     const band = page.getByTestId('election-band-1');
-    expect((await band.boundingBox())!.height).toBe(76);
+    expect((await band.boundingBox())!.height).toBe(120);
     expect(await band.evaluate((e) => getComputedStyle(e).backgroundImage)).toContain('linear-gradient');
 
     if (!isPhone(page)) {
