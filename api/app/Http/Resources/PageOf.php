@@ -13,6 +13,9 @@ use Illuminate\Pagination\LengthAwarePaginator;
  */
 final class PageOf extends ResourceCollection
 {
+    /** @var array<string, mixed> */
+    private array $extraMeta = [];
+
     /**
      * A page of records, each shown as this resource.
      *
@@ -22,6 +25,18 @@ final class PageOf extends ResourceCollection
     public static function from(LengthAwarePaginator $page, string $resource): self
     {
         return new self($page->through(fn ($record) => new $resource($record)));
+    }
+
+    /**
+     * Keys added to `meta` after `page`, `per_page` and `total` (the counts of a filter bar).
+     *
+     * @param  array<string, mixed>  $meta
+     */
+    public function withMeta(array $meta): self
+    {
+        $this->extraMeta = $meta;
+
+        return $this;
     }
 
     /**
@@ -36,7 +51,7 @@ final class PageOf extends ResourceCollection
                 'page' => $paginated['current_page'],
                 'per_page' => $paginated['per_page'],
                 'total' => $paginated['total'],
-            ],
+            ] + $this->extraMeta,
         ];
     }
 }

@@ -14,3 +14,8 @@ export const linkPrimary =
 export const linkSecondary =
   'ui-control inline-flex min-h-11 items-center justify-center rounded border border-line-strong bg-surface px-4 text-base font-semibold text-ink hover:bg-surface-alt ' +
   focusRing;
+
+/** The one main action of a screen, as a link: the accent button. Text is never white on this orange. */
+export const linkAccent =
+  'ui-control inline-flex min-h-11 items-center justify-center rounded border border-transparent bg-accent-gradient px-4 text-base font-semibold text-navy-deep hover:border-accent-light ' +
+  focusRing;

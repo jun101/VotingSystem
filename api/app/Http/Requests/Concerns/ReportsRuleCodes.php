@@ -25,6 +25,7 @@ trait ReportsRuleCodes
                 $codes[$field][] = match (Str::snake(class_basename((string) $rule))) {
                     'regex' => 'format',
                     'choice' => 'in',
+                    'iso_date_time' => 'date',
                     'unique' => 'taken',
                     default => Str::snake(class_basename((string) $rule)),
                 };

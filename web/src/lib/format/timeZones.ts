@@ -1,3 +1,5 @@
+import { isSupportedZone } from './zonedTime';
+
 /**
  * The time zone identifiers the API accepts (PHP's `DateTimeZone::listIdentifiers`, which
  * the `timezone` rule of `PATCH /institution` checks), plus `UTC`. They are identifiers, not
@@ -428,10 +430,18 @@ export const TIME_ZONES: readonly string[] = [
 /** The zone of the country the product starts in, shown first. */
 export const DEFAULT_TIME_ZONE = 'America/Port-au-Prince';
 
-/** The list for a select: the default zone first, then the others; a stored zone not in the list is kept. */
+/**
+ * The list for a select: the default zone first, then the others, only the zones this browser
+ * can compute; a stored zone not in the list is kept (the form tells it cannot be used).
+ */
 export function timeZoneChoices(current: string): string[] {
-  const others = TIME_ZONES.filter((zone) => zone !== DEFAULT_TIME_ZONE);
-  const known = new Set<string>(TIME_ZONES);
+  const supported = TIME_ZONES.filter(isSupportedZone);
+  const others = supported.filter((zone) => zone !== DEFAULT_TIME_ZONE);
+  const known = new Set<string>(supported);
 
-  return [DEFAULT_TIME_ZONE, ...(known.has(current) ? [] : [current]), ...others];
+  return [
+    ...(known.has(DEFAULT_TIME_ZONE) ? [DEFAULT_TIME_ZONE] : []),
+    ...(known.has(current) || current === DEFAULT_TIME_ZONE ? [] : [current]),
+    ...others,
+  ];
 }

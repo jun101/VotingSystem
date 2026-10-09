@@ -2,6 +2,7 @@ import createClient from 'openapi-fetch';
 import { apiBaseUrl } from './client';
 import { ApiError, parseApiError } from './errors';
 import { XSRF_COOKIE } from './session';
+import type { Election, ElectionChanges, ElectionFilters, NewElection } from './elections';
 import type { paths } from './schema';
 import type {
   CurrentUser,
@@ -341,4 +342,113 @@ export async function cancelInvitation(id: string): Promise<void> {
 
 export async function removeUser(id: string): Promise<void> {
   await send((api) => api.DELETE('/v1/users/{user}', { params: { path: { user: id } } }));
+}
+
+/** `GET /elections`: one page of 100 cards under the filters, and the total. */
+export async function fetchElectionsPage(
+  filters: ElectionFilters,
+  page: number,
+): Promise<{ items: Election[]; total: number }> {
+  const { data } = await send((api) =>
+    api.GET('/v1/elections', {
+      params: {
+        query: {
+          per_page: 100,
+          page,
+          ...(filters.status ? { status: filters.status } : {}),
+          ...(filters.year ? { year: String(filters.year) } : {}),
+        },
+      },
+    }),
+  );
+
+  return { items: data!.data, total: data!.meta.total };
+}
+
+/** `POST /elections`: a draft of the caller's institution. */
+export async function createElection(body: NewElection): Promise<Election> {
+  const { data } = await send((api) => api.POST('/v1/elections', { body }));
+
+  return data!.data;
+}
+
+/** `PATCH /elections/{election}`: the fields given change, a draft only. */
+export async function updateElection(id: string, body: ElectionChanges): Promise<Election> {
+  const { data } = await send((api) =>
+    api.PATCH('/v1/elections/{election}', { params: { path: { election: id } }, body }),
+  );
+
+  return data!.data;
+}
+
+/** `DELETE /elections/{election}`: a draft, for good. */
+export async function deleteElection(id: string): Promise<void> {
+  await send((api) =>
+    api.DELETE('/v1/elections/{election}', { params: { path: { election: id } } }),
+  );
+}
+
+/** `POST /elections/{election}/duplicate`: a new draft with the settings of this one. */
+export async function duplicateElection(id: string): Promise<Election> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/duplicate', { params: { path: { election: id } } }),
+  );
+
+  return data!.data;
+}
+
+/** `DELETE /elections/{election}/cover`: removes the cover of a draft. */
+export async function removeElectionCover(id: string): Promise<void> {
+  await send((api) =>
+    api.DELETE('/v1/elections/{election}/cover', { params: { path: { election: id } } }),
+  );
+}
+
+/**
+ * `PUT /elections/{election}/cover`: the picture, as one `file` part. Sent by hand like the logo
+ * (the schema has no multipart body), with the same rules: the CSRF token, one retry on a 419,
+ * an `ApiError` for anything that is not a success.
+ */
+export async function uploadElectionCover(id: string, file: File): Promise<Election> {
+  for (let attempt = 0; ; attempt++) {
+    const body = new FormData();
+    body.append('file', file);
+
+    let response: Response;
+
+    try {
+      response = await fetch(`${apiBaseUrl()}/v1/elections/${encodeURIComponent(id)}/cover`, {
+        method: 'PUT',
+        body,
+        credentials: 'same-origin',
+        headers: {
+          Accept: 'application/json',
+          'Accept-Language': pageLanguage(),
+          'X-XSRF-TOKEN': await csrfToken(),
+        },
+      });
+    } catch (error) {
+      throw error instanceof ApiError ? error : new ApiError(0, 'network');
+    }
+
+    if (response.ok) return ((await response.json()) as { data: Election }).data;
+
+    let answer: unknown = null;
+
+    try {
+      answer = await response.json();
+    } catch {
+      // Not JSON: an `unknown` error.
+    }
+
+    const failure = parseApiError(response.status, answer, response.headers.get('Retry-After'));
+
+    if (failure.code === 'csrf_mismatch' && attempt === 0) {
+      await refreshCsrf();
+
+      continue;
+    }
+
+    throw failure;
+  }
 }

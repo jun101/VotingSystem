@@ -24,5 +24,7 @@ return [
     'two_factor_already_enabled' => 'Two-factor authentication is already turned on.',
     'two_factor_not_started' => 'Start the setup first.',
     'two_factor_not_enabled' => 'Two-factor authentication is not turned on.',
+    'election_not_editable' => 'This election can no longer be changed.',
+    'election_not_deletable' => 'This election can no longer be deleted.',
     'cannot_reset_self' => 'Use your "My account" page to turn off your own two-factor authentication.',
 ];

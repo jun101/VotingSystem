@@ -20,7 +20,8 @@ use Throwable;
  *   real decode. The size in pixels is read from the header, before anything is decoded.
  * - The rotation of the EXIF data is applied, then every piece of metadata is dropped: the
  *   files are written again from the pixels alone, as WebP.
- * - Three sizes (64, 160 and 480 pixels on the longest side), ratio kept, never enlarged.
+ * - The sizes are a parameter: the logo keeps three (64, 160 and 480 pixels on the longest side),
+ *   a cover two (480 and 960 pixels wide). Ratio kept, never enlarged.
  * - The files are named `{uuid}-{size}.webp` on the `media` disk. The upload itself is never
  *   written anywhere and nothing about it (name, path, bytes) is kept or logged.
  *
@@ -30,8 +31,14 @@ final class ImageReEncoder
 {
     public const DISK = 'media';
 
-    /** Pixels on the longest side of each version. */
+    /** Pixels on the longest side of each version of a logo. */
     public const SIZES = [64, 160, 480];
+
+    /** The sizes of a logo: the longest side. */
+    public const LOGO_SIZES = self::SIZES;
+
+    /** The sizes of an election cover: the width. */
+    public const COVER_SIZES = [480, 960];
 
     public const MAX_BYTES = 5 * 1024 * 1024;
 
@@ -40,6 +47,12 @@ final class ImageReEncoder
     public const MAX_PIXELS = 40_000_000;
 
     private const QUALITY = 82;
+
+    private const LONGEST = 'longest';
+
+    private const WIDTH = 'width';
+
+    private const HEIGHT = 'height';
 
     /** The memory ceiling while a picture is decoded and reduced. */
     private const DECODE_MEMORY = '512M';
@@ -51,13 +64,16 @@ final class ImageReEncoder
     ];
 
     /**
-     * Re-encodes the picture at this path and writes the three versions. Returns the UUID
+     * Re-encodes the picture at this path and writes one version per size. Returns the UUID
      * that names them. When anything fails, nothing is left on the disk.
+     *
+     * @param  list<int>  $sizes  pixels of each version, smallest first
+     * @param  bool  $byWidth  the sizes are widths (a cover) instead of the longest side (a logo)
      *
      * @throws ApiException 413 `file_too_large`, 415 `file_type_not_allowed`
      * @throws ValidationException `file: dimensions`
      */
-    public function store(string $path): string
+    public function store(string $path, array $sizes = self::LOGO_SIZES, bool $byWidth = false): string
     {
         // More memory than the usual request gets, for this work only (40 million pixels at
         // 4 bytes each, and the copies GD makes); the previous ceiling is restored.
@@ -65,26 +81,35 @@ final class ImageReEncoder
         ini_set('memory_limit', self::DECODE_MEMORY);
 
         try {
-            return $this->reEncode($path);
+            return $this->reEncode($path, $sizes, $byWidth);
         } finally {
+            // The pictures are freed, but the engine keeps their blocks until asked to give them
+            // back, and a ceiling lower than what it still holds cannot be set again.
+            gc_mem_caches();
             ini_set('memory_limit', $previousLimit);
         }
     }
 
-    private function reEncode(string $path): string
+    /** @param  list<int>  $sizes */
+    private function reEncode(string $path, array $sizes, bool $byWidth): string
     {
         $source = $this->decode($path);
         $uuid = Str::uuid()->toString();
         $written = [];
 
         try {
-            $large = $this->orient($this->fit($source['image'], max(self::SIZES)), $source['orientation']);
+            // A width is the width of the picture as it is shown: for a picture turned a quarter
+            // turn by its EXIF data, that is the height of the stored one.
+            $quarterTurn = in_array($source['orientation'], [5, 6, 7, 8], true);
+            $axis = ! $byWidth ? self::LONGEST : ($quarterTurn ? self::HEIGHT : self::WIDTH);
+            $large = $this->orient($this->fit($source['image'], max($sizes ?: [1]), $axis), $source['orientation']);
             $versions = [];
             $current = $large;
+            $axis = $byWidth ? self::WIDTH : self::LONGEST;
 
             // Each version is made from the next larger one: a gentle reduction each time.
-            foreach (array_reverse(self::SIZES) as $size) {
-                $current = $this->fit($current, $size);
+            foreach (array_reverse($sizes) as $size) {
+                $current = $this->fit($current, $size, $axis);
                 $versions[$size] = $current;
             }
 
@@ -108,14 +133,18 @@ final class ImageReEncoder
         return $uuid;
     }
 
-    /** Deletes the three files of a picture. A value that is not a UUID names nothing. */
-    public function delete(?string $uuid): void
+    /**
+     * Deletes the files of a picture. A value that is not a UUID names nothing.
+     *
+     * @param  list<int>  $sizes
+     */
+    public function delete(?string $uuid, array $sizes = self::LOGO_SIZES): void
     {
         if ($uuid === null || ! Str::isUuid($uuid)) {
             return;
         }
 
-        foreach (self::SIZES as $size) {
+        foreach ($sizes as $size) {
             $this->disk()->delete(self::nameOf($uuid, $size));
         }
     }
@@ -239,17 +268,22 @@ final class ImageReEncoder
         return is_int($orientation) && $orientation >= 1 && $orientation <= 8 ? $orientation : 1;
     }
 
-    /** The picture reduced so that its longest side is `$longest`; the same picture when it is smaller. */
-    private function fit(GdImage $image, int $longest): GdImage
+    /** The picture reduced so that its longest side (or its width, or its height) is `$target`; the same picture when it is smaller. */
+    private function fit(GdImage $image, int $target, string $axis): GdImage
     {
         $width = imagesx($image);
         $height = imagesy($image);
+        $measure = match ($axis) {
+            self::WIDTH => $width,
+            self::HEIGHT => $height,
+            default => max($width, $height),
+        };
 
-        if (max($width, $height) <= $longest) {
+        if ($measure <= $target) {
             return $image;
         }
 
-        $scale = $longest / max($width, $height);
+        $scale = $target / $measure;
 
         imagealphablending($image, false);
         imagesavealpha($image, true);
