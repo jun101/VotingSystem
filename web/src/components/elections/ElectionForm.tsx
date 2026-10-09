@@ -22,6 +22,7 @@ import { CoverPreview } from './CoverPreview';
 import { dateFields } from './dateFields';
 import { DateRangePicker } from './DateRangePicker';
 import { NextSteps } from './NextSteps';
+import { Panel } from './Panel';
 import { SchedulePanel } from './SchedulePanel';
 
 const FIELDS = [
@@ -184,13 +185,16 @@ export function ElectionForm({
       noValidate
       onSubmit={submit}
       data-testid="election-form"
-      className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-x-6"
+      className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-x-5"
     >
       <p className="text-base text-ink-soft lg:col-start-1 lg:row-start-1 lg:self-center">
         {t('elections.form.hint')}
       </p>
 
-      <div className="flex min-w-0 flex-col gap-4 rounded-lg border border-line bg-surface p-4 shadow-1 lg:col-start-1 lg:row-start-2 sm:p-5">
+      <div
+        data-testid="election-form-zone"
+        className="flex min-w-0 flex-col gap-4.5 rounded-2xl border border-line bg-surface p-5 shadow-1 lg:col-start-1 lg:row-start-2"
+      >
         {formError ? (
           <Notice tone="danger" role="alert" tabIndex={-1} data-testid="election-form-error">
             {formError}
@@ -198,115 +202,142 @@ export function ElectionForm({
         ) : null}
         {createdId && coverError ? <Notice tone="warm">{t('elections.form.saved')}</Notice> : null}
 
-        <Input
-          label={t('elections.form.title')}
-          name="title"
-          type="text"
-          required
-          autoComplete="off"
-          value={values.title}
-          onChange={change('title')}
-          data-testid="election-title"
-          error={fields.title}
-          errorTestId="election-title-error"
-        />
-
-        <Textarea
-          label={t('elections.form.description')}
-          name="description"
-          rows={3}
-          value={values.description}
-          onChange={change('description')}
-          help={t('elections.form.descriptionHelp', {
-            count: Array.from(values.description).length,
-            max: DESCRIPTION_MAX,
-          })}
-          data-testid="election-description"
-          error={fields.description}
-          errorTestId="election-description-error"
-        />
-
-        <DateRangePicker
-          starts={values.starts}
-          ends={values.ends}
-          zone={values.timezone}
-          onChange={(next) => setValues((current) => ({ ...current, ...next }))}
-          errors={{ starts: fields.starts_at, ends: fields.ends_at }}
-        />
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Select
-            label={t('elections.form.timezone')}
-            name="timezone"
-            value={values.timezone}
-            onChange={change('timezone')}
-            data-testid="election-timezone"
-            error={
-              fields.timezone ??
-              (isSupportedZone(values.timezone) ? undefined : t('elections.form.zoneUnsupported'))
-            }
-            errorTestId="election-timezone-error"
-          >
-            {zones.map((zone) => (
-              <option key={zone} value={zone}>
-                {zone}
-              </option>
-            ))}
-          </Select>
-          <Select
-            label={t('elections.form.language')}
-            name="language"
-            value={values.language}
-            onChange={change('language')}
-            data-testid="election-language"
-            error={fields.language}
-            errorTestId="election-language-error"
-          >
-            <option value="fr">{t('elections.form.languages.fr')}</option>
-            <option value="en">{t('elections.form.languages.en')}</option>
-          </Select>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Choices
-            legend={t('elections.form.orderTitle')}
-            name="candidate_order"
-            value={values.order}
-            onChange={(order) => setValues((current) => ({ ...current, order }))}
-            options={[
-              {
-                value: 'manual',
-                label: t('elections.form.order.manual'),
-                testId: 'election-order-manual',
-              },
-              {
-                value: 'shuffled',
-                label: t('elections.form.order.shuffled'),
-                testId: 'election-order-shuffled',
-              },
-            ]}
-            error={fields.candidate_order}
+        <Panel
+          plain
+          tone="info"
+          icon="draft"
+          title={t('elections.form.sections.info')}
+          id="election-info-title"
+          headerTestId="election-section-header-info"
+        >
+          <Input
+            label={t('elections.form.title')}
+            name="title"
+            type="text"
+            required
+            autoComplete="off"
+            value={values.title}
+            onChange={change('title')}
+            data-testid="election-title"
+            error={fields.title}
+            errorTestId="election-title-error"
           />
-          <Choices
-            legend={t('elections.form.resultsTitle')}
-            name="results_display"
-            value={values.results}
-            onChange={(results) => setValues((current) => ({ ...current, results }))}
-            options={[
-              {
-                value: 'full',
-                label: t('elections.form.results.full'),
-                testId: 'election-results-full',
-              },
-              {
-                value: 'winners',
-                label: t('elections.form.results.winners'),
-                testId: 'election-results-winners',
-              },
-            ]}
-            error={fields.results_display}
+
+          <Textarea
+            label={t('elections.form.description')}
+            name="description"
+            rows={3}
+            value={values.description}
+            onChange={change('description')}
+            help={t('elections.form.descriptionHelp', {
+              count: Array.from(values.description).length,
+              max: DESCRIPTION_MAX,
+            })}
+            data-testid="election-description"
+            error={fields.description}
+            errorTestId="election-description-error"
           />
-        </div>
+        </Panel>
+
+        <Panel
+          plain
+          tone="calendar"
+          icon="calendar"
+          title={t('elections.form.sections.calendar')}
+          id="election-calendar-section-title"
+          headerTestId="election-section-header-calendar"
+        >
+          <DateRangePicker
+            starts={values.starts}
+            ends={values.ends}
+            zone={values.timezone}
+            onChange={(next) => setValues((current) => ({ ...current, ...next }))}
+            errors={{ starts: fields.starts_at, ends: fields.ends_at }}
+          />
+        </Panel>
+
+        <Panel
+          plain
+          tone="settings"
+          icon="ballot"
+          title={t('elections.form.sections.settings')}
+          id="election-settings-section-title"
+          headerTestId="election-section-header-settings"
+        >
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Select
+              label={t('elections.form.timezone')}
+              name="timezone"
+              value={values.timezone}
+              onChange={change('timezone')}
+              data-testid="election-timezone"
+              error={
+                fields.timezone ??
+                (isSupportedZone(values.timezone) ? undefined : t('elections.form.zoneUnsupported'))
+              }
+              errorTestId="election-timezone-error"
+            >
+              {zones.map((zone) => (
+                <option key={zone} value={zone}>
+                  {zone}
+                </option>
+              ))}
+            </Select>
+            <Select
+              label={t('elections.form.language')}
+              name="language"
+              value={values.language}
+              onChange={change('language')}
+              data-testid="election-language"
+              error={fields.language}
+              errorTestId="election-language-error"
+            >
+              <option value="fr">{t('elections.form.languages.fr')}</option>
+              <option value="en">{t('elections.form.languages.en')}</option>
+            </Select>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Choices
+              legend={t('elections.form.orderTitle')}
+              name="candidate_order"
+              value={values.order}
+              onChange={(order) => setValues((current) => ({ ...current, order }))}
+              options={[
+                {
+                  value: 'manual',
+                  label: t('elections.form.order.manual'),
+                  testId: 'election-order-manual',
+                },
+                {
+                  value: 'shuffled',
+                  label: t('elections.form.order.shuffled'),
+                  testId: 'election-order-shuffled',
+                },
+              ]}
+              error={fields.candidate_order}
+            />
+            <Choices
+              legend={t('elections.form.resultsTitle')}
+              name="results_display"
+              value={values.results}
+              onChange={(results) => setValues((current) => ({ ...current, results }))}
+              options={[
+                {
+                  value: 'full',
+                  label: t('elections.form.results.full'),
+                  testId: 'election-results-full',
+                },
+                {
+                  value: 'winners',
+                  label: t('elections.form.results.winners'),
+                  testId: 'election-results-winners',
+                },
+              ]}
+              error={fields.results_display}
+            />
+          </div>
+        </Panel>
       </div>
 
       <div className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-20 lg:col-start-2 lg:row-start-2 lg:self-start">

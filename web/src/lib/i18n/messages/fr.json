@@ -742,6 +742,12 @@
       "cancel": "Annuler"
     },
     "form": {
+      "sections": {
+        "info": "Informations",
+        "calendar": "Calendrier",
+        "settings": "Réglages du vote",
+        "cover": "Affiche"
+      },
       "hint": "Tout reste modifiable tant que l’élection est un brouillon.",
       "save": "Créer le brouillon",
       "saveEdit": "Enregistrer",
@@ -839,7 +845,19 @@
       "locked": "Cette élection n’est plus un brouillon : ses réglages ne peuvent plus être modifiés.",
       "nextTitle": "Ce qui vient ensuite",
       "soon": "Pas encore disponible",
-      "coverTitle": "Couverture"
+      "coverTitle": "Couverture",
+      "back": "Élections",
+      "start": "Début",
+      "end": "Fin",
+      "zone": "Détails de l’élection",
+      "changeCover": "Changer l’affiche",
+      "stepsCount": "{done} sur {total}",
+      "facts": {
+        "positions": "Postes",
+        "voters": "Électeurs",
+        "ballots": "Bulletins"
+      },
+      "factsSoon": "Disponible avec les prochaines étapes"
     },
     "rail": {
       "label": "Calendrier et tâches",

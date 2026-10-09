@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 import { rangeText } from '@/components/elections/rangeText';
 import { STATUS_ICONS } from '@/components/elections/statusIcon';
 import { StatusPill } from '@/components/elections/StatusPill';
-import { GrowBar, LiveDot, Reveal } from '@/components/motion';
+import { GrowBar, LiveDot } from '@/components/motion';
 import { cx } from '@/components/ui/cx';
 import type { Election, ElectionCounts, ElectionStatus } from '@/lib/api/elections';
 import type { InstitutionProfile, Listing, TeamMember, TwoFactorState } from '@/lib/api/user';
@@ -107,9 +107,9 @@ export function Dashboard({ now, elections, counts, institution, team, twoFactor
 
   return (
     <div data-testid="dashboard" className="flex flex-col gap-4">
-      <section className="bg-hero cover-sweep flex flex-wrap items-center gap-x-6 gap-y-4 rounded-xl px-5 py-5 text-surface shadow-2 md:px-7">
+      <section className="bg-hero cover-sweep flex flex-wrap items-center gap-x-6 gap-y-4 rounded-xl px-5 py-5.5 text-surface shadow-2 md:px-7">
         <div className="relative z-10 min-w-0">
-          <h2 data-testid="dashboard-welcome" className="text-2xl text-surface md:text-3xl">
+          <h2 data-testid="dashboard-welcome" className="text-2xl text-surface md:text-[30px]">
             {t('admin.dashboard.welcome', { name: user.name })}
           </h2>
           {user.institution ? (
@@ -152,7 +152,7 @@ export function Dashboard({ now, elections, counts, institution, team, twoFactor
       <section
         data-testid="dashboard-zone"
         aria-labelledby="dashboard-zone-title"
-        className="rounded-2xl border border-line bg-surface p-3 shadow-1 2xl:p-5"
+        className="rounded-2xl border border-line bg-surface p-5 shadow-1"
       >
         <div className="mx-1 mb-4 flex flex-wrap items-center gap-x-3">
           <span className="text-primary">
@@ -166,10 +166,7 @@ export function Dashboard({ now, elections, counts, institution, team, twoFactor
           </small>
         </div>
 
-        <Reveal
-          stagger
-          className="grid grid-cols-[repeat(auto-fill,minmax(min(18.75rem,100%),1fr))] gap-4 2xl:grid-cols-[repeat(auto-fill,minmax(min(23.75rem,100%),1fr))]"
-        >
+        <div className="rise-stagger grid grid-cols-[repeat(auto-fill,minmax(min(18.75rem,100%),1fr))] gap-4.5 2xl:grid-cols-[repeat(auto-fill,minmax(min(23.75rem,100%),1fr))]">
           <DashCard
             card="open-election"
             icon="flag"
@@ -185,7 +182,7 @@ export function Dashboard({ now, elections, counts, institution, team, twoFactor
           >
             {open ? (
               <>
-                <h4 className="font-display text-xl font-extrabold break-words text-ink">
+                <h4 className="font-display text-[21px] font-extrabold break-words text-ink">
                   {open.title}
                 </h4>
                 <p className="text-base text-ink-soft">
@@ -222,7 +219,7 @@ export function Dashboard({ now, elections, counts, institution, team, twoFactor
                 </div>
                 <Link
                   href={`/admin/elections/${open.id}`}
-                  className={cx(linkPrimary, 'mt-auto gap-2 self-start')}
+                  className={cx(linkPrimary, 'mt-auto min-h-11.5 gap-2 self-start px-5.5')}
                 >
                   <Icon name="open" size={20} />
                   {t('admin.dashboard.openElection.open')}
@@ -233,7 +230,7 @@ export function Dashboard({ now, elections, counts, institution, team, twoFactor
                 <Link
                   href="/admin/elections/new"
                   data-testid="dashboard-create-election"
-                  className={cx(linkPrimary, 'gap-2')}
+                  className={cx(linkPrimary, 'min-h-11.5 gap-2 px-5.5')}
                 >
                   <Icon name="plus" size={20} />
                   {t('admin.dashboard.create')}
@@ -312,7 +309,7 @@ export function Dashboard({ now, elections, counts, institution, team, twoFactor
               ) : null}
               <Link
                 href="/admin/institution"
-                className={cx(linkPrimary, 'mt-auto gap-2 self-start')}
+                className={cx(linkPrimary, 'mt-auto min-h-11.5 gap-2 self-start px-5.5')}
               >
                 <Icon name="people" size={20} />
                 {t('admin.dashboard.institutionCard.invite')}
@@ -347,7 +344,7 @@ export function Dashboard({ now, elections, counts, institution, team, twoFactor
                   }}
                 >
                   <span aria-hidden="true" className="absolute size-15.5 rounded-full bg-surface" />
-                  <b className="relative font-display text-xl font-extrabold text-ink">
+                  <b className="relative font-display text-[20px] font-extrabold text-ink">
                     {t('admin.dashboard.gettingStarted.percent', { percent: start.percent })}
                   </b>
                 </div>
@@ -410,7 +407,10 @@ export function Dashboard({ now, elections, counts, institution, team, twoFactor
               ))
             ) : (
               <Empty icon="ballot" tone="primary" text={t('admin.dashboard.latest.empty')}>
-                <Link href="/admin/elections/new" className={cx(linkPrimary, 'gap-2')}>
+                <Link
+                  href="/admin/elections/new"
+                  className={cx(linkPrimary, 'min-h-11.5 gap-2 px-5.5')}
+                >
                   <Icon name="plus" size={20} />
                   {t('admin.dashboard.quick.newElection')}
                 </Link>
@@ -451,7 +451,7 @@ export function Dashboard({ now, elections, counts, institution, team, twoFactor
               <Empty icon="chart" tone="teal" text={t('admin.dashboard.figures.empty')} />
             )}
           </DashCard>
-        </Reveal>
+        </div>
       </section>
     </div>
   );

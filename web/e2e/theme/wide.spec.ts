@@ -44,8 +44,9 @@ test.describe('at 1920 x 1080', () => {
     for (const card of cards) expect(card.width).toBeGreaterThanOrEqual(380);
     const firstRow = cells.filter((cell) => Math.abs(cell.y - cells[0]!.y) <= 3);
     expect(firstRow.length).toBeGreaterThanOrEqual(3);
-    // The grid reaches the rail and the rail reaches the right edge of the content.
-    expect(rail.x - grid.right).toBeLessThanOrEqual(24);
+    // The white zone reaches the rail and the rail reaches the right edge of the content.
+    const zoneBox = (await boxesOf(page, '[data-testid="elections-zone"]'))[0]!;
+    expect(rail.x - zoneBox.right).toBeLessThanOrEqual(24);
     expect(WIDE.width - rail.right).toBeLessThanOrEqual(40);
     expect(rail.width).toBeGreaterThanOrEqual(320);
     // The last card of a full row ends where the grid ends.

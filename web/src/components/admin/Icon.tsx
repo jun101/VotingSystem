@@ -133,6 +133,35 @@ const SYMBOLS = {
       </>
     ),
   },
+  lang: {
+    shapes: <path d="M4 5h9M8.5 3v2M6 5c0 4 3 7 7 8M12 5c0 3-3 6-7 8M13 20l4-9 4 9M14.5 17h5" />,
+  },
+  shuffle: { shapes: <path d="M16 4h4v4M4 20L20 4M20 16v4h-4M4 4l5 5M15 15l5 5" /> },
+  eye: {
+    shapes: (
+      <>
+        <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" />
+        <circle cx="12" cy="12" r="3" />
+      </>
+    ),
+  },
+  image: {
+    shapes: (
+      <>
+        <rect x="3" y="4" width="18" height="16" rx="3" />
+        <circle cx="9" cy="10" r="2" />
+        <path d="M21 16l-5-5-8 8" />
+      </>
+    ),
+  },
+  lock: {
+    shapes: (
+      <>
+        <rect x="4" y="11" width="16" height="10" rx="3" />
+        <path d="M8 11V8a4 4 0 018 0v3" />
+      </>
+    ),
+  },
   archive: { shapes: <path d="M3 5h18v4H3zM5 9v10h14V9M10 13h4" /> },
 } satisfies Record<string, Glyph>;
 

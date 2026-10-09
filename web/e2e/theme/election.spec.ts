@@ -68,8 +68,9 @@ test.describe('summary page', () => {
 
     await expect(page.getByTestId('election-day-start')).toContainText('2');
     await expect(page.getByTestId('election-day-end')).toContainText('6');
-    await expect(page.getByTestId('election-card-calendar')).toContainText('08:00');
-    await expect(page.getByTestId('election-card-calendar')).toContainText('15:00');
+    // 12:00 and 19:00 UTC on 2 and 6 November, after the clock change: UTC-5 in Port-au-Prince.
+    await expect(page.getByTestId('election-card-calendar')).toContainText('07:00');
+    await expect(page.getByTestId('election-card-calendar')).toContainText('14:00');
     await expect(page.getByTestId('election-duration-line')).toContainText('4 jours');
     await expect(page.getByTestId('election-summary-dates')).toContainText('2 novembre');
     await expect(page.getByTestId('election-summary-timezone')).toContainText('Port-au-Prince');
@@ -108,13 +109,15 @@ test.describe('summary page', () => {
 
   test('the cover card shows the picture when there is one, a gradient when not [FR-ELEC-04]', async ({ page }) => {
     const election = await openSummary(page);
-    await expect(page.getByTestId('election-summary-cover')).toBeVisible();
-    expect(await page.getByTestId('election-summary-cover').locator('img').count()).toBe(0);
+    // The id sits on the picture itself, and only when there is one (slice 05 tests).
+    await expect(page.getByTestId('election-card-cover')).toBeVisible();
+    await expect(page.getByTestId('election-summary-cover')).toHaveCount(0);
 
     await putCover(page, election.id);
     await page.reload();
 
-    await expect(page.getByTestId('election-summary-cover').locator('img')).toHaveCount(1);
+    await expect(page.getByTestId('election-summary-cover')).toBeVisible();
+    await expect(page.getByTestId('election-card-cover').locator('img')).toHaveCount(1);
   });
 
   test('fills a large screen: no card row leaves a gap on the right [NFR-UX-02]', async ({ page }) => {

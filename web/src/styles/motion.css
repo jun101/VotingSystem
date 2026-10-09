@@ -951,6 +951,38 @@
     background-image: linear-gradient(120deg, var(--color-teal), var(--color-status-open));
   }
 
+  /* The cards come in one after the other as the page opens (not on scroll). */
+  .rise-stagger > * {
+    animation: rise-in 600ms var(--ease-out-soft) backwards;
+  }
+
+  .rise-stagger > :nth-child(2) {
+    animation-delay: 100ms;
+  }
+  .rise-stagger > :nth-child(3) {
+    animation-delay: 180ms;
+  }
+  .rise-stagger > :nth-child(4) {
+    animation-delay: 260ms;
+  }
+  .rise-stagger > :nth-child(5) {
+    animation-delay: 340ms;
+  }
+  .rise-stagger > :nth-child(n + 6) {
+    animation-delay: 420ms;
+  }
+
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      transform: translateY(22px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
   .float-art {
     animation: floaty 6s ease-in-out infinite;
   }
@@ -972,6 +1004,147 @@
       transform: none;
       opacity: 1;
     }
+  }
+}
+
+/*
+ * The election page and form (docs/design/frontend.md, "Large screens, icons and the date picker",
+ * points 7 and 8): the header band, the coloured header of each card, the path of next steps.
+ */
+@layer components {
+  .election-hero[data-status='draft'] {
+    background-image: linear-gradient(
+      120deg,
+      var(--color-ink-soft),
+      var(--color-primary) 60%,
+      var(--color-hero-mid)
+    );
+  }
+
+  .election-hero[data-status='scheduled'] {
+    background-image: linear-gradient(120deg, var(--color-primary), var(--color-panel-to));
+  }
+
+  .election-hero[data-status='open'] {
+    background-image: linear-gradient(120deg, var(--color-status-open), var(--color-primary));
+  }
+
+  .election-hero[data-status='closed'] {
+    background-image: linear-gradient(120deg, var(--color-ink-2), var(--color-ink-soft));
+  }
+
+  .election-hero[data-status='published'] {
+    background-image: linear-gradient(120deg, var(--color-hero-from), var(--color-hero-mid));
+  }
+
+  .election-hero[data-status='archived'] {
+    background-image: linear-gradient(120deg, var(--color-ink-soft), var(--color-ink-2));
+  }
+
+  .sect-head {
+    color: var(--color-surface);
+  }
+
+  .sect-head::after {
+    content: '';
+    position: absolute;
+    right: -20px;
+    top: -30px;
+    width: 120px;
+    height: 120px;
+    border-radius: 999px;
+    background-color: var(--color-glass);
+    pointer-events: none;
+  }
+
+  .sect-head > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .sect-head[data-tone='info'] {
+    background-image: linear-gradient(120deg, var(--color-hero-mid), var(--color-primary));
+  }
+
+  .sect-head[data-tone='calendar'] {
+    background-image: linear-gradient(120deg, var(--color-hero-from), var(--color-primary));
+  }
+
+  .sect-head[data-tone='settings'] {
+    background-image: linear-gradient(120deg, var(--color-primary), var(--color-backdrop-to));
+  }
+
+  .sect-head[data-tone='cover'] {
+    background-image: linear-gradient(120deg, var(--color-backdrop-from), var(--color-hero-mid));
+  }
+
+  .sect-head[data-tone='facts'] {
+    background-image: linear-gradient(120deg, var(--color-teal), var(--color-status-open));
+  }
+
+  .sect-head[data-tone='steps'] {
+    color: var(--color-deep);
+    background-image: linear-gradient(120deg, var(--color-accent), var(--color-accent-light));
+  }
+
+  .bg-day-badge-start {
+    background-image: linear-gradient(160deg, var(--color-hero-from), var(--color-primary));
+  }
+
+  .bg-day-badge-end {
+    background-image: linear-gradient(160deg, var(--color-accent), var(--color-backdrop-from));
+  }
+
+  .bg-cover-empty {
+    background-image: linear-gradient(
+      135deg,
+      var(--color-backdrop-from),
+      var(--color-backdrop-mid) 45%,
+      var(--color-backdrop-to)
+    );
+  }
+
+  /* The line between the two days grows from both ends. */
+  .span-line {
+    height: 3px;
+    flex: 1;
+    border-radius: 2px;
+    background-image: linear-gradient(90deg, var(--color-primary), var(--color-hero-from));
+    transform-origin: left center;
+    animation: grow-line 1.2s 400ms var(--ease-out-soft) both;
+  }
+
+  .span-line-end {
+    transform-origin: right center;
+  }
+
+  /* The dotted line that joins the steps of the path, when they sit in one row. */
+  .path-step {
+    position: relative;
+  }
+
+  @container (min-width: 44rem) {
+    .path-step:not(:first-child)::before {
+      content: '';
+      position: absolute;
+      top: 26px;
+      left: -50%;
+      width: 100%;
+      height: 3px;
+      background-image: repeating-linear-gradient(
+        90deg,
+        var(--color-line-strong) 0 8px,
+        transparent 8px 14px
+      );
+    }
+  }
+
+  .path-dot {
+    transition: transform var(--duration-base) var(--ease-out-soft);
+  }
+
+  .path-step:hover .path-dot {
+    transform: scale(1.1);
   }
 }
 

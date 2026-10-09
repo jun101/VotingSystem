@@ -742,6 +742,12 @@
       "cancel": "Cancel"
     },
     "form": {
+      "sections": {
+        "info": "Details",
+        "calendar": "Calendar",
+        "settings": "Vote settings",
+        "cover": "Poster"
+      },
       "hint": "Everything stays editable while the election is a draft.",
       "save": "Create the draft",
       "saveEdit": "Save",
@@ -839,7 +845,19 @@
       "locked": "This election is no longer a draft: its settings can no longer be changed.",
       "nextTitle": "What comes next",
       "soon": "Not available yet",
-      "coverTitle": "Cover"
+      "coverTitle": "Cover",
+      "back": "Elections",
+      "start": "Start",
+      "end": "End",
+      "zone": "Election details",
+      "changeCover": "Change the poster",
+      "stepsCount": "{done} of {total}",
+      "facts": {
+        "positions": "Positions",
+        "voters": "Voters",
+        "ballots": "Ballots"
+      },
+      "factsSoon": "Available with the next steps"
     },
     "rail": {
       "label": "Calendar and tasks",
