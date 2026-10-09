@@ -1,6 +1,6 @@
 # New Voting System — Emails
 
-Version 1.0 · 2026-10-07 · goes with [frontend.md](frontend.md) (Colour, Composition) and
+Version 1.1 · 2026-10-09 (Material periwinkle colours) · goes with [frontend.md](frontend.md) (Colour, Composition) and
 [SPEC.md](../SPEC.md) NFR-UX-01.
 
 Every email the system sends (slice 02: verification and password reset; later slices: invitation,
@@ -13,11 +13,11 @@ An email is the front-end design in a form every mail program can draw.
 
 | Part | Rule |
 |---|---|
-| Frame | One centred column, 600 px at most, on the `canvas` colour. White text on navy above, ink on white below |
-| Header | A `navy-deep` band with the product name in white, bold, 20 px. No logo image (the name is text, so nothing is blocked) |
-| Hero | A band in `hero-mid` with a title in white, 26 px, bold, and one line in `primary-line` (`hero-ink-soft` is a transparent white, which a mail cannot rely on). The 135° gradient (`hero-from` to `hero-to`) is added as a background image on top of the solid `hero-mid`, which is what programs without gradients show |
+| Frame | One centred column, 600 px at most, on the `canvas` colour. White text on indigo and periwinkle above, ink on white below |
+| Header | A `deep` band with the product name in white, bold, 20 px. No logo image (the name is text, so nothing is blocked) |
+| Hero | A band in `hero-to` with a title in white, 26 px, bold, and one line in white (`hero-ink-soft` is a transparent white, which a mail cannot rely on). The 135° gradient (`hero-from`, `hero-mid` at 45 %, `hero-to`) is added as a background image on top of the solid `hero-to`, which is what programs without gradients show |
 | Body | A white card with `ink` text, 16 px, 1.5 line height; short paragraphs; the greeting never holds a name (security review S6) |
-| Button | The one main action: `accent` background, `navy-deep` text, bold, 16 px, 8 px radius, at least 48 px high, centred on a phone. Never white text. Built the "bulletproof" way: a table cell with the background and a link inside, plus a VML rounded rectangle for Outlook on Windows |
+| Button | The one main action: `accent` background, `deep` text, bold, 16 px, 8 px radius, at least 48 px high, centred on a phone. Never white text. Built the "bulletproof" way: a table cell with the background and a link inside, plus a VML rounded rectangle for Outlook on Windows |
 | Link fallback | Under the button: "if the button does not work…" and the full link, in `primary`, underlined, breaking anywhere |
 | Small print | Validity and "ignore this message" in `ink-soft` 14 px; the footer in `ink-soft` 12 px (`ink-muted` is too pale for small text) |
 | Language | The language of the user. `lang` on `<html>`; both languages have the same structure |
