@@ -48,7 +48,12 @@ class CoverController extends Controller
                 // Two uploads at once: the second waits, and reads the first one's cover as the
                 // previous one, so no file is left behind.
                 $locked = Election::query()->whereKey($election->getKey())->lockForUpdate()->first();
-                $election = $locked ?? $election;
+                // The row went meanwhile: 404, and the catch below deletes the new files.
+                if ($locked === null) {
+                    throw new ApiException(404, 'not_found');
+                }
+
+                $election = $locked;
                 $election->assertEditable();
                 $previous = $election->cover_file;
                 $election->cover_file = $uuid;
@@ -78,13 +83,27 @@ class CoverController extends Controller
         $this->allow($request, $election);
         $election->assertEditable();
 
-        $previous = $election->cover_file;
+        $previous = null;
 
-        if ($previous !== null) {
-            $election->cover_file = null;
-            $election->save();
-            $images->delete($previous, ImageReEncoder::COVER_SIZES);
-        }
+        DB::transaction(function () use ($election, &$previous): void {
+            // Read, judged and cleared under the lock, as the replacement does.
+            $locked = Election::query()->whereKey($election->getKey())->lockForUpdate()->first();
+
+            if ($locked === null) {
+                throw new ApiException(404, 'not_found');
+            }
+
+            $locked->assertEditable();
+            $previous = $locked->cover_file;
+
+            if ($previous !== null) {
+                $locked->cover_file = null;
+                $locked->save();
+            }
+        });
+
+        // The files go after the commit.
+        $images->delete($previous, ImageReEncoder::COVER_SIZES);
 
         Log::info('election.cover', ['outcome' => 'removed']);
 

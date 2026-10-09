@@ -1,13 +1,21 @@
-import { screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderIn } from '@/components/auth/testing';
 import type { Election, ElectionList } from '@/lib/api/elections';
+import { ApiError } from '@/lib/api/errors';
 import { ElectionsPage } from './ElectionsPage';
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }));
-vi.mock('@/lib/api/browser', () => ({ duplicateElection: vi.fn(), deleteElection: vi.fn() }));
+const fetchElectionsPage = vi.fn();
+
+vi.mock('@/lib/api/browser', () => ({
+  duplicateElection: vi.fn(),
+  deleteElection: vi.fn(),
+  fetchElectionsPage: (...args: unknown[]) => fetchElectionsPage(...args),
+}));
 
 function election(n: number, status: Election['status'] = 'draft'): Election {
   return {
@@ -85,5 +93,59 @@ describe('ElectionsPage', () => {
     expect(screen.queryByTestId('election-delete-2')).not.toBeInTheDocument();
     expect(screen.getByTestId('election-dates-1')).toHaveTextContent('Oct 12 to 16, 2026');
     expect(screen.getByTestId('election-card-1')).toHaveTextContent('No positions · no voters');
+  });
+
+  describe('show more', () => {
+    beforeEach(() => {
+      fetchElectionsPage.mockReset();
+    });
+
+    it('has no button when everything is shown', () => {
+      renderIn('en', <ElectionsPage list={list([election(1)])} filters={{}} />);
+
+      expect(screen.queryByTestId('elections-show-more')).not.toBeInTheDocument();
+    });
+
+    it('reads the next page with the filters, appends it, then hides the button', async () => {
+      fetchElectionsPage.mockResolvedValue({ items: [election(3), election(4)], total: 4 });
+      renderIn(
+        'en',
+        <ElectionsPage
+          list={list([election(1), election(2)], { total: 4 })}
+          filters={{ status: 'draft', year: 2026 }}
+        />,
+      );
+
+      await userEvent.click(screen.getByTestId('elections-show-more'));
+
+      await waitFor(() => expect(screen.getByTestId('election-card-4')).toBeInTheDocument());
+      expect(fetchElectionsPage).toHaveBeenCalledWith({ status: 'draft', year: 2026 }, 2);
+      expect(screen.getByTestId('election-card-1')).toBeInTheDocument();
+      expect(screen.queryByTestId('elections-show-more')).not.toBeInTheDocument();
+    });
+
+    it('does not add a card twice and stops when a page brings nothing new', async () => {
+      fetchElectionsPage.mockResolvedValue({ items: [election(1)], total: 5 });
+      renderIn('en', <ElectionsPage list={list([election(1)], { total: 5 })} filters={{}} />);
+
+      await userEvent.click(screen.getByTestId('elections-show-more'));
+
+      await waitFor(() =>
+        expect(screen.queryByTestId('elections-show-more')).not.toBeInTheDocument(),
+      );
+      expect(screen.getAllByTestId(/^election-card-/)).toHaveLength(1);
+    });
+
+    it('says so when the page cannot be read, and keeps the button', async () => {
+      fetchElectionsPage.mockImplementation(async () => {
+        throw new ApiError(500, 'server_error');
+      });
+      renderIn('en', <ElectionsPage list={list([election(1)], { total: 2 })} filters={{}} />);
+
+      await userEvent.click(screen.getByTestId('elections-show-more'));
+
+      expect(await screen.findByTestId('elections-action-error')).toBeInTheDocument();
+      expect(screen.getByTestId('elections-show-more')).toBeInTheDocument();
+    });
   });
 });

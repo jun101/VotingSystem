@@ -27,7 +27,10 @@ final class IsoDateTime implements ValidationRule
         }
 
         try {
-            return CarbonImmutable::parse($value, 'UTC')->utc();
+            // Whole seconds, as stored; and a year the column and the screens can hold.
+            $instant = CarbonImmutable::parse($value, 'UTC')->utc()->startOfSecond();
+
+            return $instant->year >= 1000 && $instant->year <= 9999 ? $instant : null;
         } catch (Throwable) {
             return null;
         }

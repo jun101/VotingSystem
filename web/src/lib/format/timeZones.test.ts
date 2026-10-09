@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { isSupportedZone } from './zonedTime';
 import { DEFAULT_TIME_ZONE, TIME_ZONES, timeZoneChoices } from './timeZones';
 
 describe('timeZoneChoices', () => {
@@ -6,7 +7,8 @@ describe('timeZoneChoices', () => {
     const choices = timeZoneChoices('America/New_York');
 
     expect(choices[0]).toBe(DEFAULT_TIME_ZONE);
-    expect(choices).toHaveLength(TIME_ZONES.length);
+    expect(choices).toHaveLength(TIME_ZONES.filter(isSupportedZone).length);
+    expect(choices.every(isSupportedZone)).toBe(true);
     expect(new Set(choices).size).toBe(choices.length);
     expect(choices).toContain('America/New_York');
   });

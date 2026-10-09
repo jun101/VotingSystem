@@ -635,7 +635,7 @@
       "newTile": "New election",
       "empty": "No election yet: create the first one.",
       "emptyFiltered": "No election matches this filter.",
-      "truncated": "Only the first 100 elections are shown: narrow them down with a filter.",
+      "showMore": "Show more",
       "actionError": "The action could not be done."
     },
     "card": {
@@ -682,6 +682,7 @@
       "starts": "Voting starts",
       "ends": "Voting ends",
       "timezone": "Time zone",
+      "zoneUnsupported": "This time zone is not supported by this browser: dates cannot be set. Choose another zone.",
       "language": "Voting language",
       "languages": {
         "fr": "Français",

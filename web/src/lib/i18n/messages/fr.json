@@ -635,7 +635,7 @@
       "newTile": "Nouvelle élection",
       "empty": "Aucune élection pour le moment : créez la première.",
       "emptyFiltered": "Aucune élection ne correspond à ce filtre.",
-      "truncated": "Seules les 100 premières élections sont affichées : affinez avec un filtre.",
+      "showMore": "Afficher plus",
       "actionError": "L’action n’a pas pu être faite."
     },
     "card": {
@@ -682,6 +682,7 @@
       "starts": "Début du vote",
       "ends": "Fin du vote",
       "timezone": "Fuseau horaire",
+      "zoneUnsupported": "Ce navigateur ne gère pas ce fuseau horaire : les dates ne peuvent pas être modifiées. Choisissez un autre fuseau.",
       "language": "Langue du vote",
       "languages": {
         "fr": "Français",

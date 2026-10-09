@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { Icon } from '@/components/admin/Icon';
 import { linkAccent } from '@/components/admin/classes';
-import { Notice } from '@/components/ui';
+import { Button, Notice } from '@/components/ui';
 import { cx } from '@/components/ui/cx';
-import { duplicateElection } from '@/lib/api/browser';
+import { duplicateElection, fetchElectionsPage } from '@/lib/api/browser';
 import {
   ELECTION_STATUSES,
   type Election,
@@ -48,6 +48,18 @@ export function ElectionsPage({ list, filters }: { list: ElectionList; filters: 
   const [deleting, setDeleting] = useState<Election | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
+  // The pages after the first, read here; they belong to the list they were read for, so a new
+  // list from the server (another filter, a refresh) drops them.
+  const [more, setMore] = useState<{
+    for: ElectionList;
+    items: Election[];
+    page: number;
+    done: boolean;
+  }>({ for: list, items: [], page: 1, done: false });
+  const [loadingMore, setLoadingMore] = useState(false);
+  const extra =
+    more.for === list ? more : { for: list, items: [] as Election[], page: 1, done: false };
+  const items = [...list.items, ...extra.items];
 
   function show(next: ElectionFilters) {
     const query = new URLSearchParams();
@@ -81,7 +93,32 @@ export function ElectionsPage({ list, filters }: { list: ElectionList; filters: 
     (status) => list.counts[status] > 0 || filters.status === status,
   );
 
-  const empty = list.items.length === 0;
+  async function showMore() {
+    setProblem(null);
+    setLoadingMore(true);
+
+    try {
+      const next = await fetchElectionsPage(filters, extra.page + 1);
+      const known = new Set(items.map((item) => item.id));
+      const fresh = next.items.filter((item) => !known.has(item.id));
+
+      setMore({
+        for: list,
+        items: [...extra.items, ...fresh],
+        page: extra.page + 1,
+        // A page with nothing new ends the list, whatever the total says.
+        done: fresh.length === 0,
+      });
+    } catch (caught) {
+      setProblem(
+        errorText(caught instanceof ApiError ? caught : new ApiError(0, 'unknown'), tIfAny),
+      );
+    } finally {
+      setLoadingMore(false);
+    }
+  }
+
+  const empty = items.length === 0;
   const nothingAtAll = empty && list.counts.all === 0 && list.counts.archived === 0;
 
   return (
@@ -194,7 +231,7 @@ export function ElectionsPage({ list, filters }: { list: ElectionList; filters: 
             ) : null}
           </Link>
         </li>
-        {list.items.map((election, index) => (
+        {items.map((election, index) => (
           <ElectionCard
             key={election.id}
             election={election}
@@ -206,8 +243,18 @@ export function ElectionsPage({ list, filters }: { list: ElectionList; filters: 
         ))}
       </RevealList>
 
-      {list.total > list.items.length ? (
-        <Notice tone="info">{t('elections.list.truncated')}</Notice>
+      {list.total > items.length && !extra.done ? (
+        <div className="flex justify-center">
+          <Button
+            type="button"
+            variant="secondary"
+            loading={loadingMore}
+            onClick={showMore}
+            data-testid="elections-show-more"
+          >
+            {t('elections.list.showMore')}
+          </Button>
+        </div>
       ) : null}
 
       {deleting ? (

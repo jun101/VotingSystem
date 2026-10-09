@@ -2,7 +2,7 @@ import createClient from 'openapi-fetch';
 import { apiBaseUrl } from './client';
 import { ApiError, parseApiError } from './errors';
 import { XSRF_COOKIE } from './session';
-import type { Election, ElectionChanges, NewElection } from './elections';
+import type { Election, ElectionChanges, ElectionFilters, NewElection } from './elections';
 import type { paths } from './schema';
 import type {
   CurrentUser,
@@ -342,6 +342,27 @@ export async function cancelInvitation(id: string): Promise<void> {
 
 export async function removeUser(id: string): Promise<void> {
   await send((api) => api.DELETE('/v1/users/{user}', { params: { path: { user: id } } }));
+}
+
+/** `GET /elections`: one page of 100 cards under the filters, and the total. */
+export async function fetchElectionsPage(
+  filters: ElectionFilters,
+  page: number,
+): Promise<{ items: Election[]; total: number }> {
+  const { data } = await send((api) =>
+    api.GET('/v1/elections', {
+      params: {
+        query: {
+          per_page: 100,
+          page,
+          ...(filters.status ? { status: filters.status } : {}),
+          ...(filters.year ? { year: String(filters.year) } : {}),
+        },
+      },
+    }),
+  );
+
+  return { items: data!.data, total: data!.meta.total };
 }
 
 /** `POST /elections`: a draft of the caller's institution. */

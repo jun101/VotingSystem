@@ -9,7 +9,21 @@ const LOCAL = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::\d{2}(?:\.\d+)?)?$/;
 
 const formatters = new Map<string, Intl.DateTimeFormat>();
 
-/** A zone the browser does not know is read as UTC rather than crashing the page. */
+/** Whether this browser can compute times in the zone (its `Intl` knows it). */
+export function isSupportedZone(zone: string): boolean {
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: zone });
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * A zone the browser does not know is read as UTC for display only, rather than crashing the
+ * page; `fromLocalInput` and `toLocalInput` do not convert in such a zone.
+ */
 function formatterFor(zone: string): Intl.DateTimeFormat {
   const cached = formatters.get(zone);
 
@@ -79,7 +93,7 @@ const pad = (n: number, width = 2) => String(n).padStart(width, '0');
 export function toLocalInput(iso: string, zone: string): string {
   const instant = new Date(iso);
 
-  if (Number.isNaN(instant.getTime())) return '';
+  if (Number.isNaN(instant.getTime()) || !isSupportedZone(zone)) return '';
 
   const p = wallClock(instant, zone);
 
@@ -97,14 +111,16 @@ export type ZonedInstant = {
  * The UTC instant of a local date and time in a zone, or null when the text is not a complete
  * date and time.
  *
- * - A time that happens twice (the clock goes back) is read as its first occurrence.
+ * - A zone this browser does not know gives null: nothing is converted as if it were UTC.
+ * - A time that happens twice (the clock goes back) is read as its first occurrence, east and
+ *   west of UTC alike.
  * - A time that never happens (the clock jumps forward) is moved forward by the length of the
  *   jump, to the nearest time that exists; `adjusted` says so.
  */
 export function fromLocalInput(local: string, zone: string): ZonedInstant | null {
   const found = LOCAL.exec(local);
 
-  if (!found) return null;
+  if (!found || !isSupportedZone(zone)) return null;
 
   const [year, month, day, hour, minute] = found.slice(1).map(Number) as [
     number,
@@ -128,17 +144,20 @@ export function fromLocalInput(local: string, zone: string): ZonedInstant | null
   }
 
   const wall = probe.getTime();
-  const first = offsetAt(new Date(wall), zone);
-  const early = new Date(wall - first);
-  const second = offsetAt(early, zone);
+  const DAY = 24 * 60 * 60 * 1000;
+  // The offsets in force a day before and a day after: one, or two when a clock change is near.
+  const offsets = [
+    ...new Set([offsetAt(new Date(wall - DAY), zone), offsetAt(new Date(wall + DAY), zone)]),
+  ];
 
-  // Both guesses agree: the time exists (the first of two occurrences when it repeats).
-  if (first === second) return { utc: early, adjusted: false };
+  // An offset is right for the text when the instant it gives has that offset in the zone.
+  const valid = offsets
+    .map((offset) => wall - offset)
+    .filter((ms) => offsetAt(new Date(ms), zone) === wall - ms);
 
-  const late = new Date(wall - second);
+  // Twice valid: the clock went back and the text happens twice; the earlier instant is first.
+  if (valid.length > 0) return { utc: new Date(Math.min(...valid)), adjusted: false };
 
-  if (offsetAt(late, zone) === second) return { utc: late, adjusted: false };
-
-  // In the jump: moved forward past it.
-  return { utc: new Date(wall - Math.min(first, second)), adjusted: true };
+  // In the jump: moved forward past it, by the offset in force before it.
+  return { utc: new Date(wall - Math.min(...offsets)), adjusted: true };
 }

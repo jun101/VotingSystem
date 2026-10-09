@@ -14,11 +14,12 @@ import {
 } from '@/lib/api/browser';
 import type { Election } from '@/lib/api/elections';
 import { ApiError, errorText, fieldText } from '@/lib/api/errors';
-import { fromLocalInput, toLocalInput } from '@/lib/format/zonedTime';
-import { timeZoneChoices } from '@/lib/format/timeZones';
+import { isSupportedZone, toLocalInput } from '@/lib/format/zonedTime';
+import { DEFAULT_TIME_ZONE, timeZoneChoices } from '@/lib/format/timeZones';
 import { useI18n } from '@/lib/i18n/client';
 import { CoverField, usePickedCover } from './CoverField';
 import { CoverPreview } from './CoverPreview';
+import { dateFields } from './dateFields';
 import { NextSteps } from './NextSteps';
 import { SchedulePanel } from './SchedulePanel';
 
@@ -62,8 +63,6 @@ function valuesOf(election: Election): Values {
   };
 }
 
-const iso = (date: Date) => date.toISOString().replace('.000Z', 'Z');
-
 /**
  * The election form (screen A04, and the edit of a draft): the fields on the left, and from `lg`
  * a sticky side panel on the right with the schedule in words, the cover and the next steps. The
@@ -94,7 +93,7 @@ export function ElectionForm({
           description: '',
           starts: '',
           ends: '',
-          timezone: defaults.timezone,
+          timezone: isSupportedZone(defaults.timezone) ? defaults.timezone : DEFAULT_TIME_ZONE,
           language: defaults.language,
           order: 'manual',
           results: 'full',
@@ -130,15 +129,13 @@ export function ElectionForm({
     event.preventDefault();
     setCoverError(null);
 
-    const start = fromLocalInput(values.starts, values.timezone);
-    const end = fromLocalInput(values.ends, values.timezone);
-
+    const dates = dateFields(values, election);
     const body = {
       title: values.title,
       description: values.description,
-      // An empty or half-typed date is sent empty: the API says it is required.
-      starts_at: start ? iso(start.utc) : '',
-      ends_at: end ? iso(end.utc) : '',
+      // An empty or half-typed date is sent empty (the API says it is required); on an edit a date
+      // is sent only when it was changed; in a zone this browser cannot compute, none is sent.
+      ...dates,
       timezone: values.timezone,
       language: values.language,
       candidate_order: values.order,
@@ -147,7 +144,13 @@ export function ElectionForm({
 
     await run(
       async () => {
-        const saved = id ? await updateElection(id, body) : await createElection(body);
+        const saved = id
+          ? await updateElection(id, body)
+          : await createElection({
+              ...body,
+              starts_at: body.starts_at ?? '',
+              ends_at: body.ends_at ?? '',
+            });
 
         setCreatedId(saved.id);
 
@@ -251,7 +254,10 @@ export function ElectionForm({
             value={values.timezone}
             onChange={change('timezone')}
             data-testid="election-timezone"
-            error={fields.timezone}
+            error={
+              fields.timezone ??
+              (isSupportedZone(values.timezone) ? undefined : t('elections.form.zoneUnsupported'))
+            }
             errorTestId="election-timezone-error"
           >
             {zones.map((zone) => (

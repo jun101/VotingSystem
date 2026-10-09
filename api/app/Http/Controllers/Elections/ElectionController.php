@@ -21,6 +21,7 @@ use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class ElectionController extends Controller
 {
@@ -101,12 +102,33 @@ class ElectionController extends Controller
         $this->allow('update', $election);
 
         $election->assertEditable();
-        $election->fill($request->attributesToWrite());
-        $election->save();
+
+        $changes = $request->attributesToWrite();
+
+        $saved = DB::transaction(function () use ($election, $changes): Election {
+            // The row is read again under the lock: a change that landed meanwhile counts.
+            $locked = Election::query()->whereKey($election->getKey())->lockForUpdate()->first();
+
+            if ($locked === null) {
+                throw new ApiException(404, 'not_found');
+            }
+
+            $locked->assertEditable();
+            $locked->fill($changes);
+
+            // The dates as they will be, against the row as it is now (the validation read an older one).
+            if (! $locked->ends_at->greaterThan($locked->starts_at)) {
+                throw ValidationException::withMessages(['ends_at' => ['after_start']]);
+            }
+
+            $locked->save();
+
+            return $locked;
+        });
 
         Log::info('election.update', ['outcome' => 'updated']);
 
-        return new ElectionResource($election);
+        return new ElectionResource($saved);
     }
 
     /**
@@ -124,9 +146,14 @@ class ElectionController extends Controller
         DB::transaction(function () use ($election, &$cover): void {
             // The state is read again under the lock: a change that landed meanwhile counts.
             $locked = Election::query()->whereKey($election->getKey())->lockForUpdate()->first();
-            $locked?->assertEditable('election_not_deletable');
-            $cover = $locked?->cover_file;
-            $locked?->delete();
+
+            if ($locked === null) {
+                throw new ApiException(404, 'not_found');
+            }
+
+            $locked->assertEditable('election_not_deletable');
+            $cover = $locked->cover_file;
+            $locked->delete();
         });
 
         $images->delete($cover, ImageReEncoder::COVER_SIZES);
