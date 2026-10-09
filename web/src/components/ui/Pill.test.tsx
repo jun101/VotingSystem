@@ -17,7 +17,7 @@ describe('Pill', () => {
 
   it.each<[PillTone, string, string]>([
     ['neutral', 'bg-line-soft', 'text-ink-2'],
-    ['primary', 'bg-primary-soft', 'text-primary'],
+    ['primary', 'bg-primary-soft', 'text-primary-hover'],
     ['teal', 'bg-teal-soft', 'text-teal-ink'],
     ['warm', 'bg-warm-soft', 'text-warm-ink'],
     ['danger', 'bg-warm-soft', 'text-danger'],

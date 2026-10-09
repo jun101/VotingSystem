@@ -3,11 +3,26 @@ import { describe, expect, it } from 'vitest';
 import { Card } from './Card';
 
 describe('Card', () => {
-  it('holds its content on a bordered surface without a shadow', () => {
+  it('holds its content on a bordered surface with a resting shadow', () => {
     render(<Card data-testid="card">Content</Card>);
 
-    expect(screen.getByTestId('card')).toHaveClass('bg-surface', 'border-line', 'rounded-lg');
+    expect(screen.getByTestId('card')).toHaveClass(
+      'bg-surface',
+      'border-line',
+      'rounded-lg',
+      'shadow-1',
+    );
     expect(screen.getByTestId('card')).toHaveTextContent('Content');
+  });
+
+  it('is flat inside another surface: smaller corners and no shadow', () => {
+    render(
+      <Card flat data-testid="card">
+        Content
+      </Card>,
+    );
+
+    expect(screen.getByTestId('card')).toHaveClass('rounded-md');
     expect(screen.getByTestId('card').className).not.toMatch(/shadow|ring/);
   });
 

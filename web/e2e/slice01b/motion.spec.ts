@@ -102,7 +102,7 @@ test.describe('with motion', () => {
     await card.click();
 
     await expect.poll(shadow, { timeout: 2000 }).not.toBe(before);
-    expect(await shadow()).toContain('230, 236, 250'); // primary-soft
+    expect(await shadow()).toContain('227, 232, 255'); // primary-soft
   });
 
   test('only movement, fading and the two exceptions are animated [rule 1]', async ({ page }) => {

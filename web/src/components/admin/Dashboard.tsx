@@ -43,13 +43,16 @@ export function Dashboard() {
   const { t } = useI18n();
 
   return (
-    <div data-testid="dashboard" className="flex flex-col gap-6">
-      <section className="bg-hero rounded-lg p-6 text-surface md:p-8">
-        <h2 data-testid="dashboard-welcome" className="text-2xl md:text-3xl">
+    <div data-testid="dashboard" className="flex flex-col gap-4">
+      <section className="bg-hero rounded-lg p-5 text-surface shadow-2 md:px-7 md:py-6">
+        <h2 data-testid="dashboard-welcome" className="text-2xl text-surface md:text-3xl">
           {t('admin.dashboard.welcome', { name: user.name })}
         </h2>
         {user.institution ? (
-          <p data-testid="dashboard-institution" className="mt-1 font-display text-xl font-bold">
+          <p
+            data-testid="dashboard-institution"
+            className="mt-1 font-display text-xl font-bold text-accent-light"
+          >
             {t('admin.dashboard.institution', { name: user.institution.name })}
           </p>
         ) : null}

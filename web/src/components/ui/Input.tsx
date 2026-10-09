@@ -11,6 +11,8 @@ type InputProps = Omit<ComponentProps<'input'>, 'size'> & {
   errorTestId?: string;
   /** A control inside the field, at its right end (the "show password" button). */
   trailing?: ReactNode;
+  /** `data-testid` of the label. */
+  labelTestId?: string;
 };
 
 export function Input({
@@ -19,12 +21,17 @@ export function Input({
   error,
   errorTestId,
   trailing,
+  labelTestId,
   id,
   className,
   ...rest
 }: InputProps) {
   const generated = useId();
   const fieldId = id ?? generated;
+  // These show their own format or file name, so the label never sits over them.
+  const floated =
+    (rest.placeholder && rest.placeholder !== ' ') ||
+    ['date', 'datetime-local', 'time', 'month', 'week', 'file'].includes(rest.type ?? '');
   const errorId = `${fieldId}-error`;
   const helpId = `${fieldId}-help`;
 
@@ -33,26 +40,26 @@ export function Input({
 
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={fieldId} className="text-base font-semibold text-ink">
-        {label}
-      </label>
-      <div className="relative">
+      <div className="field-box">
         <input
           id={fieldId}
+          placeholder=" "
           aria-invalid={error ? 'true' : undefined}
           aria-describedby={describedBy || undefined}
+          data-floated={floated ? '' : undefined}
           className={cx(
-            'min-h-11 w-full rounded border bg-surface px-3 text-[16px] text-ink md:text-base',
-            error ? 'border-danger' : 'border-line-strong',
-            'focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary-soft focus-visible:outline-none',
-            'disabled:bg-line-soft disabled:text-ink-muted',
+            'field-control min-h-11 rounded-t text-[16px] md:text-md',
             trailing ? 'pr-12' : undefined,
             className,
           )}
           {...rest}
         />
+        <label htmlFor={fieldId} data-testid={labelTestId} className="field-label">
+          {label}
+        </label>
+        <span aria-hidden="true" className="field-bar" />
         {trailing ? (
-          <div className="absolute inset-y-0 right-0 flex items-center">{trailing}</div>
+          <div className="absolute right-0 bottom-0 flex h-11 items-center">{trailing}</div>
         ) : null}
       </div>
       {error ? (

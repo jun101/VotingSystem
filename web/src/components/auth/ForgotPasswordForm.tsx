@@ -69,7 +69,7 @@ export function ForgotPasswordForm() {
         errorTestId="field-error-email"
       />
 
-      <Button type="submit" variant="accent" loading={busy} data-testid="forgot-submit">
+      <Button type="submit" shimmer loading={busy} data-testid="forgot-submit">
         {t('auth.forgot.submit')}
       </Button>
 

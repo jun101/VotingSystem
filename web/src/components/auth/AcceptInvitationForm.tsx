@@ -118,7 +118,7 @@ export function AcceptInvitationForm({ token }: { token: string | null }) {
         errorTestId="accept-password-error"
       />
 
-      <Button type="submit" variant="accent" loading={busy} data-testid="accept-submit">
+      <Button type="submit" shimmer loading={busy} data-testid="accept-submit">
         {t('auth.accept.submit')}
       </Button>
     </form>

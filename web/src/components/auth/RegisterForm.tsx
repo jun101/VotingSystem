@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import type { FormEvent } from 'react';
+import { useState, type CSSProperties, type FormEvent } from 'react';
 import { Button, Input, Notice } from '@/components/ui';
 import { register } from '@/lib/api/browser';
 import { useI18n } from '@/lib/i18n/client';
@@ -16,6 +16,9 @@ export function RegisterForm() {
   const { t, locale } = useI18n();
   const router = useRouter();
   const { form, busy, fields, formError, run } = useAuthForm(FIELDS);
+  // The meter is a picture of the length, which is the one rule: 12 characters at least.
+  const [length, setLength] = useState(0);
+  const filled = length === 0 ? 0 : length < 12 ? 1 : length < 16 ? 2 : 3;
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -96,11 +99,31 @@ export function RegisterForm() {
         help={t('auth.register.passwordHelp')}
         data-testid="register-password"
         toggleTestId="register-password-toggle"
+        onChange={(event) => setLength(event.target.value.length)}
         error={fields.password}
         errorTestId="field-error-password"
       />
+      <div aria-hidden="true" data-testid="register-strength" className="-mt-2 flex gap-1.5">
+        {[1, 2, 3].map((segment) => (
+          <i
+            key={segment}
+            data-on={filled >= segment}
+            style={
+              {
+                '--strength':
+                  filled === 1
+                    ? 'var(--color-warm)'
+                    : filled === 2
+                      ? 'var(--color-primary)'
+                      : 'var(--color-teal)',
+              } as CSSProperties
+            }
+            className="strength-seg h-1 flex-1 rounded-sm bg-line-soft"
+          />
+        ))}
+      </div>
 
-      <Button type="submit" variant="accent" loading={busy} data-testid="register-submit">
+      <Button type="submit" shimmer loading={busy} data-testid="register-submit">
         {t('auth.register.submit')}
       </Button>
 

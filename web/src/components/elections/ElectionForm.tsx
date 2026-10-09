@@ -189,7 +189,7 @@ export function ElectionForm({
         {t('elections.form.hint')}
       </p>
 
-      <div className="flex min-w-0 flex-col gap-4 rounded-lg border border-line bg-surface p-4 lg:col-start-1 lg:row-start-2 sm:p-5">
+      <div className="flex min-w-0 flex-col gap-4 rounded-lg border border-line bg-surface p-4 shadow-1 lg:col-start-1 lg:row-start-2 sm:p-5">
         {formError ? (
           <Notice tone="danger" role="alert" tabIndex={-1} data-testid="election-form-error">
             {formError}
@@ -356,7 +356,7 @@ export function ElectionForm({
         </Link>
         <Button
           type="submit"
-          variant="accent"
+          shimmer
           loading={busy}
           data-testid="election-save"
           className="w-full sm:w-auto"
@@ -392,7 +392,7 @@ function Choices<V extends string>({
       {options.map((option) => (
         <label
           key={option.value}
-          className={`ui-control flex min-h-11 cursor-pointer items-center gap-3 rounded border px-3 text-base text-ink ${
+          className={`ui-control flex min-h-11 cursor-pointer items-center gap-3 rounded-md border px-3 text-base text-ink ${
             value === option.value
               ? 'border-primary bg-primary-soft'
               : 'border-line-strong bg-surface hover:bg-surface-alt'

@@ -17,7 +17,7 @@ export function NextSteps({ soon = false, title }: { soon?: boolean; title: stri
     <section
       data-testid="election-next-steps"
       aria-labelledby="election-next-steps-title"
-      className="rounded-lg border border-line bg-surface p-4"
+      className="rounded-lg border border-line bg-surface p-4 shadow-1"
     >
       <h2 id="election-next-steps-title" className="mb-3 text-lg font-bold text-ink">
         {title}
@@ -27,7 +27,7 @@ export function NextSteps({ soon = false, title }: { soon?: boolean; title: stri
           <li key={step} className="flex items-start gap-3">
             <span
               aria-hidden="true"
-              className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary-soft text-sm font-bold text-primary"
+              className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary-soft text-sm font-bold text-primary-hover"
             >
               {index + 1}
             </span>

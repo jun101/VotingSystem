@@ -82,23 +82,15 @@ export function UserMenu() {
         aria-controls="user-menu-panel"
         aria-label={t('admin.user.menu', { name: user.name })}
         onClick={() => setOpen((value) => !value)}
-        className={`ui-control flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-full border border-line-strong bg-surface px-1 text-sm font-bold text-ink hover:bg-surface-alt md:px-2 ${focusRing}`}
+        className={`ui-control lift-sm bg-hero flex size-11 items-center justify-center rounded-full font-display text-sm font-extrabold text-surface shadow-1 ${focusRing}`}
       >
-        <span
-          aria-hidden="true"
-          className="flex size-9 items-center justify-center rounded-full bg-warm text-sm text-surface"
-        >
-          {initials(user.name)}
-        </span>
-        <span aria-hidden="true" className="hidden max-w-40 truncate md:inline">
-          {user.name}
-        </span>
+        <span aria-hidden="true">{initials(user.name)}</span>
       </button>
 
       {open ? (
         <div
           id="user-menu-panel"
-          className="absolute end-0 top-full z-30 mt-2 flex w-64 flex-col gap-3 rounded-lg border border-line bg-surface p-4"
+          className="absolute end-0 top-full z-30 mt-2 flex w-64 flex-col gap-3 rounded-lg border border-line bg-surface p-4 shadow-3"
         >
           <div className="flex flex-col">
             <span className="truncate font-semibold text-ink">{user.name}</span>

@@ -3,7 +3,7 @@
  *
  * Colours come from tokens only. Only `transform`, `opacity`, `stroke-dashoffset` and
  * `background-position` are animated, with the exceptions of the design: the colour,
- * border and ring of a control easing. Tailwind's own transform utilities (`translate-*`,
+ * border, shadow and ring of a control easing, and the label of a field rising. Tailwind's own transform utilities (`translate-*`,
  * `scale-*`, `rotate-*`) set separate properties and are not used on moving elements.
  *
  * Without JavaScript nothing is hidden: the "pending" state below is only ever set by
@@ -16,7 +16,7 @@
     background-image: linear-gradient(
       135deg,
       var(--color-hero-from) 0%,
-      var(--color-hero-mid) 60%,
+      var(--color-hero-mid) 45%,
       var(--color-hero-to) 100%
     );
   }
@@ -31,6 +31,381 @@
       var(--color-accent) 0%,
       var(--color-accent-light) 100%
     );
+  }
+
+  .bg-panel {
+    background-image: linear-gradient(180deg, var(--color-panel-from), var(--color-panel-to));
+  }
+
+  /* The backdrop behind the sign-in card: slides slowly (14 s). */
+  .bg-backdrop {
+    background-image: linear-gradient(
+      135deg,
+      var(--color-backdrop-from) 0%,
+      var(--color-backdrop-mid) 45%,
+      var(--color-backdrop-to) 100%
+    );
+    background-size: 220% 220%;
+    animation: drift 14s ease-in-out infinite;
+  }
+
+  /* ---- Fields: underlined, with a label that floats up (CSS only, placeholder=" ") ---- */
+
+  .field-box {
+    position: relative;
+    padding-top: 18px;
+  }
+
+  .field-control {
+    width: 100%;
+    border: 0;
+    border-bottom: 2px solid var(--color-line-strong);
+    background-color: transparent;
+    padding: 12px 0 8px;
+    color: var(--color-ink);
+    outline: none;
+    transition: border-color var(--duration-fast) var(--ease-out-soft);
+  }
+
+  .field-control:focus {
+    border-bottom-color: var(--color-primary);
+  }
+
+  .field-control[aria-invalid='true'] {
+    border-bottom-color: var(--color-danger);
+  }
+
+  .field-control:disabled {
+    background-color: var(--color-line-soft);
+    color: var(--color-ink-muted);
+  }
+
+  .field-label {
+    position: absolute;
+    left: 0;
+    top: 32px;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    pointer-events: none;
+    font-size: 16px;
+    line-height: 20px;
+    color: var(--color-ink-soft);
+    /* The size changes at once, the rest eases. */
+    transition-property: top, color;
+    transition-duration: var(--duration-fast);
+    transition-timing-function: var(--ease-out-soft);
+  }
+
+  .field-control:focus + .field-label,
+  .field-control:not(:placeholder-shown) + .field-label,
+  .field-control[data-floated] + .field-label,
+  select.field-control + .field-label {
+    top: 0;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 500;
+  }
+
+  .field-control:focus + .field-label {
+    color: var(--color-primary-hover);
+  }
+
+  /* The focus bar grows from the left. */
+  .field-bar {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 2px;
+    width: 100%;
+    background-color: var(--color-primary);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform var(--duration-base) var(--ease-out-soft);
+    pointer-events: none;
+  }
+
+  .field-control:focus ~ .field-bar {
+    transform: scaleX(1);
+  }
+
+  /* ---- The side menu: an item slides 4 px on hover; the current one wears a white pill and a tab ---- */
+
+  .nav-item:hover:not([aria-current='page']) {
+    transform: translateX(4px);
+  }
+
+  .nav-item[aria-current='page']::before {
+    content: '';
+    position: absolute;
+    left: -14px;
+    top: 12px;
+    width: 5px;
+    height: 24px;
+    border-radius: 0 4px 4px 0;
+    background-color: var(--color-surface);
+  }
+
+  /* ---- Lift: a card or tile rises 5 px (a control 2 px) and its shadow deepens ---- */
+
+  .lift,
+  .lift-sm {
+    transition-property: transform, box-shadow, background-color, border-color, color;
+    transition-duration: var(--duration-base);
+    transition-timing-function: var(--ease-out-soft);
+  }
+
+  .lift:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-3);
+  }
+
+  .lift-sm:hover:not(:disabled) {
+    transform: translateY(-2px);
+  }
+
+  /* ---- The sign-in card rises in; the panel's illustration floats ---- */
+
+  .card-rise {
+    animation: card-rise 700ms var(--ease-out-soft) both;
+  }
+
+  .art-blob-a {
+    animation: floaty 7s ease-in-out infinite;
+  }
+
+  .art-blob-b {
+    animation: floaty 9s ease-in-out infinite reverse;
+  }
+
+  .art-paper {
+    animation: drop 3.6s ease-in infinite;
+  }
+
+  .art-bubble {
+    animation: pop 4s ease-in-out infinite;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .art-bubble-b {
+    animation: pop 4s ease-in-out 1.6s infinite;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .art-leaf {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    animation: sway 5s ease-in-out infinite;
+  }
+
+  /* ---- Sweep: a light turns slowly across a cover (9 s) ---- */
+
+  .cover-sweep {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cover-sweep::after {
+    content: '';
+    position: absolute;
+    inset: -40%;
+    background-image: radial-gradient(circle at 30% 40%, var(--color-glass-line), transparent 40%);
+    animation: turn 9s linear infinite;
+    pointer-events: none;
+  }
+
+  /* The gradient of a card's cover, by status (the tokens only). */
+  [data-cover='open'] {
+    background-image: linear-gradient(120deg, var(--color-teal), var(--color-primary));
+  }
+  [data-cover='scheduled'] {
+    background-image: linear-gradient(120deg, var(--color-primary), var(--color-panel-to));
+  }
+  [data-cover='draft'] {
+    background-image: linear-gradient(120deg, var(--color-ink-muted), var(--color-line-strong));
+  }
+  [data-cover='published'] {
+    background-image: linear-gradient(120deg, var(--color-backdrop-to), var(--color-backdrop-mid));
+  }
+  [data-cover='closed'] {
+    background-image: linear-gradient(120deg, var(--color-ink-soft), var(--color-ink-muted));
+  }
+  [data-cover='archived'] {
+    background-image: linear-gradient(120deg, var(--color-line-strong), var(--color-line));
+  }
+
+  /* ---- A line along the bottom of a tile that grows on load ---- */
+
+  .tile-line {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tile-line::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 3px;
+    width: 100%;
+    background-color: var(--tile-line, var(--color-primary));
+    transform-origin: left center;
+    animation: grow-line 1s 300ms var(--ease-out-soft) both;
+  }
+
+  /* ---- Bob: the round plus button of a creation tile ---- */
+
+  .bob {
+    animation: bob 3s ease-in-out infinite;
+  }
+
+  /* ---- Strength: the three segments of the password meter fill one after the other ---- */
+
+  .strength-seg {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .strength-seg[data-on='true']::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: var(--strength, var(--color-teal));
+    transform-origin: left center;
+    animation: grow-line 1.2s var(--ease-out-soft) both;
+  }
+
+  .strength-seg:nth-child(2)[data-on='true']::after {
+    animation-delay: 150ms;
+  }
+
+  .strength-seg:nth-child(3)[data-on='true']::after {
+    animation-delay: 300ms;
+  }
+
+  /* ---- The current step of the register panel sends out a ring ---- */
+
+  .step-current {
+    position: relative;
+  }
+
+  .step-current::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    border: 2px solid var(--color-surface);
+    animation: step-ring 2.2s var(--ease-out-soft) infinite;
+    pointer-events: none;
+  }
+
+  @keyframes drift {
+    0%,
+    100% {
+      background-position: 0% 30%;
+    }
+    50% {
+      background-position: 100% 70%;
+    }
+  }
+
+  @keyframes card-rise {
+    from {
+      transform: translateY(28px) scale(0.98);
+    }
+    to {
+      transform: none;
+    }
+  }
+
+  @keyframes floaty {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  @keyframes drop {
+    0% {
+      transform: translateY(-46px);
+      opacity: 0;
+    }
+    15% {
+      opacity: 1;
+    }
+    60% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    70%,
+    100% {
+      transform: translateY(8px);
+      opacity: 0;
+    }
+  }
+
+  @keyframes pop {
+    0%,
+    100% {
+      transform: scale(0.92);
+      opacity: 0.85;
+    }
+    50% {
+      transform: scale(1.06);
+      opacity: 1;
+    }
+  }
+
+  @keyframes sway {
+    0%,
+    100% {
+      transform: rotate(-2deg);
+    }
+    50% {
+      transform: rotate(3deg);
+    }
+  }
+
+  @keyframes turn {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes bob {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-6px);
+    }
+  }
+
+  @keyframes grow-line {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  @keyframes step-ring {
+    0% {
+      transform: scale(1);
+      opacity: 0.8;
+    }
+    100% {
+      transform: scale(1.9);
+      opacity: 0;
+    }
   }
 
   /* ---- Controls: a press answers within 150 ms ---- */

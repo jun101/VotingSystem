@@ -200,8 +200,9 @@ screens; their look follows these rules.
    steps instead); right, the form, with the language switch at the top right. On a phone
    the panel stacks above the form and the illustration no longer overhangs. The card
    rises in on load.
-2. **Admin has no hero band.** The page title sits on the top bar, with the "go to"
-   search, notifications, language and the account avatar. The first row of the content
+2. **Admin has no hero band.** The page title sits on the top bar with the account avatar;
+   the "go to" search and the language switch stay at the top of the side menu (they are
+   reached from the drawer on a phone). The verify banner sits inside the top bar. The first row of the content
    is the compact row: status tiles (they double as filters), year chips, and the main
    action. Nothing empty is left between the bar and the first card.
 3. **Fill the width.** On a desktop a row is never one narrow column in an empty page.
@@ -210,7 +211,8 @@ screens; their look follows these rules.
    stack beside a taller card. A long list of bars becomes a grid of tiles. A creation
    tile (dashed border, round plus button) is the first cell of a list grid.
 4. **Figures sit in tiles.** A white tile with `shadow-1`, a large figure in the display
-   font, a short label under it, and a bottom line in the colour of its status that grows
+   font and a short label (48 px high, figure then label, so tiles, year chips and the main
+   button share one row), and a bottom line in the colour of its status that grows
    on load. The selected tile is `primary` with white text. On a gradient surface a
    figure sits in a translucent glass tile (`glass`, `glass-line`).
 5. **One highlighted figure per gradient surface**, in `accent-light`.
@@ -304,7 +306,7 @@ Rules:
 |---|---|---|
 | base | 320 px | One column. Admin: the side menu becomes a drawer |
 | `md` | 768 px | Voter flow moves to the centred desktop layout |
-| `lg` | 1024 px | Admin: fixed side menu (256 px, gradient panel, rounded outer corners) plus content |
+| `lg` | 1024 px | Admin: fixed side menu (272 px, gradient panel, rounded outer corners) plus content |
 | `xl` | 1280 px | Admin: list and detail side by side; this is the mockup width |
 
 ## 5. Admin layout rules

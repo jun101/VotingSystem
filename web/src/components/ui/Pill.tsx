@@ -9,7 +9,7 @@ type PillProps = ComponentProps<'span'> & {
 
 const tones: Record<PillTone, string> = {
   neutral: 'bg-line-soft text-ink-2',
-  primary: 'bg-primary-soft text-primary',
+  primary: 'bg-primary-soft text-primary-hover',
   teal: 'bg-teal-soft text-teal-ink',
   warm: 'bg-warm-soft text-warm-ink',
   danger: 'bg-warm-soft text-danger',
@@ -20,7 +20,7 @@ export function Pill({ tone = 'neutral', className, children, ...rest }: PillPro
   return (
     <span
       className={cx(
-        'inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold',
+        'inline-flex items-center rounded-full px-3 py-1 text-xs font-bold',
         tones[tone],
         className,
       )}

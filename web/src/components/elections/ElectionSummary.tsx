@@ -80,7 +80,7 @@ export function ElectionSummary({ election }: { election: Election }) {
     >
       <section
         aria-labelledby="election-summary-title"
-        className="flex min-w-0 flex-col gap-4 rounded-lg border border-line bg-surface p-4 sm:p-5"
+        className="flex min-w-0 flex-col gap-4 rounded-lg border border-line bg-surface p-4 shadow-1 sm:p-5"
       >
         <div className="flex flex-col items-start gap-2">
           <StatusPill status={election.status} data-testid="election-summary-status" />
@@ -156,7 +156,7 @@ export function ElectionSummary({ election }: { election: Election }) {
         {election.cover ? (
           <section
             aria-labelledby="election-summary-cover-title"
-            className="overflow-hidden rounded-lg border border-line bg-surface"
+            className="overflow-hidden rounded-lg border border-line bg-surface shadow-1"
           >
             <h2 id="election-summary-cover-title" className="sr-only">
               {t('elections.summary.coverTitle')}

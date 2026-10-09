@@ -10,7 +10,7 @@ export function CoverPreview({ url, children }: { url: string | null; children?:
   return (
     <section
       aria-labelledby="election-cover-title"
-      className="flex flex-col gap-3 rounded-lg border border-line bg-surface p-4"
+      className="flex flex-col gap-3 rounded-lg border border-line bg-surface p-4 shadow-1"
     >
       <h2 id="election-cover-title" className="text-lg font-bold text-ink">
         {t('elections.cover.title')}
@@ -24,10 +24,10 @@ export function CoverPreview({ url, children }: { url: string | null; children?:
           width={480}
           height={240}
           data-testid="election-cover-preview"
-          className="aspect-2/1 w-full rounded border border-line bg-canvas object-cover"
+          className="aspect-2/1 w-full rounded-md border border-line bg-canvas object-cover"
         />
       ) : (
-        <p className="rounded border border-dashed border-line-strong p-3 text-sm text-ink-soft">
+        <p className="rounded-md border border-dashed border-line-strong p-3 text-sm text-ink-soft">
           {t('elections.cover.none')}
         </p>
       )}

@@ -34,7 +34,7 @@ export function PublicAddress({ id }: { id: string }) {
   return (
     <div
       data-testid="public-address"
-      className="flex flex-wrap items-center gap-3 rounded-lg border border-line bg-surface p-5"
+      className="flex flex-wrap items-center gap-3 rounded-lg border border-line bg-surface p-5 shadow-1"
     >
       <div className="flex min-w-0 flex-1 basis-60 flex-col gap-1">
         <p className="text-base font-semibold text-ink">{t('institution.publicAddress.label')}</p>

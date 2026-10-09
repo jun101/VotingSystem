@@ -111,11 +111,7 @@
   },
   "auth": {
     "panel": {
-      "title": "Les élections de votre école, du coupon au résultat.",
-      "point1": "Importez vos électeurs depuis Excel.",
-      "point2": "Imprimez les coupons ou envoyez les codes par courriel.",
-      "point3": "Vote secret, un seul vote par électeur.",
-      "point4": "Résultats publiés sur une page à partager."
+      "title": "Des élections claires, pour chaque école."
     },
     "password": {
       "show": "Afficher le mot de passe",
@@ -132,7 +128,12 @@
       "passwordHelp": "12 caractères au minimum.",
       "submit": "Créer le compte",
       "haveAccount": "Déjà inscrit ?",
-      "signIn": "Se connecter"
+      "signIn": "Se connecter",
+      "promise": "Lancez votre première élection en quatre étapes.",
+      "step1": "Créez le compte de l’établissement",
+      "step2": "Préparez le scrutin et les candidats",
+      "step3": "Remettez un code à chaque électeur",
+      "step4": "Publiez les résultats"
     },
     "login": {
       "title": "Se connecter",

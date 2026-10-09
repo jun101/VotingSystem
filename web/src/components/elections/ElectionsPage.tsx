@@ -2,9 +2,9 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState, useTransition } from 'react';
+import { useState, useTransition, type CSSProperties } from 'react';
 import { Icon } from '@/components/admin/Icon';
-import { linkAccent } from '@/components/admin/classes';
+import { linkPrimary } from '@/components/admin/classes';
 import { Button, Notice } from '@/components/ui';
 import { cx } from '@/components/ui/cx';
 import { duplicateElection, fetchElectionsPage } from '@/lib/api/browser';
@@ -23,15 +23,35 @@ import { RevealList } from './RevealList';
 
 const PLUS = 'M12 5v14M5 12h14';
 
-const chip =
-  'ui-control inline-flex h-11 items-center gap-2 rounded border px-3 text-base font-semibold focus-visible:ring-4 focus-visible:ring-primary-soft focus-visible:outline-2 focus-visible:outline-primary';
+const focus =
+  'focus-visible:ring-4 focus-visible:ring-primary-soft focus-visible:outline-2 focus-visible:outline-primary';
 
-function filterClass(active: boolean): string {
+/** A status tile: the figure, its label, and a line along the bottom in the colour of the status. */
+function tileClass(active: boolean): string {
   return cx(
-    chip,
+    'ui-control lift-sm tile-line inline-flex h-12 items-center gap-2 rounded-lg px-4 text-base font-medium shadow-1',
+    active ? 'bg-primary text-surface' : 'bg-surface text-ink hover:shadow-2',
+    focus,
+  );
+}
+
+const TILE_LINES: Record<ElectionStatus | 'all', string> = {
+  all: 'var(--color-primary)',
+  draft: 'var(--color-status-draft)',
+  scheduled: 'var(--color-status-scheduled)',
+  open: 'var(--color-status-open)',
+  closed: 'var(--color-ink-soft)',
+  published: 'var(--color-status-published)',
+  archived: 'var(--color-line-strong)',
+};
+
+function yearClass(active: boolean): string {
+  return cx(
+    'ui-control lift-sm inline-flex h-11 items-center rounded-full border px-4 text-base font-medium',
     active
-      ? 'border-primary bg-primary-soft text-primary'
-      : 'border-line-strong bg-surface text-ink hover:bg-surface-alt',
+      ? 'border-primary-line bg-primary-soft text-status-scheduled'
+      : 'border-line bg-surface text-ink hover:bg-primary-soft',
+    focus,
   );
 }
 
@@ -141,12 +161,15 @@ export function ElectionsPage({ list, filters }: { list: ElectionList; filters: 
             data-count={list.counts.all}
             data-testid="tile-all"
             onClick={() => show({ year: filters.year })}
-            className={filterClass(!filters.status)}
+            style={
+              {
+                '--tile-line': filters.status ? TILE_LINES.all : 'var(--color-surface)',
+              } as CSSProperties
+            }
+            className={tileClass(!filters.status)}
           >
+            <b className="font-display text-xl font-extrabold">{list.counts.all}</b>
             <span>{t('elections.list.all')}</span>
-            <span className="rounded-full bg-canvas px-2 text-sm text-ink-2">
-              {list.counts.all}
-            </span>
           </button>
           {tiles.map((status) => (
             <button
@@ -159,12 +182,16 @@ export function ElectionsPage({ list, filters }: { list: ElectionList; filters: 
               onClick={() =>
                 show({ status: filters.status === status ? undefined : status, year: filters.year })
               }
-              className={filterClass(filters.status === status)}
+              style={
+                {
+                  '--tile-line':
+                    filters.status === status ? 'var(--color-surface)' : TILE_LINES[status],
+                } as CSSProperties
+              }
+              className={tileClass(filters.status === status)}
             >
+              <b className="font-display text-xl font-extrabold">{list.counts[status]}</b>
               <span>{t(`elections.status.${status}`)}</span>
-              <span className="rounded-full bg-canvas px-2 text-sm text-ink-2">
-                {list.counts[status]}
-              </span>
             </button>
           ))}
         </div>
@@ -186,7 +213,7 @@ export function ElectionsPage({ list, filters }: { list: ElectionList; filters: 
                 onClick={() =>
                   show({ status: filters.status, year: filters.year === year ? undefined : year })
                 }
-                className={filterClass(filters.year === year)}
+                className={yearClass(filters.year === year)}
               >
                 {year}
               </button>
@@ -197,7 +224,7 @@ export function ElectionsPage({ list, filters }: { list: ElectionList; filters: 
         <Link
           href="/admin/elections/new"
           data-testid="election-new-button"
-          className={cx(linkAccent, 'gap-2 sm:ml-auto')}
+          className={cx(linkPrimary, 'shimmer-sweep min-h-12 gap-2 pr-6 pl-4 sm:ml-auto')}
         >
           <Icon path={PLUS} />
           {t('elections.list.newButton')}
@@ -213,19 +240,27 @@ export function ElectionsPage({ list, filters }: { list: ElectionList; filters: 
       <RevealList
         aria-label={t('elections.list.gridLabel')}
         data-testid="elections-grid"
-        className="grid grid-cols-[repeat(auto-fill,minmax(17.5rem,1fr))] gap-4"
+        className="grid grid-cols-[repeat(auto-fill,minmax(min(18.75rem,100%),1fr))] gap-4"
       >
-        <li data-testid="election-new-tile" className="flex min-w-0">
+        <li
+          data-testid="election-new-tile"
+          className="lift flex min-h-32 min-w-0 rounded-lg border-2 border-dashed border-primary-line bg-surface/60 focus-within:ring-4 focus-within:ring-primary-soft hover:bg-surface"
+        >
           <Link
             href="/admin/elections/new"
-            className="ui-control flex min-h-24 w-full flex-col items-start justify-center gap-1 rounded-lg border-2 border-dashed border-primary-line bg-surface p-4 text-primary hover:border-primary hover:bg-primary-soft focus-visible:ring-4 focus-visible:ring-primary-soft focus-visible:outline-2 focus-visible:outline-primary"
+            className="flex w-full flex-col items-center justify-center gap-2 rounded-lg p-4 text-center font-medium text-primary-hover focus-visible:outline-none"
           >
-            <span className="flex items-center gap-2 font-display text-lg font-bold">
-              <Icon path={PLUS} size={20} />
+            <span
+              aria-hidden="true"
+              className="bob flex size-14 items-center justify-center rounded-full bg-primary text-surface shadow-button"
+            >
+              <Icon path={PLUS} size={28} />
+            </span>
+            <span className="font-display text-lg font-extrabold">
               {t('elections.list.newTile')}
             </span>
             {empty ? (
-              <span data-testid="elections-empty" className="text-sm text-ink-soft">
+              <span data-testid="elections-empty" className="text-sm font-normal text-ink-soft">
                 {t(nothingAtAll ? 'elections.list.empty' : 'elections.list.emptyFiltered')}
               </span>
             ) : null}

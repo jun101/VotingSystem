@@ -111,11 +111,7 @@
   },
   "auth": {
     "panel": {
-      "title": "Your school’s elections, from coupon to result.",
-      "point1": "Import your voters from Excel.",
-      "point2": "Print coupons or send the codes by email.",
-      "point3": "Secret ballot, one vote per voter.",
-      "point4": "Results published on a page you can share."
+      "title": "Clear elections, for every school."
     },
     "password": {
       "show": "Show password",
@@ -132,7 +128,12 @@
       "passwordHelp": "At least 12 characters.",
       "submit": "Create the account",
       "haveAccount": "Already registered?",
-      "signIn": "Sign in"
+      "signIn": "Sign in",
+      "promise": "Launch your first election in four steps.",
+      "step1": "Create the institution’s account",
+      "step2": "Set up the ballot and the candidates",
+      "step3": "Hand a code to every voter",
+      "step4": "Publish the results"
     },
     "login": {
       "title": "Sign in",
