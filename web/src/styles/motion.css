@@ -898,6 +898,84 @@
 }
 
 /*
+ * The institution dashboard (docs/design/frontend.md, "Large screens, icons and the date picker",
+ * point 5): the coloured header of each card, the floating icon circle of an empty card, the
+ * ring of the first steps and the bar of the open election. Only transform and opacity move;
+ * the reduced-motion block below stops all of it.
+ */
+@layer components {
+  .dash-head {
+    color: var(--color-surface);
+  }
+
+  .dash-head::after {
+    content: '';
+    position: absolute;
+    right: -20px;
+    top: -30px;
+    width: 130px;
+    height: 130px;
+    border-radius: 999px;
+    background-color: var(--color-glass);
+    pointer-events: none;
+  }
+
+  .dash-head > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .dash-head[data-head='open-election'] {
+    background-image: linear-gradient(120deg, var(--color-status-open), var(--color-primary));
+  }
+
+  .dash-head[data-head='todo'] {
+    color: var(--color-deep);
+    background-image: linear-gradient(120deg, var(--color-accent), var(--color-accent-light));
+  }
+
+  .dash-head[data-head='getting-started'],
+  .dash-head[data-head='institution'] {
+    background-image: linear-gradient(120deg, var(--color-hero-mid), var(--color-primary));
+  }
+
+  .dash-head[data-head='activity'] {
+    background-image: linear-gradient(120deg, var(--color-hero-from), var(--color-hero-mid));
+  }
+
+  .dash-head[data-head='latest'] {
+    background-image: linear-gradient(120deg, var(--color-primary), var(--color-backdrop-to));
+  }
+
+  .dash-head[data-head='figures'] {
+    background-image: linear-gradient(120deg, var(--color-teal), var(--color-status-open));
+  }
+
+  .float-art {
+    animation: floaty 6s ease-in-out infinite;
+  }
+
+  .ring-spin {
+    animation: ring-spin 1.2s var(--ease-out-soft) both;
+  }
+
+  .bg-bar-open {
+    background-image: linear-gradient(90deg, var(--color-status-open), var(--color-primary));
+  }
+
+  @keyframes ring-spin {
+    from {
+      transform: rotate(-90deg);
+      opacity: 0.2;
+    }
+    to {
+      transform: none;
+      opacity: 1;
+    }
+  }
+}
+
+/*
  * Reduced motion: every effect becomes an instant change. Nothing is lost but the
  * movement, so the final state is shown at once. Outside the layer so it always wins.
  */

@@ -259,19 +259,44 @@
     "dashboard": {
       "welcome": "Bienvenue, {name}",
       "institution": "{name}",
-      "lede": "Voici votre tableau de bord. Il se remplira avec votre première élection.",
+      "institutionRole": "{name} · {role}",
       "create": "Créer une élection",
+      "quick": {
+        "newElection": "Nouvelle élection",
+        "invite": "Inviter un collègue",
+        "institution": "Mon établissement"
+      },
+      "zone": {
+        "title": "Vue d’ensemble",
+        "today": "aujourd’hui, {date}"
+      },
       "openElection": {
         "title": "Élection ouverte",
-        "empty": "Aucune élection n’est ouverte pour le moment."
+        "empty": "Aucune élection n’est ouverte pour le moment.",
+        "live": "En cours",
+        "ends": "Se termine le {date}",
+        "elapsed": "Temps écoulé",
+        "positions": "Postes",
+        "voters": "Électeurs",
+        "ballots": "Bulletins",
+        "open": "Ouvrir l’élection"
       },
       "todo": {
         "title": "À faire",
-        "empty": "Rien à faire pour le moment."
+        "empty": "Rien à faire pour le moment. Tout est à jour.",
+        "draft": "Terminer le brouillon",
+        "soon": "Préparer le démarrage",
+        "detail": "{title} · {when}",
+        "today": "aujourd’hui",
+        "tomorrow": "demain",
+        "inDays": "dans {days} jours"
       },
       "figures": {
         "title": "Chiffres clés",
-        "empty": "Les chiffres apparaîtront avec votre première élection."
+        "empty": "Les chiffres apparaîtront avec votre première élection.",
+        "elections": "Élections",
+        "voters": "Électeurs inscrits",
+        "ballots": "Bulletins"
       },
       "activity": {
         "title": "Activité récente",
@@ -279,7 +304,45 @@
       },
       "latest": {
         "title": "Dernières élections",
-        "empty": "Vous n’avez pas encore d’élection."
+        "empty": "Vous n’avez pas encore d’élection.",
+        "all": "Tout voir"
+      },
+      "gettingStarted": {
+        "title": "Premiers pas",
+        "count": "{done} sur {total}",
+        "progress": "Progression des premiers pas",
+        "percent": "{percent} %",
+        "lead": {
+          "one": "Encore {count} étape avant d’avoir tout prêt.",
+          "other": "Encore {count} étapes avant d’avoir tout prêt."
+        },
+        "done": "Fait",
+        "steps": {
+          "email": {
+            "title": "Vérifier votre courriel",
+            "hint": "Ouvrez le lien reçu par courriel"
+          },
+          "institution": {
+            "title": "Compléter l’établissement",
+            "hint": "Ajoutez le logo"
+          },
+          "election": {
+            "title": "Créer la première élection",
+            "hint": "Titre, dates, affiche"
+          }
+        }
+      },
+      "institutionCard": {
+        "title": "Établissement",
+        "users": {
+          "one": "{count} utilisateur",
+          "other": "{count} utilisateurs"
+        },
+        "breakdown": "Propriétaires : {owners} · Gestionnaires : {managers}",
+        "twoFactor": "Double authentification",
+        "twoFactorOn": "Activée pour votre compte",
+        "twoFactorOff": "Pas encore activée pour votre compte",
+        "invite": "Inviter un collègue"
       }
     },
     "comingSoon": {

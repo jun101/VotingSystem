@@ -116,6 +116,23 @@ const SYMBOLS = {
   check: { stroke: 2.6, shapes: <path d="M5 12l5 5 9-10" /> },
   left: { stroke: 2.4, shapes: <path d="M15 6l-6 6 6 6" /> },
   right: { stroke: 2.4, shapes: <path d="M9 6l6 6-6 6" /> },
+  pulse: { shapes: <path d="M3 12h4l3-8 4 16 3-8h4" /> },
+  mail: {
+    shapes: (
+      <>
+        <rect x="3" y="5" width="18" height="14" rx="3" />
+        <path d="M3 8l9 6 9-6" />
+      </>
+    ),
+  },
+  rocket: {
+    shapes: (
+      <>
+        <path d="M5 15c-1 1-2 4-2 6 2 0 5-1 6-2M14 5c3-2 6-2 7-2 0 1 0 4-2 7l-6 6-5-5z" />
+        <circle cx="15" cy="9" r="1.5" />
+      </>
+    ),
+  },
   archive: { shapes: <path d="M3 5h18v4H3zM5 9v10h14V9M10 13h4" /> },
 } satisfies Record<string, Glyph>;
 

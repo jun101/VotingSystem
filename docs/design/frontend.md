@@ -286,6 +286,11 @@ at 1280 and at 1920.
    status chips. Getting started (a progress ring and three steps: verify the e-mail, complete the institution with a
    logo, create the first election) shows until the three are done, then the institution card (user count, two-factor
    state) takes its place. Recent activity stays honestly empty until the audit log exists.
+6. **The elections list has the same white zone** (`elections-zone`, white, 1 px `line` border, 32 px corners)
+   around its card grid and its creation tile; the status tiles, the year chips and the main button stay above it on the
+   page background, the rail beside it. The zone's padding is 12 px below 1600 px and 20 px from 1600 px, and the grid's
+   column floor is lowered below 1600 px so three columns still fit at 1280. An empty list shows the zone with the
+   creation tile in it.
 
 ### Motion
 

@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { registerAndEnter } from '../support/admin';
-import { expectAccessible, expectNoSidewaysScroll } from '../support/checks';
+import { cssOf, expectAccessible, expectNoSidewaysScroll, rgb } from '../support/checks';
 import { createElection, createSix } from '../support/elections';
 
 /*
@@ -133,6 +133,37 @@ test.describe('at 1280 x 800', () => {
     const cards = await boxesOf(page, '[data-testid^="election-card-"]');
     const firstRow = cards.filter((card) => Math.abs(card.y - cards[0]!.y) <= 3);
     expect(firstRow.length).toBeGreaterThanOrEqual(2);
+    await expectNoSidewaysScroll(page);
+  });
+});
+
+test.describe('the white zone of the list', () => {
+  test('wraps the creation tile and the cards, also when the list is empty [NFR-UX-02]', async ({ page }) => {
+    await registerAndEnter(page);
+    await page.goto('/admin/elections');
+
+    expect(await cssOf(page, 'elections-zone', 'background-color')).toBe(rgb('#FFFFFF'));
+    expect(parseFloat(await cssOf(page, 'elections-zone', 'border-top-width'))).toBeGreaterThanOrEqual(1);
+    expect(parseFloat(await cssOf(page, 'elections-zone', 'border-top-left-radius'))).toBe(32);
+    expect(await cssOf(page, 'admin-shell', 'background-color')).toBe(rgb('#F1F2FC'));
+    const zone = (await boxesOf(page, '[data-testid="elections-zone"]'))[0]!;
+    const tile = (await boxesOf(page, '[data-testid="election-new-tile"]'))[0]!;
+    expect(tile.x).toBeGreaterThanOrEqual(zone.x);
+    expect(tile.right).toBeLessThanOrEqual(zone.right);
+    expect(tile.y).toBeGreaterThanOrEqual(zone.y);
+
+    await createSix(page);
+    await page.goto('/admin/elections');
+    await expect(page.locator('[data-testid^="election-card-"]')).toHaveCount(6);
+    const zoneFull = (await boxesOf(page, '[data-testid="elections-zone"]'))[0]!;
+    for (const card of await boxesOf(page, '[data-testid^="election-card-"]')) {
+      expect(card.x).toBeGreaterThanOrEqual(zoneFull.x);
+      expect(card.right).toBeLessThanOrEqual(zoneFull.right);
+      expect(card.y + card.height).toBeLessThanOrEqual(zoneFull.y + zoneFull.height);
+    }
+    // The tiles, chips and button stay above the zone, on the page background.
+    const tiles = (await boxesOf(page, '[data-testid="tile-all"]'))[0]!;
+    expect(tiles.y + tiles.height).toBeLessThanOrEqual(zoneFull.y + 1);
     await expectNoSidewaysScroll(page);
   });
 });
