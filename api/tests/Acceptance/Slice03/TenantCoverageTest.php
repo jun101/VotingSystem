@@ -17,11 +17,11 @@ it('has every route of the API in one of the lists of the tenant suite [NFR-SEC-
 });
 
 it('notices a route that is in no list [NFR-SEC-03] (rule 5)', function () {
-    Route::get('/api/v1/elections', fn () => response()->json([]));
-    Route::delete('/api/v1/elections/{election}', fn () => response()->noContent());
+    Route::get('/api/v1/ballots', fn () => response()->json([]));
+    Route::delete('/api/v1/ballots/{ballot}', fn () => response()->noContent());
 
     expect(Tenancy::uncoveredRoutes(Route::getRoutes()))
-        ->toBe(['DELETE api/v1/elections/{election}', 'GET api/v1/elections']);
+        ->toBe(['DELETE api/v1/ballots/{ballot}', 'GET api/v1/ballots']);
 });
 
 it('names an existing test file, mentioning the route, for every tenant route [NFR-SEC-03] (rule 5)', function () {

@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import { cache } from 'react';
 import { createApiClient } from './client';
+import type { Election, ElectionFilters, ElectionList } from './elections';
 import { SESSION_COOKIE } from './session';
 import type {
   CurrentUser,
@@ -122,3 +123,49 @@ export const fetchTwoFactor = cache(async (): Promise<TwoFactorState | null> =>
     return response.ok && data ? data.data : null;
   }),
 );
+
+/** The first 100 elections of the institution under these filters, or null when the API does not give them. */
+export async function fetchElections(filters: ElectionFilters): Promise<ElectionList | null> {
+  return authorizedGet(async (headers) => {
+    const { data, response } = await createApiClient().GET('/v1/elections', {
+      headers,
+      params: {
+        query: {
+          per_page: 100,
+          ...(filters.status ? { status: filters.status } : {}),
+          ...(filters.year ? { year: String(filters.year) } : {}),
+        },
+      },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(4000),
+    });
+
+    if (!response.ok || !data) return null;
+
+    return {
+      items: data.data,
+      total: data.meta.total,
+      counts: data.meta.counts,
+      years: data.meta.years,
+    };
+  });
+}
+
+/**
+ * One election of the institution. `'missing'` when the API answers 404 (unknown, not a UUID or
+ * another institution's: the same answer), null when it does not answer at all.
+ */
+export async function fetchElection(id: string): Promise<Election | 'missing' | null> {
+  return authorizedGet(async (headers) => {
+    const { data, response } = await createApiClient().GET('/v1/elections/{election}', {
+      headers,
+      params: { path: { election: id } },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(4000),
+    });
+
+    if (response.status === 404) return 'missing';
+
+    return response.ok && data ? data.data : null;
+  });
+}

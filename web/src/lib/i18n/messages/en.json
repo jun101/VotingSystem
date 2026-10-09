@@ -319,7 +319,8 @@
     "two_factor_not_enabled": "Two-factor authentication is not on. Reload the page.",
     "cannot_reset_self": "For your own account, use the “My account” page.",
     "too_many_attempts_wait_one": "Too many attempts. Try again in 1 minute.",
-    "too_many_attempts_wait_many": "Too many attempts. Try again in {minutes} minutes."
+    "too_many_attempts_wait_many": "Too many attempts. Try again in {minutes} minutes.",
+    "election_not_editable": "This election is no longer a draft: it can no longer be changed or deleted."
   },
   "validation": {
     "required": "This field is required.",
@@ -420,6 +421,44 @@
       "recovery_code": {
         "required": "Enter a recovery code.",
         "invalid": "That recovery code is wrong or was already used."
+      }
+    },
+    "election": {
+      "title": {
+        "required": "The title is required.",
+        "max": "The title must be 200 characters or fewer."
+      },
+      "description": {
+        "max": "The description must be 5,000 characters or fewer."
+      },
+      "starts_at": {
+        "required": "Choose when voting starts.",
+        "date": "This date and time are not valid."
+      },
+      "ends_at": {
+        "required": "Choose when voting ends.",
+        "date": "This date and time are not valid.",
+        "after_start": "Voting must end after it starts."
+      },
+      "timezone": {
+        "required": "Choose a time zone.",
+        "timezone": "Choose a time zone from the list."
+      },
+      "language": {
+        "in": "Choose French or English."
+      },
+      "candidate_order": {
+        "in": "Choose an order from the list."
+      },
+      "results_display": {
+        "in": "Choose a display from the list."
+      }
+    },
+    "cover": {
+      "file": {
+        "dimensions": "This image is too large: 8,000 pixels at most on a side, 40 million pixels in all.",
+        "required": "Choose an image.",
+        "invalid": "This file could not be sent. Try again."
       }
     }
   },
@@ -576,6 +615,160 @@
       "recoveryHelp": "One of your recovery codes. Each code works only once.",
       "useRecovery": "Use a recovery code",
       "useCode": "Use the app code"
+    }
+  },
+  "elections": {
+    "status": {
+      "draft": "Draft",
+      "scheduled": "Scheduled",
+      "open": "Open",
+      "closed": "Closed",
+      "published": "Published",
+      "archived": "Archived"
+    },
+    "list": {
+      "tilesLabel": "Filter by status",
+      "yearsLabel": "Filter by year",
+      "all": "All",
+      "newButton": "New election",
+      "gridLabel": "Elections",
+      "newTile": "New election",
+      "empty": "No election yet: create the first one.",
+      "emptyFiltered": "No election matches this filter.",
+      "truncated": "Only the first 100 elections are shown: narrow them down with a filter.",
+      "actionError": "The action could not be done."
+    },
+    "card": {
+      "ballots": {
+        "zero": "No positions",
+        "one": "{count} position",
+        "other": "{count} positions"
+      },
+      "voters": {
+        "zero": "no voters",
+        "one": "{count} voter",
+        "other": "{count} voters"
+      },
+      "figures": "{ballots} · {voters}",
+      "open": "Open",
+      "continue": "Continue",
+      "openLabel": "Open {title}",
+      "continueLabel": "Continue {title}",
+      "duplicate": "Duplicate",
+      "duplicateLabel": "Duplicate {title}",
+      "delete": "Delete",
+      "deleteLabel": "Delete {title}"
+    },
+    "dates": {
+      "sameDay": "{date}",
+      "sameMonth": "{month} {from} to {to}, {year}",
+      "sameYear": "{from} to {to}, {year}",
+      "otherYears": "{from} to {to}"
+    },
+    "delete": {
+      "title": "Delete this election?",
+      "text": "“{title}” will be deleted for good, with its cover image. This cannot be undone.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    },
+    "form": {
+      "hint": "Everything stays editable while the election is a draft.",
+      "save": "Create the draft",
+      "saveEdit": "Save",
+      "cancel": "Cancel",
+      "title": "Title",
+      "description": "Description",
+      "descriptionHelp": "Optional, shown to voters. {count} / {max} characters.",
+      "starts": "Voting starts",
+      "ends": "Voting ends",
+      "timezone": "Time zone",
+      "language": "Voting language",
+      "languages": {
+        "fr": "Français",
+        "en": "English"
+      },
+      "orderTitle": "Order of the candidates",
+      "order": {
+        "manual": "The order I choose",
+        "shuffled": "Shuffled for each voter"
+      },
+      "resultsTitle": "Public results page",
+      "results": {
+        "full": "All the figures",
+        "winners": "Winners and turnout only"
+      },
+      "saved": "The draft is created, but the image could not be sent. Choose another one, or remove it, then save again."
+    },
+    "cover": {
+      "title": "Cover image",
+      "add": "Choose an image",
+      "change": "Change the image",
+      "remove": "Remove the image",
+      "help": "JPEG, PNG or WebP, 5 MB at most. It illustrates the election in the list.",
+      "previewAlt": "Preview of the cover image",
+      "none": "No image: the election’s card will have no thumbnail.",
+      "summaryAlt": "Cover image of the election"
+    },
+    "schedule": {
+      "title": "Schedule",
+      "empty": "Choose when voting starts and ends: the schedule is written here, in the election’s time zone.",
+      "line": "{start} → {end}",
+      "at": "{date} at {time}",
+      "duration": "{duration} of voting · {zone}",
+      "durationNone": "—",
+      "invalid": "Voting must end after it starts.",
+      "adjusted": "This time does not exist in this time zone (clock change): the nearest valid time is used.",
+      "unit": {
+        "day": {
+          "one": "{count} day",
+          "other": "{count} days"
+        },
+        "hour": {
+          "one": "{count} hour",
+          "other": "{count} hours"
+        },
+        "minute": {
+          "one": "{count} minute",
+          "other": "{count} minutes"
+        }
+      }
+    },
+    "next": {
+      "title": "Next",
+      "ballots": {
+        "title": "Positions and candidates",
+        "text": "for the whole school or one class"
+      },
+      "voters": {
+        "title": "Voters",
+        "text": "Excel import or reuse"
+      },
+      "schedule": {
+        "title": "Schedule",
+        "text": "the positions are locked"
+      },
+      "codes": {
+        "title": "Access codes",
+        "text": "slips, email or file"
+      },
+      "footer": "Everything stays editable while the election is a draft.",
+      "separator": ": "
+    },
+    "summary": {
+      "dates": "Dates",
+      "timezone": "Time zone",
+      "language": "Voting language",
+      "order": "Order of the candidates",
+      "results": "Public results page",
+      "ballots": "Positions and voters",
+      "edit": "Edit",
+      "duplicate": "Duplicate",
+      "delete": "Delete",
+      "actions": "Actions on the election",
+      "locked": "This election is no longer a draft: its settings can no longer be changed.",
+      "nextTitle": "What comes next",
+      "soon": "Not available yet",
+      "coverTitle": "Cover"
     }
   }
 }

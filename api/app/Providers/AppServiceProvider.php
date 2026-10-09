@@ -3,13 +3,16 @@
 namespace App\Providers;
 
 use App\Auth\SessionUserProvider;
+use App\Models\Election;
 use App\Models\User;
+use App\Policies\ElectionPolicy;
 use Dedoc\Scramble\Scramble;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
@@ -30,6 +33,8 @@ class AppServiceProvider extends ServiceProvider
         // Users are found by the guard without the institution scope (see SessionUserProvider).
         Auth::provider('institution-session', fn (Application $app, array $config) => new SessionUserProvider($app->make('hash'), Config::string('auth.providers.users.model')));
 
+        Gate::policy(Election::class, ElectionPolicy::class);
+
         $this->configureRateLimiters();
     }
 
@@ -43,6 +48,7 @@ class AppServiceProvider extends ServiceProvider
 
         $this->configureAuthRateLimiters();
         $this->configureTeamRateLimiters();
+        $this->configureElectionRateLimiters();
     }
 
     /**
@@ -114,5 +120,24 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('invitations-create', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
         RateLimiter::for('logo-upload', fn (Request $request) => Limit::perHour($times(10))->by($byUser($request)));
         RateLimiter::for('auth-accept-invitation', fn (Request $request) => Limit::perHour($times(10))->by((string) $request->ip()));
+    }
+
+    /**
+     * The elections (docs/api/elections/): 60 an hour per user to create, delete and duplicate
+     * (one shared counter), 120 an hour to edit, 20 an hour for a cover; multiplied by the same
+     * factor as the others.
+     */
+    private function configureElectionRateLimiters(): void
+    {
+        $times = static fn (int $limit): int => $limit * Config::integer('auth.rate_limit_factor');
+        $byUser = static function (Request $request): string {
+            $user = $request->user();
+
+            return $user instanceof User ? 'user:'.$user->uuid : 'ip:'.(string) $request->ip();
+        };
+
+        RateLimiter::for('elections-write', fn (Request $request) => Limit::perHour($times(60))->by($byUser($request)));
+        RateLimiter::for('elections-edit', fn (Request $request) => Limit::perHour($times(120))->by($byUser($request)));
+        RateLimiter::for('election-cover', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
     }
 }

@@ -93,7 +93,7 @@ final class ApiErrorRenderer
         }
 
         if ($e instanceof ApiException) {
-            return $this->error($request, $e->getStatusCode(), $e->errorCode, headers: $e->getHeaders());
+            return $this->error($request, $e->getStatusCode(), $e->errorCode, headers: $e->getHeaders(), messageKey: $e->messageKey);
         }
 
         if ($e instanceof TokenMismatchException) {
@@ -115,9 +115,9 @@ final class ApiErrorRenderer
      * @param  array<string, list<string>>|null  $fields
      * @param  array<array-key, mixed>  $headers
      */
-    private function error(Request $request, int $status, string $code, ?array $fields = null, array $headers = []): JsonResponse
+    private function error(Request $request, int $status, string $code, ?array $fields = null, array $headers = [], ?string $messageKey = null): JsonResponse
     {
-        $error = ['code' => $code, 'message' => __('errors.'.$code)];
+        $error = ['code' => $code, 'message' => __('errors.'.($messageKey ?? $code))];
 
         if ($fields !== null) {
             $error['fields'] = $fields;

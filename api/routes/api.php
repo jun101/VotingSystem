@@ -12,6 +12,8 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\TwoFactorChallengeController;
 use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\Elections\CoverController;
+use App\Http\Controllers\Elections\ElectionController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\Institution\InstitutionController;
 use App\Http\Controllers\Institution\LogoController;
@@ -68,5 +70,19 @@ Route::prefix('v1')->group(function (): void {
             Route::post('/invitations', [InvitationController::class, 'store'])->middleware('throttle:invitations-create');
             Route::delete('/invitations/{invitation}', [InvitationController::class, 'destroy']);
         });
+    });
+
+    // The elections of the institution (slice 05). Owners and managers both pass, so there is no
+    // role middleware; the record is bound (another institution's is a 404), then the rate limit
+    // is counted.
+    Route::middleware(['cookie-session', 'auth', 'institution.active'])->prefix('elections')->group(function (): void {
+        Route::get('/', [ElectionController::class, 'index']);
+        Route::post('/', [ElectionController::class, 'store'])->middleware('throttle:elections-write');
+        Route::get('/{election}', [ElectionController::class, 'show']);
+        Route::patch('/{election}', [ElectionController::class, 'update'])->middleware('throttle:elections-edit');
+        Route::delete('/{election}', [ElectionController::class, 'destroy'])->middleware('throttle:elections-write');
+        Route::post('/{election}/duplicate', [ElectionController::class, 'duplicate'])->middleware('throttle:elections-write');
+        Route::put('/{election}/cover', [CoverController::class, 'update'])->middleware('throttle:election-cover');
+        Route::delete('/{election}/cover', [CoverController::class, 'destroy']);
     });
 });

@@ -319,7 +319,8 @@
     "two_factor_not_enabled": "La double authentification n’est pas activée. Rechargez la page.",
     "cannot_reset_self": "Pour votre propre compte, utilisez la page « Mon compte ».",
     "too_many_attempts_wait_one": "Trop de tentatives. Réessayez dans 1 minute.",
-    "too_many_attempts_wait_many": "Trop de tentatives. Réessayez dans {minutes} minutes."
+    "too_many_attempts_wait_many": "Trop de tentatives. Réessayez dans {minutes} minutes.",
+    "election_not_editable": "Cette élection n’est plus un brouillon : elle ne peut plus être modifiée ni supprimée."
   },
   "validation": {
     "required": "Ce champ est obligatoire.",
@@ -420,6 +421,44 @@
       "recovery_code": {
         "required": "Saisissez un code de récupération.",
         "invalid": "Ce code de récupération n’est pas bon ou a déjà servi."
+      }
+    },
+    "election": {
+      "title": {
+        "required": "Le titre est obligatoire.",
+        "max": "Le titre doit avoir 200 caractères au plus."
+      },
+      "description": {
+        "max": "La description doit avoir 5 000 caractères au plus."
+      },
+      "starts_at": {
+        "required": "Choisissez le début du vote.",
+        "date": "Cette date et cette heure ne sont pas valables."
+      },
+      "ends_at": {
+        "required": "Choisissez la fin du vote.",
+        "date": "Cette date et cette heure ne sont pas valables.",
+        "after_start": "La fin du vote doit être après son début."
+      },
+      "timezone": {
+        "required": "Choisissez un fuseau horaire.",
+        "timezone": "Choisissez un fuseau horaire dans la liste."
+      },
+      "language": {
+        "in": "Choisissez le français ou l’anglais."
+      },
+      "candidate_order": {
+        "in": "Choisissez un ordre dans la liste."
+      },
+      "results_display": {
+        "in": "Choisissez un affichage dans la liste."
+      }
+    },
+    "cover": {
+      "file": {
+        "dimensions": "Cette image est trop grande : 8 000 pixels au plus d’un côté, 40 millions de pixels au total.",
+        "required": "Choisissez une image.",
+        "invalid": "Ce fichier n’a pas pu être envoyé. Réessayez."
       }
     }
   },
@@ -576,6 +615,160 @@
       "recoveryHelp": "Un de vos codes de récupération. Chaque code ne sert qu’une fois.",
       "useRecovery": "Utiliser un code de récupération",
       "useCode": "Utiliser le code de l’application"
+    }
+  },
+  "elections": {
+    "status": {
+      "draft": "Brouillon",
+      "scheduled": "Planifiée",
+      "open": "En cours",
+      "closed": "Clôturée",
+      "published": "Publiée",
+      "archived": "Archivée"
+    },
+    "list": {
+      "tilesLabel": "Filtrer par statut",
+      "yearsLabel": "Filtrer par année",
+      "all": "Toutes",
+      "newButton": "Nouvelle élection",
+      "gridLabel": "Élections",
+      "newTile": "Nouvelle élection",
+      "empty": "Aucune élection pour le moment : créez la première.",
+      "emptyFiltered": "Aucune élection ne correspond à ce filtre.",
+      "truncated": "Seules les 100 premières élections sont affichées : affinez avec un filtre.",
+      "actionError": "L’action n’a pas pu être faite."
+    },
+    "card": {
+      "ballots": {
+        "zero": "Aucun poste",
+        "one": "{count} poste",
+        "other": "{count} postes"
+      },
+      "voters": {
+        "zero": "aucun électeur",
+        "one": "{count} électeur",
+        "other": "{count} électeurs"
+      },
+      "figures": "{ballots} · {voters}",
+      "open": "Ouvrir",
+      "continue": "Continuer",
+      "openLabel": "Ouvrir {title}",
+      "continueLabel": "Continuer {title}",
+      "duplicate": "Dupliquer",
+      "duplicateLabel": "Dupliquer {title}",
+      "delete": "Supprimer",
+      "deleteLabel": "Supprimer {title}"
+    },
+    "dates": {
+      "sameDay": "{date}",
+      "sameMonth": "{from} au {to} {month} {year}",
+      "sameYear": "{from} au {to} {year}",
+      "otherYears": "{from} au {to}"
+    },
+    "delete": {
+      "title": "Supprimer cette élection ?",
+      "text": "« {title} » sera supprimée pour de bon, avec son image de couverture. Cette action ne peut pas être annulée.",
+      "confirm": "Supprimer",
+      "cancel": "Annuler"
+    },
+    "form": {
+      "hint": "Tout reste modifiable tant que l’élection est un brouillon.",
+      "save": "Créer le brouillon",
+      "saveEdit": "Enregistrer",
+      "cancel": "Annuler",
+      "title": "Titre",
+      "description": "Description",
+      "descriptionHelp": "Facultative, visible par les électeurs. {count} / {max} caractères.",
+      "starts": "Début du vote",
+      "ends": "Fin du vote",
+      "timezone": "Fuseau horaire",
+      "language": "Langue du vote",
+      "languages": {
+        "fr": "Français",
+        "en": "English"
+      },
+      "orderTitle": "Ordre des candidats",
+      "order": {
+        "manual": "Ordre que je choisis",
+        "shuffled": "Mélangé pour chaque électeur"
+      },
+      "resultsTitle": "Page publique des résultats",
+      "results": {
+        "full": "Tous les chiffres",
+        "winners": "Élus et participation seulement"
+      },
+      "saved": "Le brouillon est créé, mais l’image n’a pas pu être envoyée. Choisissez-en une autre, ou retirez-la, puis enregistrez de nouveau."
+    },
+    "cover": {
+      "title": "Image de couverture",
+      "add": "Choisir une image",
+      "change": "Changer l’image",
+      "remove": "Retirer l’image",
+      "help": "JPEG, PNG ou WebP, 5 Mo au plus. Elle illustre l’élection dans la liste.",
+      "previewAlt": "Aperçu de l’image de couverture",
+      "none": "Aucune image : la carte de l’élection n’aura pas de vignette.",
+      "summaryAlt": "Image de couverture de l’élection"
+    },
+    "schedule": {
+      "title": "Calendrier",
+      "empty": "Choisissez le début et la fin du vote : le calendrier s’écrit ici, dans le fuseau de l’élection.",
+      "line": "{start} → {end}",
+      "at": "{date} à {time}",
+      "duration": "{duration} de vote · {zone}",
+      "durationNone": "—",
+      "invalid": "La fin du vote doit être après son début.",
+      "adjusted": "Cette heure n’existe pas dans ce fuseau (changement d’heure) : l’heure valable la plus proche est utilisée.",
+      "unit": {
+        "day": {
+          "one": "{count} jour",
+          "other": "{count} jours"
+        },
+        "hour": {
+          "one": "{count} heure",
+          "other": "{count} heures"
+        },
+        "minute": {
+          "one": "{count} minute",
+          "other": "{count} minutes"
+        }
+      }
+    },
+    "next": {
+      "title": "Ensuite",
+      "ballots": {
+        "title": "Postes et candidats",
+        "text": "pour toute l’école ou une classe"
+      },
+      "voters": {
+        "title": "Électeurs",
+        "text": "import Excel ou reprise"
+      },
+      "schedule": {
+        "title": "Planifier",
+        "text": "les postes sont verrouillés"
+      },
+      "codes": {
+        "title": "Codes d’accès",
+        "text": "coupons, courriel ou fichier"
+      },
+      "footer": "Tout reste modifiable tant que l’élection est un brouillon.",
+      "separator": " : "
+    },
+    "summary": {
+      "dates": "Dates",
+      "timezone": "Fuseau horaire",
+      "language": "Langue du vote",
+      "order": "Ordre des candidats",
+      "results": "Page publique des résultats",
+      "ballots": "Postes et électeurs",
+      "edit": "Modifier",
+      "duplicate": "Dupliquer",
+      "delete": "Supprimer",
+      "actions": "Actions sur l’élection",
+      "locked": "Cette élection n’est plus un brouillon : ses réglages ne peuvent plus être modifiés.",
+      "nextTitle": "Ce qui vient ensuite",
+      "soon": "Pas encore disponible",
+      "coverTitle": "Couverture"
     }
   }
 }
