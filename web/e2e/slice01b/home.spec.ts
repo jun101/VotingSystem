@@ -10,7 +10,7 @@ test('the home page opens with the showcase hero [NFR-UX-02]', async ({ page }) 
 
   const hero = page.getByTestId('home-hero');
   await expect(hero).toBeVisible();
-  expect(await hero.evaluate((element) => getComputedStyle(element).backgroundImage)).toContain(rgb('#09295B'));
+  expect(await hero.evaluate((element) => getComputedStyle(element).backgroundImage)).toContain(rgb('#A8349A'));
 
   const title = page.getByRole('heading', { level: 1, name: 'New Voting System' });
   await expect(title).toBeVisible();

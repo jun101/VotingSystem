@@ -14,11 +14,11 @@ test('hero: the three-stop gradient at 135 degrees, white text [NFR-UX-02]', asy
   const background = await cssOf(page, 'demo-hero', 'background-image');
 
   expect(background).toContain('linear-gradient(135deg');
-  expect(background).toContain(rgb('#09295B'));
-  expect(background).toContain(rgb('#0D3A7A'));
-  expect(background).toContain(rgb('#1A4A8A'));
+  expect(background).toContain(rgb('#A8349A'));
+  expect(background).toContain(rgb('#7C5BD0'));
+  expect(background).toContain(rgb('#5468D4'));
   expect(await cssOf(page, 'demo-hero-title', 'color')).toBe(rgb('#FFFFFF'));
-  expect(await cssOf(page, 'demo-hero-title', 'font-family')).toMatch(/Bricolage/i);
+  expect(await cssOf(page, 'demo-hero-title', 'font-family')).toMatch(/Archivo/i);
 });
 
 test('hero: spans the whole width of the screen [NFR-UX-02]', async ({ page }) => {
@@ -41,8 +41,8 @@ test('glass tile: translucent, with a thin light border [NFR-UX-02]', async ({ p
 });
 
 test('band: the gradient, and one figure in the light accent [NFR-UX-02]', async ({ page }) => {
-  expect(await cssOf(page, 'demo-band', 'background-image')).toContain(rgb('#09295B'));
-  expect(await cssOf(page, 'demo-band-figure', 'color')).toBe(rgb('#FFB45A'));
+  expect(await cssOf(page, 'demo-band', 'background-image')).toContain(rgb('#A8349A'));
+  expect(await cssOf(page, 'demo-band-figure', 'color')).toBe(rgb('#F7D9A8'));
 });
 
 test('showcase card: side by side on a desktop, stacked on a phone [NFR-UX-02]', async ({ page }, testInfo) => {
@@ -60,19 +60,19 @@ test('showcase card: side by side on a desktop, stacked on a phone [NFR-UX-02]',
 });
 
 test('closing band: the gradient again, with the accent button inside [NFR-UX-02]', async ({ page }) => {
-  expect(await cssOf(page, 'demo-closing-band', 'background-image')).toContain(rgb('#1A4A8A'));
+  expect(await cssOf(page, 'demo-closing-band', 'background-image')).toContain(rgb('#5468D4'));
   await expect(page.getByTestId('demo-closing-band').getByRole('button')).toBeVisible();
 });
 
-test('accent button: accent background, deep navy text, never white [NFR-UX-03]', async ({ page }) => {
+test('accent button: accent background, deep indigo text, never white [NFR-UX-03]', async ({ page }) => {
   const button = page.getByTestId('demo-button-accent');
   const style = await button.evaluate((element) => {
     const computed = getComputedStyle(element);
     return { image: computed.backgroundImage, colour: computed.backgroundColor, text: computed.color };
   });
 
-  expect(`${style.image} ${style.colour}`).toContain(rgb('#FF8603'));
-  expect(style.text).toBe(rgb('#061A3D'));
+  expect(`${style.image} ${style.colour}`).toContain(rgb('#F29A76'));
+  expect(style.text).toBe(rgb('#1E2A5A'));
   expect(await button.evaluate((element) => element.tagName)).toBe('BUTTON');
   expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(44);
 });

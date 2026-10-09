@@ -43,7 +43,7 @@ export function recordForeignRequests(page: Page, baseURL: string): string[] {
   return foreign;
 }
 
-/** "rgb(30, 58, 138)" for "#1E3A8A". */
+/** "rgb(84, 104, 212)" for "#5468D4". */
 export function rgb(hex: string): string {
   const n = parseInt(hex.replace('#', ''), 16);
   return `rgb(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255})`;

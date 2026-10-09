@@ -56,8 +56,8 @@ test.describe('home page', () => {
       .evaluate((element) => getComputedStyle(element).fontFamily);
     const body = await page.evaluate(() => getComputedStyle(document.body).fontFamily);
 
-    expect(heading).toMatch(/Bricolage/i);
-    expect(body).toMatch(/Public.?Sans/i);
+    expect(heading).toMatch(/Archivo/i);
+    expect(body).toMatch(/Roboto/i);
   });
 
   test('exposes the design tokens as CSS variables [NFR-UX-02]', async ({ page }) => {
@@ -74,14 +74,14 @@ test.describe('home page', () => {
         return getComputedStyle(document.documentElement).getPropertyValue(n).trim() === '' ? '' : resolved;
       }, name);
 
-    expect(await token('--color-ink')).toBe(rgb('#111B33'));
-    expect(await token('--color-ink-soft')).toBe(rgb('#4A556B'));
-    expect(await token('--color-canvas')).toBe(rgb('#F3F5F9'));
+    expect(await token('--color-ink')).toBe(rgb('#14162B'));
+    expect(await token('--color-ink-soft')).toBe(rgb('#565B76'));
+    expect(await token('--color-canvas')).toBe(rgb('#F1F2FC'));
     expect(await token('--color-surface')).toBe(rgb('#FFFFFF'));
-    expect(await token('--color-line')).toBe(rgb('#D8DEE9'));
-    expect(await token('--color-primary')).toBe(rgb('#1E3A8A'));
-    expect(await token('--color-primary-hover')).toBe(rgb('#172B66'));
-    expect(await token('--color-primary-soft')).toBe(rgb('#E6ECFA'));
+    expect(await token('--color-line')).toBe(rgb('#DDE0F2'));
+    expect(await token('--color-primary')).toBe(rgb('#5468D4'));
+    expect(await token('--color-primary-hover')).toBe(rgb('#4458C2'));
+    expect(await token('--color-primary-soft')).toBe(rgb('#E3E8FF'));
     expect(await token('--color-warm')).toBe(rgb('#C2410C'));
     expect(await token('--color-teal')).toBe(rgb('#0F766E'));
     expect(await token('--color-danger')).toBe(rgb('#9A2A0A'));
