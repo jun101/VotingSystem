@@ -30,6 +30,7 @@ Redo `/admin` (`components/admin/Dashboard.tsx` and what it needs) as in the moc
 - Grid `auto-fill` from 300 px below 1600 px, from 380 px at 1600 px and up (as the elections list); cards at least
   300 px tall; one column on a phone; floating icon circle on empty cards; ring, bars and card entrance animations as in
   the mockups, all stopped by "reduce motion".
+- An empty card shows its floating icon circle with test id `empty-art`.
 - Texts in the fr and en message files; icons from `Icon.tsx` (add what is missing: rocket, pulse, mail).
 - Existing tests keep passing (`slice03/shell.spec.ts` reads `dashboard`, `dashboard-welcome`, `dashboard-institution`,
   the five card ids, `dashboard-create-election`, and forbids tables).
