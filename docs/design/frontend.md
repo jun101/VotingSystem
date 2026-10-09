@@ -245,6 +245,35 @@ screens; their look follows these rules.
     reminder of the current choice on its left, so it is always reachable without
     scrolling.
 
+### Large screens, icons and the date picker (added 2026-10-09)
+
+Reference: [material-wide.html](mockups/material-wide.html) (1920 × 1080),
+[material-picker.html](mockups/material-picker.html). Jun's screen is 1920 × 1080: every list is checked
+at 1280 and at 1920.
+
+1. **Cards grow with the screen.** The card grid is `auto-fill` from 300 px below 1600 px (three columns at
+   1280) and from 380 px from 1600 px, where the rail takes 340 px: three columns of 400 px and more at 1920. An election card has a 120 px cover with a large faint
+   icon of its status, the status badge on the cover, the title (20 px), the dates line, **three fact tiles** (positions,
+   voters, ballots; each an icon, a figure, a label) and a row of actions. An open election shows a participation bar.
+2. **From 1600 px a right rail** of 340 px sits beside the grid and the page never leaves its right side empty.
+   It holds two panels: a **month calendar** (the month of the nearest upcoming election, else the current month;
+   days with an election are marked, today is ringed) and a **to-do list** (drafts to finish, an election starting
+   within seven days; later slices add voters to import, candidates to add, codes to print). With nothing to do the
+   list invites the first election. Below 1600 px the rail is hidden, never squeezed.
+3. **Icons make the interface alive.** One inline SVG set (24 px grid, stroke 2, rounded), always `aria-hidden`
+   and always with its text beside it: the status tiles, the status badge and watermark on a cover, the fact tiles,
+   every card action, the side menu. Colour comes from tokens.
+4. **The date and time picker replaces the native field.** Two big tiles, "Début" and "Fin": a gradient day badge
+   (month, day, weekday), the time in the display font and the full date in words. Touching a tile opens a popover
+   (a bottom sheet on a phone) holding quick choices (tomorrow, next Monday for five days, in a week, one day 8:00
+   to 17:00), a calendar of two months (one on a phone) with the voting days shaded between the start and the end,
+   time chips and hour and minute steppers for the field being edited, the time zone's name and the duration. The
+   start day and the end day are circles (primary and rose); a pick that would put the end before the start moves
+   the other date so the previous duration is kept. A past day is allowed for a draft. The two native
+   `datetime-local` fields stay in the page, visually hidden, as the keyboard and screen reader path and as the
+   value the form reads; the tiles are the pointer interface and write to them. Escape closes the popover and returns
+   focus to its tile.
+
 ### Motion
 
 The interface moves: it should feel alive, never slow.
@@ -307,7 +336,8 @@ Rules:
 | base | 320 px | One column. Admin: the side menu becomes a drawer |
 | `md` | 768 px | Voter flow moves to the centred desktop layout |
 | `lg` | 1024 px | Admin: fixed side menu (272 px, gradient panel, rounded outer corners) plus content |
-| `xl` | 1280 px | Admin: list and detail side by side; this is the mockup width |
+| `xl` | 1280 px | Admin: list and detail side by side; this is the first mockup width |
+| `2xl` | 1600 px | Admin lists gain the 340 px right rail; 1920 × 1080 is checked as well |
 
 ## 5. Admin layout rules
 
