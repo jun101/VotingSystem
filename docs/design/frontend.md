@@ -273,6 +273,19 @@ at 1280 and at 1920.
    `datetime-local` fields stay in the page, visually hidden, as the keyboard and screen reader path and as the
    value the form reads; the tiles are the pointer interface and write to them. Escape closes the popover and returns
    focus to its tile.
+5. **The institution dashboard** ([material-dashboard-empty.html](mockups/material-dashboard-empty.html),
+   [material-dashboard.html](mockups/material-dashboard.html)). A compact welcome band (gradient, the name, the
+   institution, three quick actions: new election as the coral main action, invite a colleague, the institution page).
+   Below it **one white zone** (white, 1 px `line` border, 32 px corners) titled "Vue d'ensemble" with today's date: all
+   the cards sit inside it, so the area is visible on the lavender page even when a card is empty. The cards are bigger
+   (at least 300 px tall; the grid is `auto-fill` from 300 px below 1600 px and from 380 px from 1600 px, so three
+   columns at 1920) and each has a **coloured header band** (68 px, gradient, white text, a round icon, the title, an
+   optional link or counter): open election green to indigo, to do coral (text `deep`), getting started violet, recent
+   activity purple, latest elections blue, key figures teal, institution violet to indigo. An empty card shows a large
+   floating icon circle, one sentence and, where it helps, a button. Filled cards use icon fact tiles, icon rows and
+   status chips. Getting started (a progress ring and three steps: verify the e-mail, complete the institution with a
+   logo, create the first election) shows until the three are done, then the institution card (user count, two-factor
+   state) takes its place. Recent activity stays honestly empty until the audit log exists.
 
 ### Motion
 
