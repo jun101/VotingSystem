@@ -9,6 +9,7 @@ import {
   partyCounts,
   placeCandidate,
   removeCandidate,
+  withCandidateOrder,
   withCandidates,
 } from './candidateList';
 
@@ -156,5 +157,27 @@ describe('checksOf', () => {
     expect(checksOf([ballot('p', 1, [candidate('a', 'p', 1), candidate('b', 'p', 2)])])).toEqual(
       [],
     );
+  });
+});
+
+describe('withCandidateOrder', () => {
+  it('takes only the order from the answer and keeps a candidate added meanwhile', () => {
+    const ballot = {
+      id: 'B1',
+      candidates: [candidate('a', 'B1', 1), candidate('b', 'B1', 2), candidate('n', 'B1', 3)],
+      candidates_count: 3,
+    } as unknown as Ballot;
+
+    const [merged] = withCandidateOrder([ballot], 'B1', [
+      candidate('b', 'B1', 1),
+      candidate('a', 'B1', 2),
+    ]);
+
+    expect(merged!.candidates.map((c) => [c.id, c.position])).toEqual([
+      ['b', 1],
+      ['a', 2],
+      ['n', 3],
+    ]);
+    expect(merged!.candidates_count).toBe(3);
   });
 });

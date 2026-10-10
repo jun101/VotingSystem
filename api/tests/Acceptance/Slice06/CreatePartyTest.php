@@ -191,3 +191,13 @@ it('ignores fields a request must not set: id, institution, election, logo [FR-I
         ->and($row['logo_file'])->toBeNull()
         ->and($row['institution_id'])->toBe(Accounts::electionRow($election)['institution_id']);
 });
+
+it('treats names that differ only by an accent as two names [FR-CAND-01] (scenario 4)', function () {
+    [$t, $election] = partyCreateSignedIn($this);
+    Accounts::plantParty(['election' => $election, 'name' => 'Unité']);
+
+    $this->browser->post(partyCreateUrl($election), ['name' => 'Unite', 'colour' => '#5468D4'])->assertCreated();
+    $this->browser->post(partyCreateUrl($election), ['name' => 'UNITÉ ', 'colour' => '#5468D4'])->assertStatus(422);
+
+    expect(Accounts::partyRows($election))->toHaveCount(2);
+});

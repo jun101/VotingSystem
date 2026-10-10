@@ -587,3 +587,72 @@ describe('BallotsPage candidates', () => {
     expect(screen.queryByTestId('ballots-check-add-3')).toBeNull();
   });
 });
+
+describe('BallotsPage after a reorder', () => {
+  beforeEach(() => {
+    fetchBallots.mockReset();
+    fetchParties.mockReset();
+  });
+
+  const withTwo = [
+    ballot('A', 1, {
+      candidates: [candidate('a', 1), candidate('b', 1)],
+      candidates_count: 2,
+    }),
+    ballot('B', 2),
+  ];
+  const mismatch = (field: string) =>
+    new ApiError(422, 'validation_failed', { [field]: ['set_mismatch'] });
+
+  it('reads the ballots again and tells so on a 422 set_mismatch', async () => {
+    reorderBallots.mockRejectedValue(mismatch('ballots'));
+    fetchBallots.mockResolvedValue([ballot('B', 2), ballot('A', 1), ballot('N', 4)]);
+    renderIn('fr', <BallotsPage election={election} initial={withTwo} initialParties={[]} />);
+
+    await userEvent.click(screen.getByTestId('ballot-down-1'));
+
+    await waitFor(() => expect(titles()).toEqual(['B', 'A', 'N']));
+    expect(screen.getByTestId('ballots-notice')).toHaveTextContent('a changé ailleurs');
+    expect(reorderBallots).toHaveBeenCalledTimes(1);
+  });
+
+  it('reads the candidates again and tells so on a 422 set_mismatch', async () => {
+    reorderCandidates.mockRejectedValue(mismatch('candidates'));
+    fetchBallots.mockResolvedValue([
+      ballot('A', 1, {
+        candidates: [candidate('c', 1), candidate('a', 1), candidate('b', 1)],
+        candidates_count: 3,
+      }),
+      ballot('B', 2),
+    ]);
+    renderIn('fr', <BallotsPage election={election} initial={withTwo} initialParties={[]} />);
+
+    await userEvent.click(screen.getByTestId('candidate-down-1-1'));
+
+    await waitFor(() =>
+      expect(screen.getAllByTestId(/^candidate-name-1-/).map((n) => n.textContent)).toEqual([
+        'c Nom',
+        'a Nom',
+        'b Nom',
+      ]),
+    );
+    expect(screen.getByTestId('ballots-notice')).toHaveTextContent('ont changé ailleurs');
+  });
+
+  it('reads the list again and closes the party dialog on a 409 from a party delete', async () => {
+    deleteParty.mockRejectedValue(new ApiError(409, 'election_not_editable'));
+    fetchBallots.mockResolvedValue(withTwo);
+    renderIn(
+      'fr',
+      <BallotsPage election={election} initial={withTwo} initialParties={[party('Ensemble')]} />,
+    );
+
+    await userEvent.click(screen.getByTestId('party-delete-1'));
+    await userEvent.click(await screen.findByTestId('party-delete-confirm'));
+
+    expect(await screen.findByTestId('ballots-notice')).toHaveTextContent(
+      'Cette élection ne peut plus être modifiée',
+    );
+    expect(fetchBallots).toHaveBeenCalledWith(election.id);
+  });
+});

@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Importer des électeurs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;family=Archivo:wght@700;800&amp;display=swap" rel="stylesheet">
+<style>
+:root{--primary:#5468D4;--primary-hover:#4458C2;--ink:#14162B;--muted:#565B76;--line:#DDE0F2;--bg:#F1F2FC;--accent:#F29A76;--deep:#1E2A5A;--soft:#F4F5FD}
+*{box-sizing:border-box}
+body{margin:0;font-family:Roboto,system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+a{color:inherit;text-decoration:none}button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
+svg.i{width:1em;height:1em;flex:none}
+.app{display:flex;flex-wrap:wrap;min-height:1080px}
+.nav{flex:0 0 272px;background:linear-gradient(180deg,#5468D4 0%,#6A57CC 55%,#7A4FC4 100%);color:#fff;padding:22px 14px 18px;display:flex;flex-direction:column;gap:6px;border-radius:0 28px 28px 0}
+.main{flex:999 1 560px;min-width:0;padding:20px 32px 16px;display:flex;flex-direction:column;gap:14px}
+.item{display:flex;align-items:center;gap:14px;height:52px;padding:0 18px;border-radius:26px;font-size:16px;font-weight:500;color:#fff}
+.item svg{font-size:22px}.item.on{background:#fff;color:#3A4DC0;box-shadow:0 6px 14px -4px rgba(20,22,43,.35)}
+.top{display:flex;align-items:center;gap:14px}
+.crumb{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:15px;font-weight:500}.crumb svg{font-size:18px}
+.pillinfo{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 14px;border-radius:17px;background:#D9F2EE;color:#0B5750;font-size:13px;font-weight:700}
+.avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#A8349A,#5468D4);color:#fff;font:800 16px Archivo,sans-serif;display:grid;place-items:center}
+.hero{position:relative;overflow:hidden;border-radius:28px;color:#fff;background:linear-gradient(120deg,#8A90AB,#5468D4 60%,#7C5BD0);padding:16px 30px;display:flex;align-items:flex-end;gap:24px;flex-wrap:wrap;min-height:120px;animation:rise .6s both}
+.hero::before{content:"";position:absolute;inset:-60%;background:radial-gradient(circle at 30% 40%,rgba(255,255,255,.22),transparent 35%);animation:sweep 14s linear infinite}
+@keyframes sweep{to{transform:rotate(360deg)}}
+.hero .wm{position:absolute;right:30px;top:-30px;font-size:210px;color:rgba(255,255,255,.14);transform:rotate(-10deg)}
+.hero>*{position:relative;z-index:1}
+.badge{display:inline-flex;align-items:center;gap:8px;height:28px;padding:0 14px;border-radius:14px;background:rgba(255,255,255,.95);color:#444964;font-size:13px;font-weight:700}
+.hero h1{margin:8px 0 2px;font:800 34px/1.1 Archivo,sans-serif;letter-spacing:-.5px}
+.hero p{margin:0;font-size:15px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.chip{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 14px 0 10px;border-radius:16px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);font-size:14px;font-weight:500}.chip svg{font-size:18px}
+.acts{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;height:48px;padding:0 22px 0 16px;border-radius:24px;font:500 15px Roboto,sans-serif;transition:transform .2s,background .2s}
+.btn svg{font-size:20px}.btn:hover{transform:translateY(-2px)}
+.btn.cta{background:#F29A76;color:#1E2A5A;font-weight:700;box-shadow:0 8px 16px -6px rgba(0,0,0,.35)}
+.btn.glass{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);color:#fff}
+.btn.pri{background:var(--primary);color:#fff;font-weight:700;box-shadow:0 2px 4px rgba(84,104,212,.35),0 8px 18px -6px rgba(84,104,212,.6)}
+.btn.sec{background:#E3E8FF;color:#2E3FA8}
+.btn.ghost{color:var(--muted)}
+.zone{background:#fff;border:1px solid var(--line);border-radius:32px;padding:20px;animation:rise .6s .1s both}
+.card{border-radius:24px;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);box-shadow:0 1px 2px rgba(20,22,43,.1),0 8px 18px -12px rgba(20,22,43,.3);transition:transform .25s,box-shadow .25s;animation:rise .6s both}
+.card:hover{transform:translateY(-4px);box-shadow:0 2px 4px rgba(20,22,43,.12),0 22px 36px -16px rgba(84,104,212,.6)}
+.ch{display:flex;align-items:center;gap:12px;padding:0 14px 0 20px;height:64px;color:#fff;position:relative;overflow:hidden;flex:none}
+.ch::after{content:"";position:absolute;right:-20px;top:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.14);pointer-events:none}
+.ch .ic{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.22);display:grid;place-items:center;font-size:21px;flex:none}
+.ch h2{margin:0;font:800 17px/1.15 Archivo,sans-serif;flex:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ch .more{position:relative;z-index:1;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:15px;background:rgba(255,255,255,.22)}
+.cb{padding:16px 20px 18px;display:flex;flex-direction:column;gap:12px;flex:1}
+.ib{position:relative;z-index:1;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:19px;background:rgba(255,255,255,.22);color:inherit;transition:background .2s,transform .2s}
+.ib:hover{background:rgba(255,255,255,.4);transform:translateY(-1px)}
+.ib.sm{width:30px;height:30px;font-size:16px;background:#F4F5FD;color:var(--muted)}.ib.sm:hover{background:#E3E8FF;color:var(--primary)}
+.tag{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px 0 9px;border-radius:14px;background:#F4F5FD;color:#34385A;font-size:13px;font-weight:500}
+.tag svg{font-size:16px;color:var(--primary)}
+.pty{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);font-weight:500}
+.pty i{width:10px;height:10px;border-radius:50%;background:var(--p,#8A8FA8);flex:none}
+.ph{width:46px;height:46px;border-radius:50%;flex:none;display:grid;place-items:center;font:800 15px Archivo,sans-serif;color:#fff;background:linear-gradient(135deg,var(--a,#7A92EE),var(--b,#5468D4));position:relative}
+.ph.av{font-size:26px}
+.ph .cam{position:absolute;right:-3px;bottom:-3px;width:19px;height:19px;border-radius:50%;background:#fff;color:var(--primary);display:grid;place-items:center;font-size:12px;box-shadow:0 1px 2px rgba(20,22,43,.3)}
+.fm{--a:#E58AB8;--b:#A66EDC}.ml{--a:#7A92EE;--b:#5468D4}
+.notice{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border-radius:16px;background:#FFF4EA;color:#6B2408;font-size:14px}.notice svg{font-size:20px;color:#C2410C;margin-top:1px}
+.field{display:flex;flex-direction:column;gap:2px;min-width:0}
+.field label{font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
+.field .in{height:46px;display:flex;align-items:center;gap:10px;border-bottom:2px solid #B5BBDB;font-size:16px;padding:0 2px;background:linear-gradient(#fff,#fff)}
+.field.focus label{color:var(--primary)}.field.focus .in{border-color:var(--primary);box-shadow:0 2px 0 0 var(--primary)}
+.field .hint{font-size:12px;color:var(--muted)}
+@media (max-height:820px){.hero{min-height:96px;padding:12px 26px}.hero h1{font-size:28px}.chips{margin-top:8px}.main{gap:10px;padding-top:14px}.btn{height:44px}}
+.menubtn,.closebtn{display:none}
+@media (max-width:767px){
+.app{display:block;min-height:0}
+.nav{position:fixed;top:0;bottom:0;left:0;width:300px;max-width:86vw;z-index:50;transform:translateX(-105%);transition:transform .3s;overflow:auto;border-radius:0 28px 28px 0}
+.nav:target{transform:none;box-shadow:0 0 0 100vmax rgba(20,22,43,.45)}
+.menubtn{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#fff;border:1px solid var(--line);font-size:22px;color:var(--primary)}
+.closebtn{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);font-size:20px;margin-left:auto}
+.main{padding:12px 14px 20px;gap:12px}
+.crumb{display:flex;min-width:0;flex:1;font-size:14px}.crumb span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pillinfo{display:none}.avatar{width:44px;height:44px}
+.hero{padding:16px 18px;border-radius:24px;gap:14px;min-height:0}
+.hero h1{font-size:26px}.hero .wm{font-size:140px;top:-10px}
+.badge{height:auto;min-height:28px;padding:6px 12px;line-height:1.2}
+.chip{height:30px;font-size:13px}
+.acts{width:100%;margin-left:0}.acts .btn{flex:1 1 100%;justify-content:center}
+.zone{padding:10px;border-radius:24px}
+.ch{padding-left:14px}
+}
+@keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.layout{display:flex;gap:18px;align-items:flex-start}
+.zonewrap{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:18px}
+.rail{flex:0 0 340px;display:flex;flex-direction:column;gap:18px}
+@media (max-width:1599px){.layout{flex-direction:column;align-items:stretch}.zonewrap{flex:none}.rail{flex:none;width:100%;flex-direction:row;flex-wrap:wrap;align-items:flex-start}.rail>*{flex:1 1 320px}}
+@media (max-width:767px){.rail>*{flex-basis:100%}}
+.steps{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0;padding:0;list-style:none}
+.steps li{display:flex;align-items:center;gap:10px;font-weight:500;color:var(--muted);font-size:15px}
+.steps .n{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#E3E8FF;color:#2E3FA8;font:800 14px Archivo,sans-serif}
+.steps li.on{color:var(--ink);font-weight:700}.steps li.on .n{background:var(--primary);color:#fff;box-shadow:0 6px 12px -4px rgba(84,104,212,.7)}
+.steps li.done .n{background:#D9F2EE;color:#0B5750}
+.steps .bar{width:40px;height:2px;background:var(--line)}
+@media (max-width:767px){.steps .bar{display:none}.steps li:not(.on) span{display:none}}
+.sheetwrap{border:1px solid var(--line);border-radius:18px;overflow:auto;background:#fff}
+table.sheet{border-collapse:collapse;width:100%;min-width:760px;font-size:14px}
+table.sheet th,table.sheet td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+table.sheet thead th{background:var(--primary);color:#fff;font-weight:700}
+table.sheet thead th.req::after{content:" *";color:#FFD9C7}
+table.sheet tbody td{color:#444964;font-style:italic;background:#FAFAFF}
+table.sheet tbody td.no{color:#8A8FA8;font-style:normal;text-align:center;width:40px;background:#F1F2FC}
+.tabs{display:flex;gap:6px;margin-top:10px}
+.tabs span{height:34px;padding:0 16px;border-radius:12px 12px 0 0;display:grid;place-items:center;font-size:13px;font-weight:700;border:1px solid var(--line);border-bottom:0;background:#F4F5FD;color:var(--muted)}
+.tabs span.on{background:#fff;color:var(--primary);box-shadow:inset 0 3px 0 var(--primary)}
+.defs{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px 22px;margin-top:6px}
+.def code{display:inline-block;font:700 13px ui-monospace,monospace;color:#2E3FA8;background:#E3E8FF;border-radius:8px;padding:2px 8px}
+.def b.req{color:#C2410C}
+.def p{margin:4px 0 0;font-size:14px;color:var(--muted)}
+.dl{display:flex;gap:10px;flex-wrap:wrap;margin-left:auto}
+.btn.out{background:#fff;border:1px solid var(--line);color:var(--ink);box-shadow:0 1px 2px rgba(20,22,43,.1)}
+.drop{border:2px dashed #B7C1F6;border-radius:24px;background:#F8F9FE;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;padding:34px 18px;transition:background .2s,transform .2s}
+.drop:hover{background:#EEF1FF;transform:translateY(-3px)}
+.drop .up{width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,#5468D4,#7C5BD0);color:#fff;display:grid;place-items:center;font-size:32px;box-shadow:0 10px 16px -8px rgba(84,104,212,.7);animation:floaty 6s ease-in-out infinite}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.drop b{font:800 18px Archivo,sans-serif;color:#2E3FA8}.drop small{color:var(--muted);font-size:14px}
+.rules{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.rules li{display:flex;gap:12px;align-items:flex-start;font-size:14px;color:#34385A}
+.rules .b{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:18px;flex:none;background:#E3E8FF;color:#2E3FA8}
+.rules b{display:block;font-size:15px;font-weight:500;color:var(--ink)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px}
+.tile{border-radius:20px;padding:14px 16px;display:flex;align-items:center;gap:12px}
+.tile .ic{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-size:22px;background:rgba(255,255,255,.7)}
+.tile b{display:block;font:800 26px/1 Archivo,sans-serif}.tile small{font-size:13px;font-weight:700}
+.t-ok{background:#D9F2EE;color:#0B5750}.t-bad{background:#FFE3E0;color:#8E1B12}.t-dup{background:#FFF4EA;color:#6B2408}.t-all{background:#E3E8FF;color:#2E3FA8}
+.map{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.sel{height:46px;border-radius:14px;border:1px solid #B5BBDB;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 14px;font-size:15px}
+.sel svg{color:var(--muted)}
+.mfield small{font-size:12px;color:var(--muted)}
+.mfield label{font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px}
+.st{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px 0 8px;border-radius:13px;font-size:12px;font-weight:700;font-style:normal}
+.st svg{font-size:15px}.st.ok{background:#D9F2EE;color:#0B5750}.st.bad{background:#FFE3E0;color:#8E1B12}.st.dup{background:#FFF4EA;color:#6B2408}
+table.sheet.pv thead th{background:#EEF1FF;color:#2E3FA8}
+table.sheet.pv tbody td{font-style:normal;background:#fff;color:var(--ink)}
+table.sheet.pv tr.bad td{background:#FFF6F5}table.sheet.pv tr.dup td{background:#FFFAF4}
+.cell-bad{color:#8E1B12;font-weight:700}
+.sticky{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 18px;border-radius:24px;background:#fff;border:1px solid var(--line);box-shadow:0 8px 24px -14px rgba(20,22,43,.4)}
+.sticky p{margin:0;flex:1;min-width:220px;font-size:14px;color:var(--muted)}
+.sep{display:flex;align-items:center;gap:12px;margin:26px 0 6px;color:var(--muted);font:800 13px Archivo,sans-serif;letter-spacing:1px;text-transform:uppercase}
+.sep::after{content:"";flex:1;height:1px;background:var(--line)}
+.zh{display:flex;align-items:center;gap:12px;margin:0 0 14px;flex-wrap:wrap}
+.zh h2{margin:0;font:800 20px Archivo,sans-serif;display:flex;gap:10px;align-items:center}
+.zh .no{width:30px;height:30px;border-radius:50%;background:var(--primary);color:#fff;display:grid;place-items:center;font:800 14px Archivo,sans-serif}
+.zh small{color:var(--muted);font-size:14px;flex-basis:100%}
+@media (max-width:767px){.hero{padding:16px 18px}.hero h1{font-size:26px}.btn{height:46px}.dl{margin-left:0;width:100%}.dl .btn{flex:1;justify-content:center}}
+</style></head><body><svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="i-grid" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></g></symbol><symbol id="i-vote" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="18" height="9" rx="2"/><path d="M8 12V6l4-3 4 3v6"/><path d="M9 7.5l2 2 4-4"/></g></symbol><symbol id="i-people" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><path d="M16 5a3.5 3.5 0 010 6.5M18 14.8c2 .6 3.2 2.4 3.5 5.2"/></g></symbol><symbol id="i-log" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></g></symbol><symbol id="i-school" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-6 9 6M5 10v10h14V10M10 20v-5h4v5"/></g></symbol><symbol id="i-flag" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></g></symbol><symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></g></symbol><symbol id="i-back" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></g></symbol><symbol id="i-plus" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></g></symbol><symbol id="i-edit" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></g></symbol><symbol id="i-trash" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></g></symbol><symbol id="i-grip" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="6" r="1.2"/><circle cx="15" cy="6" r="1.2"/><circle cx="9" cy="12" r="1.2"/><circle cx="15" cy="12" r="1.2"/><circle cx="9" cy="18" r="1.2"/><circle cx="15" cy="18" r="1.2"/></g></symbol><symbol id="i-up" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 14l6-6 6 6"/></g></symbol><symbol id="i-down" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10l6 6 6-6"/></g></symbol><symbol id="i-shuffle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h4v4M4 20L20 4M20 16v4h-4M4 4l5 5M15 15l5 5"/></g></symbol><symbol id="i-lock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="3"/><path d="M8 11V8a4 4 0 018 0v3"/></g></symbol><symbol id="i-image" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 8"/></g></symbol><symbol id="i-camera" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v12H4z"/><circle cx="12" cy="14" r="3.5"/></g></symbol><symbol id="i-blank" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12h8"/></g></symbol><symbol id="i-seat" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 11V6a2 2 0 012-2h8a2 2 0 012 2v5M4 11h16v4H4zM7 15v5M17 15v5"/></g></symbol><symbol id="i-party" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h13l-3 4.5L18 13H5"/></g></symbol><symbol id="i-warn" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17.5v.01"/></g></symbol><symbol id="i-check" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></g></symbol><symbol id="i-user" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4.5 4-7 8-7s7.2 2.5 8 7"/></g></symbol><symbol id="i-quote" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h4v5a4 4 0 01-4 4M15 7h4v5a4 4 0 01-4 4"/></g></symbol><symbol id="i-menu" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></g></symbol><symbol id="i-close" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></g></symbol><symbol id="i-upload" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V5M7 9l5-5 5 5M4 20h16"/></g></symbol></defs></svg><div class="app"><nav class="nav" id="menu" aria-label="Navigation principale">
+<div style="display:flex;align-items:center;gap:12px;padding:4px 8px 16px"><svg width="48" height="48" viewBox="0 0 48 48" role="img" aria-label="Vote"><rect width="48" height="48" rx="14" fill="#fff"/><path d="M13 25l7 7 15-17" fill="none" stroke="#5F73E6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg><span style="font:800 22px Archivo,sans-serif">New Voting System</span><a class="closebtn" href="#" aria-label="Fermer le menu"><svg class="i"><use href="#i-close"/></svg></a></div>
+<div style="display:flex;align-items:center;gap:10px;height:46px;padding:0 16px;border-radius:23px;background:rgba(255,255,255,.18);font-size:15px"><svg class="i" style="font-size:20px"><use href="#i-search"/></svg>Aller à…</div>
+<a class="item" href="#"><svg class="i"><use href="#i-grid"/></svg>Tableau de bord</a><a class="item on" href="#"><svg class="i"><use href="#i-vote"/></svg>Élections</a><a class="item" href="#"><svg class="i"><use href="#i-school"/></svg>Établissement</a><a class="item" href="#"><svg class="i"><use href="#i-log"/></svg>Journal d'audit</a></nav><main class="main"><header class="top"><a class="menubtn" href="#menu" aria-label="Ouvrir le menu"><svg class="i"><use href="#i-menu"/></svg></a><a class="crumb" href="#"><svg class="i"><use href="#i-back"/></svg><span>Électeurs</span></a><span style="flex:1"></span><span class="pillinfo">✓ Courriel vérifié</span><div class="avatar">MN</div></header><section class="hero" aria-label="Importer des électeurs"><span class="wm" aria-hidden="true"><svg class="i"><use href="#i-upload"/></svg></span>
+<div><span class="badge"><svg class="i"><use href="#i-edit"/></svg>Brouillon · électeurs</span><h1>Importer des électeurs</h1><p>Ajoutez beaucoup d'électeurs d'un coup à partir d'un fichier Excel ou CSV.</p><div class="chips"><span class="chip"><svg class="i"><use href="#i-user"/></svg>10 000 lignes au plus</span><span class="chip"><svg class="i"><use href="#i-blank"/></svg>.xlsx ou .csv</span><span class="chip"><svg class="i"><use href="#i-lock"/></svg>Rien d'importé avant confirmation</span></div></div>
+<div class="acts"><a class="btn glass" href="#"><svg class="i"><use href="#i-back"/></svg>Retour aux électeurs</a></div></section><div style="margin:2px 0"><ol class="steps" aria-label="Étapes"><li class="on"><span class="n">1</span><span>Modèle</span></li><li class="bar" aria-hidden="true"></li><li class=""><span class="n">2</span><span>Fichier</span></li><li class="bar" aria-hidden="true"></li><li class=""><span class="n">3</span><span>Vérifier</span></li><li class="bar" aria-hidden="true"></li><li class=""><span class="n">4</span><span>Terminé</span></li></ol></div><div class="layout"><div class="zonewrap"><section class="zone" aria-label="Le modèle">
+<div class="zh"><h2><span class="no">1</span>Le modèle</h2><div class="dl">
+<a class="btn pri" href="#"><svg class="i" style="transform:rotate(180deg)"><use href="#i-upload"/></svg>Télécharger (Excel)</a><a class="btn out" href="#"><svg class="i"><use href="#i-blank"/></svg>CSV</a></div>
+<small>Voici exactement ce que contient le fichier à télécharger. Remplissez une ligne par électeur.</small></div>
+<div class="sheetwrap"><table class="sheet"><thead><tr><th class="no" style="background:#F1F2FC"></th><th class="req">nom_complet</th><th class="">groupe</th><th class="">identifiant</th><th class="">courriel</th><th class="">telephone</th></tr></thead><tbody><tr><td class="no">2</td><td>Rose-Marie Désir</td><td>4e année</td><td>E-2041</td><td>rm.desir@example.ht</td><td>+509 3712 4455</td></tr><tr><td class="no">3</td><td>Jean-Baptiste Pierre</td><td>4e année</td><td>E-2042</td><td></td><td>+509 2813 0000</td></tr><tr><td class="no">4</td><td>Nadège Louis</td><td>5e année</td><td>E-2107</td><td></td><td></td></tr></tbody></table></div>
+<div class="tabs"><span class="on">Électeurs</span><span>Instructions</span></div>
+<div class="defs" style="margin-top:18px"><div class="def"><code>nom_complet</code> <b class="req">* Nom complet</b><p>Nom et prénom de l'électeur(rice). Obligatoire.</p></div><div class="def"><code>groupe</code> <b class="">Groupe</b><p>Ex. 4e année, Terminale A. Créé s'il n'existe pas.</p></div><div class="def"><code>identifiant</code> <b class="">Identifiant</b><p>Numéro d'élève ou matricule donné par l'établissement.</p></div><div class="def"><code>courriel</code> <b class="">Courriel</b><p>Pour l'envoi du code. Facultatif.</p></div><div class="def"><code>telephone</code> <b class="">Téléphone</b><p>Ex. +509 3712 4455. Facultatif.</p></div></div>
+<div class="notice" style="margin-top:16px"><svg class="i"><use href="#i-warn"/></svg><span>Les noms de colonnes en anglais (<b>full_name</b>, <b>group</b>, <b>email</b>…) sont acceptés aussi. Aucune date de naissance n'est demandée.</span></div></section><section class="zone" aria-label="Votre fichier">
+<div class="zh"><h2><span class="no">2</span>Votre fichier</h2><small>Excel (.xlsx) ou CSV, n'importe quel nom. Séparateur « , » ou « ; » reconnu automatiquement.</small></div>
+<a class="drop" href="#check"><span class="up"><svg class="i"><use href="#i-upload"/></svg></span><b>Glissez le fichier ici, ou cliquez pour le choisir</b><small>.xlsx ou .csv · 5 Mo au plus · jusqu'à 10 000 lignes</small></a></section></div><aside class="rail" aria-label="À savoir"><section class="card"><div class="ch" style="background:linear-gradient(120deg,#5468D4,#7C5BD0)"><span class="ic"><svg class="i"><use href="#i-check"/></svg></span><h2>Bon à savoir</h2></div>
+<div class="cb"><ul class="rules">
+<li><span class="b"><svg class="i"><use href="#i-check"/></svg></span><span><b>Rien n'est importé tout de suite</b>Vous vérifiez les lignes à l'étape suivante, puis vous confirmez.</span></li>
+<li><span class="b"><svg class="i"><use href="#i-warn"/></svg></span><span><b>Les lignes en erreur</b>Elles sont mises de côté et vous les téléchargez dans un fichier à corriger.</span></li>
+<li><span class="b"><svg class="i"><use href="#i-user"/></svg></span><span><b>Les doublons</b>Même identifiant, même courriel, ou même nom dans le même groupe : signalés.</span></li>
+<li><span class="b"><svg class="i"><use href="#i-vote"/></svg></span><span><b>Les groupes</b>Créés d'après la colonne « groupe » ; « 4e année » et « 4E ANNEE » sont le même groupe.</span></li></ul></div></section>
+<section class="card"><div class="ch" style="background:linear-gradient(120deg,#F29A76,#E5708A)"><span class="ic"><svg class="i"><use href="#i-lock"/></svg></span><h2>Élection verrouillée ?</h2></div>
+<div class="cb"><span style="font-size:14px;color:var(--muted)">Les électeurs ne peuvent être importés que tant que l'élection est en brouillon.</span></div></section></aside></div><div class="sep">Écran suivant · A10 · vérification avant import</div><section class="hero" aria-label="Vérifier le fichier"><span class="wm" aria-hidden="true"><svg class="i"><use href="#i-upload"/></svg></span>
+<div><span class="badge"><svg class="i"><use href="#i-edit"/></svg>Brouillon · électeurs</span><h1>Vérifier le fichier</h1><p>Rien n'est encore importé. Contrôlez, puis confirmez.</p><div class="chips"><span class="chip"><svg class="i"><use href="#i-user"/></svg>312 lignes</span><span class="chip"><svg class="i"><use href="#i-check"/></svg>300 prêtes</span><span class="chip"><svg class="i"><use href="#i-warn"/></svg>12 à corriger</span></div></div>
+<div class="acts"></div></section><div style="margin:2px 0" id="check"><ol class="steps" aria-label="Étapes"><li class="done"><span class="n"><svg class="i"><use href="#i-check"/></svg></span><span>Modèle</span></li><li class="bar" aria-hidden="true"></li><li class="done"><span class="n"><svg class="i"><use href="#i-check"/></svg></span><span>Fichier</span></li><li class="bar" aria-hidden="true"></li><li class="on"><span class="n">3</span><span>Vérifier</span></li><li class="bar" aria-hidden="true"></li><li class=""><span class="n">4</span><span>Terminé</span></li></ol></div><div class="layout"><div class="zonewrap"><section class="zone" aria-label="Résumé">
+<div class="zh"><h2><span class="no">1</span>Résumé du fichier</h2><small>eleves-4e-5e-2026.xlsx · 312 lignes · 4 nouveaux groupes seront créés : 4e année, 5e année, Terminale A, Terminale B.</small></div><div class="tiles">
+<div class="tile t-all"><span class="ic"><svg class="i"><use href="#i-blank"/></svg></span><span><b>312</b><small>lignes lues</small></span></div>
+<div class="tile t-ok"><span class="ic"><svg class="i"><use href="#i-check"/></svg></span><span><b>300</b><small>prêtes à importer</small></span></div>
+<div class="tile t-bad"><span class="ic"><svg class="i"><use href="#i-warn"/></svg></span><span><b>8</b><small>en erreur</small></span></div>
+<div class="tile t-dup"><span class="ic"><svg class="i"><use href="#i-user"/></svg></span><span><b>4</b><small>doublons</small></span></div></div></section>
+<section class="zone" aria-label="Colonnes">
+<div class="zh"><h2><span class="no">2</span>Colonnes</h2><small>Nous avons reconnu les colonnes. Corrigez si besoin ; l'aperçu se met à jour.</small></div><div class="map"><div class="mfield"><label>Nom complet *</label><div class="sel"><span>Nom et prénom</span><svg class="i"><use href="#i-down"/></svg></div><small>colonne du fichier</small></div><div class="mfield"><label>Groupe</label><div class="sel"><span>Classe</span><svg class="i"><use href="#i-down"/></svg></div><small>colonne du fichier</small></div><div class="mfield"><label>Identifiant</label><div class="sel"><span>Matricule</span><svg class="i"><use href="#i-down"/></svg></div><small>colonne du fichier</small></div><div class="mfield"><label>Courriel</label><div class="sel"><span>Email</span><svg class="i"><use href="#i-down"/></svg></div><small>colonne du fichier</small></div><div class="mfield"><label>Téléphone</label><div class="sel"><span>(Ne pas importer)</span><svg class="i"><use href="#i-down"/></svg></div><small>ignorée</small></div></div></section>
+<section class="zone" aria-label="Aperçu">
+<div class="zh"><h2><span class="no">3</span>Aperçu ligne par ligne</h2><div class="dl"><a class="btn sec" href="#"><svg class="i"><use href="#i-warn"/></svg>Voir seulement les erreurs (12)</a><a class="btn out" href="#"><svg class="i" style="transform:rotate(180deg)"><use href="#i-upload"/></svg>Fichier des erreurs</a></div></div>
+<div class="sheetwrap"><table class="sheet pv"><thead><tr><th class="no" style="background:#F1F2FC"></th><th>État</th><th>nom_complet</th><th>groupe</th><th>identifiant</th><th>courriel</th></tr></thead><tbody><tr class=""><td class="no">2</td><td><span class="st ok"><svg class="i"><use href="#i-check"/></svg>Prêt</span></td><td>Rose-Marie Désir</td><td>4e année</td><td>E-2041</td><td>rm.desir@example.ht</td></tr><tr class=""><td class="no">3</td><td><span class="st ok"><svg class="i"><use href="#i-check"/></svg>Prêt</span></td><td>Jean-Baptiste Pierre</td><td>4e année</td><td>E-2042</td><td></td></tr><tr class="bad"><td class="no">4</td><td><span class="st bad"><svg class="i"><use href="#i-warn"/></svg>Nom manquant</span></td><td><span class="cell-bad">(vide)</span></td><td>5e année</td><td>E-2107</td><td></td></tr><tr class="bad"><td class="no">5</td><td><span class="st bad"><svg class="i"><use href="#i-warn"/></svg>Courriel invalide</span></td><td>Nadège Louis</td><td>5e année</td><td>E-2108</td><td><span class="cell-bad">nadege.louis@</span></td></tr><tr class="dup"><td class="no">6</td><td><span class="st dup"><svg class="i"><use href="#i-user"/></svg>Doublon (ligne 2)</span></td><td>Wideline Joseph</td><td>4e année</td><td>E-2041</td><td></td></tr><tr class=""><td class="no">7</td><td><span class="st ok"><svg class="i"><use href="#i-check"/></svg>Prêt</span></td><td>Kervens Étienne</td><td>Terminale A</td><td>E-3010</td><td>k.etienne@example.ht</td></tr><tr class=""><td class="no">8</td><td><span class="st ok"><svg class="i"><use href="#i-check"/></svg>Prêt</span></td><td>Mirlande Jean-Louis</td><td>Terminale A</td><td>E-3011</td><td></td></tr></tbody></table></div></section>
+<div class="sticky" role="region" aria-label="Confirmer"><p><b style="color:var(--ink)">300 électeurs seront importés.</b> Les 12 autres lignes ne seront pas importées ; vous pourrez les corriger dans le fichier des erreurs.</p>
+<a class="btn ghost" href="#">Annuler</a><a class="btn pri" href="#"><svg class="i"><use href="#i-check"/></svg>Importer 300 électeurs</a></div></div><aside class="rail" aria-label="Après l'import"><section class="card"><div class="ch" style="background:linear-gradient(120deg,#0E8F82,#5468D4)"><span class="ic"><svg class="i"><use href="#i-check"/></svg></span><h2>Ensuite</h2></div>
+<div class="cb"><ul class="rules"><li><span class="b">1</span><span><b>L'import tourne en arrière-plan</b>Une barre de progression montre où il en est ; vous pouvez quitter la page.</span></li>
+<li><span class="b">2</span><span><b>Les codes viennent après</b>Aucun code n'est créé par l'import. Vous les générez à l'étape « Codes ».</span></li></ul></div></section></aside></div></main></div></body></html>

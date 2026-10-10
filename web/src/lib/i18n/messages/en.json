@@ -1039,6 +1039,7 @@
     "notEditable": "This election can no longer be changed.",
     "locked": "This election is no longer a draft: its positions can no longer be changed.",
     "reorderFailed": "The order could not be saved: the previous order is restored.",
+    "listChanged": "The list of ballots changed elsewhere: it was reloaded, please check the order.",
     "actionFailed": "The action could not be done.",
     "rail": {
       "label": "Parties and things to check"
@@ -1131,6 +1132,7 @@
       "moved": "{name}: place {position} of {total}."
     },
     "reorderFailed": "The order of the candidates could not be saved: the previous order is back.",
+    "listChanged": "The candidates of this ballot changed elsewhere: they were reloaded, please check the order.",
     "form": {
       "titleNew": "Add a candidate",
       "titleEdit": "Edit the candidate",

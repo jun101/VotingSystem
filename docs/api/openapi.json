@@ -5524,7 +5524,8 @@
                             "type": "string",
                             "format": "uuid"
                         },
-                        "minItems": 1
+                        "minItems": 1,
+                        "maxItems": 50
                     }
                 },
                 "required": [
@@ -5542,7 +5543,8 @@
                             "type": "string",
                             "format": "uuid"
                         },
-                        "minItems": 1
+                        "minItems": 1,
+                        "maxItems": 50
                     }
                 },
                 "required": [
