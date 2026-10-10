@@ -1,9 +1,9 @@
 # Runs the same make targets as a developer does (see the Makefile). Only Docker is needed.
 name: CI
 
+# Only a pull request into `main` runs the checks (slices are merged into `staging` first).
 on:
   pull_request:
-  push:
     branches: [main]
 
 permissions:
