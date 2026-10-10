@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { cache } from 'react';
 import { createApiClient } from './client';
 import type { Ballot } from './ballots';
+import type { Party } from './parties';
 import type { Election, ElectionFilters, ElectionList } from './elections';
 import { SESSION_COOKIE } from './session';
 import type {
@@ -175,6 +176,20 @@ export async function fetchElection(id: string): Promise<Election | 'missing' | 
 export async function fetchElectionBallots(id: string): Promise<Ballot[] | null> {
   return authorizedGet(async (headers) => {
     const { data, response } = await createApiClient().GET('/v1/elections/{election}/ballots', {
+      headers,
+      params: { path: { election: id }, query: { per_page: 100 } },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(4000),
+    });
+
+    return response.ok && data ? data.data : null;
+  });
+}
+
+/** The parties of an election of the institution, or null when the API does not give them. */
+export async function fetchElectionParties(id: string): Promise<Party[] | null> {
+  return authorizedGet(async (headers) => {
+    const { data, response } = await createApiClient().GET('/v1/elections/{election}/parties', {
       headers,
       params: { path: { election: id }, query: { per_page: 100 } },
       cache: 'no-store',

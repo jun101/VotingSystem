@@ -17,7 +17,8 @@ import { LiveDot } from '@/components/motion';
 import { Notice } from '@/components/ui';
 import { cx } from '@/components/ui/cx';
 import type { Ballot } from '@/lib/api/ballots';
-import { fetchBallots, reorderBallots } from '@/lib/api/browser';
+import { fetchBallots, fetchParties, reorderBallots } from '@/lib/api/browser';
+import type { Party } from '@/lib/api/parties';
 import type { Election, ElectionStatus } from '@/lib/api/elections';
 import { ApiError, errorText } from '@/lib/api/errors';
 import { useI18n } from '@/lib/i18n/client';
@@ -25,8 +26,11 @@ import { BallotCard } from './BallotCard';
 import { BallotForm } from './BallotForm';
 import { BallotsRail } from './BallotsRail';
 import { DeleteBallotDialog } from './DeleteBallotDialog';
+import { DeletePartyDialog } from './DeletePartyDialog';
+import { PartyModal } from './PartyModal';
 import { dropOn, moveBy, orderOf, sameOrder } from './ballotMove';
 import { countText } from './ballotText';
+import { partiesText } from './partyText';
 
 /** The text colour of the badge on the header band, by status (as on the election page). */
 const BADGE_TEXT: Record<ElectionStatus, string> = {
@@ -49,6 +53,14 @@ const ADD =
 /** What the form is for: a new ballot, or this one. */
 type FormState = { mode: 'new' } | { mode: 'edit'; id: string };
 
+/** What the party modal is for: a new party, or this one. */
+type PartyFormState = { mode: 'new' } | { mode: 'edit'; id: string };
+
+/** A glass button on the header band (the second action). */
+const GLASS =
+  'ui-control lift-sm inline-flex h-12 items-center justify-center gap-2 rounded-full border border-glass-line bg-glass pr-5.5 pl-4 text-md font-bold text-surface hover:bg-glass-line max-md:w-full ' +
+  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-surface';
+
 /** The ballot being dragged by its grip, and the one under the pointer. */
 type Drag = { id: string; over: string };
 
@@ -69,7 +81,15 @@ function ballotAt(x: number, y: number): string | null {
  * never overlap (a change made while one is in flight is sent when it ends), and a failure brings
  * back the last order the server confirmed, with a notice.
  */
-export function BallotsPage({ election, initial }: { election: Election; initial: Ballot[] }) {
+export function BallotsPage({
+  election,
+  initial,
+  initialParties,
+}: {
+  election: Election;
+  initial: Ballot[];
+  initialParties: Party[];
+}) {
   const { t, tIfAny, locale } = useI18n();
   const router = useRouter();
   const [, startTransition] = useTransition();
@@ -78,6 +98,9 @@ export function BallotsPage({ election, initial }: { election: Election; initial
   const [ballots, setBallots] = useState<Ballot[]>(initial);
   const [form, setForm] = useState<FormState | null>(null);
   const [deleting, setDeleting] = useState<Ballot | null>(null);
+  const [parties, setParties] = useState<Party[]>(initialParties);
+  const [partyForm, setPartyForm] = useState<PartyFormState | null>(null);
+  const [deletingParty, setDeletingParty] = useState<Party | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
   const [announce, setAnnounce] = useState('');
   const [drag, setDrag] = useState<Drag | null>(null);
@@ -109,6 +132,16 @@ export function BallotsPage({ election, initial }: { election: Election; initial
     // At the end of the list the button that was pressed is disabled: the other one is next.
     (wanted && !wanted.disabled ? wanted : other)?.focus();
   }, [ballots]);
+
+  // After a delete, the row the focus was on is gone: it goes to the button that adds a party.
+  const refocusParties = useRef(false);
+
+  useEffect(() => {
+    if (!refocusParties.current) return;
+
+    refocusParties.current = false;
+    document.querySelector<HTMLElement>('[data-testid="party-new"]')?.focus();
+  }, [parties]);
 
   /** The same change on what is shown and on what the server knows (create, edit, delete). */
   function apply(change: (list: Ballot[]) => Ballot[]) {
@@ -220,6 +253,10 @@ export function BallotsPage({ election, initial }: { election: Election; initial
   const editing = form?.mode === 'edit' ? (ballots.find((b) => b.id === form.id) ?? null) : null;
   const showForm = editable && form !== null && (form.mode === 'new' || editing !== null);
   const count = countText(ballots.length, locale, t);
+  const editingParty =
+    partyForm?.mode === 'edit' ? (parties.find((p) => p.id === partyForm.id) ?? null) : null;
+  const showPartyForm =
+    editable && partyForm !== null && (partyForm.mode === 'new' || editingParty !== null);
 
   return (
     <div data-testid="ballots-page" className="flex flex-col gap-4.5">
@@ -281,6 +318,10 @@ export function BallotsPage({ election, initial }: { election: Election; initial
               <Icon name="flag" size={18} />
               {count}
             </span>
+            <span data-testid="parties-count" className={CHIP}>
+              <Icon name="party" size={18} />
+              {partiesText(parties.length, locale, t)}
+            </span>
             <span data-testid="ballots-order" className={CHIP}>
               <Icon name="shuffle" size={18} />
               {t(`elections.form.order.${election.candidate_order}`)}
@@ -298,6 +339,15 @@ export function BallotsPage({ election, initial }: { election: Election; initial
             >
               <Icon name="plus" size={20} />
               {t('ballots.add')}
+            </button>
+            <button
+              type="button"
+              data-testid="parties-add"
+              onClick={() => setPartyForm({ mode: 'new' })}
+              className={GLASS}
+            >
+              <Icon name="party" size={20} />
+              {t('parties.add')}
             </button>
           </div>
         ) : null}
@@ -400,12 +450,50 @@ export function BallotsPage({ election, initial }: { election: Election; initial
           </RevealList>
         </section>
 
-        <BallotsRail />
+        <BallotsRail
+          parties={parties}
+          editable={editable}
+          onNewParty={() => setPartyForm({ mode: 'new' })}
+          onEditParty={(chosen) => setPartyForm({ mode: 'edit', id: chosen.id })}
+          onDeleteParty={setDeletingParty}
+        />
       </div>
 
       <p role="status" aria-live="polite" className="sr-only">
         {announce}
       </p>
+
+      {showPartyForm ? (
+        <PartyModal
+          key={partyForm.mode === 'edit' ? partyForm.id : 'new'}
+          election={election.id}
+          party={editingParty}
+          onSaved={(saved) => {
+            setParties((list) =>
+              list.some((party) => party.id === saved.id)
+                ? list.map((party) => (party.id === saved.id ? saved : party))
+                : [...list, saved],
+            );
+            // The API's order (by name) is the one shown: read it again, in place.
+            void fetchParties(election.id).then(setParties, () => undefined);
+          }}
+          onClose={() => setPartyForm(null)}
+        />
+      ) : null}
+
+      {deletingParty ? (
+        <DeletePartyDialog
+          party={deletingParty}
+          onCancel={() => setDeletingParty(null)}
+          onDeleted={() => {
+            const gone = deletingParty.id;
+
+            refocusParties.current = true;
+            setParties((list) => list.filter((party) => party.id !== gone));
+            setDeletingParty(null);
+          }}
+        />
+      ) : null}
 
       {deleting ? (
         <DeleteBallotDialog

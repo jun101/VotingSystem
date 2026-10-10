@@ -4,6 +4,7 @@ import { ApiError, parseApiError } from './errors';
 import { XSRF_COOKIE } from './session';
 import type { Ballot, BallotChanges, NewBallot } from './ballots';
 import type { Election, ElectionChanges, ElectionFilters, NewElection } from './elections';
+import type { NewParty, Party, PartyChanges } from './parties';
 import type { paths } from './schema';
 import type {
   CurrentUser,
@@ -498,4 +499,38 @@ export async function reorderBallots(election: string, ids: string[]): Promise<B
   );
 
   return data!.data;
+}
+
+/** `GET /elections/{election}/parties`: every party of the election (at most 30). */
+export async function fetchParties(election: string): Promise<Party[]> {
+  const { data } = await send((api) =>
+    api.GET('/v1/elections/{election}/parties', {
+      params: { path: { election }, query: { per_page: 100 } },
+    }),
+  );
+
+  return data!.data;
+}
+
+/** `POST /elections/{election}/parties`: a party of a draft election. */
+export async function createParty(election: string, body: NewParty): Promise<Party> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/parties', { params: { path: { election } }, body }),
+  );
+
+  return data!.data;
+}
+
+/** `PATCH /parties/{party}`: the fields given change. */
+export async function updateParty(id: string, body: PartyChanges): Promise<Party> {
+  const { data } = await send((api) =>
+    api.PATCH('/v1/parties/{party}', { params: { path: { party: id } }, body }),
+  );
+
+  return data!.data;
+}
+
+/** `DELETE /parties/{party}`: its candidates stay and become independent. */
+export async function deleteParty(id: string): Promise<void> {
+  await send((api) => api.DELETE('/v1/parties/{party}', { params: { path: { party: id } } }));
 }

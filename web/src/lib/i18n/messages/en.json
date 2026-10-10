@@ -385,7 +385,8 @@
     "too_many_attempts_wait_one": "Too many attempts. Try again in 1 minute.",
     "too_many_attempts_wait_many": "Too many attempts. Try again in {minutes} minutes.",
     "election_not_editable": "This election is no longer a draft: it can no longer be changed or deleted.",
-    "ballot_limit_reached": "An election cannot have more than 50 positions."
+    "ballot_limit_reached": "An election cannot have more than 50 positions.",
+    "party_limit_reached": "An election cannot have more than 30 parties."
   },
   "validation": {
     "required": "This field is required.",
@@ -538,6 +539,20 @@
         "integer": "Enter a whole number of seats.",
         "min": "There must be at least 1 seat.",
         "max": "A position has 20 seats at most."
+      }
+    },
+    "party": {
+      "name": {
+        "required": "Give the party a name.",
+        "max": "The name must be 100 characters or fewer.",
+        "unique": "A party of this election already has this name."
+      },
+      "acronym": {
+        "max": "The acronym must be 15 characters or fewer."
+      },
+      "colour": {
+        "hex_colour": "Choose a colour from the list.",
+        "required": "Choose a colour."
       }
     }
   },
@@ -982,10 +997,56 @@
     "reorderFailed": "The order could not be saved: the previous order is restored.",
     "actionFailed": "The action could not be done.",
     "rail": {
-      "label": "Parties and points to check",
-      "title": "Parties and candidates",
-      "text": "Parties and candidates arrive in the next steps",
-      "soon": "Soon"
+      "label": "Parties"
+    }
+  },
+  "parties": {
+    "title": "Parties",
+    "add": "Add a party",
+    "new": "New party",
+    "empty": "No party yet: add one if candidates run as a team.",
+    "count": {
+      "one": "{count} party",
+      "other": "{count} parties"
+    },
+    "row": {
+      "edit": "Edit the party {name}",
+      "delete": "Delete the party {name}",
+      "none": "No candidate",
+      "candidates": {
+        "one": "{count} candidate",
+        "other": "{count} candidates"
+      }
+    },
+    "colours": {
+      "5468D4": "Indigo",
+      "C2410C": "Burnt orange",
+      "0F766E": "Teal",
+      "7C5BD0": "Violet",
+      "A8349A": "Magenta",
+      "8A5A00": "Ochre",
+      "1E2A5A": "Midnight blue",
+      "9A2A0A": "Brick"
+    },
+    "form": {
+      "titleNew": "New party",
+      "titleEdit": "Edit the party",
+      "name": "Party name",
+      "acronym": "Acronym",
+      "colour": "Colour",
+      "add": "Add",
+      "addAnother": "Add and enter another",
+      "save": "Save",
+      "cancel": "Cancel",
+      "close": "Close",
+      "added": "The party “{name}” is added. Enter the next one.",
+      "error": "The party could not be saved."
+    },
+    "delete": {
+      "title": "Delete this party?",
+      "text": "The party “{name}” will be deleted. Its candidates stay in the election and become independent.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
     }
   }
 }

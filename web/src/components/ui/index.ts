@@ -3,6 +3,7 @@ export type { ButtonSize, ButtonVariant } from './Button';
 export { Card } from './Card';
 export { ConfirmDialog } from './ConfirmDialog';
 export { Input } from './Input';
+export { Modal } from './Modal';
 export { LogoMark } from './LogoMark';
 export { Notice } from './Notice';
 export type { NoticeTone } from './Notice';

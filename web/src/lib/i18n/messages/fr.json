@@ -385,7 +385,8 @@
     "too_many_attempts_wait_one": "Trop de tentatives. Réessayez dans 1 minute.",
     "too_many_attempts_wait_many": "Trop de tentatives. Réessayez dans {minutes} minutes.",
     "election_not_editable": "Cette élection n’est plus un brouillon : elle ne peut plus être modifiée ni supprimée.",
-    "ballot_limit_reached": "Une élection ne peut pas avoir plus de 50 postes."
+    "ballot_limit_reached": "Une élection ne peut pas avoir plus de 50 postes.",
+    "party_limit_reached": "Une élection ne peut pas avoir plus de 30 partis."
   },
   "validation": {
     "required": "Ce champ est obligatoire.",
@@ -538,6 +539,20 @@
         "integer": "Indiquez un nombre entier de sièges.",
         "min": "Il faut au moins 1 siège.",
         "max": "Un poste a 20 sièges au plus."
+      }
+    },
+    "party": {
+      "name": {
+        "required": "Donnez un nom au parti.",
+        "max": "Le nom doit avoir 100 caractères au plus.",
+        "unique": "Un parti de cette élection porte déjà ce nom."
+      },
+      "acronym": {
+        "max": "Le sigle doit avoir 15 caractères au plus."
+      },
+      "colour": {
+        "hex_colour": "Choisissez une couleur de la liste.",
+        "required": "Choisissez une couleur."
       }
     }
   },
@@ -982,10 +997,56 @@
     "reorderFailed": "L’ordre n’a pas pu être enregistré : l’ancien ordre est rétabli.",
     "actionFailed": "L’action n’a pas pu être faite.",
     "rail": {
-      "label": "Partis et points à vérifier",
-      "title": "Partis et candidats",
-      "text": "Les partis et les candidats arrivent aux étapes suivantes",
-      "soon": "Bientôt"
+      "label": "Partis"
+    }
+  },
+  "parties": {
+    "title": "Partis",
+    "add": "Ajouter un parti",
+    "new": "Nouveau parti",
+    "empty": "Aucun parti pour l’instant : ajoutez-en un si des candidats se présentent en équipe.",
+    "count": {
+      "one": "{count} parti",
+      "other": "{count} partis"
+    },
+    "row": {
+      "edit": "Modifier le parti {name}",
+      "delete": "Supprimer le parti {name}",
+      "none": "Aucun candidat",
+      "candidates": {
+        "one": "{count} candidat",
+        "other": "{count} candidats"
+      }
+    },
+    "colours": {
+      "5468D4": "Indigo",
+      "C2410C": "Orange brûlé",
+      "0F766E": "Vert sarcelle",
+      "7C5BD0": "Violet",
+      "A8349A": "Magenta",
+      "8A5A00": "Ocre",
+      "1E2A5A": "Bleu nuit",
+      "9A2A0A": "Brique"
+    },
+    "form": {
+      "titleNew": "Nouveau parti",
+      "titleEdit": "Modifier le parti",
+      "name": "Nom du parti",
+      "acronym": "Sigle",
+      "colour": "Couleur",
+      "add": "Ajouter",
+      "addAnother": "Ajouter et en saisir un autre",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "close": "Fermer",
+      "added": "Le parti « {name} » est ajouté. Saisissez le suivant.",
+      "error": "Le parti n’a pas pu être enregistré."
+    },
+    "delete": {
+      "title": "Supprimer ce parti ?",
+      "text": "Le parti « {name} » sera supprimé. Ses candidats restent dans l’élection et deviennent indépendants.",
+      "confirm": "Supprimer",
+      "cancel": "Annuler"
     }
   }
 }

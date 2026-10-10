@@ -201,6 +201,8 @@ const SYMBOLS = {
       </>
     ),
   },
+  party: { shapes: <path d="M5 21V4M5 4h13l-3 4.5L18 13H5" /> },
+  close: { shapes: <path d="M6 6l12 12M18 6L6 18" /> },
   archive: { shapes: <path d="M3 5h18v4H3zM5 9v10h14V9M10 13h4" /> },
 } satisfies Record<string, Glyph>;
 

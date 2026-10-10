@@ -1216,3 +1216,35 @@
     background-image: linear-gradient(120deg, var(--color-hero-mid), var(--color-backdrop-from));
   }
 }
+
+/*
+ * The modal (frontend.md 1.5 item 12): the dialog and its scrim fade in. Opacity only: the box
+ * is where it will stay from the first frame. Reduced motion switches it off.
+ */
+@layer components {
+  .modal-sheet[open] {
+    animation: modal-rise var(--duration-base) var(--ease-out-soft) both;
+  }
+
+  .modal-sheet[open]::backdrop {
+    animation: modal-fade var(--duration-base) ease-out both;
+  }
+
+  @keyframes modal-rise {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes modal-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}

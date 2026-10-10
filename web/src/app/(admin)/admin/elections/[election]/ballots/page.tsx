@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { BallotsPage } from '@/components/ballots/BallotsPage';
-import { fetchElection, fetchElectionBallots } from '@/lib/api/server';
+import { fetchElection, fetchElectionBallots, fetchElectionParties } from '@/lib/api/server';
 import { I18nProvider } from '@/lib/i18n/client';
 import { getMessages, pick } from '@/lib/i18n/messages';
 import { getI18n } from '@/lib/i18n/server';
@@ -22,6 +22,10 @@ export default async function BallotsRoute({ params }: { params: Promise<{ elect
 
   if (!ballots) throw new Error('The ballots could not be read.');
 
+  const parties = await fetchElectionParties(id);
+
+  if (!parties) throw new Error('The parties could not be read.');
+
   const { locale } = await getI18n();
 
   return (
@@ -35,9 +39,10 @@ export default async function BallotsRoute({ params }: { params: Promise<{ elect
         'validation',
         'elections',
         'ballots',
+        'parties',
       )}
     >
-      <BallotsPage election={election} initial={ballots} />
+      <BallotsPage election={election} initial={ballots} initialParties={parties} />
     </I18nProvider>
   );
 }
