@@ -391,7 +391,8 @@
     "election_voters_locked": "Les électeurs et les groupes de cette élection ne peuvent plus être modifiés.",
     "voter_limit_reached": "Une élection ne peut pas avoir plus de 10 000 électeurs.",
     "group_limit_reached": "Une élection ne peut pas avoir plus de 100 groupes.",
-    "group_in_use": "Ce groupe a encore des électeurs. Déplacez-les ou fusionnez le groupe."
+    "group_in_use": "Ce groupe a encore des électeurs. Déplacez-les ou fusionnez le groupe.",
+    "import_in_progress": "Un import est déjà en cours pour cette élection. Attendez qu’il se termine, ou annulez-le."
   },
   "validation": {
     "required": "Ce champ est obligatoire.",
@@ -1304,7 +1305,8 @@
     "codes": {
       "title": "Codes de vote",
       "text": "Les codes se créent à l’étape suivante, une fois les électeurs prêts."
-    }
+    },
+    "import": "Importer un fichier"
   },
   "groups": {
     "title": "Groupes",
@@ -1345,6 +1347,100 @@
       "text": "Le groupe « {name} » sera supprimé. Il n’a aucun électeur.",
       "confirm": "Supprimer",
       "cancel": "Annuler"
+    }
+  },
+  "voterImport": {
+    "back": "Retour aux électeurs",
+    "title": "Importer des électeurs",
+    "text": "Ajoutez beaucoup d’électeurs d’un coup à partir d’un fichier Excel ou CSV.",
+    "badgeDraft": "Brouillon · électeurs",
+    "chips": {
+      "rows": "10 000 lignes au plus",
+      "formats": ".xlsx ou .csv",
+      "nothing": "Rien d’importé avant confirmation"
+    },
+    "steps": {
+      "label": "Étapes",
+      "template": "Modèle",
+      "file": "Fichier",
+      "check": "Vérifier",
+      "done": "Terminé"
+    },
+    "template": {
+      "title": "Le modèle",
+      "zone": "Le modèle",
+      "text": "Voici exactement ce que contient le fichier à télécharger. Remplissez une ligne par électeur.",
+      "xlsx": "Télécharger (Excel)",
+      "csv": "CSV",
+      "previewLabel": "Aperçu du modèle",
+      "required": "obligatoire",
+      "instructionsTitle": "Les colonnes",
+      "english": "Les noms de colonnes en anglais (full_name, group, email…) sont acceptés aussi. Aucune date de naissance n’est demandée.",
+      "columns": {
+        "nom_complet": {
+          "label": "Nom complet",
+          "help": "Nom et prénom de l’électeur ou de l’électrice. Obligatoire."
+        },
+        "groupe": {
+          "label": "Groupe",
+          "help": "Par exemple 4e année, Terminale A. Créé s’il n’existe pas."
+        },
+        "identifiant": {
+          "label": "Identifiant",
+          "help": "Numéro d’élève ou matricule donné par l’établissement."
+        },
+        "courriel": {
+          "label": "Courriel",
+          "help": "Pour l’envoi du code. Facultatif."
+        },
+        "telephone": {
+          "label": "Téléphone",
+          "help": "Par exemple +509 3712 4455. Facultatif."
+        }
+      }
+    },
+    "file": {
+      "title": "Votre fichier",
+      "zone": "Votre fichier",
+      "text": "Excel (.xlsx) ou CSV, n’importe quel nom. Séparateur « , » ou « ; » reconnu automatiquement.",
+      "drop": "Glissez le fichier ici, ou cliquez pour le choisir",
+      "limits": ".xlsx ou .csv · 5 Mo au plus · jusqu’à 10 000 lignes",
+      "chosen": "Fichier choisi",
+      "change": "Cliquez pour en choisir un autre",
+      "upload": "Envoyer et vérifier",
+      "uploading": "Envoi en cours…",
+      "hint": "Ce fichier n’a pas la terminaison .xlsx ou .csv : il sera vérifié quand même."
+    },
+    "locked": "Les électeurs ne peuvent plus être importés : l’élection n’est plus un brouillon ni planifiée.",
+    "rail": {
+      "label": "À savoir",
+      "title": "Bon à savoir",
+      "nothing": {
+        "title": "Rien n’est importé tout de suite",
+        "text": "Vous vérifiez les lignes à l’étape suivante, puis vous confirmez."
+      },
+      "errors": {
+        "title": "Les lignes en erreur",
+        "text": "Elles sont mises de côté et vous les téléchargez dans un fichier à corriger."
+      },
+      "duplicates": {
+        "title": "Les doublons",
+        "text": "Même identifiant ou même courriel, dans le fichier ou déjà dans l’élection : signalés. Deux personnes de même nom restent permises."
+      },
+      "groups": {
+        "title": "Les groupes",
+        "text": "Créés d’après la colonne « groupe » ; « 4e année » et « 4E ANNÉE » sont le même groupe."
+      },
+      "lockedTitle": "Élection verrouillée ?",
+      "lockedText": "Les électeurs ne peuvent être importés que tant que l’élection est en brouillon ou planifiée."
+    },
+    "error": {
+      "file": {
+        "required": "Choisissez un fichier avant de l’envoyer.",
+        "invalid_type": "Ce fichier n’est ni un classeur Excel (.xlsx) ni un fichier texte CSV. Utilisez le modèle.",
+        "empty": "Ce fichier est vide.",
+        "too_large": "Ce fichier est trop gros : 5 Mo au plus."
+      }
     }
   }
 }

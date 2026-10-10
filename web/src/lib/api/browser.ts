@@ -17,6 +17,7 @@ import type {
 } from './voters';
 import { VOTERS_PER_PAGE } from './voters';
 import type { paths } from './schema';
+import type { VoterImportUpload } from './voterImports';
 import type {
   CurrentUser,
   InstitutionProfile,
@@ -784,4 +785,57 @@ export async function mergeGroup(id: string, into: string): Promise<VoterGroup> 
   );
 
   return data!.data;
+}
+
+/**
+ * `POST /elections/{election}/voter-imports`: the voter file, as one `file` part. Sent by hand
+ * like the pictures (the schema has no multipart body), with the same rules: the CSRF token, one
+ * retry on a 419, an `ApiError` for anything that is not a success. Nothing is imported: the
+ * file is checked in the background.
+ */
+export async function uploadVoterFile(election: string, file: File): Promise<VoterImportUpload> {
+  for (let attempt = 0; ; attempt++) {
+    const body = new FormData();
+    body.append('file', file);
+
+    let response: Response;
+
+    try {
+      response = await fetch(
+        `${apiBaseUrl()}/v1/elections/${encodeURIComponent(election)}/voter-imports`,
+        {
+          method: 'POST',
+          body,
+          credentials: 'same-origin',
+          headers: {
+            Accept: 'application/json',
+            'Accept-Language': pageLanguage(),
+            'X-XSRF-TOKEN': await csrfToken(),
+          },
+        },
+      );
+    } catch (error) {
+      throw error instanceof ApiError ? error : new ApiError(0, 'network');
+    }
+
+    if (response.ok) return ((await response.json()) as { data: VoterImportUpload }).data;
+
+    let answer: unknown = null;
+
+    try {
+      answer = await response.json();
+    } catch {
+      // Not JSON: an `unknown` error.
+    }
+
+    const failure = parseApiError(response.status, answer, response.headers.get('Retry-After'));
+
+    if (failure.code === 'csrf_mismatch' && attempt === 0) {
+      await refreshCsrf();
+
+      continue;
+    }
+
+    throw failure;
+  }
 }

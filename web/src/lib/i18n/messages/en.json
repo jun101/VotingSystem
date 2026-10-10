@@ -391,7 +391,8 @@
     "election_voters_locked": "The voters and groups of this election can no longer be changed.",
     "voter_limit_reached": "An election cannot have more than 10,000 voters.",
     "group_limit_reached": "An election cannot have more than 100 groups.",
-    "group_in_use": "This group still has voters. Move them or merge the group."
+    "group_in_use": "This group still has voters. Move them or merge the group.",
+    "import_in_progress": "An import is already under way for this election. Wait for it to finish, or cancel it."
   },
   "validation": {
     "required": "This field is required.",
@@ -1304,7 +1305,8 @@
     "codes": {
       "title": "Voting codes",
       "text": "Codes are created in the next step, once the voters are ready."
-    }
+    },
+    "import": "Import a file"
   },
   "groups": {
     "title": "Groups",
@@ -1345,6 +1347,100 @@
       "text": "The group “{name}” will be deleted. It has no voter.",
       "confirm": "Delete",
       "cancel": "Cancel"
+    }
+  },
+  "voterImport": {
+    "back": "Back to voters",
+    "title": "Import voters",
+    "text": "Add many voters at once from an Excel or CSV file.",
+    "badgeDraft": "Draft · voters",
+    "chips": {
+      "rows": "10,000 rows at most",
+      "formats": ".xlsx or .csv",
+      "nothing": "Nothing imported before you confirm"
+    },
+    "steps": {
+      "label": "Steps",
+      "template": "Template",
+      "file": "File",
+      "check": "Check",
+      "done": "Done"
+    },
+    "template": {
+      "title": "The template",
+      "zone": "The template",
+      "text": "This is exactly what the file you download holds. Fill in one row per voter.",
+      "xlsx": "Download (Excel)",
+      "csv": "CSV",
+      "previewLabel": "Preview of the template",
+      "required": "required",
+      "instructionsTitle": "The columns",
+      "english": "Column names in English (full_name, group, email…) are accepted too. No date of birth is asked.",
+      "columns": {
+        "nom_complet": {
+          "label": "Full name",
+          "help": "First and last name of the voter. Required."
+        },
+        "groupe": {
+          "label": "Group",
+          "help": "For example Grade 4, Senior A. Created if it does not exist."
+        },
+        "identifiant": {
+          "label": "Identifier",
+          "help": "Student number or ID given by the institution."
+        },
+        "courriel": {
+          "label": "Email",
+          "help": "To send the code. Optional."
+        },
+        "telephone": {
+          "label": "Phone",
+          "help": "For example +509 3712 4455. Optional."
+        }
+      }
+    },
+    "file": {
+      "title": "Your file",
+      "zone": "Your file",
+      "text": "Excel (.xlsx) or CSV, any name. The separator “,” or “;” is recognised automatically.",
+      "drop": "Drop the file here, or click to choose it",
+      "limits": ".xlsx or .csv · 5 MB at most · up to 10,000 rows",
+      "chosen": "Chosen file",
+      "change": "Click to choose another one",
+      "upload": "Send and check",
+      "uploading": "Sending…",
+      "hint": "This file does not end in .xlsx or .csv: it will be checked anyway."
+    },
+    "locked": "Voters can no longer be imported: the election is neither a draft nor scheduled.",
+    "rail": {
+      "label": "Good to know",
+      "title": "Good to know",
+      "nothing": {
+        "title": "Nothing is imported right away",
+        "text": "You check the rows in the next step, then you confirm."
+      },
+      "errors": {
+        "title": "Rows with errors",
+        "text": "They are set aside and you download them in a file to correct."
+      },
+      "duplicates": {
+        "title": "Duplicates",
+        "text": "Same identifier or same email, in the file or already in the election: flagged. Two people with the same name are still allowed."
+      },
+      "groups": {
+        "title": "Groups",
+        "text": "Created from the “groupe” column; “4e année” and “4E ANNÉE” are the same group."
+      },
+      "lockedTitle": "Election locked?",
+      "lockedText": "Voters can only be imported while the election is a draft or scheduled."
+    },
+    "error": {
+      "file": {
+        "required": "Choose a file before sending it.",
+        "invalid_type": "This file is neither an Excel workbook (.xlsx) nor a CSV text file. Use the template.",
+        "empty": "This file is empty.",
+        "too_large": "This file is too large: 5 MB at most."
+      }
     }
   }
 }
