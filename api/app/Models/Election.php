@@ -93,4 +93,14 @@ class Election extends Model
     {
         return $this->hasMany(Ballot::class)->orderBy('position')->orderBy('id');
     }
+
+    /**
+     * The parties of the election, by name ignoring case, then creation order.
+     *
+     * @return HasMany<Party, $this>
+     */
+    public function parties(): HasMany
+    {
+        return $this->hasMany(Party::class)->orderBy('name_key')->orderBy('id');
+    }
 }

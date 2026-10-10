@@ -18,6 +18,7 @@ use App\Http\Controllers\Elections\ElectionController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\Institution\InstitutionController;
 use App\Http\Controllers\Institution\LogoController;
+use App\Http\Controllers\Parties\PartyController;
 use App\Http\Controllers\Users\InvitationController;
 use App\Http\Controllers\Users\UserController;
 use Illuminate\Support\Facades\Route;
@@ -92,10 +93,19 @@ Route::prefix('v1')->group(function (): void {
         // Without the `X-RateLimit-*` counters: another institution's ballot and an unknown one must
         // give the same answer, headers included (PUT-elections-{election}-ballots-order.md, scenario 4).
         Route::put('/{election}/ballots/order', [BallotController::class, 'reorder'])->middleware('throttle.quiet:ballots-order');
+
+        // The parties of an election (slice 06b).
+        Route::get('/{election}/parties', [PartyController::class, 'index']);
+        Route::post('/{election}/parties', [PartyController::class, 'store'])->middleware('throttle:parties-write');
     });
 
     Route::middleware(['cookie-session', 'auth', 'institution.active'])->prefix('ballots')->group(function (): void {
         Route::patch('/{ballot}', [BallotController::class, 'update'])->middleware('throttle:ballots-write');
         Route::delete('/{ballot}', [BallotController::class, 'destroy'])->middleware('throttle:ballots-write');
+    });
+
+    Route::middleware(['cookie-session', 'auth', 'institution.active'])->prefix('parties')->group(function (): void {
+        Route::patch('/{party}', [PartyController::class, 'update'])->middleware('throttle:parties-write');
+        Route::delete('/{party}', [PartyController::class, 'destroy'])->middleware('throttle:parties-write');
     });
 });

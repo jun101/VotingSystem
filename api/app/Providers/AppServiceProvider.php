@@ -5,9 +5,11 @@ namespace App\Providers;
 use App\Auth\SessionUserProvider;
 use App\Models\Ballot;
 use App\Models\Election;
+use App\Models\Party;
 use App\Models\User;
 use App\Policies\BallotPolicy;
 use App\Policies\ElectionPolicy;
+use App\Policies\PartyPolicy;
 use Dedoc\Scramble\Scramble;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Foundation\Application;
@@ -37,6 +39,7 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::policy(Election::class, ElectionPolicy::class);
         Gate::policy(Ballot::class, BallotPolicy::class);
+        Gate::policy(Party::class, PartyPolicy::class);
 
         $this->configureRateLimiters();
     }
@@ -146,5 +149,8 @@ class AppServiceProvider extends ServiceProvider
         // The ballots (docs/api/ballots/): 120 an hour per user to add, change and delete, 240 to put in order.
         RateLimiter::for('ballots-write', fn (Request $request) => Limit::perHour($times(120))->by($byUser($request)));
         RateLimiter::for('ballots-order', fn (Request $request) => Limit::perHour($times(240))->by($byUser($request)));
+
+        // The parties (docs/api/parties/): 120 an hour per user to add, change and delete.
+        RateLimiter::for('parties-write', fn (Request $request) => Limit::perHour($times(120))->by($byUser($request)));
     }
 }

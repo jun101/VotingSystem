@@ -2831,6 +2831,361 @@
                 }
             }
         },
+        "/v1/elections/{election}/parties": {
+            "get": {
+                "operationId": "party.index",
+                "description": "By name, ignoring case, then creation order, in any status of the election. An election\nholds at most 30, so `per_page=100` returns them all. Owner or manager.",
+                "summary": "List the parties of an election",
+                "tags": [
+                    "Party"
+                ],
+                "parameters": [
+                    {
+                        "name": "election",
+                        "in": "path",
+                        "required": true,
+                        "description": "The election UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 1000000
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "acronym": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "colour": {
+                                                        "type": "string"
+                                                    },
+                                                    "logo": {
+                                                        "type": "null"
+                                                    },
+                                                    "candidates_count": {
+                                                        "type": "integer"
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "name",
+                                                    "acronym",
+                                                    "colour",
+                                                    "logo",
+                                                    "candidates_count",
+                                                    "created_at",
+                                                    "updated_at"
+                                                ]
+                                            }
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "page": {
+                                                    "type": "integer"
+                                                },
+                                                "per_page": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "required": [
+                                                "page",
+                                                "per_page",
+                                                "total"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "meta"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "party.store",
+                "description": "To a draft election, at most 30 per election (409 `party_limit_reached`). The name is\nunique in the election, ignoring case. Owner or manager. Limited to 120 requests per hour per user.",
+                "summary": "Add a party",
+                "tags": [
+                    "Party"
+                ],
+                "parameters": [
+                    {
+                        "name": "election",
+                        "in": "path",
+                        "required": true,
+                        "description": "The election UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreatePartyRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "`PartyResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "acronym": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "colour": {
+                                                    "type": "string"
+                                                },
+                                                "logo": {
+                                                    "type": "null"
+                                                },
+                                                "candidates_count": {
+                                                    "type": "integer"
+                                                },
+                                                "created_at": {
+                                                    "type": "string"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "name",
+                                                "acronym",
+                                                "colour",
+                                                "logo",
+                                                "candidates_count",
+                                                "created_at",
+                                                "updated_at"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/v1/parties/{party}": {
+            "patch": {
+                "operationId": "party.update",
+                "description": "Every field is optional; only those sent change. A draft election only. Owner or\nmanager. Limited to 120 requests per hour per user.",
+                "summary": "Change a party",
+                "tags": [
+                    "Party"
+                ],
+                "parameters": [
+                    {
+                        "name": "party",
+                        "in": "path",
+                        "required": true,
+                        "description": "The party UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdatePartyRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "acronym": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "colour": {
+                                                    "type": "string"
+                                                },
+                                                "logo": {
+                                                    "type": "null"
+                                                },
+                                                "candidates_count": {
+                                                    "type": "integer"
+                                                },
+                                                "created_at": {
+                                                    "type": "string"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "name",
+                                                "acronym",
+                                                "colour",
+                                                "logo",
+                                                "candidates_count",
+                                                "created_at",
+                                                "updated_at"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "party.destroy",
+                "description": "A draft election only. Final: there is no trash. Owner or manager. Limited to 120\nrequests per hour per user.",
+                "summary": "Delete a party",
+                "tags": [
+                    "Party"
+                ],
+                "parameters": [
+                    {
+                        "name": "party",
+                        "in": "path",
+                        "required": true,
+                        "description": "The party UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/v1/auth/register": {
             "post": {
                 "operationId": "auth.register",
@@ -3842,6 +4197,31 @@
                 ],
                 "title": "CreateInvitationRequest"
             },
+            "CreatePartyRequest": {
+                "type": "object",
+                "description": "docs/api/parties/POST-elections-{election}-parties.md.",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "acronym": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 15
+                    },
+                    "colour": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "name",
+                    "colour"
+                ],
+                "title": "CreatePartyRequest"
+            },
             "DuplicateElectionRequest": {
                 "type": "object",
                 "description": "docs/api/elections/POST-elections-{election}-duplicate.md: an optional title.",
@@ -3894,6 +4274,11 @@
                     "password"
                 ],
                 "title": "LoginRequest"
+            },
+            "PartyResource": {
+                "type": "array",
+                "items": {},
+                "title": "PartyResource"
             },
             "PasswordRequest": {
                 "type": "object",
@@ -4164,6 +4549,27 @@
                     "language"
                 ],
                 "title": "UpdateMeRequest"
+            },
+            "UpdatePartyRequest": {
+                "type": "object",
+                "description": "docs/api/parties/PATCH-parties-{party}.md: the rules of the creation, every field optional.",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "acronym": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 15
+                    },
+                    "colour": {
+                        "type": "string"
+                    }
+                },
+                "title": "UpdatePartyRequest"
             },
             "UserResource": {
                 "type": "array",
