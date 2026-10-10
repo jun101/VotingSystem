@@ -34,4 +34,6 @@ return [
     'group_in_use' => 'This group still has voters. Move them or merge the group.',
     'election_not_deletable' => 'This election can no longer be deleted.',
     'cannot_reset_self' => 'Use your "My account" page to turn off your own two-factor authentication.',
+    'import_in_progress' => 'An import is already running for this election.',
+    'import_not_checked' => 'This import is not ready: wait for the check to finish.',
 ];

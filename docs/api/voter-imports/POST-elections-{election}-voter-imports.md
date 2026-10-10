@@ -20,7 +20,7 @@ Body, `multipart/form-data`:
 
 | Field | Type | Rules |
 |---|---|---|
-| file | file | Required. An `.xlsx` or a `.csv`, **judged by its content, not by its name or declared type**: an `.xlsx` is a ZIP holding `[Content_Types].xml` and `xl/workbook.xml`; a `.csv` is text, UTF-8 (a byte-order mark is allowed) or Windows-1252, with no NUL byte. At most 5 MB (5 242 880 bytes). The ZIP of an `.xlsx` may not expand beyond 100 MB (zip bomb) |
+| file | file | Required. An `.xlsx` or a `.csv`, **judged by its content, not by its name or declared type**: an `.xlsx` is a ZIP holding `[Content_Types].xml` and `xl/workbook.xml`; a `.csv` is text, UTF-8 (a byte-order mark is allowed) or Windows-1252, with no NUL byte. At most 5 MB (5 242 880 bytes). The ZIP of an `.xlsx` may not expand beyond 100 MB (zip bomb: `file: too_large`) |
 
 ## Scenarios
 
@@ -65,4 +65,4 @@ The shared error shape of [API conventions](../README.md). Order of the checks: 
 
 The file is stored under its own random UUID on a private disk that the proxy never serves; the original name is kept
 for display only and never used as a path. Cells are read as values: a formula is never evaluated (its cached value is
-used, or the cell is empty). The upload and the check never log a cell.
+used; a formula with no cached value is kept as its text and treated as plain text, and the error file protects it). The upload and the check never log a cell.

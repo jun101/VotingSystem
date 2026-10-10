@@ -7,7 +7,7 @@ COPY --from=composer:2.10.3 /usr/bin/composer /usr/local/bin/composer
 RUN apt-get update \
     && apt-get install -y --no-install-recommends git unzip curl \
     && rm -rf /var/lib/apt/lists/* \
-    && install-php-extensions pdo_mysql pcntl bcmath opcache gd exif
+    && install-php-extensions pdo_mysql pcntl bcmath opcache gd exif zip
 
 COPY docker/api/php.ini /usr/local/etc/php/conf.d/zz-app.ini
 
