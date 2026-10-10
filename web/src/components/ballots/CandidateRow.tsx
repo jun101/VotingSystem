@@ -39,7 +39,7 @@ export function PartyTag({
 }
 
 /**
- * One candidate in a ballot card: the grip, the avatar by sex, the name, the party and, when the
+ * One candidate in a ballot card: the grip, the photo (or the avatar by sex), the name, the party and, when the
  * election can change, the arrows, edit and delete. `b` is the card's place and `c` the row's
  * (both from 1), in the test ids. In a narrow card the buttons go under the name.
  */
@@ -108,6 +108,8 @@ export function CandidateRow({
         size="size-10"
         iconSize={22}
         testId={`candidate-avatar-${b}-${c}`}
+        photo={candidate.photo?.sm}
+        photoTestId={`candidate-photo-${b}-${c}`}
       />
       <span className="flex min-w-0 grow basis-[calc(100%-5rem)] flex-col gap-0.5 @[23rem]:basis-0">
         <b

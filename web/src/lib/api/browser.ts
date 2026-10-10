@@ -625,3 +625,58 @@ export async function reorderCandidates(ballot: string, ids: string[]): Promise<
 
   return data!.data;
 }
+
+/** `DELETE /candidates/{candidate}/photo`: removes the photo of a candidate of a draft election. */
+export async function removeCandidatePhoto(id: string): Promise<void> {
+  await send((api) =>
+    api.DELETE('/v1/candidates/{candidate}/photo', { params: { path: { candidate: id } } }),
+  );
+}
+
+/**
+ * `PUT /candidates/{candidate}/photo`: the picture, as one `file` part, sent by hand like the party
+ * logo (the schema has no multipart body), with the same rules.
+ */
+export async function uploadCandidatePhoto(id: string, file: File): Promise<Candidate> {
+  for (let attempt = 0; ; attempt++) {
+    const body = new FormData();
+    body.append('file', file);
+
+    let response: Response;
+
+    try {
+      response = await fetch(`${apiBaseUrl()}/v1/candidates/${encodeURIComponent(id)}/photo`, {
+        method: 'PUT',
+        body,
+        credentials: 'same-origin',
+        headers: {
+          Accept: 'application/json',
+          'Accept-Language': pageLanguage(),
+          'X-XSRF-TOKEN': await csrfToken(),
+        },
+      });
+    } catch (error) {
+      throw error instanceof ApiError ? error : new ApiError(0, 'network');
+    }
+
+    if (response.ok) return ((await response.json()) as { data: Candidate }).data;
+
+    let answer: unknown = null;
+
+    try {
+      answer = await response.json();
+    } catch {
+      // Not JSON: an `unknown` error.
+    }
+
+    const failure = parseApiError(response.status, answer, response.headers.get('Retry-After'));
+
+    if (failure.code === 'csrf_mismatch' && attempt === 0) {
+      await refreshCsrf();
+
+      continue;
+    }
+
+    throw failure;
+  }
+}

@@ -1,13 +1,19 @@
 'use client';
 
-import { useRef, useState, type FormEvent } from 'react';
+import { useRef, useState, type ChangeEvent, type DragEvent, type FormEvent } from 'react';
 import { focusRing } from '@/components/admin/classes';
 import { Icon } from '@/components/admin/Icon';
+import { usePickedCover } from '@/components/elections/CoverField';
 import { PANEL_ASIDE, Panel } from '@/components/elections/Panel';
 import { Button, Input, Modal, Notice, Select, Textarea } from '@/components/ui';
 import { cx } from '@/components/ui/cx';
 import type { Ballot } from '@/lib/api/ballots';
-import { createCandidate, updateCandidate } from '@/lib/api/browser';
+import {
+  createCandidate,
+  removeCandidatePhoto,
+  updateCandidate,
+  uploadCandidatePhoto,
+} from '@/lib/api/browser';
 import type { Candidate, Sex } from '@/lib/api/candidates';
 import { sexOf } from '@/lib/api/candidates';
 import { ApiError, errorText, fieldText } from '@/lib/api/errors';
@@ -32,6 +38,7 @@ import {
   type CandidateField,
   type CandidateFieldErrors,
 } from './candidateForm';
+import { photoFileProblem, saveCandidateWithPhoto, type PhotoChange } from './candidatePhoto';
 import { candidateCountText, counterText } from './candidateText';
 
 const SEXES: readonly Sex[] = ['female', 'male'];
@@ -75,16 +82,73 @@ export function CandidateModal({
   const [busy, setBusy] = useState(false);
   const first = useRef<HTMLInputElement>(null);
   const last = useRef<HTMLInputElement>(null);
+  // The candidate the form works on: the one given, or the one just created when its photo
+  // failed (the next save changes it instead of creating a second one).
+  const [current, setCurrent] = useState<Candidate | null>(candidate);
+  const { picked, pick, forget } = usePickedCover();
+  const [removed, setRemoved] = useState(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const [over, setOver] = useState(false);
+  const photoInput = useRef<HTMLInputElement>(null);
 
   const chosen = ballots.find((item) => item.id === draft.ballot) ?? null;
   const party = parties.find((item) => item.id === draft.party) ?? null;
-  const others = (chosen?.candidates ?? []).filter((item) => item.id !== candidate?.id);
+  const others = (chosen?.candidates ?? []).filter((item) => item.id !== current?.id);
   const name = fullName({ first_name: draft.firstName.trim(), last_name: draft.lastName.trim() });
   const slogan = draft.slogan.trim();
-  const title = t(candidate ? 'candidates.form.titleEdit' : 'candidates.form.titleNew');
+  const title = t(current ? 'candidates.form.titleEdit' : 'candidates.form.titleNew');
+  const storedPhoto = !removed && current?.photo ? current.photo.md : null;
+  const previewUrl = picked?.url ?? storedPhoto;
 
   function change(patch: Partial<CandidateDraft>) {
     setDraft({ ...draft, ...patch });
+  }
+
+  function choosePhoto(file: File | undefined) {
+    if (!file) return;
+
+    const found = photoFileProblem(file);
+
+    if (found) {
+      setPhotoError(errorText(new ApiError(found === 'file_too_large' ? 413 : 415, found), tIfAny));
+
+      return;
+    }
+
+    setPhotoError(null);
+    setRemoved(false);
+    pick(file);
+  }
+
+  function onPhotoInput(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+
+    event.target.value = '';
+    choosePhoto(file);
+  }
+
+  function onDrop(event: DragEvent) {
+    event.preventDefault();
+    setOver(false);
+    choosePhoto(event.dataTransfer.files[0]);
+  }
+
+  function removePhoto() {
+    forget();
+    setRemoved(true);
+    setPhotoError(null);
+  }
+
+  function photoChange(): PhotoChange {
+    if (picked) return { kind: 'set', file: picked.file };
+
+    return removed ? { kind: 'remove' } : { kind: 'keep' };
+  }
+
+  function photoFailure(failure: ApiError): string {
+    const code = failure.status === 422 ? failure.fields.file?.[0] : undefined;
+
+    return code ? fieldText('candidate.photo', code, tIfAny) : errorText(failure, tIfAny);
   }
 
   function text(field: CandidateField): string | undefined {
@@ -98,6 +162,7 @@ export function CandidateModal({
 
     setProblem(null);
     setAdded(null);
+    setPhotoError(null);
     setErrors(found);
 
     if (Object.keys(found).length > 0) {
@@ -110,12 +175,31 @@ export function CandidateModal({
     setBusy(true);
 
     try {
-      const saved = candidate
-        ? await updateCandidate(candidate.id, changesOf(draft, candidate.ballot))
-        : await createCandidate(draft.ballot, bodyOf(draft));
+      const result = await saveCandidateWithPhoto(
+        {
+          create: createCandidate,
+          update: updateCandidate,
+          upload: uploadCandidatePhoto,
+          remove: removeCandidatePhoto,
+        },
+        { ballot: draft.ballot, candidate: current },
+        bodyOf(draft),
+        changesOf(draft, current?.ballot ?? draft.ballot),
+        photoChange(),
+      );
+      const saved = result.candidate;
 
-      // The page shows the candidate at once.
+      // The page shows the candidate at once, even when its photo failed.
       onSaved(saved);
+
+      if (result.photoError) {
+        setCurrent(saved);
+        setRemoved(false);
+        setPhotoError(photoFailure(result.photoError));
+        setBusy(false);
+
+        return;
+      }
 
       if (!another || candidate) {
         onClose();
@@ -124,6 +208,9 @@ export function CandidateModal({
       }
 
       setDraft(emptyDraft(draft.ballot, draft.party));
+      setCurrent(null);
+      forget();
+      setRemoved(false);
       setAdded(fullName(saved));
       setBusy(false);
       // The page has the new candidate; the focus is back on the first name at once.
@@ -187,85 +274,165 @@ export function CandidateModal({
                 </span>
               }
             >
-              <div className="grid grid-cols-1 gap-x-5 gap-y-3.5 md:grid-cols-2">
-                <Input
-                  ref={first}
-                  label={t('candidates.form.firstName')}
-                  value={draft.firstName}
-                  onChange={(event) => change({ firstName: event.target.value })}
-                  maxLength={NAME_MAX + 20}
-                  autoComplete="off"
-                  required
-                  error={text('first_name')}
-                  errorTestId="candidate-form-error-first-name"
-                  data-testid="candidate-form-first-name"
-                  data-autofocus=""
-                />
-                <Input
-                  ref={last}
-                  label={t('candidates.form.lastName')}
-                  value={draft.lastName}
-                  onChange={(event) => change({ lastName: event.target.value })}
-                  maxLength={NAME_MAX + 20}
-                  autoComplete="off"
-                  required
-                  error={text('last_name')}
-                  errorTestId="candidate-form-error-last-name"
-                  data-testid="candidate-form-last-name"
-                />
-              </div>
-
-              <fieldset className="flex min-w-0 flex-col gap-2">
-                <legend className="mb-1.5 text-xs font-bold tracking-wider text-ink-soft uppercase">
-                  {t('candidates.form.sex')}
-                </legend>
-                <div className="grid grid-cols-2 gap-3">
-                  {SEXES.map((sex) => (
-                    <label
-                      key={sex}
-                      className="relative flex h-14 min-w-0 items-center gap-2.5 rounded-lg px-2.5 md:gap-3 md:px-3.5"
+              <div className="flex flex-col gap-3.5 md:flex-row md:items-start md:gap-5">
+                <div
+                  data-testid="candidate-form-photo"
+                  onDragOver={(event) => {
+                    event.preventDefault();
+                    setOver(true);
+                  }}
+                  onDragLeave={() => setOver(false)}
+                  onDrop={onDrop}
+                  className="flex flex-col gap-2 md:w-44 md:shrink-0"
+                >
+                  <input
+                    ref={photoInput}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    hidden
+                    tabIndex={-1}
+                    onChange={onPhotoInput}
+                    data-testid="candidate-form-photo-input"
+                  />
+                  <div className="flex items-center gap-3.5 md:flex-col md:items-stretch">
+                    <button
+                      type="button"
+                      onClick={() => photoInput.current?.click()}
+                      aria-label={t(
+                        previewUrl ? 'candidates.form.photoChange' : 'candidates.form.photoChoose',
+                      )}
+                      data-testid="candidate-form-photo-drop"
+                      className={cx(
+                        'flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border-2 border-dashed bg-surface-alt text-primary transition-colors md:size-28 md:self-center',
+                        over ? 'border-primary bg-primary-soft' : 'border-primary-line',
+                        focusRing,
+                      )}
                     >
-                      <input
-                        type="radio"
-                        name="candidate-sex"
-                        value={sex}
-                        checked={draft.sex === sex}
-                        onChange={() => change({ sex })}
-                        data-testid={`candidate-form-sex-${sex}`}
-                        className={cx(
-                          'peer absolute inset-0 size-full cursor-pointer appearance-none rounded-lg border-2 border-line transition-colors checked:border-primary checked:bg-primary-soft',
-                          focusRing,
-                        )}
-                      />
-                      <CandidateAvatar
-                        sex={sex}
-                        size="size-9"
-                        iconSize={20}
-                        className="pointer-events-none relative"
-                      />
-                      <span className="pointer-events-none relative min-w-0 truncate text-md font-medium text-ink peer-checked:font-bold peer-checked:text-status-scheduled">
-                        {t(`candidates.sex.${sex}`)}
+                      {previewUrl ? (
+                        // A local or already optimised picture, shown inside its box.
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={previewUrl}
+                          alt={t('candidates.form.photoPreviewAlt')}
+                          data-testid="candidate-form-photo-preview"
+                          className="size-full object-cover"
+                        />
+                      ) : (
+                        <Icon name="image" size={28} />
+                      )}
+                    </button>
+                    <div className="flex min-w-0 flex-1 flex-col gap-1 md:flex-none md:items-center md:text-center">
+                      <span className="text-md font-medium text-ink">
+                        {t('candidates.form.photo')}
                       </span>
-                      <span
-                        aria-hidden="true"
-                        className="pointer-events-none relative ml-auto hidden text-status-scheduled md:peer-checked:inline-flex"
-                      >
-                        <Icon name="check" size={18} />
+                      <span className="text-sm text-ink-soft">
+                        {t('candidates.form.photoHelp')}
                       </span>
-                    </label>
-                  ))}
-                </div>
-                {errors.sex ? (
+                      {previewUrl ? (
+                        <button
+                          type="button"
+                          onClick={removePhoto}
+                          data-testid="candidate-form-photo-remove"
+                          className={cx(
+                            'w-fit rounded-full text-sm font-bold text-danger hover:underline',
+                            focusRing,
+                          )}
+                        >
+                          {t('candidates.form.photoRemove')}
+                        </button>
+                      ) : null}
+                    </div>
+                  </div>
                   <p
-                    data-testid="candidate-form-error-sex"
+                    role="alert"
+                    data-testid={photoError ? 'candidate-form-error-photo' : undefined}
                     className="text-sm font-medium text-danger"
                   >
-                    {text('sex')}
+                    {photoError}
                   </p>
-                ) : (
-                  <p className="text-sm text-ink-soft">{t('candidates.form.sexHelp')}</p>
-                )}
-              </fieldset>
+                </div>
+                <div className="flex min-w-0 flex-1 flex-col gap-3.5">
+                  <div className="grid grid-cols-1 gap-x-5 gap-y-3.5 md:grid-cols-2">
+                    <Input
+                      ref={first}
+                      label={t('candidates.form.firstName')}
+                      value={draft.firstName}
+                      onChange={(event) => change({ firstName: event.target.value })}
+                      maxLength={NAME_MAX + 20}
+                      autoComplete="off"
+                      required
+                      error={text('first_name')}
+                      errorTestId="candidate-form-error-first-name"
+                      data-testid="candidate-form-first-name"
+                      data-autofocus=""
+                    />
+                    <Input
+                      ref={last}
+                      label={t('candidates.form.lastName')}
+                      value={draft.lastName}
+                      onChange={(event) => change({ lastName: event.target.value })}
+                      maxLength={NAME_MAX + 20}
+                      autoComplete="off"
+                      required
+                      error={text('last_name')}
+                      errorTestId="candidate-form-error-last-name"
+                      data-testid="candidate-form-last-name"
+                    />
+                  </div>
+
+                  <fieldset className="flex min-w-0 flex-col gap-2">
+                    <legend className="mb-1.5 text-xs font-bold tracking-wider text-ink-soft uppercase">
+                      {t('candidates.form.sex')}
+                    </legend>
+                    <div className="grid grid-cols-2 gap-3">
+                      {SEXES.map((sex) => (
+                        <label
+                          key={sex}
+                          className="relative flex h-14 min-w-0 items-center gap-2.5 rounded-lg px-2.5 md:gap-3 md:px-3.5"
+                        >
+                          <input
+                            type="radio"
+                            name="candidate-sex"
+                            value={sex}
+                            checked={draft.sex === sex}
+                            onChange={() => change({ sex })}
+                            data-testid={`candidate-form-sex-${sex}`}
+                            className={cx(
+                              'peer absolute inset-0 size-full cursor-pointer appearance-none rounded-lg border-2 border-line transition-colors checked:border-primary checked:bg-primary-soft',
+                              focusRing,
+                            )}
+                          />
+                          <CandidateAvatar
+                            sex={sex}
+                            size="size-9"
+                            iconSize={20}
+                            className="pointer-events-none relative"
+                          />
+                          <span className="pointer-events-none relative min-w-0 truncate text-md font-medium text-ink peer-checked:font-bold peer-checked:text-status-scheduled">
+                            {t(`candidates.sex.${sex}`)}
+                          </span>
+                          <span
+                            aria-hidden="true"
+                            className="pointer-events-none relative ml-auto hidden text-status-scheduled md:peer-checked:inline-flex"
+                          >
+                            <Icon name="check" size={18} />
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                    {errors.sex ? (
+                      <p
+                        data-testid="candidate-form-error-sex"
+                        className="text-sm font-medium text-danger"
+                      >
+                        {text('sex')}
+                      </p>
+                    ) : (
+                      <p className="text-sm text-ink-soft">{t('candidates.form.sexHelp')}</p>
+                    )}
+                  </fieldset>
+                </div>
+              </div>
             </Panel>
 
             <Panel
@@ -392,6 +559,8 @@ export function CandidateModal({
                       size="size-20"
                       iconSize={42}
                       testId="candidate-preview-avatar"
+                      photo={previewUrl}
+                      photoTestId="candidate-preview-photo"
                     />
                     <b
                       data-testid="candidate-preview-name"
@@ -496,7 +665,7 @@ export function CandidateModal({
             >
               {t('candidates.form.cancel')}
             </Button>
-            {candidate ? null : (
+            {current ? null : (
               <Button
                 variant="secondary"
                 loading={busy}
@@ -512,7 +681,7 @@ export function CandidateModal({
             <Button type="submit" loading={busy} data-testid="candidate-form-save">
               <span className="inline-flex items-center gap-2">
                 <Icon name="check" size={18} />
-                {t(candidate ? 'candidates.form.save' : 'candidates.form.add')}
+                {t(current ? 'candidates.form.save' : 'candidates.form.add')}
               </span>
             </Button>
           </div>

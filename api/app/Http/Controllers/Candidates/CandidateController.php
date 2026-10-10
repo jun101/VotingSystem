@@ -11,6 +11,7 @@ use App\Http\Resources\CandidateResource;
 use App\Models\Ballot;
 use App\Models\Candidate;
 use App\Models\Election;
+use App\Support\Media\ImageReEncoder;
 use Dedoc\Scramble\Attributes\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -112,18 +113,21 @@ class CandidateController extends Controller
      * A draft election only. The positions after it close the gap. Owner or manager. Limited to
      * 120 requests per hour per user.
      */
-    public function destroy(Candidate $candidate): HttpResponse
+    public function destroy(Candidate $candidate, ImageReEncoder $images): HttpResponse
     {
         $this->allow('delete', $candidate);
 
         $election = $this->electionOf($candidate);
         $election->assertEditable();
 
-        DB::transaction(function () use ($candidate, $election): void {
+        $photo = null;
+
+        DB::transaction(function () use ($candidate, $election, &$photo): void {
             $this->lockElection($election);
 
             $locked = $this->lockCandidate($candidate);
 
+            $photo = $locked->photo_file;
             $ballot = $locked->ballot_id;
             $position = $locked->position;
             $locked->delete();
@@ -133,6 +137,9 @@ class CandidateController extends Controller
                 ->where('position', '>', $position)
                 ->decrement('position');
         });
+
+        // The photo files go after the commit.
+        $images->delete($photo, ImageReEncoder::CANDIDATE_PHOTO_SIZES);
 
         Log::info('candidate.delete', ['outcome' => 'deleted']);
 

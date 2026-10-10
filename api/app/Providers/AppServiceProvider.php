@@ -161,5 +161,8 @@ class AppServiceProvider extends ServiceProvider
 
         // The logo of a party: 20 an hour per user, as a cover (the removal counts with the writes).
         RateLimiter::for('party-logo', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
+
+        // The photo of a candidate: 20 an hour per user (the removal counts with the candidate writes).
+        RateLimiter::for('candidate-photo', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
     }
 }

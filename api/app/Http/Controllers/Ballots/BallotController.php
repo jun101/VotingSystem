@@ -11,7 +11,9 @@ use App\Http\Requests\Ballots\UpdateBallotRequest;
 use App\Http\Resources\BallotResource;
 use App\Http\Resources\PageOf;
 use App\Models\Ballot;
+use App\Models\Candidate;
 use App\Models\Election;
+use App\Support\Media\ImageReEncoder;
 use Dedoc\Scramble\Attributes\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response as HttpResponse;
@@ -115,13 +117,15 @@ class BallotController extends Controller
      * A draft election only. The positions after it close the gap. Owner or manager. Limited
      * to 120 requests per hour per user.
      */
-    public function destroy(Ballot $ballot): HttpResponse
+    public function destroy(Ballot $ballot, ImageReEncoder $images): HttpResponse
     {
         $this->allow('delete', $ballot);
 
         $this->electionOf($ballot)->assertEditable();
 
-        DB::transaction(function () use ($ballot): void {
+        $photos = [];
+
+        DB::transaction(function () use ($ballot, &$photos): void {
             $this->lockElection($this->electionOf($ballot));
 
             $locked = Ballot::query()->whereKey($ballot->getKey())->lockForUpdate()->first();
@@ -129,6 +133,9 @@ class BallotController extends Controller
             if ($locked === null) {
                 throw new ApiException(404, 'not_found');
             }
+
+            // The photos of its candidates go with it (the rows by cascade, the files after the commit).
+            $photos = Candidate::query()->where('ballot_id', $locked->id)->whereNotNull('photo_file')->pluck('photo_file')->all();
 
             $election = $locked->election_id;
             $position = $locked->position;
@@ -139,6 +146,10 @@ class BallotController extends Controller
                 ->where('position', '>', $position)
                 ->decrement('position');
         });
+
+        foreach ($photos as $photo) {
+            $images->delete(is_string($photo) ? $photo : null, ImageReEncoder::CANDIDATE_PHOTO_SIZES);
+        }
 
         Log::info('ballot.delete', ['outcome' => 'deleted']);
 

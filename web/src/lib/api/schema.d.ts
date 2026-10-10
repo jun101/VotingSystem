@@ -172,6 +172,35 @@ export interface paths {
         patch: operations["candidate.update"];
         trace?: never;
     };
+    "/v1/candidates/{candidate}/photo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Replace the photo of a candidate
+         * @description Send one `file` part (`multipart/form-data`) under the rules of the election cover: JPEG,
+         *     PNG or WebP recognised by content, 5 MB, 8 000 pixels on a side, 40 million pixels, not
+         *     animated. Two WebP files are written, 160 and 480 pixels wide, ratio kept, never enlarged,
+         *     metadata dropped, the upload never kept; the previous photo's files are deleted afterwards.
+         *     A draft election only. Owner or manager. Limited to 20 requests per hour per user.
+         */
+        put: operations["candidatePhoto.update"];
+        post?: never;
+        /**
+         * Remove the photo of a candidate
+         * @description Answers 204 whether or not there was a photo. A draft election only. Owner or manager.
+         *     Limited to 120 requests per hour per user.
+         */
+        delete: operations["candidatePhoto.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/elections/{election}/cover": {
         parameters: {
             query?: never;
@@ -1670,6 +1699,73 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
+        };
+    };
+    "candidatePhoto.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The candidate UUID */
+                candidate: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            ballot: string;
+                            party: string | null;
+                            first_name: string;
+                            last_name: string;
+                            /** @enum {string} */
+                            sex: "male" | "female";
+                            slogan: string | null;
+                            biography: string | null;
+                            photo: {
+                                sm: string;
+                                md: string;
+                            } | null;
+                            position: number;
+                            created_at: string;
+                            updated_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "candidatePhoto.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The candidate UUID */
+                candidate: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
         };
     };
     "cover.update": {

@@ -37,6 +37,8 @@ vi.mock('@/lib/api/browser', () => ({
   deleteBallot: vi.fn(),
   createCandidate: (...args: unknown[]) => createCandidate(...args),
   updateCandidate: vi.fn(),
+  uploadCandidatePhoto: vi.fn(),
+  removeCandidatePhoto: vi.fn(),
   deleteCandidate: (...args: unknown[]) => deleteCandidate(...args),
   reorderCandidates: (...args: unknown[]) => reorderCandidates(...args),
 }));

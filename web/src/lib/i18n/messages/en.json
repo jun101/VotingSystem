@@ -588,6 +588,11 @@
       },
       "biography": {
         "max": "The introduction must be 1,000 characters or fewer."
+      },
+      "photo": {
+        "dimensions": "This image is too large: 8,000 pixels at most on a side, 40 million pixels in all.",
+        "required": "Choose an image.",
+        "invalid": "This file cannot be used."
       }
     }
   },
@@ -1150,7 +1155,13 @@
       "cancel": "Cancel",
       "hint": "The candidate appears on the ballot as soon as it is saved.",
       "added": "{name} is added. Enter the next one.",
-      "error": "The candidate could not be saved."
+      "error": "The candidate could not be saved.",
+      "photo": "Photo (optional)",
+      "photoHelp": "JPEG, PNG or WebP, 5 MB at most. Shown square.",
+      "photoChoose": "Add a photo or drop it here",
+      "photoChange": "Change the photo",
+      "photoRemove": "Remove the photo",
+      "photoPreviewAlt": "Preview of the candidate photo"
     },
     "preview": {
       "title": "Preview for the voter",

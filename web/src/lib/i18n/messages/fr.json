@@ -588,6 +588,11 @@
       },
       "biography": {
         "max": "La présentation doit avoir 1 000 caractères au plus."
+      },
+      "photo": {
+        "dimensions": "Cette image est trop grande : 8 000 pixels au plus d’un côté, 40 millions de pixels au total.",
+        "required": "Choisissez une image.",
+        "invalid": "Ce fichier ne peut pas être utilisé."
       }
     }
   },
@@ -1150,7 +1155,13 @@
       "cancel": "Annuler",
       "hint": "Le candidat apparaît sur le bulletin dès l’enregistrement.",
       "added": "{name} est ajouté. Saisissez le suivant.",
-      "error": "Le candidat n’a pas pu être enregistré."
+      "error": "Le candidat n’a pas pu être enregistré.",
+      "photo": "Photo (facultative)",
+      "photoHelp": "JPEG, PNG ou WebP, 5 Mo au plus. Recadrée en carré.",
+      "photoChoose": "Ajouter une photo ou la glisser ici",
+      "photoChange": "Changer la photo",
+      "photoRemove": "Retirer la photo",
+      "photoPreviewAlt": "Aperçu de la photo du candidat"
     },
     "preview": {
       "title": "Aperçu pour l’électeur",
