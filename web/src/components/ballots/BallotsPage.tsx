@@ -17,19 +17,33 @@ import { LiveDot } from '@/components/motion';
 import { Notice } from '@/components/ui';
 import { cx } from '@/components/ui/cx';
 import type { Ballot } from '@/lib/api/ballots';
-import { fetchBallots, fetchParties, reorderBallots } from '@/lib/api/browser';
+import { fetchBallots, fetchParties, reorderBallots, reorderCandidates } from '@/lib/api/browser';
+import type { Candidate } from '@/lib/api/candidates';
 import type { Party } from '@/lib/api/parties';
 import type { Election, ElectionStatus } from '@/lib/api/elections';
 import { ApiError, errorText } from '@/lib/api/errors';
 import { useI18n } from '@/lib/i18n/client';
-import { BallotCard } from './BallotCard';
+import { BallotCard, type CandidateActions } from './BallotCard';
 import { BallotForm } from './BallotForm';
 import { BallotsRail } from './BallotsRail';
+import { CandidateModal } from './CandidateModal';
 import { DeleteBallotDialog } from './DeleteBallotDialog';
+import { DeleteCandidateDialog } from './DeleteCandidateDialog';
 import { DeletePartyDialog } from './DeletePartyDialog';
 import { PartyModal } from './PartyModal';
 import { dropOn, moveBy, orderOf, sameOrder } from './ballotMove';
 import { countText } from './ballotText';
+import { candidateCountText } from './candidateText';
+import {
+  candidateTotal,
+  checksOf,
+  detachParty,
+  mergeCandidates,
+  partyCounts,
+  placeCandidate,
+  removeCandidate,
+  withCandidates,
+} from './candidateList';
 import { partiesText } from './partyText';
 
 /** The text colour of the badge on the header band, by status (as on the election page). */
@@ -56,6 +70,9 @@ type FormState = { mode: 'new' } | { mode: 'edit'; id: string };
 /** What the party modal is for: a new party, or this one. */
 type PartyFormState = { mode: 'new' } | { mode: 'edit'; id: string };
 
+/** What the candidate modal is for: a new candidate in this ballot, or this candidate. */
+type CandidateFormState = { mode: 'new'; ballot: string } | { mode: 'edit'; id: string };
+
 /** A glass button on the header band (the second action). */
 const GLASS =
   'ui-control lift-sm inline-flex h-12 items-center justify-center gap-2 rounded-full border border-glass-line bg-glass pr-5.5 pl-4 text-md font-bold text-surface hover:bg-glass-line max-md:w-full ' +
@@ -63,6 +80,18 @@ const GLASS =
 
 /** The ballot being dragged by its grip, and the one under the pointer. */
 type Drag = { id: string; over: string };
+
+/** The candidate being dragged by its grip, the ballot it is in, and the one under the pointer. */
+type CandidateDrag = { ballot: string; id: string; over: string };
+
+/** The id of the candidate row under a point of the screen, inside this ballot, or null. */
+function candidateAt(x: number, y: number, ballot: string): string | null {
+  const row = document.elementFromPoint(x, y)?.closest('[data-candidate-id]');
+
+  return row?.getAttribute('data-candidate-ballot') === ballot
+    ? row.getAttribute('data-candidate-id')
+    : null;
+}
 
 /** The id of the ballot card under a point of the screen, or null. */
 function ballotAt(x: number, y: number): string | null {
@@ -104,12 +133,20 @@ export function BallotsPage({
   const [problem, setProblem] = useState<string | null>(null);
   const [announce, setAnnounce] = useState('');
   const [drag, setDrag] = useState<Drag | null>(null);
+  const [candidateForm, setCandidateForm] = useState<CandidateFormState | null>(null);
+  const [deletingCandidate, setDeletingCandidate] = useState<Candidate | null>(null);
+  const [candidateDrag, setCandidateDrag] = useState<CandidateDrag | null>(null);
 
   // What the server last confirmed, and the save in flight (kept out of the render).
   const confirmed = useRef<Ballot[]>(initial);
   const save = useRef<{ running: boolean; next: Ballot[] | null }>({ running: false, next: null });
   // After a move by button, the focus follows the ballot to its new place.
   const refocus = useRef<{ id: string; step: -1 | 1 } | null>(null);
+  // The saves of the candidates of each ballot, one at a time per ballot, like the ballots'.
+  const candidateSaves = useRef(new Map<string, { running: boolean; next: Candidate[] | null }>());
+  // After a move by button, the focus follows the candidate; after a delete it goes to the add button.
+  const refocusCandidate = useRef<{ id: string; step: -1 | 1 } | null>(null);
+  const refocusAdd = useRef<string | null>(null);
 
   useEffect(() => {
     const target = refocus.current;
@@ -133,6 +170,38 @@ export function BallotsPage({
     (wanted && !wanted.disabled ? wanted : other)?.focus();
   }, [ballots]);
 
+  useEffect(() => {
+    const target = refocusCandidate.current;
+
+    if (target) {
+      refocusCandidate.current = null;
+
+      for (const [b, ballot] of ballots.entries()) {
+        const place = ballot.candidates.findIndex((candidate) => candidate.id === target.id) + 1;
+
+        if (place === 0) continue;
+
+        const wanted = document.querySelector<HTMLButtonElement>(
+          `[data-testid="candidate-${target.step === 1 ? 'down' : 'up'}-${b + 1}-${place}"]`,
+        );
+        const other = document.querySelector<HTMLButtonElement>(
+          `[data-testid="candidate-${target.step === 1 ? 'up' : 'down'}-${b + 1}-${place}"]`,
+        );
+
+        (wanted && !wanted.disabled ? wanted : other)?.focus();
+      }
+    }
+
+    const add = refocusAdd.current;
+
+    if (add) {
+      refocusAdd.current = null;
+      document
+        .querySelector<HTMLElement>(`[data-ballot-id="${add}"] [data-candidate-add]`)
+        ?.focus();
+    }
+  }, [ballots]);
+
   // After a delete, the row the focus was on is gone: it goes to the button that adds a party.
   const refocusParties = useRef(false);
 
@@ -149,10 +218,33 @@ export function BallotsPage({
     setBallots((list) => change(list));
   }
 
+  /**
+   * The server's own candidates, read again after a save: they replace the ones shown, while the
+   * ballots keep their order. Skipped while a save of the order is on its way (it would bring
+   * back the old order for a moment).
+   */
+  function refreshCandidates() {
+    void Promise.resolve(fetchBallots(election.id)).then(
+      (fresh) => {
+        const busy =
+          save.current.running ||
+          Array.from(candidateSaves.current.values()).some((slot) => slot.running);
+
+        if (!Array.isArray(fresh) || busy) return;
+
+        confirmed.current = mergeCandidates(confirmed.current, fresh);
+        setBallots((list) => mergeCandidates(list, fresh));
+      },
+      () => undefined,
+    );
+  }
+
   /** A locked election (or one that changed elsewhere): the notice, the real list and status. */
   async function locked() {
     setForm(null);
     setDeleting(null);
+    setCandidateForm(null);
+    setDeletingCandidate(null);
     setProblem(t('ballots.notEditable'));
 
     try {
@@ -250,9 +342,143 @@ export function BallotsPage({
     if (moved && onto !== drag.id) commit(dropOn(ballots, drag.id, onto), moved);
   }
 
+  /** Puts this ballot's candidates in this order on the screen at once and saves it. */
+  function commitCandidates(ballot: Ballot, next: Candidate[], moved: Candidate) {
+    if (next.every((candidate, index) => candidate.id === ballot.candidates[index]?.id)) return;
+
+    const name = `${moved.first_name} ${moved.last_name}`.trim();
+
+    setProblem(null);
+    setBallots((list) => withCandidates(list, ballot.id, next));
+    setAnnounce(
+      t('candidates.row.moved', {
+        name,
+        position: next.findIndex((candidate) => candidate.id === moved.id) + 1,
+        total: next.length,
+      }),
+    );
+
+    const slots = candidateSaves.current;
+    const slot = slots.get(ballot.id) ?? { running: false, next: null };
+
+    slots.set(ballot.id, slot);
+
+    if (slot.running) slot.next = next;
+    else void runCandidates(ballot.id, next);
+  }
+
+  async function runCandidates(ballotId: string, first: Candidate[]) {
+    const slot = candidateSaves.current.get(ballotId)!;
+
+    slot.running = true;
+
+    let target: Candidate[] | null = first;
+
+    while (target) {
+      try {
+        const saved = await reorderCandidates(
+          ballotId,
+          target.map((candidate) => candidate.id),
+        );
+
+        confirmed.current = withCandidates(confirmed.current, ballotId, saved);
+
+        // Nothing newer waits: show what the server answered (the positions it set).
+        if (!slot.next) setBallots((list) => withCandidates(list, ballotId, saved));
+      } catch (caught) {
+        slot.running = false;
+        slot.next = null;
+
+        const back = confirmed.current.find((ballot) => ballot.id === ballotId)?.candidates ?? [];
+
+        setBallots((list) => withCandidates(list, ballotId, back));
+
+        const failure = caught instanceof ApiError ? caught : new ApiError(0, 'unknown');
+
+        if (failure.code === 'election_not_editable') void locked();
+        else setProblem(`${t('candidates.reorderFailed')} ${errorText(failure, tIfAny)}`);
+
+        return;
+      }
+
+      target = slot.next;
+      slot.next = null;
+    }
+
+    slot.running = false;
+  }
+
+  function moveCandidate(ballot: Ballot, candidate: Candidate, step: -1 | 1) {
+    refocusCandidate.current = { id: candidate.id, step };
+    commitCandidates(ballot, moveBy(ballot.candidates, candidate.id, step), candidate);
+  }
+
+  function candidateGripDown(
+    event: ReactPointerEvent<HTMLElement>,
+    ballot: Ballot,
+    candidate: Candidate,
+  ) {
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setCandidateDrag({ ballot: ballot.id, id: candidate.id, over: candidate.id });
+  }
+
+  function candidateGripMove(event: ReactPointerEvent<HTMLElement>) {
+    if (!candidateDrag) return;
+
+    const over =
+      candidateAt(event.clientX, event.clientY, candidateDrag.ballot) ?? candidateDrag.over;
+
+    if (over !== candidateDrag.over) setCandidateDrag({ ...candidateDrag, over });
+  }
+
+  function candidateGripUp(event: ReactPointerEvent<HTMLElement>, cancelled: boolean) {
+    if (!candidateDrag) return;
+
+    const onto = cancelled
+      ? candidateDrag.id
+      : (candidateAt(event.clientX, event.clientY, candidateDrag.ballot) ?? candidateDrag.over);
+    const ballot = ballots.find((item) => item.id === candidateDrag.ballot);
+    const moved = ballot?.candidates.find((item) => item.id === candidateDrag.id);
+
+    setCandidateDrag(null);
+
+    if (ballot && moved && onto !== candidateDrag.id) {
+      commitCandidates(ballot, dropOn(ballot.candidates, candidateDrag.id, onto), moved);
+    }
+  }
+
   const editing = form?.mode === 'edit' ? (ballots.find((b) => b.id === form.id) ?? null) : null;
   const showForm = editable && form !== null && (form.mode === 'new' || editing !== null);
   const count = countText(ballots.length, locale, t);
+  const editingCandidate =
+    candidateForm?.mode === 'edit'
+      ? (ballots.flatMap((item) => item.candidates).find((c) => c.id === candidateForm.id) ?? null)
+      : null;
+  const showCandidateForm =
+    editable &&
+    candidateForm !== null &&
+    (candidateForm.mode === 'new'
+      ? ballots.some((b) => b.id === candidateForm.ballot)
+      : editingCandidate !== null);
+  // The party counts are the real ones: counted on the candidates the page holds.
+  const counts = partyCounts(ballots);
+  const shownParties = parties.map((party) => ({
+    ...party,
+    candidates_count: counts.get(party.id) ?? 0,
+  }));
+  const candidateActions: CandidateActions = {
+    drag: null,
+    onAdd: (ballot) => setCandidateForm({ mode: 'new', ballot: ballot.id }),
+    onMove: moveCandidate,
+    onEdit: (candidate) => setCandidateForm({ mode: 'edit', id: candidate.id }),
+    onDelete: setDeletingCandidate,
+    onGripDown: candidateGripDown,
+    onGripMove: candidateGripMove,
+    onGripUp: candidateGripUp,
+  };
   const editingParty =
     partyForm?.mode === 'edit' ? (parties.find((p) => p.id === partyForm.id) ?? null) : null;
   const showPartyForm =
@@ -317,6 +543,10 @@ export function BallotsPage({
             <span data-testid="ballots-count" className={CHIP}>
               <Icon name="flag" size={18} />
               {count}
+            </span>
+            <span data-testid="candidates-count" className={CHIP}>
+              <Icon name="people" size={18} />
+              {candidateCountText(candidateTotal(ballots), locale, t)}
             </span>
             <span data-testid="parties-count" className={CHIP}>
               <Icon name="party" size={18} />
@@ -411,6 +641,14 @@ export function BallotsPage({
                 n={index + 1}
                 total={ballots.length}
                 editable={editable}
+                parties={parties}
+                candidates={{
+                  ...candidateActions,
+                  drag:
+                    candidateDrag?.ballot === ballot.id
+                      ? { id: candidateDrag.id, over: candidateDrag.over }
+                      : null,
+                }}
                 dragging={drag?.id === ballot.id}
                 over={drag !== null && drag.id !== ballot.id && drag.over === ballot.id}
                 onMove={move}
@@ -451,8 +689,10 @@ export function BallotsPage({
         </section>
 
         <BallotsRail
-          parties={parties}
+          parties={shownParties}
+          checks={checksOf(ballots)}
           editable={editable}
+          onAddCandidate={(ballot) => setCandidateForm({ mode: 'new', ballot: ballot.id })}
           onNewParty={() => setPartyForm({ mode: 'new' })}
           onEditParty={(chosen) => setPartyForm({ mode: 'edit', id: chosen.id })}
           onDeleteParty={setDeletingParty}
@@ -490,7 +730,42 @@ export function BallotsPage({
 
             refocusParties.current = true;
             setParties((list) => list.filter((party) => party.id !== gone));
+            // Its candidates stay and become independent.
+            apply((list) => detachParty(list, gone));
+            refreshCandidates();
             setDeletingParty(null);
+          }}
+        />
+      ) : null}
+
+      {showCandidateForm ? (
+        <CandidateModal
+          key={candidateForm.mode === 'edit' ? candidateForm.id : 'new'}
+          ballots={ballots}
+          parties={parties}
+          candidate={editingCandidate}
+          ballot={candidateForm.mode === 'new' ? candidateForm.ballot : ''}
+          onSaved={(saved) => {
+            apply((list) => placeCandidate(list, saved));
+            setProblem(null);
+            refreshCandidates();
+          }}
+          onLocked={() => startTransition(() => router.refresh())}
+          onClose={() => setCandidateForm(null)}
+        />
+      ) : null}
+
+      {deletingCandidate ? (
+        <DeleteCandidateDialog
+          candidate={deletingCandidate}
+          onCancel={() => setDeletingCandidate(null)}
+          onDeleted={() => {
+            const gone = deletingCandidate;
+
+            refocusAdd.current = gone.ballot;
+            apply((list) => removeCandidate(list, gone.id));
+            setDeletingCandidate(null);
+            refreshCandidates();
           }}
         />
       ) : null}

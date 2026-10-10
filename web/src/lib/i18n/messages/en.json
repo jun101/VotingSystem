@@ -386,7 +386,8 @@
     "too_many_attempts_wait_many": "Too many attempts. Try again in {minutes} minutes.",
     "election_not_editable": "This election is no longer a draft: it can no longer be changed or deleted.",
     "ballot_limit_reached": "An election cannot have more than 50 positions.",
-    "party_limit_reached": "An election cannot have more than 30 parties."
+    "party_limit_reached": "An election cannot have more than 30 parties.",
+    "candidate_limit_reached": "A position cannot have more than 50 candidates."
   },
   "validation": {
     "required": "This field is required.",
@@ -558,6 +559,35 @@
         "dimensions": "This image is too large: 8,000 pixels at most on a side, 40 million pixels in all.",
         "required": "Choose an image.",
         "invalid": "This file cannot be used."
+      }
+    },
+    "candidate": {
+      "first_name": {
+        "required": "Enter the first name.",
+        "max": "The first name must be 80 characters or fewer."
+      },
+      "last_name": {
+        "required": "Enter the last name.",
+        "max": "The last name must be 80 characters or fewer."
+      },
+      "sex": {
+        "required": "Choose the sex.",
+        "in": "Choose the sex."
+      },
+      "ballot": {
+        "required": "Choose a position.",
+        "uuid": "Choose a position from the list.",
+        "invalid": "Choose a position from the list."
+      },
+      "party": {
+        "uuid": "Choose a party from the list.",
+        "invalid": "Choose a party from the list."
+      },
+      "slogan": {
+        "max": "The slogan must be 80 characters or fewer."
+      },
+      "biography": {
+        "max": "The introduction must be 1,000 characters or fewer."
       }
     }
   },
@@ -975,8 +1005,12 @@
       "edit": "Edit the position {title}",
       "delete": "Delete the position {title}",
       "noCandidates": "No candidate",
-      "noCandidatesHint": "Candidates arrive in the next step.",
-      "moved": "{title}: position {position} of {total}."
+      "noCandidatesHint": "Add the first candidate for this position.",
+      "moved": "{title}: position {position} of {total}.",
+      "addCandidate": "Add a candidate",
+      "addCandidateTo": "Add a candidate to the position {title}",
+      "candidatesLabel": "Candidates of the position {title}",
+      "oneCandidate": "Only one candidate: add another so voters have a choice."
     },
     "form": {
       "titleNew": "New position",
@@ -1002,7 +1036,16 @@
     "reorderFailed": "The order could not be saved: the previous order is restored.",
     "actionFailed": "The action could not be done.",
     "rail": {
-      "label": "Parties"
+      "label": "Parties and things to check"
+    },
+    "checks": {
+      "title": "To check",
+      "label": "Positions to complete",
+      "empty": "Nothing to report: every position has at least two candidates.",
+      "none": "{title}: no candidate",
+      "one": "{title}: only one candidate",
+      "add": "Add a candidate",
+      "addTo": "Add a candidate to the position {title}"
     }
   },
   "parties": {
@@ -1057,6 +1100,73 @@
     "delete": {
       "title": "Delete this party?",
       "text": "The party “{name}” will be deleted. Its candidates stay in the election and become independent.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    }
+  },
+  "candidates": {
+    "count": {
+      "one": "{count} candidate",
+      "other": "{count} candidates"
+    },
+    "independent": "Independent",
+    "sex": {
+      "female": "Female",
+      "male": "Male"
+    },
+    "avatar": {
+      "female": "Female avatar",
+      "male": "Male avatar"
+    },
+    "row": {
+      "up": "Move {name} up",
+      "down": "Move {name} down",
+      "edit": "Edit {name}",
+      "delete": "Delete {name}",
+      "moved": "{name}: place {position} of {total}."
+    },
+    "reorderFailed": "The order of the candidates could not be saved: the previous order is back.",
+    "form": {
+      "titleNew": "Add a candidate",
+      "titleEdit": "Edit the candidate",
+      "close": "Close",
+      "identity": "Identity",
+      "candidature": "Candidacy",
+      "step1": "Step 1 of 2",
+      "step2": "Step 2 of 2",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "sex": "Sex",
+      "sexHelp": "Chooses the avatar while there is no photo.",
+      "ballot": "Position",
+      "party": "Party",
+      "noParty": "None (independent)",
+      "slogan": "Slogan (optional)",
+      "biography": "Introduction (optional)",
+      "counter": "{count} of {max}",
+      "save": "Save",
+      "add": "Add",
+      "addAnother": "Save and add another",
+      "cancel": "Cancel",
+      "hint": "The candidate appears on the ballot as soon as it is saved.",
+      "added": "{name} is added. Enter the next one.",
+      "error": "The candidate could not be saved."
+    },
+    "preview": {
+      "title": "Preview for the voter",
+      "hint": "The card follows what you type.",
+      "name": "First Last",
+      "chosen": "Chosen",
+      "seats": "{title} · {seats}"
+    },
+    "others": {
+      "title": "Already running for this position",
+      "empty": "No other candidate for this position.",
+      "hint": "The order on the ballot is set in “Positions and candidates”."
+    },
+    "delete": {
+      "title": "Delete this candidate?",
+      "text": "The candidate “{name}” will be deleted. The next ones move up one place.",
       "confirm": "Delete",
       "cancel": "Cancel"
     }

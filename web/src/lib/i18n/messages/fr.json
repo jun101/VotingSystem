@@ -386,7 +386,8 @@
     "too_many_attempts_wait_many": "Trop de tentatives. Réessayez dans {minutes} minutes.",
     "election_not_editable": "Cette élection n’est plus un brouillon : elle ne peut plus être modifiée ni supprimée.",
     "ballot_limit_reached": "Une élection ne peut pas avoir plus de 50 postes.",
-    "party_limit_reached": "Une élection ne peut pas avoir plus de 30 partis."
+    "party_limit_reached": "Une élection ne peut pas avoir plus de 30 partis.",
+    "candidate_limit_reached": "Un poste ne peut pas avoir plus de 50 candidats."
   },
   "validation": {
     "required": "Ce champ est obligatoire.",
@@ -558,6 +559,35 @@
         "dimensions": "Cette image est trop grande : 8 000 pixels au plus d’un côté, 40 millions de pixels au total.",
         "required": "Choisissez une image.",
         "invalid": "Ce fichier ne peut pas être utilisé."
+      }
+    },
+    "candidate": {
+      "first_name": {
+        "required": "Saisissez le prénom.",
+        "max": "Le prénom doit avoir 80 caractères au plus."
+      },
+      "last_name": {
+        "required": "Saisissez le nom.",
+        "max": "Le nom doit avoir 80 caractères au plus."
+      },
+      "sex": {
+        "required": "Choisissez le sexe.",
+        "in": "Choisissez le sexe."
+      },
+      "ballot": {
+        "required": "Choisissez un poste.",
+        "uuid": "Choisissez un poste de la liste.",
+        "invalid": "Choisissez un poste de la liste."
+      },
+      "party": {
+        "uuid": "Choisissez un parti de la liste.",
+        "invalid": "Choisissez un parti de la liste."
+      },
+      "slogan": {
+        "max": "Le slogan doit avoir 80 caractères au plus."
+      },
+      "biography": {
+        "max": "La présentation doit avoir 1 000 caractères au plus."
       }
     }
   },
@@ -975,8 +1005,12 @@
       "edit": "Modifier le poste {title}",
       "delete": "Supprimer le poste {title}",
       "noCandidates": "Aucun candidat",
-      "noCandidatesHint": "Les candidats arrivent à l’étape suivante.",
-      "moved": "{title} : poste {position} sur {total}."
+      "noCandidatesHint": "Ajoutez le premier candidat de ce poste.",
+      "moved": "{title} : poste {position} sur {total}.",
+      "addCandidate": "Ajouter un candidat",
+      "addCandidateTo": "Ajouter un candidat au poste {title}",
+      "candidatesLabel": "Candidats du poste {title}",
+      "oneCandidate": "Un seul candidat : ajoutez-en un autre pour que les électeurs aient un choix."
     },
     "form": {
       "titleNew": "Nouveau poste",
@@ -1002,7 +1036,16 @@
     "reorderFailed": "L’ordre n’a pas pu être enregistré : l’ancien ordre est rétabli.",
     "actionFailed": "L’action n’a pas pu être faite.",
     "rail": {
-      "label": "Partis"
+      "label": "Partis et points à vérifier"
+    },
+    "checks": {
+      "title": "À vérifier",
+      "label": "Postes à compléter",
+      "empty": "Rien à signaler : chaque poste a au moins deux candidats.",
+      "none": "{title} : aucun candidat",
+      "one": "{title} : un seul candidat",
+      "add": "Ajouter un candidat",
+      "addTo": "Ajouter un candidat au poste {title}"
     }
   },
   "parties": {
@@ -1057,6 +1100,73 @@
     "delete": {
       "title": "Supprimer ce parti ?",
       "text": "Le parti « {name} » sera supprimé. Ses candidats restent dans l’élection et deviennent indépendants.",
+      "confirm": "Supprimer",
+      "cancel": "Annuler"
+    }
+  },
+  "candidates": {
+    "count": {
+      "one": "{count} candidat",
+      "other": "{count} candidats"
+    },
+    "independent": "Indépendant",
+    "sex": {
+      "female": "Féminin",
+      "male": "Masculin"
+    },
+    "avatar": {
+      "female": "Avatar féminin",
+      "male": "Avatar masculin"
+    },
+    "row": {
+      "up": "Monter {name}",
+      "down": "Descendre {name}",
+      "edit": "Modifier {name}",
+      "delete": "Supprimer {name}",
+      "moved": "{name} : rang {position} sur {total}."
+    },
+    "reorderFailed": "L’ordre des candidats n’a pas pu être enregistré : l’ancien ordre est rétabli.",
+    "form": {
+      "titleNew": "Ajouter un candidat",
+      "titleEdit": "Modifier le candidat",
+      "close": "Fermer",
+      "identity": "Identité",
+      "candidature": "Candidature",
+      "step1": "Étape 1 sur 2",
+      "step2": "Étape 2 sur 2",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "sex": "Sexe",
+      "sexHelp": "Choisit l’avatar tant qu’il n’y a pas de photo.",
+      "ballot": "Poste",
+      "party": "Parti",
+      "noParty": "Aucun (indépendant)",
+      "slogan": "Slogan (facultatif)",
+      "biography": "Présentation (facultatif)",
+      "counter": "{count} sur {max}",
+      "save": "Enregistrer",
+      "add": "Ajouter",
+      "addAnother": "Enregistrer et ajouter un autre",
+      "cancel": "Annuler",
+      "hint": "Le candidat apparaît sur le bulletin dès l’enregistrement.",
+      "added": "{name} est ajouté. Saisissez le suivant.",
+      "error": "Le candidat n’a pas pu être enregistré."
+    },
+    "preview": {
+      "title": "Aperçu pour l’électeur",
+      "hint": "La carte suit ce que vous écrivez.",
+      "name": "Prénom Nom",
+      "chosen": "Choisi",
+      "seats": "{title} · {seats}"
+    },
+    "others": {
+      "title": "Déjà candidats à ce poste",
+      "empty": "Aucun autre candidat pour ce poste.",
+      "hint": "L’ordre sur le bulletin se règle dans « Postes et candidats »."
+    },
+    "delete": {
+      "title": "Supprimer ce candidat ?",
+      "text": "Le candidat « {name} » sera supprimé. Les suivants remontent d’un rang.",
       "confirm": "Supprimer",
       "cancel": "Annuler"
     }

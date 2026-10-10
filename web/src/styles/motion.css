@@ -1248,3 +1248,25 @@
     }
   }
 }
+
+/*
+ * The default avatar of a candidate while there is no photo (06c): a silhouette on a gradient,
+ * violet for a female candidate and blue for a male one. Tokens only.
+ */
+@layer components {
+  .cand-avatar {
+    color: var(--color-surface);
+  }
+
+  .cand-avatar[data-sex='female'] {
+    background-image: linear-gradient(
+      135deg,
+      var(--color-backdrop-from),
+      var(--color-backdrop-mid)
+    );
+  }
+
+  .cand-avatar[data-sex='male'] {
+    background-image: linear-gradient(135deg, var(--color-backdrop-to), var(--color-primary));
+  }
+}
