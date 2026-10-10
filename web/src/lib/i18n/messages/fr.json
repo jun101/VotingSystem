@@ -1039,6 +1039,7 @@
     "notEditable": "Cette élection ne peut plus être modifiée.",
     "locked": "Cette élection n’est plus un brouillon : ses postes ne peuvent plus être modifiés.",
     "reorderFailed": "L’ordre n’a pas pu être enregistré : l’ancien ordre est rétabli.",
+    "listChanged": "La liste des scrutins a changé ailleurs : elle a été rechargée, vérifiez l’ordre.",
     "actionFailed": "L’action n’a pas pu être faite.",
     "rail": {
       "label": "Partis et points à vérifier"
@@ -1131,6 +1132,7 @@
       "moved": "{name} : rang {position} sur {total}."
     },
     "reorderFailed": "L’ordre des candidats n’a pas pu être enregistré : l’ancien ordre est rétabli.",
+    "listChanged": "Les candidats de ce scrutin ont changé ailleurs : ils ont été rechargés, vérifiez l’ordre.",
     "form": {
       "titleNew": "Ajouter un candidat",
       "titleEdit": "Modifier le candidat",

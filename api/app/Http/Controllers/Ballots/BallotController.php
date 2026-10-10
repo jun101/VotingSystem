@@ -169,12 +169,11 @@ class BallotController extends Controller
     {
         $this->allow('reorder', [Ballot::class, $election]);
 
-        $election->assertEditable();
-
+        // Order of the answers: record 404, body 422, state 409. The state is judged after the set.
         $wanted = $request->order();
 
         DB::transaction(function () use ($election, $wanted): void {
-            $locked = $this->lockElection($election);
+            $locked = $this->lockElection($election, judge: false);
 
             $ballots = Ballot::query()->where('election_id', $locked->id)->orderBy('id')->lockForUpdate()->get();
             $stored = $ballots->map(fn (Ballot $ballot): string => $ballot->uuid)->all();
@@ -183,6 +182,9 @@ class BallotController extends Controller
             if (count($wanted) !== count($stored) || array_diff($wanted, $stored) !== [] || count(array_unique($wanted)) !== count($wanted)) {
                 throw ValidationException::withMessages(['ballots' => ['set_mismatch']]);
             }
+
+            // Judged under the lock, once the set is known to be right.
+            $locked->assertEditable();
 
             $byUuid = $ballots->keyBy('uuid');
 
@@ -216,7 +218,7 @@ class BallotController extends Controller
      *
      * @throws ApiException 404, or 409 `election_not_editable`
      */
-    private function lockElection(Election $election): Election
+    private function lockElection(Election $election, bool $judge = true): Election
     {
         $locked = Election::query()->whereKey($election->getKey())->lockForUpdate()->first();
 
@@ -224,7 +226,9 @@ class BallotController extends Controller
             throw new ApiException(404, 'not_found');
         }
 
-        $locked->assertEditable();
+        if ($judge) {
+            $locked->assertEditable();
+        }
 
         return $locked;
     }

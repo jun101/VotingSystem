@@ -36,11 +36,14 @@ export function PartyModal({
   election,
   party,
   onSaved,
+  onLocked,
   onClose,
 }: {
   election: string;
   party: Party | null;
   onSaved: (party: Party) => void;
+  /** The election is no longer a draft (409 `election_not_editable`): the page deals with it. */
+  onLocked: () => void;
   onClose: () => void;
 }) {
   const { t, tIfAny } = useI18n();
@@ -185,6 +188,8 @@ export function PartyModal({
 
         return;
       }
+
+      if (failure.code === 'election_not_editable') onLocked();
 
       setProblem(errorText(failure, tIfAny));
     }

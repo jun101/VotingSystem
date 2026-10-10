@@ -49,3 +49,22 @@ export function orderOf(items: readonly { id: string }[]): string[] {
 export function sameOrder(a: readonly { id: string }[], b: readonly { id: string }[]): boolean {
   return a.length === b.length && a.every((item, index) => item.id === b[index]!.id);
 }
+
+/**
+ * The list as it is shown, with the order and the positions the server just confirmed. Only the
+ * order and the position come from `saved`: an item added or edited since the save was sent keeps
+ * its current data and goes after the confirmed ones; an item the server lists and the screen no
+ * longer holds is ignored.
+ */
+export function mergeOrder<T extends { id: string; position: number }>(
+  current: readonly T[],
+  saved: readonly { id: string }[],
+): T[] {
+  const rank = new Map(saved.map((item, index) => [item.id, index]));
+  const known = current
+    .filter((item) => rank.has(item.id))
+    .sort((a, b) => rank.get(a.id)! - rank.get(b.id)!);
+  const added = current.filter((item) => !rank.has(item.id));
+
+  return [...known, ...added].map((item, index) => ({ ...item, position: index + 1 }));
+}

@@ -31,7 +31,7 @@ import { DeleteBallotDialog } from './DeleteBallotDialog';
 import { DeleteCandidateDialog } from './DeleteCandidateDialog';
 import { DeletePartyDialog } from './DeletePartyDialog';
 import { PartyModal } from './PartyModal';
-import { dropOn, moveBy, orderOf, sameOrder } from './ballotMove';
+import { dropOn, mergeOrder, moveBy, orderOf, sameOrder } from './ballotMove';
 import { countText } from './ballotText';
 import { candidateCountText } from './candidateText';
 import {
@@ -42,6 +42,7 @@ import {
   partyCounts,
   placeCandidate,
   removeCandidate,
+  withCandidateOrder,
   withCandidates,
 } from './candidateList';
 import { partiesText } from './partyText';
@@ -245,6 +246,8 @@ export function BallotsPage({
     setDeleting(null);
     setCandidateForm(null);
     setDeletingCandidate(null);
+    setPartyForm(null);
+    setDeletingParty(null);
     setProblem(t('ballots.notEditable'));
 
     try {
@@ -259,6 +262,40 @@ export function BallotsPage({
     startTransition(() => router.refresh());
   }
 
+  /** The server's list is not the one that was sent (422 `set_mismatch`): read it again and show it. */
+  async function resyncBallots() {
+    try {
+      const fresh = await fetchBallots(election.id);
+
+      confirmed.current = fresh;
+      setBallots(fresh);
+      setProblem(t('ballots.listChanged'));
+    } catch {
+      setBallots(confirmed.current);
+      setProblem(t('ballots.reorderFailed'));
+    }
+  }
+
+  /** The same for the candidates of one ballot: only that ballot's candidates are read again. */
+  async function resyncCandidates(ballotId: string) {
+    try {
+      const fresh = await fetchBallots(election.id);
+      const server = fresh.find((ballot) => ballot.id === ballotId);
+
+      if (server) {
+        confirmed.current = withCandidates(confirmed.current, ballotId, server.candidates);
+        setBallots((list) => withCandidates(list, ballotId, server.candidates));
+      }
+
+      setProblem(t('candidates.listChanged'));
+    } catch {
+      const back = confirmed.current.find((ballot) => ballot.id === ballotId)?.candidates ?? [];
+
+      setBallots((list) => withCandidates(list, ballotId, back));
+      setProblem(t('candidates.reorderFailed'));
+    }
+  }
+
   async function run(first: Ballot[]) {
     save.current.running = true;
 
@@ -268,10 +305,12 @@ export function BallotsPage({
       try {
         const saved = await reorderBallots(election.id, orderOf(target));
 
-        confirmed.current = saved;
+        // Only the order and the positions are taken from the answer: a ballot or a candidate
+        // added or edited meanwhile is kept.
+        confirmed.current = mergeOrder(confirmed.current, saved);
 
-        // Nothing newer waits: show what the server answered (the positions it set).
-        if (!save.current.next) setBallots(saved);
+        // Nothing newer waits: show the positions the server set.
+        if (!save.current.next) setBallots((list) => mergeOrder(list, saved));
       } catch (caught) {
         save.current = { running: false, next: null };
         setBallots(confirmed.current);
@@ -279,7 +318,9 @@ export function BallotsPage({
         const failure = caught instanceof ApiError ? caught : new ApiError(0, 'unknown');
 
         if (failure.code === 'election_not_editable') void locked();
-        else setProblem(`${t('ballots.reorderFailed')} ${errorText(failure, tIfAny)}`);
+        else if (failure.status === 422 && failure.fields.ballots?.includes('set_mismatch')) {
+          void resyncBallots();
+        } else setProblem(`${t('ballots.reorderFailed')} ${errorText(failure, tIfAny)}`);
 
         return;
       }
@@ -381,10 +422,11 @@ export function BallotsPage({
           target.map((candidate) => candidate.id),
         );
 
-        confirmed.current = withCandidates(confirmed.current, ballotId, saved);
+        // Only the order and the positions are taken from the answer (see run).
+        confirmed.current = withCandidateOrder(confirmed.current, ballotId, saved);
 
-        // Nothing newer waits: show what the server answered (the positions it set).
-        if (!slot.next) setBallots((list) => withCandidates(list, ballotId, saved));
+        // Nothing newer waits: show the positions the server set.
+        if (!slot.next) setBallots((list) => withCandidateOrder(list, ballotId, saved));
       } catch (caught) {
         slot.running = false;
         slot.next = null;
@@ -396,7 +438,9 @@ export function BallotsPage({
         const failure = caught instanceof ApiError ? caught : new ApiError(0, 'unknown');
 
         if (failure.code === 'election_not_editable') void locked();
-        else setProblem(`${t('candidates.reorderFailed')} ${errorText(failure, tIfAny)}`);
+        else if (failure.status === 422 && failure.fields.candidates?.includes('set_mismatch')) {
+          void resyncCandidates(ballotId);
+        } else setProblem(`${t('candidates.reorderFailed')} ${errorText(failure, tIfAny)}`);
 
         return;
       }
@@ -717,6 +761,7 @@ export function BallotsPage({
             // The API's order (by name) is the one shown: read it again, in place.
             void fetchParties(election.id).then(setParties, () => undefined);
           }}
+          onLocked={() => void locked()}
           onClose={() => setPartyForm(null)}
         />
       ) : null}
@@ -724,6 +769,7 @@ export function BallotsPage({
       {deletingParty ? (
         <DeletePartyDialog
           party={deletingParty}
+          onLocked={() => void locked()}
           onCancel={() => setDeletingParty(null)}
           onDeleted={() => {
             const gone = deletingParty.id;
@@ -750,7 +796,7 @@ export function BallotsPage({
             setProblem(null);
             refreshCandidates();
           }}
-          onLocked={() => startTransition(() => router.refresh())}
+          onLocked={() => void locked()}
           onClose={() => setCandidateForm(null)}
         />
       ) : null}
@@ -758,6 +804,7 @@ export function BallotsPage({
       {deletingCandidate ? (
         <DeleteCandidateDialog
           candidate={deletingCandidate}
+          onLocked={() => void locked()}
           onCancel={() => setDeletingCandidate(null)}
           onDeleted={() => {
             const gone = deletingCandidate;

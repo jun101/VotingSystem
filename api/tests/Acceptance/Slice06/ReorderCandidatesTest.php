@@ -146,3 +146,22 @@ it('answers 405 for another method than PUT [FR-CAND-02] (scenario 12)', functio
 
     $this->browser->other($method, candOrderUrl($ballot))->assertStatus(405)->assertJsonPath('error.code', 'method_not_allowed');
 })->with(['GET', 'POST', 'PATCH', 'DELETE']);
+
+it('answers 422 for more than 50 items, before looking at each one [FR-CAND-02] (scenario 3)', function () {
+    [$t, $election, $ballot] = candOrderSignedIn($this);
+
+    $response = $this->browser->put(candOrderUrl($ballot), ['candidates' => array_fill(0, 51, '3f1c0c1e-8a54-4c5e-9b7b-2d0f0c9a51aa')]);
+
+    $response->assertStatus(422)->assertJsonPath('error.code', 'validation_failed');
+    expect($response->json('error.fields.candidates'))->toContain('max');
+});
+
+it('answers 422 set_mismatch, not 409, for a wrong set on an election that is not a draft [FR-CAND-02] (scenario 5b)', function () {
+    [$t, $election, $ballot, [$a, $b, $c]] = candOrderSignedIn($this, 'scheduled');
+
+    $response = $this->browser->put(candOrderUrl($ballot), ['candidates' => [$a, $b, '3f1c0c1e-8a54-4c5e-9b7b-2d0f0c9a51aa']]);
+
+    $response->assertStatus(422);
+    expect($response->json('error.fields.candidates'))->toContain('set_mismatch')
+        ->and(array_column(Accounts::candidateRows($ballot), 'uuid'))->toBe([$a, $b, $c]);
+});

@@ -15,7 +15,8 @@ class ReorderBallotsRequest extends FormRequest
     public function rules(): array
     {
         // `required` refuses an empty array, which is the valid order of an election with no ballot.
-        $listed = $this->input('ballots') === [] ? ['array'] : ['required', 'array'];
+        // `max` comes before the per-item rule, so a huge list is refused without being walked.
+        $listed = $this->input('ballots') === [] ? ['array', 'max:50'] : ['required', 'array', 'max:50'];
 
         return [
             'ballots' => ['bail', ...$listed],

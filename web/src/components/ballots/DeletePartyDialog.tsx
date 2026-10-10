@@ -10,15 +10,17 @@ import { useI18n } from '@/lib/i18n/client';
 /**
  * Asks before a party is deleted, naming it and saying its candidates stay (independent). The
  * dialog stays open with the reason when the API refuses; a party that is already gone counts
- * as deleted.
+ * as deleted; a locked election is the page's to deal with (`onLocked`).
  */
 export function DeletePartyDialog({
   party,
   onDeleted,
+  onLocked,
   onCancel,
 }: {
   party: Pick<Party, 'id' | 'name'>;
   onDeleted: () => void;
+  onLocked: () => void;
   onCancel: () => void;
 }) {
   const { t, tIfAny } = useI18n();
@@ -35,6 +37,7 @@ export function DeletePartyDialog({
     } catch (caught) {
       const failure = caught instanceof ApiError ? caught : new ApiError(0, 'unknown');
 
+      if (failure.code === 'election_not_editable') return onLocked();
       if (failure.status === 404) return onDeleted();
 
       setError(errorText(failure, tIfAny));

@@ -48,6 +48,10 @@
 	}
 
 	handle /api/* {
+		# No body above the 5 MB picture limit and its multipart overhead reaches the API.
+		request_body {
+			max_size 8MB
+		}
 		reverse_proxy api:8000
 	}
 
