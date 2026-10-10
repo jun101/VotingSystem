@@ -41,7 +41,7 @@ it('lists the groups by name with their voter counts and the totals [FR-VOT-08] 
     expect(array_column($response->json('data'), 'id'))->toBe([$a, $b])
         ->and($response->json('data.0'))->toMatchArray(['id' => $a, 'name' => '4e année', 'voters_count' => 2])
         ->and($response->json('data.1.voters_count'))->toBe(1)
-        ->and(array_keys($response->json('data.0')))->toEqualCanonicalizing(['id', 'name', 'voters_count', 'created_at', 'updated_at'])
+        ->and(array_keys($response->json('data.0')))->toEqualCanonicalizing(['id', 'name', 'voters_count', 'ballots_count', 'created_at', 'updated_at'])
         ->and($response->json('meta'))->toBe(['page' => 1, 'per_page' => 100, 'total' => 2, 'voters_total' => 4, 'ungrouped' => 1]);
 });
 

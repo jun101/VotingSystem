@@ -53,4 +53,8 @@ then the state (409).
 
 ## Notes
 
+`groups: []` on its own (no `scope`) is read as "groups not given": the ballot's groups are left as they are. To empty
+the groups, make the ballot general (`scope: "general"`). `scope: "group"` with `groups: []`, or on a ballot that has no
+groups, is 422 `groups: required`.
+
 `position`, `id`, `election`, `candidates_count` in the body are ignored.

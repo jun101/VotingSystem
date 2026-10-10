@@ -6,6 +6,7 @@ import { PANEL_ASIDE, Panel } from '@/components/elections/Panel';
 import { cx } from '@/components/ui/cx';
 import type { VoterGroup } from '@/lib/api/voters';
 import { useI18n } from '@/lib/i18n/client';
+import { countText } from '@/components/ballots/ballotText';
 import { votersText } from './voterText';
 
 /** A round control of a row: 44 px on a phone. */
@@ -17,7 +18,7 @@ const ROUND =
  * The groups card of the rail: a row per group in the order the API gives (the name, which
  * shows that group's voters, the voter count, rename, merge and delete) and the button of the
  * group modal. `n` in the test ids is the 1-based row. Delete is disabled while the group has
- * voters; merge needs another group. With `manage` off the rows are shown alone.
+ * voters or a position covers it; merge needs another group. With `manage` off the rows are shown alone.
  */
 export function GroupsCard({
   groups,
@@ -95,6 +96,13 @@ export function GroupsCard({
                   <span data-testid={`group-count-${n}`} className="text-sm text-ink-soft">
                     {votersText(group.voters_count, locale, t)}
                   </span>
+                  {group.ballots_count > 0 ? (
+                    <span data-testid={`group-ballots-${n}`} className="text-sm text-ink-soft">
+                      {t('groups.row.ballots', {
+                        ballots: countText(group.ballots_count, locale, t),
+                      })}
+                    </span>
+                  ) : null}
                 </span>
                 {manage ? (
                   <>
@@ -121,7 +129,7 @@ export function GroupsCard({
                       type="button"
                       aria-label={t('groups.row.delete', { name: group.name })}
                       data-testid={`group-delete-${n}`}
-                      disabled={group.voters_count > 0}
+                      disabled={group.voters_count > 0 || group.ballots_count > 0}
                       onClick={() => onDelete(group)}
                       className={cx(ROUND, 'text-danger hover:bg-warm-softer')}
                     >

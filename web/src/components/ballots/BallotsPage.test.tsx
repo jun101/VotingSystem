@@ -68,6 +68,10 @@ function ballot(title: string, position: number, extra: Partial<Ballot> = {}): B
     position,
     seats: 1,
     allow_blank: true,
+    scope: 'general',
+    groups: [],
+    eligible_voters: 0,
+    warnings: [],
     candidates_count: 0,
     candidates: [],
     created_at: '2026-10-10T14:00:00Z',
@@ -209,6 +213,7 @@ describe('BallotsPage', () => {
       description: null,
       seats: 2,
       allow_blank: true,
+      scope: 'general',
     });
     await waitFor(() => expect(titles()).toEqual(['Délégués']));
     expect(screen.queryByTestId('ballot-form')).not.toBeInTheDocument();

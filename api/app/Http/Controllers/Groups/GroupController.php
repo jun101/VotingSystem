@@ -31,13 +31,13 @@ class GroupController extends Controller
      * election. An election holds at most 100, so `per_page=100` returns them all. `meta` also
      * carries `voters_total` and `ungrouped`. Owner or manager.
      *
-     * @response array{data: list<array{id: string, name: string, voters_count: int, created_at: string, updated_at: string}>, meta: array{page: int, per_page: int, total: int, voters_total: int, ungrouped: int}}
+     * @response array{data: list<array{id: string, name: string, voters_count: int, ballots_count: int, created_at: string, updated_at: string}>, meta: array{page: int, per_page: int, total: int, voters_total: int, ungrouped: int}}
      */
     public function index(ListGroupsRequest $request, Election $election): PageOf
     {
         $this->allow('viewAny', [VoterGroup::class, $election]);
 
-        $page = $election->voterGroups()->withCount('voters')->paginate($request->perPage(), page: $request->page());
+        $page = $election->voterGroups()->withCount(['voters', 'ballots'])->paginate($request->perPage(), page: $request->page());
 
         $voters = Voter::query()->where('election_id', $election->getKey());
 
@@ -54,7 +54,7 @@ class GroupController extends Controller
      * The name is unique in the election, ignoring case and surrounding spaces. Owner or
      * manager. Limited to 120 requests per hour per user.
      */
-    #[Response(status: 201, type: 'array{data: array{id: string, name: string, voters_count: int, created_at: string, updated_at: string}}')]
+    #[Response(status: 201, type: 'array{data: array{id: string, name: string, voters_count: int, ballots_count: int, created_at: string, updated_at: string}}')]
     public function store(CreateGroupRequest $request, Election $election): JsonResponse
     {
         $this->allow('create', [VoterGroup::class, $election]);
@@ -93,7 +93,7 @@ class GroupController extends Controller
      * A draft or scheduled election only; its voters follow it. Owner or manager. Limited to
      * 120 requests per hour per user.
      *
-     * @response array{data: array{id: string, name: string, voters_count: int, created_at: string, updated_at: string}}
+     * @response array{data: array{id: string, name: string, voters_count: int, ballots_count: int, created_at: string, updated_at: string}}
      */
     public function update(UpdateGroupRequest $request, VoterGroup $group): GroupResource
     {
@@ -127,7 +127,7 @@ class GroupController extends Controller
     /**
      * Delete a group.
      *
-     * A draft or scheduled election only, and only a group with no voter (409 `group_in_use`).
+     * A draft or scheduled election only, and only a group with no voter and no ballot (409 `group_in_use`).
      * Final: there is no trash. Owner or manager. Limited to 120 requests per hour per user.
      */
     public function destroy(VoterGroup $group): HttpResponse
@@ -146,7 +146,8 @@ class GroupController extends Controller
                 throw new ApiException(404, 'not_found');
             }
 
-            if (Voter::query()->where('voter_group_id', $row->getKey())->exists()) {
+            // A group a group ballot covers stays: the rows of `ballot_voter_group` are written under the same lock.
+            if (Voter::query()->where('voter_group_id', $row->getKey())->exists() || $row->ballots()->exists()) {
                 throw new ApiException(409, 'group_in_use');
             }
 

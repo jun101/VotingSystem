@@ -11,11 +11,12 @@ import { COVER_ICONS, STATUS_ICONS } from '@/components/elections/statusIcon';
 import { LiveDot } from '@/components/motion';
 import { Input, Notice } from '@/components/ui';
 import { cx } from '@/components/ui/cx';
-import { fetchGroups, fetchVoters } from '@/lib/api/browser';
+import { fetchBallots, fetchGroups, fetchVoters } from '@/lib/api/browser';
 import type { Election, ElectionStatus } from '@/lib/api/elections';
 import { ApiError, errorText } from '@/lib/api/errors';
 import type { GroupList, Voter, VoterFilters, VoterGroup, VoterList } from '@/lib/api/voters';
 import { useI18n } from '@/lib/i18n/client';
+import { ballotsCovering } from '@/components/ballots/ballotScope';
 import { DeleteGroupDialog } from './DeleteGroupDialog';
 import { DeleteVoterDialog } from './DeleteVoterDialog';
 import { GroupModal } from './GroupModal';
@@ -102,6 +103,8 @@ export function VotersPage({
   const [deleting, setDeleting] = useState<Voter | null>(null);
   const [groupForm, setGroupForm] = useState<GroupFormState | null>(null);
   const [merging, setMerging] = useState<VoterGroup | null>(null);
+  // The titles of the positions that cover the group being merged, read when the dialog opens.
+  const [mergeRead, setMergeRead] = useState<{ group: string; titles: string[] } | null>(null);
   const [deletingGroup, setDeletingGroup] = useState<VoterGroup | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
   // The election as it was when a 409 came: the closed rules hold until the refreshed election
@@ -245,6 +248,28 @@ export function VotersPage({
     // `load` only reads what the render gave it and refs.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
+
+  // The merge dialog names the positions that will follow the merge: read from the ballots list.
+  const mergingId = merging?.id ?? null;
+  const mergingCovered = (merging?.ballots_count ?? 0) > 0;
+
+  useEffect(() => {
+    if (mergingId === null || !mergingCovered) return;
+
+    let alive = true;
+
+    fetchBallots(election.id)
+      .then((found) => {
+        if (alive) setMergeRead({ group: mergingId, titles: ballotsCovering(found, mergingId) });
+      })
+      .catch(() => {
+        // The dialog keeps the count; the merge itself does not depend on the names.
+      });
+
+    return () => {
+      alive = false;
+    };
+  }, [mergingId, mergingCovered, election.id]);
 
   // The search is applied when typing stops.
   useEffect(() => {
@@ -676,6 +701,10 @@ export function VotersPage({
         <MergeGroupDialog
           group={merging}
           others={groups.items.filter((group) => group.id !== merging.id)}
+          ballots={{
+            titles: mergeRead?.group === merging.id ? mergeRead.titles : null,
+            count: merging.ballots_count,
+          }}
           onLocked={() => void locked()}
           onCancel={() => setMerging(null)}
           onMerged={() => {

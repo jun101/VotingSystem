@@ -398,7 +398,7 @@ export interface paths {
         post?: never;
         /**
          * Delete a group
-         * @description A draft or scheduled election only, and only a group with no voter (409 `group_in_use`).
+         * @description A draft or scheduled election only, and only a group with no voter and no ballot (409 `group_in_use`).
          *     Final: there is no trash. Owner or manager. Limited to 120 requests per hour per user.
          */
         delete: operations["group.destroy"];
@@ -424,7 +424,7 @@ export interface paths {
         /**
          * Merge a group into another
          * @description Every voter of the group moves to `into`, another group of the same election, and the
-         *     group is deleted: one transaction. A draft or scheduled election only. Answers the
+         *     group is deleted, and the ballots that covered it cover `into`: one transaction. A draft or scheduled election only. Answers the
          *     receiving group. Owner or manager. Limited to 120 requests per hour per user.
          */
         post: operations["groups.groupMerge"];
@@ -1247,6 +1247,8 @@ export interface components {
             description?: string | null;
             seats?: number;
             allow_blank?: boolean;
+            scope?: string | null;
+            groups?: string[] | null;
         };
         /**
          * CreateCandidateRequest
@@ -1422,6 +1424,8 @@ export interface components {
             description?: string | null;
             seats?: number;
             allow_blank?: boolean;
+            scope?: string | null;
+            groups?: string[] | null;
         };
         /**
          * UpdateCandidateRequest
@@ -1634,6 +1638,15 @@ export interface operations {
                             position: number;
                             seats: number;
                             allow_blank: boolean;
+                            /** @enum {string} */
+                            scope: "general" | "group";
+                            groups: {
+                                id: string;
+                                name: string;
+                                voters_count: number;
+                            }[];
+                            eligible_voters: number;
+                            warnings: string[];
                             candidates_count: number;
                             candidates: {
                                 id: string;
@@ -1698,6 +1711,15 @@ export interface operations {
                             position: number;
                             seats: number;
                             allow_blank: boolean;
+                            /** @enum {string} */
+                            scope: "general" | "group";
+                            groups: {
+                                id: string;
+                                name: string;
+                                voters_count: number;
+                            }[];
+                            eligible_voters: number;
+                            warnings: string[];
                             candidates_count: number;
                             candidates: {
                                 id: string;
@@ -1756,6 +1778,15 @@ export interface operations {
                             position: number;
                             seats: number;
                             allow_blank: boolean;
+                            /** @enum {string} */
+                            scope: "general" | "group";
+                            groups: {
+                                id: string;
+                                name: string;
+                                voters_count: number;
+                            }[];
+                            eligible_voters: number;
+                            warnings: string[];
                             candidates_count: number;
                             candidates: {
                                 id: string;
@@ -1842,6 +1873,15 @@ export interface operations {
                             position: number;
                             seats: number;
                             allow_blank: boolean;
+                            /** @enum {string} */
+                            scope: "general" | "group";
+                            groups: {
+                                id: string;
+                                name: string;
+                                voters_count: number;
+                            }[];
+                            eligible_voters: number;
+                            warnings: string[];
                             candidates_count: number;
                             candidates: {
                                 id: string;
@@ -2552,6 +2592,7 @@ export interface operations {
                             id: string;
                             name: string;
                             voters_count: number;
+                            ballots_count: number;
                             created_at: string;
                             updated_at: string;
                         }[];
@@ -2597,6 +2638,7 @@ export interface operations {
                             id: string;
                             name: string;
                             voters_count: number;
+                            ballots_count: number;
                             created_at: string;
                             updated_at: string;
                         };
@@ -2657,6 +2699,7 @@ export interface operations {
                             id: string;
                             name: string;
                             voters_count: number;
+                            ballots_count: number;
                             created_at: string;
                             updated_at: string;
                         };
@@ -2695,6 +2738,7 @@ export interface operations {
                             id: string;
                             name: string;
                             voters_count: number;
+                            ballots_count: number;
                             created_at: string;
                             updated_at: string;
                         };

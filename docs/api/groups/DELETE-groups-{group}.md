@@ -38,7 +38,7 @@ No body.
 ### 409 — scenarios 2 and 3
 
 ```json
-{ "error": { "code": "group_in_use", "message": "Ce groupe a encore des électeurs. Déplacez-les ou fusionnez le groupe." } }
+{ "error": { "code": "group_in_use", "message": "Ce groupe a encore des électeurs ou sert à un poste. Déplacez les électeurs, changez le poste ou fusionnez le groupe." } }
 ```
 
 ### 404, 401, 403, 419, 429, 405

@@ -8,6 +8,7 @@ import type { Ballot } from '@/lib/api/ballots';
 import type { Candidate } from '@/lib/api/candidates';
 import type { Party } from '@/lib/api/parties';
 import { useI18n } from '@/lib/i18n/client';
+import { groupNames, scopeText, warningText } from './ballotScope';
 import { seatsText } from './ballotText';
 import { candidateCountText } from './candidateText';
 import { CandidateRow } from './CandidateRow';
@@ -77,6 +78,7 @@ export function BallotCard({
 }) {
   const { t, locale } = useI18n();
   const tone = (n - 1) % 4;
+  const warning = warningText(ballot, locale, t);
 
   return (
     <li
@@ -175,6 +177,35 @@ export function BallotCard({
             {candidateCountText(ballot.candidates.length, locale, t)}
           </span>
         </div>
+
+        <p
+          data-testid={`ballot-scope-${n}`}
+          className="flex items-center gap-2 text-base font-medium text-ink-2"
+        >
+          <span className="shrink-0 text-primary">
+            <Icon name="people" size={18} />
+          </span>
+          {scopeText(ballot, locale, t)}
+        </p>
+        {ballot.scope === 'group' ? (
+          <p
+            data-testid={`ballot-groups-${n}`}
+            className="line-clamp-2 text-base break-words text-ink-soft"
+          >
+            {t('ballots.card.groups', { names: groupNames(ballot) })}
+          </p>
+        ) : null}
+        {warning ? (
+          <p
+            data-testid={`ballot-voters-warning-${n}`}
+            className="flex items-start gap-2.5 rounded-lg bg-warm-softer px-3 py-2.5 text-base text-warm-ink"
+          >
+            <span className="mt-0.5 shrink-0 text-warm">
+              <Icon name="warn" size={20} />
+            </span>
+            {warning}
+          </p>
+        ) : null}
 
         {ballot.description ? (
           <p className="line-clamp-3 text-base break-words whitespace-pre-line text-ink-soft">

@@ -391,7 +391,7 @@
     "election_voters_locked": "The voters and groups of this election can no longer be changed.",
     "voter_limit_reached": "An election cannot have more than 10,000 voters.",
     "group_limit_reached": "An election cannot have more than 100 groups.",
-    "group_in_use": "This group still has voters. Move them or merge the group.",
+    "group_in_use": "This group still has voters or is used by a ballot. Move the voters, change the ballot or merge the group.",
     "import_in_progress": "An import is already under way for this election. Wait for it to finish, or cancel it.",
     "import_not_checked": "This file is no longer at the check step. Reload the page.",
     "nothing_to_import": "No row is ready to import.",
@@ -548,6 +548,13 @@
         "integer": "Enter a whole number of seats.",
         "min": "There must be at least 1 seat.",
         "max": "A position has 20 seats at most."
+      },
+      "groups": {
+        "required": "Choose at least one group.",
+        "invalid": "One of the groups no longer exists. Reload the page."
+      },
+      "scope": {
+        "invalid": "Choose who can vote for this position."
       }
     },
     "party": {
@@ -1058,7 +1065,10 @@
       "addCandidate": "Add a candidate",
       "addCandidateTo": "Add a candidate to the position {title}",
       "candidatesLabel": "Candidates of the position {title}",
-      "oneCandidate": "Only one candidate: add another so voters have a choice."
+      "oneCandidate": "Only one candidate: add another so voters have a choice.",
+      "groups": "Groups: {names}",
+      "noVoters": "No voter can vote for this position yet: its groups have no voter.",
+      "fewVoters": "Few voters for this position: {voters} (fewer than {limit})."
     },
     "form": {
       "titleNew": "New position",
@@ -1071,7 +1081,15 @@
       "save": "Save",
       "add": "Add the position",
       "cancel": "Cancel",
-      "error": "The position could not be saved."
+      "error": "The position could not be saved.",
+      "scope": "Who can vote for this position",
+      "scopeGeneral": "Every voter of the election",
+      "scopeGroup": "Only some groups",
+      "groups": "Groups of voters",
+      "groupsHelp": "Choose the groups whose voters vote for this position.",
+      "groupsLoading": "Loading the groups…",
+      "groupsFailed": "The groups could not be loaded. Close the form and try again.",
+      "groupsNone": "This election has no group yet. Create groups on the voters page first."
     },
     "delete": {
       "title": "Delete this position?",
@@ -1095,6 +1113,10 @@
       "one": "{title}: only one candidate",
       "add": "Add a candidate",
       "addTo": "Add a candidate to the position {title}"
+    },
+    "scope": {
+      "general": "Every voter: {voters}",
+      "group": "Chosen groups only: {voters}"
     }
   },
   "parties": {
@@ -1319,12 +1341,13 @@
       "other": "{count} groups"
     },
     "empty": "No group yet: create one here, or write its name in a voter’s form.",
-    "note": "A group is deleted only when it has no voter.",
+    "note": "A group is deleted only when it has no voter and no position uses it.",
     "row": {
       "filter": "Show the voters of the group {name}",
       "rename": "Rename the group {name}",
       "merge": "Merge the group {name}",
-      "delete": "Delete the group {name}"
+      "delete": "Delete the group {name}",
+      "ballots": "Used by {ballots}"
     },
     "form": {
       "titleNew": "New group",
@@ -1343,7 +1366,8 @@
       "choose": "Choose a group",
       "missing": "Choose the group that receives the voters.",
       "confirm": "Merge",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "ballots": "These positions cover this group and will cover the receiving group instead: {titles}."
     },
     "delete": {
       "title": "Delete this group?",
