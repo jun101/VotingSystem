@@ -40,6 +40,9 @@ final class ImageReEncoder
     /** The sizes of an election cover: the width. */
     public const COVER_SIZES = [480, 960];
 
+    /** The sizes of a party logo: the width. */
+    public const PARTY_LOGO_SIZES = [96, 192];
+
     public const MAX_BYTES = 5 * 1024 * 1024;
 
     public const MAX_SIDE = 8000;

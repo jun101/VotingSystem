@@ -68,10 +68,24 @@ export function PartiesCard({
                 <span
                   aria-hidden="true"
                   data-testid={`party-swatch-${n}`}
-                  style={{ backgroundColor: party.colour }}
-                  className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-md px-1 font-display text-sm font-extrabold text-surface"
+                  style={party.logo ? undefined : { backgroundColor: party.colour }}
+                  className={cx(
+                    'flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-md font-display text-sm font-extrabold',
+                    party.logo ? 'border border-line bg-surface p-0.5' : 'px-1 text-surface',
+                  )}
                 >
-                  <span className="truncate">{swatchText(party)}</span>
+                  {party.logo ? (
+                    // An already optimised picture of the media disk, shown inside its box.
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={party.logo.sm}
+                      alt=""
+                      data-testid={`party-logo-${n}`}
+                      className="size-full object-contain"
+                    />
+                  ) : (
+                    <span className="truncate">{swatchText(party)}</span>
+                  )}
                 </span>
                 <span className="flex min-w-0 flex-1 flex-col">
                   <b

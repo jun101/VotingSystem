@@ -530,6 +530,59 @@ export async function updateParty(id: string, body: PartyChanges): Promise<Party
   return data!.data;
 }
 
+/** `DELETE /parties/{party}/logo`: removes the logo of a party of a draft election. */
+export async function removePartyLogo(id: string): Promise<void> {
+  await send((api) => api.DELETE('/v1/parties/{party}/logo', { params: { path: { party: id } } }));
+}
+
+/**
+ * `PUT /parties/{party}/logo`: the picture, as one `file` part, sent by hand like the election
+ * cover (the schema has no multipart body), with the same rules.
+ */
+export async function uploadPartyLogo(id: string, file: File): Promise<Party> {
+  for (let attempt = 0; ; attempt++) {
+    const body = new FormData();
+    body.append('file', file);
+
+    let response: Response;
+
+    try {
+      response = await fetch(`${apiBaseUrl()}/v1/parties/${encodeURIComponent(id)}/logo`, {
+        method: 'PUT',
+        body,
+        credentials: 'same-origin',
+        headers: {
+          Accept: 'application/json',
+          'Accept-Language': pageLanguage(),
+          'X-XSRF-TOKEN': await csrfToken(),
+        },
+      });
+    } catch (error) {
+      throw error instanceof ApiError ? error : new ApiError(0, 'network');
+    }
+
+    if (response.ok) return ((await response.json()) as { data: Party }).data;
+
+    let answer: unknown = null;
+
+    try {
+      answer = await response.json();
+    } catch {
+      // Not JSON: an `unknown` error.
+    }
+
+    const failure = parseApiError(response.status, answer, response.headers.get('Retry-After'));
+
+    if (failure.code === 'csrf_mismatch' && attempt === 0) {
+      await refreshCsrf();
+
+      continue;
+    }
+
+    throw failure;
+  }
+}
+
 /** `DELETE /parties/{party}`: its candidates stay and become independent. */
 export async function deleteParty(id: string): Promise<void> {
   await send((api) => api.DELETE('/v1/parties/{party}', { params: { path: { party: id } } }));

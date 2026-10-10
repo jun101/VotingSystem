@@ -1,13 +1,8 @@
 import type { components, operations } from './schema';
 
-/** One party (a slate, a list): an item of `GET /elections/{election}/parties`. */
-export type Party = Omit<
-  operations['party.index']['responses'][200]['content']['application/json']['data'][number],
-  'logo'
-> & {
-  /** `null` until slice 06d (the generated client leaves a key that is always null out). */
-  logo?: null;
-};
+/** One party (a slate, a list): an item of `GET /elections/{election}/parties`. `logo` is `{ sm, md }` or `null`. */
+export type Party =
+  operations['party.index']['responses'][200]['content']['application/json']['data'][number];
 
 /** The body of `POST /elections/{election}/parties`. */
 export type NewParty = components['schemas']['CreatePartyRequest'];

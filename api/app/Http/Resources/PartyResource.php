@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\Party;
+use App\Support\Media\ImageReEncoder;
 use Illuminate\Http\Request;
 
 /**
@@ -22,8 +23,10 @@ final class PartyResource extends ApiResource
             'name' => $party->name,
             'acronym' => $party->acronym,
             'colour' => $party->colour,
-            // Nothing to show until slice 06d.
-            'logo' => null,
+            'logo' => $party->logo_file === null ? null : [
+                'sm' => '/media/'.ImageReEncoder::nameOf($party->logo_file, 96),
+                'md' => '/media/'.ImageReEncoder::nameOf($party->logo_file, 192),
+            ],
             // Nothing to count until slice 06c.
             'candidates_count' => 0,
             'created_at' => $party->created_at?->utc()->format('Y-m-d\TH:i:s\Z'),

@@ -11,6 +11,7 @@ use App\Http\Resources\PageOf;
 use App\Http\Resources\PartyResource;
 use App\Models\Election;
 use App\Models\Party;
+use App\Support\Media\ImageReEncoder;
 use Dedoc\Scramble\Attributes\Response;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\JsonResponse;
@@ -31,7 +32,7 @@ class PartyController extends Controller
      * By name, ignoring case, then creation order, in any status of the election. An election
      * holds at most 30, so `per_page=100` returns them all. Owner or manager.
      *
-     * @response array{data: list<array{id: string, name: string, acronym: string|null, colour: string, logo: null, candidates_count: int, created_at: string, updated_at: string}>, meta: array{page: int, per_page: int, total: int}}
+     * @response array{data: list<array{id: string, name: string, acronym: string|null, colour: string, logo: array{sm: string, md: string}|null, candidates_count: int, created_at: string, updated_at: string}>, meta: array{page: int, per_page: int, total: int}}
      */
     public function index(ListPartiesRequest $request, Election $election): PageOf
     {
@@ -46,7 +47,7 @@ class PartyController extends Controller
      * To a draft election, at most 30 per election (409 `party_limit_reached`). The name is
      * unique in the election, ignoring case. Owner or manager. Limited to 120 requests per hour per user.
      */
-    #[Response(status: 201, type: 'array{data: array{id: string, name: string, acronym: string|null, colour: string, logo: null, candidates_count: int, created_at: string, updated_at: string}}')]
+    #[Response(status: 201, type: 'array{data: array{id: string, name: string, acronym: string|null, colour: string, logo: array{sm: string, md: string}|null, candidates_count: int, created_at: string, updated_at: string}}')]
     public function store(CreatePartyRequest $request, Election $election): JsonResponse
     {
         $this->allow('create', [Party::class, $election]);
@@ -85,7 +86,7 @@ class PartyController extends Controller
      * Every field is optional; only those sent change. A draft election only. Owner or
      * manager. Limited to 120 requests per hour per user.
      *
-     * @response array{data: array{id: string, name: string, acronym: string|null, colour: string, logo: null, candidates_count: int, created_at: string, updated_at: string}}
+     * @response array{data: array{id: string, name: string, acronym: string|null, colour: string, logo: array{sm: string, md: string}|null, candidates_count: int, created_at: string, updated_at: string}}
      */
     public function update(UpdatePartyRequest $request, Party $party): PartyResource
     {
@@ -122,13 +123,15 @@ class PartyController extends Controller
      * A draft election only. Final: there is no trash. Owner or manager. Limited to 120
      * requests per hour per user.
      */
-    public function destroy(Party $party): HttpResponse
+    public function destroy(Party $party, ImageReEncoder $images): HttpResponse
     {
         $this->allow('delete', $party);
 
         $this->electionOf($party)->assertEditable();
 
-        DB::transaction(function () use ($party): void {
+        $logo = null;
+
+        DB::transaction(function () use ($party, &$logo): void {
             $this->lockElection($this->electionOf($party));
 
             $locked = Party::query()->whereKey($party->getKey())->lockForUpdate()->first();
@@ -137,8 +140,12 @@ class PartyController extends Controller
                 throw new ApiException(404, 'not_found');
             }
 
+            $logo = $locked->logo_file;
             $locked->delete();
         });
+
+        // The logo files go after the commit.
+        $images->delete($logo, ImageReEncoder::PARTY_LOGO_SIZES);
 
         Log::info('party.delete', ['outcome' => 'deleted']);
 

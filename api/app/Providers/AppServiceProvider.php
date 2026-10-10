@@ -152,5 +152,7 @@ class AppServiceProvider extends ServiceProvider
 
         // The parties (docs/api/parties/): 120 an hour per user to add, change and delete.
         RateLimiter::for('parties-write', fn (Request $request) => Limit::perHour($times(120))->by($byUser($request)));
+        // The logo of a party: 20 an hour per user, as a cover (the removal counts with the writes).
+        RateLimiter::for('party-logo', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
     }
 }

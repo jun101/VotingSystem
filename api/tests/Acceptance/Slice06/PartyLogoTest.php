@@ -14,13 +14,13 @@ use Tests\Support\Team;
 
 const LOGO_UNKNOWN_PARTY = '3f1c0c1e-8a54-4c5e-9b7b-2d0f0c9a51aa';
 
-function logoUrl(string $uuid): string
+function partyLogoUrl(string $uuid): string
 {
     return "/api/v1/parties/{$uuid}/logo";
 }
 
 /** A party of A in a draft (or the given status) and the owner of A signed in. Returns [team, election, party]. */
-function logoSignedIn($test, array $election = [], array $party = []): array
+function partyLogoSignedIn($test, array $election = [], array $party = []): array
 {
     $t = Team::two();
     $e = Accounts::plantElection($election + ['institution' => $t['a']['owner']['institution']]);
@@ -30,15 +30,15 @@ function logoSignedIn($test, array $election = [], array $party = []): array
     return [$t, $e, $p];
 }
 
-function putLogo($test, string $id, string $bytes, string $name = 'logo.png')
+function putPartyLogo($test, string $id, string $bytes, string $name = 'logo.png')
 {
-    return $test->browser->upload('PUT', logoUrl($id), ['file' => Images::upload($bytes, $name)]);
+    return $test->browser->upload('PUT', partyLogoUrl($id), ['file' => Images::upload($bytes, $name)]);
 }
 
 it('accepts a PNG, a JPEG and a WebP and answers the party with its logo [FR-CAND-01, FR-CAND-04] (scenario 1)', function (string $format) {
-    [$t, $election, $id] = logoSignedIn($this);
+    [$t, $election, $id] = partyLogoSignedIn($this);
 
-    $response = putLogo($this, $id, Images::$format(600, 600), "logo.{$format}")->assertOk();
+    $response = putPartyLogo($this, $id, Images::$format(600, 600), "logo.{$format}")->assertOk();
 
     $logo = $response->json('data.logo');
     expect($response->json('data.id'))->toBe($id)
@@ -50,11 +50,11 @@ it('accepts a PNG, a JPEG and a WebP and answers the party with its logo [FR-CAN
 })->with(['png', 'jpeg', 'webp']);
 
 it('replaces a logo that already exists and deletes the old files [FR-CAND-01] (scenario 2)', function () {
-    [$t, $election, $id] = logoSignedIn($this);
-    $first = putLogo($this, $id, Images::png(600, 600))->assertOk()->json('data.logo');
+    [$t, $election, $id] = partyLogoSignedIn($this);
+    $first = putPartyLogo($this, $id, Images::png(600, 600))->assertOk()->json('data.logo');
     $firstFiles = Team::mediaFiles();
 
-    $second = putLogo($this, $id, Images::jpeg(600, 600), 'b.jpg')->assertOk()->json('data.logo');
+    $second = putPartyLogo($this, $id, Images::jpeg(600, 600), 'b.jpg')->assertOk()->json('data.logo');
 
     expect($second['sm'])->not->toBe($first['sm'])
         ->and(Team::mediaFiles())->toHaveCount(2)
@@ -62,9 +62,9 @@ it('replaces a logo that already exists and deletes the old files [FR-CAND-01] (
 });
 
 it('answers 422 when the file part is missing [FR-CAND-01] (scenario 3)', function () {
-    [$t, $election, $id] = logoSignedIn($this);
+    [$t, $election, $id] = partyLogoSignedIn($this);
 
-    $response = $this->browser->upload('PUT', logoUrl($id), []);
+    $response = $this->browser->upload('PUT', partyLogoUrl($id), []);
 
     $response->assertStatus(422)->assertJsonPath('error.code', 'validation_failed');
     expect($response->json('error.fields.file'))->toContain('required')
@@ -72,17 +72,17 @@ it('answers 422 when the file part is missing [FR-CAND-01] (scenario 3)', functi
 });
 
 it('answers 413 above 5 MB and accepts exactly 5 MB [FR-CAND-04] (scenario 4)', function () {
-    [$t, $election, $id] = logoSignedIn($this);
+    [$t, $election, $id] = partyLogoSignedIn($this);
 
-    putLogo($this, $id, Images::pngOfSize(5 * 1024 * 1024 + 1))->assertStatus(413)->assertJsonPath('error.code', 'file_too_large');
+    putPartyLogo($this, $id, Images::pngOfSize(5 * 1024 * 1024 + 1))->assertStatus(413)->assertJsonPath('error.code', 'file_too_large');
     expect(Team::mediaFiles())->toBe([]);
-    putLogo($this, $id, Images::pngOfSize(5 * 1024 * 1024))->assertOk();
+    putPartyLogo($this, $id, Images::pngOfSize(5 * 1024 * 1024))->assertOk();
 });
 
 it('answers 415 when the content is not a JPEG, PNG or WebP, is undecodable, or is animated [NFR-SEC-06] (scenario 5)', function (string $bytes, string $name) {
-    [$t, $election, $id] = logoSignedIn($this);
+    [$t, $election, $id] = partyLogoSignedIn($this);
 
-    putLogo($this, $id, $bytes, $name)->assertStatus(415)->assertJsonPath('error.code', 'file_type_not_allowed');
+    putPartyLogo($this, $id, $bytes, $name)->assertStatus(415)->assertJsonPath('error.code', 'file_type_not_allowed');
     expect(Team::mediaFiles())->toBe([]);
 })->with([
     'a GIF named .png' => fn () => [Images::gif(), 'logo.png'],
@@ -94,9 +94,9 @@ it('answers 415 when the content is not a JPEG, PNG or WebP, is undecodable, or 
 ]);
 
 it('answers 422 above 8 000 pixels on a side or 40 million pixels, from the header alone [NFR-SEC-06] (scenario 6)', function (int $width, int $height) {
-    [$t, $election, $id] = logoSignedIn($this);
+    [$t, $election, $id] = partyLogoSignedIn($this);
 
-    $response = putLogo($this, $id, Images::pngClaiming($width, $height));
+    $response = putPartyLogo($this, $id, Images::pngClaiming($width, $height));
 
     $response->assertStatus(422)->assertJsonPath('error.code', 'validation_failed');
     expect($response->json('error.fields.file'))->toContain('dimensions')
@@ -104,16 +104,16 @@ it('answers 422 above 8 000 pixels on a side or 40 million pixels, from the head
 })->with([[8001, 100], [100, 8001], [7000, 6000]]);
 
 it('answers 409 for an election that is not a draft and stores nothing [FR-SEC-06] (scenario 7)', function (string $status) {
-    [$t, $election, $id] = logoSignedIn($this, ['status' => $status]);
+    [$t, $election, $id] = partyLogoSignedIn($this, ['status' => $status]);
 
-    putLogo($this, $id, Images::png())->assertStatus(409)->assertJsonPath('error.code', 'election_not_editable');
+    putPartyLogo($this, $id, Images::png())->assertStatus(409)->assertJsonPath('error.code', 'election_not_editable');
     expect(Team::mediaFiles())->toBe([]);
 })->with(['scheduled', 'open', 'closed', 'published', 'archived']);
 
 it('checks the record, then the state, then the file [FR-SEC-06] (scenario 7)', function () {
-    [$t, $election, $id] = logoSignedIn($this, ['status' => 'open']);
+    [$t, $election, $id] = partyLogoSignedIn($this, ['status' => 'open']);
 
-    putLogo($this, $id, Images::pdf(), 'logo.png')->assertStatus(409);
+    putPartyLogo($this, $id, Images::pdf(), 'logo.png')->assertStatus(409);
 });
 
 it('answers 404, the same for every case, for a party that is unknown, of another institution or not a UUID [FR-INST-05] (scenario 8)', function () {
@@ -122,14 +122,14 @@ it('answers 404, the same for every case, for a party that is unknown, of anothe
     $foreign = Accounts::plantParty(['election' => $foreignElection]);
     Team::signIn($this, $t['a']['owner']);
 
-    $unknown = Team::shape(putLogo($this, LOGO_UNKNOWN_PARTY, Images::png()));
+    $unknown = Team::shape(putPartyLogo($this, LOGO_UNKNOWN_PARTY, Images::png()));
     expect($unknown['status'])->toBe(404)
         ->and(json_decode($unknown['body'], true)['error']['code'])->toBe('not_found');
 
     foreach ([$foreign, 'not-a-uuid', '12'] as $target) {
-        expect(Team::shape(putLogo($this, $target, Images::png())))->toBe($unknown);
+        expect(Team::shape(putPartyLogo($this, $target, Images::png())))->toBe($unknown);
     }
-    expect(Team::shape($this->browser->delete(logoUrl($foreign))))->toBe(Team::shape($this->browser->delete(logoUrl(LOGO_UNKNOWN_PARTY))))
+    expect(Team::shape($this->browser->delete(partyLogoUrl($foreign))))->toBe(Team::shape($this->browser->delete(partyLogoUrl(LOGO_UNKNOWN_PARTY))))
         ->and(Team::mediaFiles())->toBe([])
         ->and(Accounts::partyRow($foreign)['logo_file'])->toBeNull();
 });
@@ -139,43 +139,43 @@ it('answers 401 when nobody is signed in [FR-CAND-01] (scenario 9)', function ()
     $election = Accounts::plantElection(['institution' => $t['a']['owner']['institution']]);
     $id = Accounts::plantParty(['election' => $election]);
 
-    putLogo($this, $id, Images::png())->assertStatus(401)->assertJsonPath('error.code', 'unauthenticated');
+    putPartyLogo($this, $id, Images::png())->assertStatus(401)->assertJsonPath('error.code', 'unauthenticated');
     expect(Team::mediaFiles())->toBe([]);
 });
 
 it('answers 403 when the institution was suspended since sign-in [FR-INST-06] (scenario 10)', function () {
-    [$t, $election, $id] = logoSignedIn($this);
+    [$t, $election, $id] = partyLogoSignedIn($this);
     Accounts::suspend($t['a']['owner']['institution']);
 
-    putLogo($this, $id, Images::png())->assertStatus(403)->assertJsonPath('error.code', 'institution_suspended');
+    putPartyLogo($this, $id, Images::png())->assertStatus(403)->assertJsonPath('error.code', 'institution_suspended');
     expect(Team::mediaFiles())->toBe([]);
 });
 
 it('answers 419 when the CSRF token is missing or wrong [NFR-SEC-04] (scenario 11)', function () {
-    [$t, $election, $id] = logoSignedIn($this);
+    [$t, $election, $id] = partyLogoSignedIn($this);
 
-    $this->browser->upload('PUT', logoUrl($id), ['file' => Images::upload(Images::png())], [], false)
+    $this->browser->upload('PUT', partyLogoUrl($id), ['file' => Images::upload(Images::png())], [], false)
         ->assertStatus(419)->assertJsonPath('error.code', 'csrf_mismatch');
     expect(Team::mediaFiles())->toBe([]);
 });
 
 it('answers 429 above 20 uploads an hour from one user [NFR-SEC-05] (scenario 12)', function () {
-    [$t, $election, $id] = logoSignedIn($this);
+    [$t, $election, $id] = partyLogoSignedIn($this);
 
     foreach (range(1, 20) as $i) {
-        putLogo($this, $id, Images::png(300 + $i, 300))->assertOk();
+        putPartyLogo($this, $id, Images::png(300 + $i, 300))->assertOk();
     }
 
-    $response = putLogo($this, $id, Images::png());
+    $response = putPartyLogo($this, $id, Images::png());
 
     $response->assertStatus(429)->assertJsonPath('error.code', 'too_many_attempts');
     expect((int) $response->headers->get('Retry-After'))->toBeGreaterThan(0);
 });
 
 it('answers 405 to another method than PUT or DELETE [NFR-SEC-01] (scenario 13)', function (string $method) {
-    [$t, $election, $id] = logoSignedIn($this);
+    [$t, $election, $id] = partyLogoSignedIn($this);
 
-    $response = $this->browser->other($method, logoUrl($id));
+    $response = $this->browser->other($method, partyLogoUrl($id));
 
     $response->assertStatus(405)->assertJsonPath('error.code', 'method_not_allowed');
     $allow = array_map('trim', explode(',', (string) $response->headers->get('Allow')));
@@ -188,14 +188,14 @@ it('lets a manager upload and remove a logo [FR-CAND-01] (scenario 1)', function
     $id = Accounts::plantParty(['election' => $election]);
     Team::signIn($this, $t['a']['manager']);
 
-    putLogo($this, $id, Images::png(600, 600))->assertOk();
-    $this->browser->delete(logoUrl($id))->assertNoContent();
+    putPartyLogo($this, $id, Images::png(600, 600))->assertOk();
+    $this->browser->delete(partyLogoUrl($id))->assertNoContent();
     expect(Team::mediaFiles())->toBe([]);
 });
 
 it('is not copied by a duplicate of the election [FR-ELEC-06] (notes)', function () {
-    [$t, $election, $id] = logoSignedIn($this);
-    putLogo($this, $id, Images::png(600, 600))->assertOk();
+    [$t, $election, $id] = partyLogoSignedIn($this);
+    putPartyLogo($this, $id, Images::png(600, 600))->assertOk();
 
     $copy = $this->browser->post("/api/v1/elections/{$election}/duplicate", [])->assertCreated()->json('data.id');
 
@@ -206,10 +206,10 @@ it('is not copied by a duplicate of the election [FR-ELEC-06] (notes)', function
 // ---- DELETE
 
 it('removes the logo and its two files [FR-CAND-01] (DELETE scenario 1)', function () {
-    [$t, $election, $id] = logoSignedIn($this);
-    putLogo($this, $id, Images::png(600, 600))->assertOk();
+    [$t, $election, $id] = partyLogoSignedIn($this);
+    putPartyLogo($this, $id, Images::png(600, 600))->assertOk();
 
-    $this->browser->delete(logoUrl($id))->assertNoContent();
+    $this->browser->delete(partyLogoUrl($id))->assertNoContent();
 
     expect(Team::mediaFiles())->toBe([])
         ->and(Accounts::partyRow($id)['logo_file'])->toBeNull();
@@ -217,35 +217,35 @@ it('removes the logo and its two files [FR-CAND-01] (DELETE scenario 1)', functi
 });
 
 it('answers 204 when there is no logo, and again a second time [FR-CAND-01] (DELETE scenario 2)', function () {
-    [$t, $election, $id] = logoSignedIn($this);
+    [$t, $election, $id] = partyLogoSignedIn($this);
 
-    $this->browser->delete(logoUrl($id))->assertNoContent();
-    $this->browser->delete(logoUrl($id))->assertNoContent();
+    $this->browser->delete(partyLogoUrl($id))->assertNoContent();
+    $this->browser->delete(partyLogoUrl($id))->assertNoContent();
 });
 
 it('answers 409 for an election that is not a draft and keeps the logo [FR-SEC-06] (DELETE scenario 3)', function () {
-    [$t, $election, $id] = logoSignedIn($this, ['status' => 'closed'], ['logo_file' => '7c9e6679-7425-40de-944b-e07fc1f90ae7']);
+    [$t, $election, $id] = partyLogoSignedIn($this, ['status' => 'closed'], ['logo_file' => '7c9e6679-7425-40de-944b-e07fc1f90ae7']);
 
-    $this->browser->delete(logoUrl($id))->assertStatus(409)->assertJsonPath('error.code', 'election_not_editable');
+    $this->browser->delete(partyLogoUrl($id))->assertStatus(409)->assertJsonPath('error.code', 'election_not_editable');
     expect(Accounts::partyRow($id)['logo_file'])->toBe('7c9e6679-7425-40de-944b-e07fc1f90ae7');
 });
 
 it('answers 401, 403 and 419 on the removal like the upload [FR-CAND-01] (DELETE scenarios 5 to 7)', function () {
-    [$t, $election, $id] = logoSignedIn($this);
+    [$t, $election, $id] = partyLogoSignedIn($this);
 
-    $this->browser->delete(logoUrl($id), [], false)->assertStatus(419)->assertJsonPath('error.code', 'csrf_mismatch');
+    $this->browser->delete(partyLogoUrl($id), [], false)->assertStatus(419)->assertJsonPath('error.code', 'csrf_mismatch');
     Accounts::suspend($t['a']['owner']['institution']);
-    $this->browser->delete(logoUrl($id))->assertStatus(403)->assertJsonPath('error.code', 'institution_suspended');
+    $this->browser->delete(partyLogoUrl($id))->assertStatus(403)->assertJsonPath('error.code', 'institution_suspended');
 
     $anonymous = new AuthClient($this);
-    $anonymous->delete(logoUrl($id))->assertStatus(401)->assertJsonPath('error.code', 'unauthenticated');
+    $anonymous->delete(partyLogoUrl($id))->assertStatus(401)->assertJsonPath('error.code', 'unauthenticated');
 });
 
 // ---- the party itself
 
 it('removes the logo files when the party is deleted [FR-CAND-01] (side effect of DELETE /parties/{party})', function () {
-    [$t, $election, $id] = logoSignedIn($this);
-    putLogo($this, $id, Images::png(600, 600))->assertOk();
+    [$t, $election, $id] = partyLogoSignedIn($this);
+    putPartyLogo($this, $id, Images::png(600, 600))->assertOk();
     expect(Team::mediaFiles())->toHaveCount(2);
 
     $this->browser->delete("/api/v1/parties/{$id}")->assertNoContent();

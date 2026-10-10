@@ -553,6 +553,11 @@
       "colour": {
         "hex_colour": "Choisissez une couleur de la liste.",
         "required": "Choisissez une couleur."
+      },
+      "logo": {
+        "dimensions": "Cette image est trop grande : 8 000 pixels au plus d’un côté, 40 millions de pixels au total.",
+        "required": "Choisissez une image.",
+        "invalid": "Ce fichier ne peut pas être utilisé."
       }
     }
   },
@@ -1040,7 +1045,14 @@
       "cancel": "Annuler",
       "close": "Fermer",
       "added": "Le parti « {name} » est ajouté. Saisissez le suivant.",
-      "error": "Le parti n’a pas pu être enregistré."
+      "error": "Le parti n’a pas pu être enregistré.",
+      "logo": "Logo (facultatif)",
+      "logoHelp": "JPEG, PNG ou WebP, 5 Mo au plus.",
+      "logoChoose": "Choisir un logo",
+      "logoChange": "Changer le logo",
+      "logoRemove": "Retirer le logo",
+      "logoPreviewAlt": "Aperçu du logo du parti",
+      "logoError": "Le parti est enregistré, mais son logo n’a pas pu l’être."
     },
     "delete": {
       "title": "Supprimer ce parti ?",

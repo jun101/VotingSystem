@@ -553,6 +553,11 @@
       "colour": {
         "hex_colour": "Choose a colour from the list.",
         "required": "Choose a colour."
+      },
+      "logo": {
+        "dimensions": "This image is too large: 8,000 pixels at most on a side, 40 million pixels in all.",
+        "required": "Choose an image.",
+        "invalid": "This file cannot be used."
       }
     }
   },
@@ -1040,7 +1045,14 @@
       "cancel": "Cancel",
       "close": "Close",
       "added": "The party “{name}” is added. Enter the next one.",
-      "error": "The party could not be saved."
+      "error": "The party could not be saved.",
+      "logo": "Logo (optional)",
+      "logoHelp": "JPEG, PNG or WebP, 5 MB at most.",
+      "logoChoose": "Choose a logo",
+      "logoChange": "Change the logo",
+      "logoRemove": "Remove the logo",
+      "logoPreviewAlt": "Preview of the party logo",
+      "logoError": "The party is saved, but its logo could not be."
     },
     "delete": {
       "title": "Delete this party?",

@@ -26,6 +26,8 @@ vi.mock('@/lib/api/browser', () => ({
   fetchParties: (...args: unknown[]) => fetchParties(...args),
   createParty: (...args: unknown[]) => createParty(...args),
   updateParty: vi.fn(),
+  uploadPartyLogo: vi.fn(),
+  removePartyLogo: vi.fn(),
   deleteParty: (...args: unknown[]) => deleteParty(...args),
   updateBallot: vi.fn(),
   deleteBallot: vi.fn(),

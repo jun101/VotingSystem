@@ -2897,7 +2897,22 @@
                                                         "type": "string"
                                                     },
                                                     "logo": {
-                                                        "type": "null"
+                                                        "type": [
+                                                            "object",
+                                                            "null"
+                                                        ],
+                                                        "properties": {
+                                                            "sm": {
+                                                                "type": "string"
+                                                            },
+                                                            "md": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "sm",
+                                                            "md"
+                                                        ]
                                                     },
                                                     "candidates_count": {
                                                         "type": "integer"
@@ -3015,7 +3030,22 @@
                                                     "type": "string"
                                                 },
                                                 "logo": {
-                                                    "type": "null"
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "sm": {
+                                                            "type": "string"
+                                                        },
+                                                        "md": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "sm",
+                                                        "md"
+                                                    ]
                                                 },
                                                 "candidates_count": {
                                                     "type": "integer"
@@ -3113,7 +3143,22 @@
                                                     "type": "string"
                                                 },
                                                 "logo": {
-                                                    "type": "null"
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "sm": {
+                                                            "type": "string"
+                                                        },
+                                                        "md": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "sm",
+                                                        "md"
+                                                    ]
                                                 },
                                                 "candidates_count": {
                                                     "type": "integer"
@@ -3161,6 +3206,140 @@
                 "summary": "Delete a party",
                 "tags": [
                     "Party"
+                ],
+                "parameters": [
+                    {
+                        "name": "party",
+                        "in": "path",
+                        "required": true,
+                        "description": "The party UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/v1/parties/{party}/logo": {
+            "put": {
+                "operationId": "partyLogo.update",
+                "description": "Send one `file` part (`multipart/form-data`) under the rules of the election cover: JPEG,\nPNG or WebP recognised by content, 5 MB, 8 000 pixels on a side, 40 million pixels, not\nanimated. Two WebP files are written, 96 and 192 pixels wide, ratio kept, never enlarged,\nmetadata dropped, the upload never kept; the previous logo's files are deleted afterwards.\nA draft election only. Owner or manager. Limited to 20 requests per hour per user.",
+                "summary": "Replace the logo of a party",
+                "tags": [
+                    "PartyLogo"
+                ],
+                "parameters": [
+                    {
+                        "name": "party",
+                        "in": "path",
+                        "required": true,
+                        "description": "The party UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "acronym": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "colour": {
+                                                    "type": "string"
+                                                },
+                                                "logo": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "sm": {
+                                                            "type": "string"
+                                                        },
+                                                        "md": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "sm",
+                                                        "md"
+                                                    ]
+                                                },
+                                                "candidates_count": {
+                                                    "type": "integer"
+                                                },
+                                                "created_at": {
+                                                    "type": "string"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "name",
+                                                "acronym",
+                                                "colour",
+                                                "logo",
+                                                "candidates_count",
+                                                "created_at",
+                                                "updated_at"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "partyLogo.destroy",
+                "description": "Answers 204 whether or not there was a logo. A draft election only. Owner or manager.\nLimited to 120 requests per hour per user.",
+                "summary": "Remove the logo of a party",
+                "tags": [
+                    "PartyLogo"
                 ],
                 "parameters": [
                     {

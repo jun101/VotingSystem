@@ -505,6 +505,35 @@ export interface paths {
         patch: operations["party.update"];
         trace?: never;
     };
+    "/v1/parties/{party}/logo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Replace the logo of a party
+         * @description Send one `file` part (`multipart/form-data`) under the rules of the election cover: JPEG,
+         *     PNG or WebP recognised by content, 5 MB, 8 000 pixels on a side, 40 million pixels, not
+         *     animated. Two WebP files are written, 96 and 192 pixels wide, ratio kept, never enlarged,
+         *     metadata dropped, the upload never kept; the previous logo's files are deleted afterwards.
+         *     A draft election only. Owner or manager. Limited to 20 requests per hour per user.
+         */
+        put: operations["partyLogo.update"];
+        post?: never;
+        /**
+         * Remove the logo of a party
+         * @description Answers 204 whether or not there was a logo. A draft election only. Owner or manager.
+         *     Limited to 120 requests per hour per user.
+         */
+        delete: operations["partyLogo.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/auth/register": {
         parameters: {
             query?: never;
@@ -2189,7 +2218,10 @@ export interface operations {
                             name: string;
                             acronym: string | null;
                             colour: string;
-                            logo: null;
+                            logo: {
+                                sm: string;
+                                md: string;
+                            } | null;
                             candidates_count: number;
                             created_at: string;
                             updated_at: string;
@@ -2235,7 +2267,10 @@ export interface operations {
                             name: string;
                             acronym: string | null;
                             colour: string;
-                            logo: null;
+                            logo: {
+                                sm: string;
+                                md: string;
+                            } | null;
                             candidates_count: number;
                             created_at: string;
                             updated_at: string;
@@ -2298,7 +2333,10 @@ export interface operations {
                             name: string;
                             acronym: string | null;
                             colour: string;
-                            logo: null;
+                            logo: {
+                                sm: string;
+                                md: string;
+                            } | null;
                             candidates_count: number;
                             created_at: string;
                             updated_at: string;
@@ -2309,6 +2347,68 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
+        };
+    };
+    "partyLogo.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The party UUID */
+                party: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            name: string;
+                            acronym: string | null;
+                            colour: string;
+                            logo: {
+                                sm: string;
+                                md: string;
+                            } | null;
+                            candidates_count: number;
+                            created_at: string;
+                            updated_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "partyLogo.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The party UUID */
+                party: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
         };
     };
     "auth.register": {
