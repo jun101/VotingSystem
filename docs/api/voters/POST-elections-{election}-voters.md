@@ -21,7 +21,7 @@ Body, JSON:
 |---|---|---|
 | full_name | string | Required. 1 to 150 characters after trimming |
 | group | string, null | Optional. The group's **name**, 1 to 100 characters after trimming. A group of this election with that name (case and surrounding spaces ignored, accents counted) is used; if there is none, it is created. Blank or `null`: no group |
-| identifier | string, null | Optional. 1 to 50 characters after trimming; blank is `null`. Unique in the election, ignoring case |
+| identifier | string, null | Optional. 1 to 50 characters after trimming; blank is `null`. Unique in the election, ignoring case and accents (`É-12` and `E-12` are the same) |
 | email | string, null | Optional. A valid address, at most 255 characters; blank is `null`. Stored lower-cased. Unique in the election |
 | phone | string, null | Optional. At most 30 characters, digits and `+ - ( ) .` and spaces only; blank is `null` |
 
@@ -39,7 +39,7 @@ Two voters may share a full name: the identifier and the email are what tell the
 | 2 | Every field, the group already exists | 201 (the existing group is used) | | |
 | 3 | Every field, the group does not exist | 201 (the group is created in the election: a draft or scheduled election only) | | |
 | 4 | `full_name` missing, blank or longer than 150 | 422 | `validation_failed` (`full_name: required`, `full_name: max`) | |
-| 5 | `identifier` already used in this election (case ignored) | 422 | `validation_failed` (`identifier: unique`) | |
+| 5 | `identifier` already used in this election (case and accents ignored) | 422 | `validation_failed` (`identifier: unique`) | |
 | 6 | `email` not valid (strict: a plain `name@domain.tld` address, no quoted part, no IP address, no dotless domain), or already used in this election | 422 | `validation_failed` (`email: email`, `email: unique`) | |
 | 7 | `phone` longer than 30 or with other characters | 422 | `validation_failed` (`phone: max`, `phone: invalid`) | |
 | 8 | `group` longer than 100 | 422 | `validation_failed` (`group: max`) | |

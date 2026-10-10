@@ -145,7 +145,7 @@ in SQL.
 | institution_id | fk | |
 | election_id | fk | Cascade |
 | name | str(100) | As typed |
-| name_key | str(100) | Trimmed and lower-cased; `utf8mb4_bin`, so accents count. Unique with `election_id` |
+| name_key | str(200) | Trimmed and lower-cased (wider than `name`: lower-casing can lengthen it); `utf8mb4_bin`, so accents count. Unique with `election_id` |
 
 **`ballot_voter_group`** — the groups a group ballot covers (FR-BAL-03). No `id`, no
 `uuid`, no timestamps.

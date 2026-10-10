@@ -98,7 +98,10 @@ export function VotersPage({
   const [merging, setMerging] = useState<VoterGroup | null>(null);
   const [deletingGroup, setDeletingGroup] = useState<VoterGroup | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
-  const [lockedSeen, setLockedSeen] = useState(false);
+  // The election as it was when a 409 came: the closed rules hold until the refreshed election
+  // (a new object) arrives and says the real status.
+  const [lockedAt, setLockedAt] = useState<typeof election | null>(null);
+  const lockedSeen = lockedAt === election;
 
   // The filters the shown list was read for, the newest filters, and the newest read (stale
   // answers are dropped).
@@ -192,12 +195,13 @@ export function VotersPage({
 
   /** The election no longer lets voters change: the notice, the real list and status. */
   async function locked() {
+    setProblem(errorText(new ApiError(409, 'election_voters_locked'), tIfAny));
     setForm(null);
     setDeleting(null);
     setGroupForm(null);
     setMerging(null);
     setDeletingGroup(null);
-    setLockedSeen(true);
+    setLockedAt(election);
     startTransition(() => router.refresh());
 
     try {
@@ -213,6 +217,18 @@ export function VotersPage({
       // The notice stands; the page is read again with the refresh above.
     }
   }
+
+  // The server moved a page past the end to the last one: the address says so too.
+  useEffect(() => {
+    const wanted = queryOf(initialFilters);
+    const shown = window.location.search === '' ? '' : window.location.search;
+
+    if (wanted !== shown) {
+      window.history.replaceState(null, '', `${window.location.pathname}${wanted}`);
+    }
+    // Once, for the filters the server rendered.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // A change of filters (a chip, a page, the search) reads the list and writes the address.
   useEffect(() => {

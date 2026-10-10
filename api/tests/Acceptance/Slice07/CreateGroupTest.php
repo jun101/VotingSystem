@@ -122,3 +122,12 @@ it('answers 429 above 120 requests an hour from one user [NFR-SEC-05] (scenario 
     $this->browser->post(groupCreateUrl($election), ['name' => 'Trop'])->assertStatus(429)->assertJsonPath('error.code', 'too_many_attempts');
     expect(Accounts::groupRows($election))->toBe([]);
 });
+
+it('accepts a 100-character name whose lower-cased key is longer [FR-VOT-08] (scenario 1)', function () {
+    [$t, $election] = groupCreateSignedIn($this);
+    $name = str_repeat('İ', 100);
+
+    $response = $this->browser->post(groupCreateUrl($election), ['name' => $name])->assertCreated();
+
+    expect($response->json('data.name'))->toBe($name);
+});
