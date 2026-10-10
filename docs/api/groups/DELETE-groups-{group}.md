@@ -20,7 +20,7 @@ Deletes a group that nobody uses.
 | # | Scenario | Status | `error.code` | Test |
 |---|---|---|---|---|
 | 1 | A group with no voter | 204 | | |
-| 2 | The group has at least one voter | 409 | `group_in_use` | |
+| 2 | The group has at least one voter, or a ballot covers it | 409 | `group_in_use` | |
 | 3 | The election is open, closed, published or archived | 409 | `election_voters_locked` | |
 | 4 | Not a UUID, unknown, already deleted, or another institution's | 404 | `not_found` | |
 | 5 | Not signed in, or the session has expired | 401 | `unauthenticated` | |

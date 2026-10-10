@@ -42,6 +42,7 @@ Body, JSON:
 | 11 | Too many requests | 429 | `too_many_attempts` | |
 | 12 | Another method than POST | 405 | `method_not_allowed` | |
 | 13 | Body is not valid JSON | 400 | `malformed_request` | |
+| 14 | A group ballot covers the merged group | 200 (the ballot now covers the receiving group, once; `ballots_count` of the receiving group counts it) | | |
 
 ## Responses
 
@@ -55,5 +56,6 @@ The shared error shape of [API conventions](../README.md). Order: 404, 422, 409.
 
 ## Notes
 
-One transaction: the election row is locked, then both groups in a fixed order; the voters are moved, the group is
-deleted. A failure leaves both groups as they were.
+One transaction: the election row is locked, then both groups in a fixed order; the voters are moved, the ballots that
+covered the merged group cover the receiving group (never twice), the group is deleted. This also happens while the
+election is scheduled, although its ballots are otherwise locked. A failure leaves both groups as they were.
