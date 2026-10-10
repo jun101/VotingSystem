@@ -25,8 +25,13 @@ export function TurnedAway() {
   }, [router]);
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-xl items-center px-4">
-      <Card title={t('admin.turnedAway.title')} role="status" data-testid="turned-away">
+    <main className="bg-backdrop flex min-h-screen items-center justify-center px-4">
+      <Card
+        title={t('admin.turnedAway.title')}
+        role="status"
+        data-testid="turned-away"
+        className="card-rise w-full max-w-xl shadow-3"
+      >
         <p className="text-ink-soft">{t('admin.turnedAway.text')}</p>
       </Card>
     </main>

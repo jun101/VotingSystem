@@ -44,9 +44,9 @@ export function SchedulePanel({
       data-testid="election-schedule"
       aria-labelledby="election-schedule-title"
       aria-live="polite"
-      className="bg-hero flex flex-col gap-2 rounded-lg p-4 text-surface"
+      className="bg-hero flex flex-col gap-2 rounded-lg p-4 text-surface shadow-2"
     >
-      <h2 id="election-schedule-title" className="text-lg font-bold">
+      <h2 id="election-schedule-title" className="text-lg font-extrabold">
         {t('elections.schedule.title')}
       </h2>
       <p className={invalid ? 'font-semibold text-accent-light' : 'text-base'}>{line}</p>

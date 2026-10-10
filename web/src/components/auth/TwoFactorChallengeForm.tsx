@@ -123,7 +123,7 @@ export function TwoFactorChallengeForm({
         />
       )}
 
-      <Button type="submit" variant="accent" loading={busy} data-testid="challenge-submit">
+      <Button type="submit" shimmer loading={busy} data-testid="challenge-submit">
         {t('auth.challenge.submit')}
       </Button>
 

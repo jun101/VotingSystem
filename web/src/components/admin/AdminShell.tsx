@@ -15,7 +15,6 @@ import { AdminUserProvider } from './AdminUser';
 import { focusRing } from './classes';
 import { SideMenu } from './SideMenu';
 import { TopBar } from './TopBar';
-import { VerifyBanner } from './VerifyBanner';
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -28,7 +27,7 @@ function isTyping(target: EventTarget | null): boolean {
 }
 
 /**
- * The admin area's frame: a fixed side menu from `lg` (272 px) and a drawer below it, the
+ * The admin area's frame: a fixed side menu from `lg` (272 px, gradient panel, rounded outer corners) and a drawer below it, the
  * top bar, the verification banner and the content, which fills the width.
  *
  * The one menu element is both: from `lg` it is fixed in place, below it slides in from the
@@ -149,7 +148,7 @@ export function AdminShell({
         <a
           href="#admin-content"
           data-testid="skip-link"
-          className={`sr-only focus:not-sr-only focus:fixed focus:start-3 focus:top-3 focus:z-50 focus:rounded focus:bg-surface focus:px-4 focus:py-3 focus:font-semibold focus:text-ink ${focusRing}`}
+          className={`sr-only focus:not-sr-only focus:fixed focus:start-3 focus:top-3 focus:z-50 focus:rounded-full focus:bg-surface focus:px-4 focus:py-3 focus:font-semibold focus:text-ink ${focusRing}`}
         >
           {t('admin.shell.skip')}
         </a>
@@ -159,7 +158,7 @@ export function AdminShell({
             aria-hidden="true"
             data-testid="menu-backdrop"
             onClick={close}
-            className="fixed inset-0 z-30 bg-navy/60 lg:hidden"
+            className="fixed inset-0 z-30 bg-deep/60 lg:hidden"
           />
         ) : null}
 
@@ -185,9 +184,8 @@ export function AdminShell({
           <main
             id="admin-content"
             tabIndex={-1}
-            className="flex flex-1 flex-col gap-6 p-4 outline-none md:p-8"
+            className="flex flex-1 flex-col gap-4 px-4 pt-4 pb-6 outline-none md:px-7"
           >
-            <VerifyBanner />
             {children}
           </main>
         </div>

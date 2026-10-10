@@ -7,7 +7,7 @@ import { ApiError, errorText } from '@/lib/api/errors';
 import { useI18n } from '@/lib/i18n/client';
 import { useAdminUser } from './AdminUser';
 
-/** A reminder under the top bar while the user's email address is not verified (slice 02). */
+/** A reminder in the top bar while the user's email address is not verified (slice 02). */
 export function VerifyBanner() {
   const user = useAdminUser();
   const { t, tIfAny } = useI18n();
@@ -33,29 +33,30 @@ export function VerifyBanner() {
 
   return (
     <div className="flex flex-col gap-3">
-      <Notice
-        tone="warm"
-        title={t('admin.banner.title')}
+      <div
         data-testid="verify-banner"
-        actions={
-          resent ? (
-            <Pill tone="teal" role="status" data-testid="resend-done">
-              {t('admin.banner.resendDone')}
-            </Pill>
-          ) : (
-            <Button
-              variant="secondary"
-              loading={resending}
-              onClick={resend}
-              data-testid="resend-button"
-            >
-              {t('admin.banner.resend')}
-            </Button>
-          )
-        }
+        data-tone="warm"
+        className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border border-warm bg-warm-softer px-4 py-2.5 text-warm-ink"
       >
-        {t('admin.banner.text', { email: user.email })}
-      </Notice>
+        <div className="min-w-0 flex-1 basis-64">
+          <p className="font-bold">{t('admin.banner.title')}</p>
+          <p className="text-base">{t('admin.banner.text', { email: user.email })}</p>
+        </div>
+        {resent ? (
+          <Pill tone="teal" role="status" data-testid="resend-done">
+            {t('admin.banner.resendDone')}
+          </Pill>
+        ) : (
+          <Button
+            variant="secondary"
+            loading={resending}
+            onClick={resend}
+            data-testid="resend-button"
+          >
+            {t('admin.banner.resend')}
+          </Button>
+        )}
+      </div>
 
       {problem ? (
         <Notice tone="danger" role="alert" data-testid="form-error">

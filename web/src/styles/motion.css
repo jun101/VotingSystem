@@ -3,7 +3,7 @@
  *
  * Colours come from tokens only. Only `transform`, `opacity`, `stroke-dashoffset` and
  * `background-position` are animated, with the exceptions of the design: the colour,
- * border and ring of a control easing. Tailwind's own transform utilities (`translate-*`,
+ * border, shadow and ring of a control easing, and the label of a field rising. Tailwind's own transform utilities (`translate-*`,
  * `scale-*`, `rotate-*`) set separate properties and are not used on moving elements.
  *
  * Without JavaScript nothing is hidden: the "pending" state below is only ever set by
@@ -16,7 +16,7 @@
     background-image: linear-gradient(
       135deg,
       var(--color-hero-from) 0%,
-      var(--color-hero-mid) 60%,
+      var(--color-hero-mid) 45%,
       var(--color-hero-to) 100%
     );
   }
@@ -31,6 +31,381 @@
       var(--color-accent) 0%,
       var(--color-accent-light) 100%
     );
+  }
+
+  .bg-panel {
+    background-image: linear-gradient(180deg, var(--color-panel-from), var(--color-panel-to));
+  }
+
+  /* The backdrop behind the sign-in card: slides slowly (14 s). */
+  .bg-backdrop {
+    background-image: linear-gradient(
+      135deg,
+      var(--color-backdrop-from) 0%,
+      var(--color-backdrop-mid) 45%,
+      var(--color-backdrop-to) 100%
+    );
+    background-size: 220% 220%;
+    animation: drift 14s ease-in-out infinite;
+  }
+
+  /* ---- Fields: underlined, with a label that floats up (CSS only, placeholder=" ") ---- */
+
+  .field-box {
+    position: relative;
+    padding-top: 18px;
+  }
+
+  .field-control {
+    width: 100%;
+    border: 0;
+    border-bottom: 2px solid var(--color-line-strong);
+    background-color: transparent;
+    padding: 12px 0 8px;
+    color: var(--color-ink);
+    outline: none;
+    transition: border-color var(--duration-fast) var(--ease-out-soft);
+  }
+
+  .field-control:focus {
+    border-bottom-color: var(--color-primary);
+  }
+
+  .field-control[aria-invalid='true'] {
+    border-bottom-color: var(--color-danger);
+  }
+
+  .field-control:disabled {
+    background-color: var(--color-line-soft);
+    color: var(--color-ink-muted);
+  }
+
+  .field-label {
+    position: absolute;
+    left: 0;
+    top: 32px;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    pointer-events: none;
+    font-size: 16px;
+    line-height: 20px;
+    color: var(--color-ink-soft);
+    /* The size changes at once, the rest eases. */
+    transition-property: top, color;
+    transition-duration: var(--duration-fast);
+    transition-timing-function: var(--ease-out-soft);
+  }
+
+  .field-control:focus + .field-label,
+  .field-control:not(:placeholder-shown) + .field-label,
+  .field-control[data-floated] + .field-label,
+  select.field-control + .field-label {
+    top: 0;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 500;
+  }
+
+  .field-control:focus + .field-label {
+    color: var(--color-primary-hover);
+  }
+
+  /* The focus bar grows from the left. */
+  .field-bar {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 2px;
+    width: 100%;
+    background-color: var(--color-primary);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform var(--duration-base) var(--ease-out-soft);
+    pointer-events: none;
+  }
+
+  .field-control:focus ~ .field-bar {
+    transform: scaleX(1);
+  }
+
+  /* ---- The side menu: an item slides 4 px on hover; the current one wears a white pill and a tab ---- */
+
+  .nav-item:hover:not([aria-current='page']) {
+    transform: translateX(4px);
+  }
+
+  .nav-item[aria-current='page']::before {
+    content: '';
+    position: absolute;
+    left: -14px;
+    top: 12px;
+    width: 5px;
+    height: 24px;
+    border-radius: 0 4px 4px 0;
+    background-color: var(--color-surface);
+  }
+
+  /* ---- Lift: a card or tile rises 5 px (a control 2 px) and its shadow deepens ---- */
+
+  .lift,
+  .lift-sm {
+    transition-property: transform, box-shadow, background-color, border-color, color;
+    transition-duration: var(--duration-base);
+    transition-timing-function: var(--ease-out-soft);
+  }
+
+  .lift:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-3);
+  }
+
+  .lift-sm:hover:not(:disabled) {
+    transform: translateY(-2px);
+  }
+
+  /* ---- The sign-in card rises in; the panel's illustration floats ---- */
+
+  .card-rise {
+    animation: card-rise 700ms var(--ease-out-soft) both;
+  }
+
+  .art-blob-a {
+    animation: floaty 7s ease-in-out infinite;
+  }
+
+  .art-blob-b {
+    animation: floaty 9s ease-in-out infinite reverse;
+  }
+
+  .art-paper {
+    animation: drop 3.6s ease-in infinite;
+  }
+
+  .art-bubble {
+    animation: pop 4s ease-in-out infinite;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .art-bubble-b {
+    animation: pop 4s ease-in-out 1.6s infinite;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .art-leaf {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    animation: sway 5s ease-in-out infinite;
+  }
+
+  /* ---- Sweep: a light turns slowly across a cover (9 s) ---- */
+
+  .cover-sweep {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cover-sweep::after {
+    content: '';
+    position: absolute;
+    inset: -40%;
+    background-image: radial-gradient(circle at 30% 40%, var(--color-glass-line), transparent 40%);
+    animation: turn 9s linear infinite;
+    pointer-events: none;
+  }
+
+  /* The gradient of a card's cover, by status (the tokens only). */
+  [data-cover='open'] {
+    background-image: linear-gradient(120deg, var(--color-teal), var(--color-primary));
+  }
+  [data-cover='scheduled'] {
+    background-image: linear-gradient(120deg, var(--color-primary), var(--color-panel-to));
+  }
+  [data-cover='draft'] {
+    background-image: linear-gradient(120deg, var(--color-ink-muted), var(--color-line-strong));
+  }
+  [data-cover='published'] {
+    background-image: linear-gradient(120deg, var(--color-backdrop-to), var(--color-backdrop-mid));
+  }
+  [data-cover='closed'] {
+    background-image: linear-gradient(120deg, var(--color-ink-soft), var(--color-ink-muted));
+  }
+  [data-cover='archived'] {
+    background-image: linear-gradient(120deg, var(--color-line-strong), var(--color-line));
+  }
+
+  /* ---- A line along the bottom of a tile that grows on load ---- */
+
+  .tile-line {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tile-line::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 3px;
+    width: 100%;
+    background-color: var(--tile-line, var(--color-primary));
+    transform-origin: left center;
+    animation: grow-line 1s 300ms var(--ease-out-soft) both;
+  }
+
+  /* ---- Bob: the round plus button of a creation tile ---- */
+
+  .bob {
+    animation: bob 3s ease-in-out infinite;
+  }
+
+  /* ---- Strength: the three segments of the password meter fill one after the other ---- */
+
+  .strength-seg {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .strength-seg[data-on='true']::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: var(--strength, var(--color-teal));
+    transform-origin: left center;
+    animation: grow-line 1.2s var(--ease-out-soft) both;
+  }
+
+  .strength-seg:nth-child(2)[data-on='true']::after {
+    animation-delay: 150ms;
+  }
+
+  .strength-seg:nth-child(3)[data-on='true']::after {
+    animation-delay: 300ms;
+  }
+
+  /* ---- The current step of the register panel sends out a ring ---- */
+
+  .step-current {
+    position: relative;
+  }
+
+  .step-current::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    border: 2px solid var(--color-surface);
+    animation: step-ring 2.2s var(--ease-out-soft) infinite;
+    pointer-events: none;
+  }
+
+  @keyframes drift {
+    0%,
+    100% {
+      background-position: 0% 30%;
+    }
+    50% {
+      background-position: 100% 70%;
+    }
+  }
+
+  @keyframes card-rise {
+    from {
+      transform: translateY(28px) scale(0.98);
+    }
+    to {
+      transform: none;
+    }
+  }
+
+  @keyframes floaty {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  @keyframes drop {
+    0% {
+      transform: translateY(-46px);
+      opacity: 0;
+    }
+    15% {
+      opacity: 1;
+    }
+    60% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    70%,
+    100% {
+      transform: translateY(8px);
+      opacity: 0;
+    }
+  }
+
+  @keyframes pop {
+    0%,
+    100% {
+      transform: scale(0.92);
+      opacity: 0.85;
+    }
+    50% {
+      transform: scale(1.06);
+      opacity: 1;
+    }
+  }
+
+  @keyframes sway {
+    0%,
+    100% {
+      transform: rotate(-2deg);
+    }
+    50% {
+      transform: rotate(3deg);
+    }
+  }
+
+  @keyframes turn {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes bob {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-6px);
+    }
+  }
+
+  @keyframes grow-line {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  @keyframes step-ring {
+    0% {
+      transform: scale(1);
+      opacity: 0.8;
+    }
+    100% {
+      transform: scale(1.9);
+      opacity: 0;
+    }
   }
 
   /* ---- Controls: a press answers within 150 ms ---- */
@@ -401,6 +776,375 @@
       opacity: 1;
       transform: translateX(0);
     }
+  }
+}
+
+/*
+ * The date and time picker (docs/design/frontend.md, "Large screens, icons and the date picker").
+ * The popover rises and fades in, the day circles pop, the band of the voting days grows from
+ * its start; only transform and opacity move. The reduced-motion block below stops all of it.
+ */
+@layer components {
+  .bg-day-start {
+    background-image: linear-gradient(160deg, var(--color-hero-from), var(--color-primary));
+  }
+
+  .bg-day-end {
+    background-image: linear-gradient(160deg, var(--color-hero-from), var(--color-warm));
+  }
+
+  .picker-rise {
+    animation: picker-rise var(--duration-base) var(--ease-out-soft) both;
+  }
+
+  @keyframes picker-rise {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes picker-pop {
+    from {
+      transform: scale(0.4);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+
+  .picker-day {
+    position: relative;
+    display: grid;
+    place-items: center;
+    height: 38px;
+    font-size: var(--text-base);
+    color: var(--color-ink);
+    cursor: pointer;
+  }
+
+  .picker-day-n {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-full);
+    transition: background-color var(--duration-fast) var(--ease-out-soft);
+  }
+
+  .picker-day:hover .picker-day-n {
+    background-color: var(--color-line-soft);
+  }
+
+  .picker-day:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: -2px;
+    border-radius: var(--radius-full);
+  }
+
+  /* The band of the voting days: whole for a day inside, half for the first and the last. */
+  .picker-day[data-range]::before {
+    content: '';
+    position: absolute;
+    inset: 2px 0;
+    background-color: var(--color-primary-soft);
+    transform-origin: left center;
+    animation: grow-line var(--duration-base) var(--ease-out-soft) both;
+  }
+
+  .picker-day[data-range='start']::before {
+    left: 50%;
+  }
+
+  .picker-day[data-range='end']::before {
+    right: 50%;
+    transform-origin: right center;
+  }
+
+  .picker-day[data-single]::before {
+    display: none;
+  }
+
+  .picker-day[data-range='in'] .picker-day-n {
+    color: var(--color-status-scheduled);
+  }
+
+  /* The first and the last day are circles: primary, and the magenta of the end. */
+  .picker-day[data-range='start'] .picker-day-n,
+  .picker-day[data-range='end'] .picker-day-n {
+    color: var(--color-surface);
+    font-weight: 700;
+    animation: picker-pop 350ms var(--ease-spring) both;
+  }
+
+  .picker-day[data-range='start'] .picker-day-n {
+    background-color: var(--color-primary);
+  }
+
+  .picker-day[data-range='end'] .picker-day-n {
+    background-color: var(--color-hero-from);
+  }
+
+  .picker-day[data-today]:not([data-range='start']):not([data-range='end']) .picker-day-n {
+    outline: 2px solid var(--color-primary);
+    outline-offset: -2px;
+  }
+}
+
+/*
+ * The institution dashboard (docs/design/frontend.md, "Large screens, icons and the date picker",
+ * point 5): the coloured header of each card, the floating icon circle of an empty card, the
+ * ring of the first steps and the bar of the open election. Only transform and opacity move;
+ * the reduced-motion block below stops all of it.
+ */
+@layer components {
+  .dash-head {
+    color: var(--color-surface);
+  }
+
+  .dash-head::after {
+    content: '';
+    position: absolute;
+    right: -20px;
+    top: -30px;
+    width: 130px;
+    height: 130px;
+    border-radius: 999px;
+    background-color: var(--color-glass);
+    pointer-events: none;
+  }
+
+  .dash-head > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .dash-head[data-head='open-election'] {
+    background-image: linear-gradient(120deg, var(--color-status-open), var(--color-primary));
+  }
+
+  .dash-head[data-head='todo'] {
+    color: var(--color-deep);
+    background-image: linear-gradient(120deg, var(--color-accent), var(--color-accent-light));
+  }
+
+  .dash-head[data-head='getting-started'],
+  .dash-head[data-head='institution'] {
+    background-image: linear-gradient(120deg, var(--color-hero-mid), var(--color-primary));
+  }
+
+  .dash-head[data-head='activity'] {
+    background-image: linear-gradient(120deg, var(--color-hero-from), var(--color-hero-mid));
+  }
+
+  .dash-head[data-head='latest'] {
+    background-image: linear-gradient(120deg, var(--color-primary), var(--color-backdrop-to));
+  }
+
+  .dash-head[data-head='figures'] {
+    background-image: linear-gradient(120deg, var(--color-teal), var(--color-status-open));
+  }
+
+  /* The cards come in one after the other as the page opens (not on scroll). */
+  .rise-stagger > * {
+    animation: rise-in 600ms var(--ease-out-soft) backwards;
+  }
+
+  .rise-stagger > :nth-child(2) {
+    animation-delay: 100ms;
+  }
+  .rise-stagger > :nth-child(3) {
+    animation-delay: 180ms;
+  }
+  .rise-stagger > :nth-child(4) {
+    animation-delay: 260ms;
+  }
+  .rise-stagger > :nth-child(5) {
+    animation-delay: 340ms;
+  }
+  .rise-stagger > :nth-child(n + 6) {
+    animation-delay: 420ms;
+  }
+
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      transform: translateY(22px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .float-art {
+    animation: floaty 6s ease-in-out infinite;
+  }
+
+  .ring-spin {
+    animation: ring-spin 1.2s var(--ease-out-soft) both;
+  }
+
+  .bg-bar-open {
+    background-image: linear-gradient(90deg, var(--color-status-open), var(--color-primary));
+  }
+
+  @keyframes ring-spin {
+    from {
+      transform: rotate(-90deg);
+      opacity: 0.2;
+    }
+    to {
+      transform: none;
+      opacity: 1;
+    }
+  }
+}
+
+/*
+ * The election page and form (docs/design/frontend.md, "Large screens, icons and the date picker",
+ * points 7 and 8): the header band, the coloured header of each card, the path of next steps.
+ */
+@layer components {
+  .election-hero[data-status='draft'] {
+    background-image: linear-gradient(
+      120deg,
+      var(--color-ink-soft),
+      var(--color-primary) 60%,
+      var(--color-hero-mid)
+    );
+  }
+
+  .election-hero[data-status='scheduled'] {
+    background-image: linear-gradient(120deg, var(--color-primary), var(--color-panel-to));
+  }
+
+  .election-hero[data-status='open'] {
+    background-image: linear-gradient(120deg, var(--color-status-open), var(--color-primary));
+  }
+
+  .election-hero[data-status='closed'] {
+    background-image: linear-gradient(120deg, var(--color-ink-2), var(--color-ink-soft));
+  }
+
+  .election-hero[data-status='published'] {
+    background-image: linear-gradient(120deg, var(--color-hero-from), var(--color-hero-mid));
+  }
+
+  .election-hero[data-status='archived'] {
+    background-image: linear-gradient(120deg, var(--color-ink-soft), var(--color-ink-2));
+  }
+
+  .sect-head {
+    color: var(--color-surface);
+  }
+
+  .sect-head::after {
+    content: '';
+    position: absolute;
+    right: -20px;
+    top: -30px;
+    width: 120px;
+    height: 120px;
+    border-radius: 999px;
+    background-color: var(--color-glass);
+    pointer-events: none;
+  }
+
+  .sect-head > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .sect-head[data-tone='info'] {
+    background-image: linear-gradient(120deg, var(--color-hero-mid), var(--color-primary));
+  }
+
+  .sect-head[data-tone='calendar'] {
+    background-image: linear-gradient(120deg, var(--color-hero-from), var(--color-primary));
+  }
+
+  .sect-head[data-tone='settings'] {
+    background-image: linear-gradient(120deg, var(--color-primary), var(--color-backdrop-to));
+  }
+
+  .sect-head[data-tone='cover'] {
+    background-image: linear-gradient(120deg, var(--color-backdrop-from), var(--color-hero-mid));
+  }
+
+  .sect-head[data-tone='facts'] {
+    background-image: linear-gradient(120deg, var(--color-teal), var(--color-status-open));
+  }
+
+  .sect-head[data-tone='steps'] {
+    color: var(--color-deep);
+    background-image: linear-gradient(120deg, var(--color-accent), var(--color-accent-light));
+  }
+
+  .bg-day-badge-start {
+    background-image: linear-gradient(160deg, var(--color-hero-from), var(--color-primary));
+  }
+
+  .bg-day-badge-end {
+    background-image: linear-gradient(160deg, var(--color-accent), var(--color-backdrop-from));
+  }
+
+  .bg-cover-empty {
+    background-image: linear-gradient(
+      135deg,
+      var(--color-backdrop-from),
+      var(--color-backdrop-mid) 45%,
+      var(--color-backdrop-to)
+    );
+  }
+
+  /* The line between the two days grows from both ends. */
+  .span-line {
+    height: 3px;
+    flex: 1;
+    border-radius: 2px;
+    background-image: linear-gradient(90deg, var(--color-primary), var(--color-hero-from));
+    transform-origin: left center;
+    animation: grow-line 1.2s 400ms var(--ease-out-soft) both;
+  }
+
+  .span-line-end {
+    transform-origin: right center;
+  }
+
+  /* The dotted line that joins the steps of the path, when they sit in one row. */
+  .path-step {
+    position: relative;
+  }
+
+  @container (min-width: 44rem) {
+    .path-step:not(:first-child)::before {
+      content: '';
+      position: absolute;
+      top: 26px;
+      left: -50%;
+      width: 100%;
+      height: 3px;
+      background-image: repeating-linear-gradient(
+        90deg,
+        var(--color-line-strong) 0 8px,
+        transparent 8px 14px
+      );
+    }
+  }
+
+  .path-dot {
+    transition: transform var(--duration-base) var(--ease-out-soft);
+  }
+
+  .path-step:hover .path-dot {
+    transform: scale(1.1);
   }
 }
 

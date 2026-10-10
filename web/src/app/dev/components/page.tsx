@@ -17,7 +17,10 @@ export default async function ComponentsPage() {
 
       <Card title={t('dev.components.buttons')}>
         <div className="flex flex-wrap items-center gap-3">
-          <Button data-testid="demo-button-primary">{t('dev.components.primary')}</Button>
+          <Button data-testid="demo-button-pill">{t('dev.components.primary')}</Button>
+          <Button shape="rounded" data-testid="demo-button-primary">
+            {t('dev.components.primary')}
+          </Button>
           <Button variant="secondary" data-testid="demo-button-secondary">
             {t('dev.components.secondary')}
           </Button>
@@ -62,6 +65,7 @@ export default async function ComponentsPage() {
       </Card>
 
       <Card
+        flat
         data-testid="demo-card"
         title={t('dev.components.cardTitle')}
         actions={<Button variant="quiet">{t('dev.components.cardAction')}</Button>}

@@ -1,6 +1,6 @@
 # New Voting System — Front-end design
 
-Version 1.2 · 2026-10-06 (adds the showcase gradient, the bright accent, motion and the composition rules) · goes with [SPEC.md](../SPEC.md) 1.3,
+Version 1.3 · 2026-10-09 (new theme: Material periwinkle; composition and motion rules kept and re-themed) · goes with [SPEC.md](../SPEC.md) 1.3,
 [architecture.md](architecture.md) and the approved mockups in [mockups/](mockups/).
 
 Stack: Next.js (App Router), TypeScript in strict mode, Tailwind CSS.
@@ -93,30 +93,38 @@ Rules:
 
 ## 4. Design tokens
 
-Taken from the mockups. Defined once as CSS variables and exposed as Tailwind theme
-values; a component never writes a raw colour.
+Theme "Material periwinkle", approved by Jun on 2026-10-09 from a reference picture
+(rounded white card, periwinkle panel, pink-to-blue backdrop, flat illustration). It
+replaces the navy and orange showcase theme of version 1.2; the composition and motion
+rules below were kept and re-themed. Defined once as CSS variables and exposed as
+Tailwind theme values; a component never writes a raw colour.
+
+Mockups: [material-login.html](mockups/material-login.html),
+[material-register.html](mockups/material-register.html),
+[material-admin.html](mockups/material-admin.html). The mockups show the periwinkle a
+little lighter than the tokens: the tokens are darkened so white text on them reaches
+AA contrast.
 
 ### Colour
 
 | Token | Value | Use |
 |---|---|---|
-| `ink` | `#111B33` | Text, headings |
-| `ink-2` | `#36425F` | Strong secondary text |
-| `ink-soft` | `#4A556B` | Secondary text, help text |
-| `ink-muted` | `#8E99AE` | Placeholders, disabled |
-| `canvas` | `#F3F5F9` | Page background |
+| `ink` | `#14162B` | Text, headings |
+| `ink-2` | `#34385A` | Strong secondary text |
+| `ink-soft` | `#565B76` | Secondary text, help text |
+| `ink-muted` | `#8A8FA8` | Placeholders, disabled |
+| `canvas` | `#F1F2FC` | Page background |
 | `surface` | `#FFFFFF` | Cards, inputs, headers |
-| `surface-alt` | `#FAFBFD` | Zebra and hover on a surface |
-| `line` | `#D8DEE9` | Borders |
-| `line-soft` | `#E7EBF2` | Dividers inside a card |
-| `line-strong` | `#B9C2D3` | Input borders, unselected controls |
-| `primary` | `#1E3A8A` | Main actions, selection, links |
-| `primary-hover` | `#172B66` | Hover and pressed |
-| `primary-soft` | `#E6ECFA` | Selected background, focus ring |
-| `primary-line` | `#C9D3EA` | Border on a soft primary surface |
-| `navy` | `#111B33` | Side menu background |
-| `navy-raised` | `#1B2747` | Selected item in the side menu |
-| `warm` | `#C2410C` | Warnings, things to do, second avatar colour |
+| `surface-alt` | `#F8F9FE` | Hover on a surface |
+| `line` | `#DDE0F2` | Borders |
+| `line-soft` | `#E9EBF7` | Dividers inside a card |
+| `line-strong` | `#B5BBDB` | Input underlines, unselected controls |
+| `primary` | `#5468D4` | Main actions, selection, links, focus underline |
+| `primary-hover` | `#4458C2` | Hover and pressed |
+| `primary-soft` | `#E3E8FF` | Selected background, chips, focus ring |
+| `primary-line` | `#B7C1F6` | Border on a soft primary surface |
+| `panel-from`, `panel-to` | `#5468D4`, `#7A4FC4` | Side menu and sign-in side panel, vertical gradient |
+| `warm` | `#C2410C` | Warnings, things to do |
 | `warm-ink` | `#6B2408` | Text on a warm surface |
 | `warm-soft` | `#FFE8D6` | Warning background, icon tile |
 | `warm-softer` | `#FFF4EA` | Inline notice |
@@ -126,55 +134,97 @@ values; a component never writes a raw colour.
 | `ok-ink` / `ok-soft` | `#0B4A2A` / `#DDEFE2` | Valid rows and matched columns in the import |
 | `danger` | `#9A2A0A` | Destructive actions, required mark |
 | `danger-line` | `#E9B8A8` | Border of a destructive button |
-| `navy-deep` | `#061A3D` | Darkest surfaces on a showcase background; text on `accent` |
-| `hero-from`, `hero-mid`, `hero-to` | `#09295B`, `#0D3A7A`, `#1A4A8A` | The showcase gradient, at 135°, with the middle stop at 60 % |
-| `accent` | `#FF8603` | Highlights and the main call to action on a showcase surface |
-| `accent-light` | `#FFB45A` | Second stop of the accent gradient, shimmer |
+| `deep` | `#1E2A5A` | Darkest indigo: text on `accent`, drawings |
+| `hero-from`, `hero-mid`, `hero-to` | `#A8349A`, `#7C5BD0`, `#5468D4` | Gradient of a surface that carries white text, at 135°, middle stop at 45 % |
+| `backdrop-from`, `backdrop-mid`, `backdrop-to` | `#C944B6`, `#A66EDC`, `#7A92EE` | Page background behind the sign-in card and the public pages; never behind text |
+| `accent` | `#F29A76` | The main call to action on a gradient surface, highlights, the badge |
+| `accent-light` | `#F7D9A8` | One figure on a gradient surface, second stop of the accent |
+| `status-open`, `status-scheduled`, `status-draft`, `status-published` | see below | Status chips |
 
-**Showcase surfaces.** The gradient is the background of the surfaces that present the
-product, and only of those: the voter's code entry screen, the sign-in and register
-pages, the header of the public results, the admin side menu. Working surfaces (ballots,
-lists, forms, records) stay on `canvas` and `surface`, so text and candidate photos stay
-easy to read. On a showcase surface, text is white and cards are `surface`.
+Status chips are text on a soft surface, never colour alone:
 
-**The bright accent.** `accent` is the background of the one main action of a screen, on
-any surface, and of highlights on a showcase surface. Text on `accent` is always
-`navy-deep`, never white: white on this orange does not reach AA contrast. `warm` stays
-the colour of warnings and of text on a light background; `accent` is never used for
-text on a light background.
+| Status | Text | Surface |
+|---|---|---|
+| open | `#17623D` | `#DDF3E7` |
+| scheduled | `#2E3FA8` | `#E3E8FF` |
+| draft | `#444964` | `#ECEEF5` |
+| published | `#6B2DA8` | `#F0E3FB` |
+| closed, archived | `ink-soft` | `line-soft` |
+
+**Gradient surfaces.** Three kinds, never mixed. (1) The **backdrop** (bright gradient,
+slowly drifting) lies behind the sign-in and register card and behind the public pages'
+header; nothing is written on it directly. (2) The **panel** (`panel-from` to `panel-to`)
+is the side menu and the left panel of the sign-in card; text on it is white, at 15 px
+or more and weight 500 or more. (3) The **hero** gradient carries white text, as the header of
+the public results and as the cover of a card. Working surfaces (ballots, lists,
+forms, records) stay on `canvas` and `surface`, so text and candidate photos stay easy to
+read.
+
+**The accent.** `accent` (coral) is the background of the one main action of a screen on
+a gradient surface, and the badge of the side menu. Text on `accent` is always `deep`,
+never white. On a light surface the main action is `primary` with white text. `accent`
+is never used for text on a light background.
+
+### Shape and depth (Material)
+
+| Token | Value | Use |
+|---|---|---|
+| `radius-lg` | 20 px | Cards |
+| `radius-xl` | 28 px | The sign-in card, the side menu's outer corners, pill buttons (full height) |
+| `radius-full` | 999 px | Chips, buttons, search field, avatars |
+| `shadow-1` | `0 1px 2px` ink at 12 % | A card at rest, a tile, an icon button |
+| `shadow-2` | `0 6px 16px -10px` ink at 30 % | A card in a grid |
+| `shadow-3` | `0 18px 30px -12px` primary at 55 % | A card or tile lifted by hover |
+| `shadow-button` | `0 2px 4px` and `0 8px 18px -6px`, primary at 35 % and 60 % | The main button |
+
+Depth is elevation, as in Material: surfaces at rest sit on `shadow-1` or `shadow-2`;
+hover lifts them (`translateY(-2px)` for a control, `-5px` for a card) and raises the
+shadow. Text fields are underlined, not boxed, with a floating label.
+
+### Type
+
+Display: Archivo, weight 800, tight tracking, for titles and figures. Body: Roboto, 400
+and 500. Both are served from our own origin. Sizes as in slice 01.
 
 ### Composition
 
-Approved on two animated reference mockups, kept with the others:
-[motion-results.html](mockups/motion-results.html) (public results) and
-[motion-vote.html](mockups/motion-vote.html) (voting flow). The earlier mockups keep
-their content and their screens; their look follows these rules.
+Reference mockups: the three Material mockups above. The two animated mockups of
+version 1.2 ([motion-results.html](mockups/motion-results.html),
+[motion-vote.html](mockups/motion-vote.html)) and the earlier ones keep their content and
+screens; their look follows these rules.
 
-1. **Every screen opens with a full-width showcase hero, and its content climbs onto
-   it.** The hero (gradient, white text) answers "where am I and what matters here": a
-   pill, a short label, a large title, the state, three key figures. On a desktop it has
-   two tilted cards on its right that restate the essential (the winner, the current
-   choice). The content below is light; its first row of cards overlaps the bottom of the
-   hero by about 50 px. A hero-on-the-left, task-on-the-right split of the whole screen
-   was tried for the voting flow and rejected.
-2. **A section opens with its own showcase element**, never with a bare title on white:
-   a full panel for the main item of the page, a band (a strip of the same gradient with
-   an avatar, a name and one figure) for the others.
+1. **Sign-in and register are one white card on the backdrop.** The card is 1000 px
+   wide at most, 28 px corners, `shadow-3`. Left, a `panel` with the logo, one short
+   promise (display font, white) and a flat illustration that overhangs the card's
+   middle (a ballot dropping into a box, a plant, speech bubbles; register shows the four
+   steps instead); right, the form, with the language switch at the top right. On a phone
+   the panel stacks above the form and the illustration no longer overhangs. The card
+   rises in on load.
+2. **Admin has no hero band.** The page title sits on the top bar with the account avatar;
+   the "go to" search and the language switch stay at the top of the side menu (they are
+   reached from the drawer on a phone). The verify banner sits inside the top bar. The first row of the content
+   is the compact row: status tiles (they double as filters), year chips, and the main
+   action. Nothing empty is left between the bar and the first card.
 3. **Fill the width.** On a desktop a row is never one narrow column in an empty page.
-   Compositions, in order of preference: a split card (panel and body), a pair of cards,
-   a stack beside a taller card, a grid of small tiles. A long list of bars becomes a grid
-   of tiles.
-4. **Key figures sit in glass tiles** on the showcase surface: a translucent white tile
-   with a thin light border, a large figure in the display font, a short label under it.
-   Three per row.
-5. **One figure per band, in `accent-light`**: the lead, the score, the count that
-   matters. Everything else on the panel is white or the soft white.
-6. **Status has a colour of its own on a band.** The gradient is the normal state; a tie
-   or a warning uses the warm gradient; success uses teal on the working area.
-7. **A page ends with a showcase band** that carries the next action (share, continue,
-   create), so the bottom of a page is never an empty margin.
-8. **The main action is the accent button**, one per screen, at the bottom right on a
-   desktop and full width at the bottom on a phone. Other actions are plain.
+   Compositions, in order of preference: a grid of cards (three columns at 1280 px,
+   16 px gap, `auto-fill` from 300 px), a split card (panel and body), a pair of cards, a
+   stack beside a taller card. A long list of bars becomes a grid of tiles. A creation
+   tile (dashed border, round plus button) is the first cell of a list grid.
+4. **Figures sit in tiles.** A white tile with `shadow-1`, a large figure in the display
+   font and a short label (48 px high, figure then label, so tiles, year chips and the main
+   button share one row), and a bottom line in the colour of its status that grows
+   on load. The selected tile is `primary` with white text. On a gradient surface a
+   figure sits in a translucent glass tile (`glass`, `glass-line`).
+5. **One highlighted figure per gradient surface**, in `accent-light`.
+6. **A card is led by its own cover.** An election card starts with a 120 px gradient
+   cover (a slow light turning across it), then the status chip, the title, the dates, the
+   one figure that matters (a progress bar for an open election), and a row of actions.
+   The status keeps its chip colours; a tie or a warning uses `warm`.
+7. **A page ends with something useful**, so the bottom of a page is never an empty
+   margin: the next step, a "show more" button, or the closing band of the public pages.
+8. **The main action is a `primary` pill button**, one per screen (the accent button on
+   a gradient surface), at the bottom right of a form on a desktop and full width at the
+   bottom on a phone. Other actions are text buttons.
 9. **In the voting flow the hero is the voter's memory**: the institution, their name
    and class, the ballot's title, the step bar, and a "your choice" card that updates the
    moment a candidate is picked.
@@ -195,6 +245,67 @@ their content and their screens; their look follows these rules.
     reminder of the current choice on its left, so it is always reachable without
     scrolling.
 
+### Large screens, icons and the date picker (added 2026-10-09)
+
+Reference: [material-wide.html](mockups/material-wide.html) (1920 × 1080),
+[material-picker.html](mockups/material-picker.html). Jun's screen is 1920 × 1080: every list is checked
+at 1280 and at 1920.
+
+1. **Cards grow with the screen.** The card grid is `auto-fill` from 300 px below 1600 px (three columns at
+   1280) and from 380 px from 1600 px, where the rail takes 340 px: three columns of 400 px and more at 1920. An election card has a 120 px cover with a large faint
+   icon of its status, the status badge on the cover, the title (20 px), the dates line, **three fact tiles** (positions,
+   voters, ballots; each an icon, a figure, a label) and a row of actions. An open election shows a participation bar.
+2. **From 1600 px a right rail** of 340 px sits beside the grid and the page never leaves its right side empty.
+   It holds two panels: a **month calendar** (the month of the nearest upcoming election, else the current month;
+   days with an election are marked, today is ringed) and a **to-do list** (drafts to finish, an election starting
+   within seven days; later slices add voters to import, candidates to add, codes to print). With nothing to do the
+   list invites the first election. Below 1600 px the rail is hidden, never squeezed.
+3. **Icons make the interface alive.** One inline SVG set (24 px grid, stroke 2, rounded), always `aria-hidden`
+   and always with its text beside it: the status tiles, the status badge and watermark on a cover, the fact tiles,
+   every card action, the side menu. Colour comes from tokens.
+4. **The date and time picker replaces the native field.** Two big tiles, "Début" and "Fin": a gradient day badge
+   (month, day, weekday), the time in the display font and the full date in words. Touching a tile opens a popover
+   (a bottom sheet on a phone) holding quick choices (tomorrow, next Monday for five days, in a week, one day 8:00
+   to 17:00), a calendar of two months (one on a phone) with the voting days shaded between the start and the end,
+   time chips and hour and minute steppers for the field being edited, the time zone's name and the duration. The
+   start day and the end day are circles (primary and rose); a pick that would put the end before the start moves
+   the other date so the previous duration is kept. A past day is allowed for a draft. The two native
+   `datetime-local` fields stay in the page, visually hidden, as the keyboard and screen reader path and as the
+   value the form reads; the tiles are the pointer interface and write to them. Escape closes the popover and returns
+   focus to its tile.
+5. **The institution dashboard** ([material-dashboard-empty.html](mockups/material-dashboard-empty.html),
+   [material-dashboard.html](mockups/material-dashboard.html)). A compact welcome band (gradient, the name, the
+   institution, three quick actions: new election as the coral main action, invite a colleague, the institution page).
+   Below it **one white zone** (white, 1 px `line` border, 32 px corners) titled "Vue d'ensemble" with today's date: all
+   the cards sit inside it, so the area is visible on the lavender page even when a card is empty. The cards are bigger
+   (at least 300 px tall; the grid is `auto-fill` from 300 px below 1600 px and from 380 px from 1600 px, so three
+   columns at 1920) and each has a **coloured header band** (68 px, gradient, white text, a round icon, the title, an
+   optional link or counter): open election green to indigo, to do coral (text `deep`), getting started violet, recent
+   activity purple, latest elections blue, key figures teal, institution violet to indigo. An empty card shows a large
+   floating icon circle, one sentence and, where it helps, a button. Filled cards use icon fact tiles, icon rows and
+   status chips. Getting started (a progress ring and three steps: verify the e-mail, complete the institution with a
+   logo, create the first election) shows until the three are done, then the institution card (user count, two-factor
+   state) takes its place. Recent activity stays honestly empty until the audit log exists.
+6. **The elections list has the same white zone** (`elections-zone`, white, 1 px `line` border, 32 px corners)
+   around its card grid and its creation tile; the status tiles, the year chips and the main button stay above it on the
+   page background, the rail beside it. The zone's padding is 12 px below 1600 px and 20 px from 1600 px, and the grid's
+   column floor is lowered below 1600 px so three columns still fit at 1280. An empty list shows the zone with the
+   creation tile in it.
+7. **The election page** ([material-election.html](mockups/material-election.html)). A back link and the account at the top;
+   then a gradient **header band** (about 176 px, a large faint status icon, a slow light turning across it): the status
+   badge, the title (40 px), the description, chips (dates, duration, language) and the actions on the right (edit as
+   the coral main action, duplicate in glass, delete in white with the danger colour). Below it the **white zone** holds
+   12-column cards with coloured headers and icons: **Calendrier** (5 columns: start and end as day badges, the times
+   in the display font, a line between them with the duration, the time zone), **Réglages du vote** (4: icon rows for
+   language, candidate order, results display), **Affiche** (3: the cover, or a gradient with a floating icon when
+   there is none, and a change button), then **Postes et électeurs** (4: three fact tiles) and **Ce qui vient ensuite**
+   (8: a horizontal path of four steps, each a coloured icon circle joined by dotted lines, with a "Bientôt" tag while
+   the step does not exist). Below 1500 px the cards take 6 columns, below 900 px they stack. Only data that exists is
+   shown: no invented rows.
+8. **The election form** gets the same language: the white zone, a coloured header and icon on each section
+   (Informations, Calendrier with the picker, Réglages du vote, Affiche), the side panel (schedule in words, duration,
+   cover preview, next steps) in the same card style, nothing left empty at 1920.
+
 ### Motion
 
 The interface moves: it should feel alive, never slow.
@@ -213,8 +324,14 @@ The interface moves: it should feel alive, never slow.
 | Count up | A figure counts from zero to its value | Dashboard, turnout, results |
 | Grow | A bar grows from zero to its value | Turnout, results |
 | Live dot | A dot that pulses, or sends out a ring | An open election, live turnout |
-| Shimmer | A light sweeps across | Loading placeholders; the accent button on a showcase surface |
-| Float | Drifts up and down a few pixels over 5 to 6 seconds, slightly tilted | Decorative cards of the sign-in and public hero only |
+| Shimmer | A light sweeps across | Loading placeholders; the main button on the sign-in card and the admin list |
+| Float | Drifts up and down a few pixels over 5 to 9 seconds | The illustration of the sign-in card, decorative cards of the public hero only |
+| Drift | The backdrop gradient slides slowly (14 s) | Behind the sign-in card and the public header only |
+| Sweep | A light turns slowly across a card's cover (9 s) | Election card covers |
+| Lift | A card or tile rises 5 px (a control 2 px) and its shadow deepens | Hover on cards, tiles, buttons |
+| Float label | The label of a field rises and shrinks above the text | Every text field, on focus and when filled |
+| Bob | The round plus button of a creation tile rises and falls 6 px | Creation tile only |
+| Strength | The three segments of the password meter fill one after the other | Register |
 | Slide | Enters from the side | Panels, toasts, the next ballot |
 | Select | The ring springs out around the choice | Candidates, cards, fields |
 | Check | The mark draws itself, with one ring pulse | Vote recorded, import done, saved |
@@ -223,7 +340,8 @@ Rules:
 
 1. **Only movement and fading are animated** (`transform` and `opacity`), in CSS.
    Exceptions, all on small elements: the check mark that draws itself (its stroke), the
-   sweep of colour in the accent word of a hero title (its background position), and the
+   drift of the backdrop gradient (its background position, sign-in only), the shadow of a
+   card or button deepening on hover, the label of a field rising (its top and size), and the
    colour, border and ring of a control easing on hover, focus and selection. No
    animation library. This keeps the voting flow inside its weight budget and smooth on
    a low-end phone.
@@ -235,7 +353,7 @@ Rules:
 4. **The voting flow moves only on purpose**: select, the step bar, the slide between
    ballots, the check at the end. Nothing loops and nothing floats on a ballot: a target
    that moves causes a wrong tap. The drifting light and the live dot run on the code
-   entry and confirmation screens only; the sweep of light on the accent button runs on
+   entry and confirmation screens only; the sweep of light on the main button runs on
    the code entry screen only.
 7. **Feedback is immediate and small**: a control answers a press within 150 ms (a
    slight shrink), the main action gives one short nudge when it becomes available, and
@@ -249,8 +367,9 @@ Rules:
 |---|---|---|
 | base | 320 px | One column. Admin: the side menu becomes a drawer |
 | `md` | 768 px | Voter flow moves to the centred desktop layout |
-| `lg` | 1024 px | Admin: fixed side menu (272 px) plus content |
-| `xl` | 1280 px | Admin: list and detail side by side; this is the mockup width |
+| `lg` | 1024 px | Admin: fixed side menu (272 px, gradient panel, rounded outer corners) plus content |
+| `xl` | 1280 px | Admin: list and detail side by side; this is the first mockup width |
+| `2xl` | 1600 px | Admin lists gain the 340 px right rail; 1920 × 1080 is checked as well |
 
 ## 5. Admin layout rules
 

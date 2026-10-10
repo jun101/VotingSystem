@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { cx } from './cx';
+import { LogoMark } from './LogoMark';
 
 /** The three areas of the product. Only the plain layout exists in this slice. */
 export type PageShellVariant = 'plain' | 'voter' | 'public' | 'admin';
@@ -23,7 +24,7 @@ type PageShellProps = {
 const focusRing =
   'focus-visible:ring-4 focus-visible:ring-primary-soft focus-visible:outline-2 focus-visible:outline-primary';
 
-/** On the navy hero the usual outline is too dark: a light one, from the tokens. */
+/** On the gradient hero the usual outline is too dark: a light one, from the tokens. */
 const heroFocus =
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-light';
 
@@ -40,11 +41,12 @@ export function PageShell({
     <Link
       href="/"
       className={cx(
-        'rounded-sm font-display text-lg font-bold',
+        'flex w-fit items-center gap-2.5 rounded-sm font-display text-lg font-extrabold',
         hero ? 'text-surface' : 'text-ink',
         hero ? heroFocus : focusRing,
       )}
     >
+      <LogoMark size={32} />
       {productName}
     </Link>
   );

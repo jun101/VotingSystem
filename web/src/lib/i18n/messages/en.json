@@ -111,11 +111,7 @@
   },
   "auth": {
     "panel": {
-      "title": "Your school’s elections, from coupon to result.",
-      "point1": "Import your voters from Excel.",
-      "point2": "Print coupons or send the codes by email.",
-      "point3": "Secret ballot, one vote per voter.",
-      "point4": "Results published on a page you can share."
+      "title": "Clear elections, for every school."
     },
     "password": {
       "show": "Show password",
@@ -132,7 +128,12 @@
       "passwordHelp": "At least 12 characters.",
       "submit": "Create the account",
       "haveAccount": "Already registered?",
-      "signIn": "Sign in"
+      "signIn": "Sign in",
+      "promise": "Launch your first election in four steps.",
+      "step1": "Create the institution’s account",
+      "step2": "Set up the ballot and the candidates",
+      "step3": "Hand a code to every voter",
+      "step4": "Publish the results"
     },
     "login": {
       "title": "Sign in",
@@ -258,19 +259,44 @@
     "dashboard": {
       "welcome": "Welcome, {name}",
       "institution": "{name}",
-      "lede": "This is your dashboard. It fills up with your first election.",
+      "institutionRole": "{name} · {role}",
       "create": "Create an election",
+      "quick": {
+        "newElection": "New election",
+        "invite": "Invite a colleague",
+        "institution": "My institution"
+      },
+      "zone": {
+        "title": "Overview",
+        "today": "today, {date}"
+      },
       "openElection": {
         "title": "Open election",
-        "empty": "No election is open right now."
+        "empty": "No election is open right now.",
+        "live": "Live",
+        "ends": "Ends on {day} at {time}",
+        "elapsed": "Time elapsed",
+        "positions": "Positions",
+        "voters": "Voters",
+        "ballots": "Ballots",
+        "open": "Open the election"
       },
       "todo": {
         "title": "To do",
-        "empty": "Nothing to do right now."
+        "empty": "Nothing to do right now. All is up to date.",
+        "draft": "Finish the draft",
+        "soon": "Get ready to start",
+        "detail": "{title} · {when}",
+        "today": "today",
+        "tomorrow": "tomorrow",
+        "inDays": "in {days} days"
       },
       "figures": {
         "title": "Key figures",
-        "empty": "The figures show up with your first election."
+        "empty": "The figures show up with your first election.",
+        "elections": "Elections",
+        "voters": "Registered voters",
+        "ballots": "Ballots"
       },
       "activity": {
         "title": "Recent activity",
@@ -278,7 +304,45 @@
       },
       "latest": {
         "title": "Latest elections",
-        "empty": "You have no election yet."
+        "empty": "You have no election yet.",
+        "all": "See all"
+      },
+      "gettingStarted": {
+        "title": "Getting started",
+        "count": "{done} of {total}",
+        "progress": "Progress of the first steps",
+        "percent": "{percent}%",
+        "lead": {
+          "one": "{count} step left before everything is ready.",
+          "other": "{count} steps left before everything is ready."
+        },
+        "done": "Done",
+        "steps": {
+          "email": {
+            "title": "Verify your email",
+            "hint": "Open the link sent to your inbox"
+          },
+          "institution": {
+            "title": "Complete the institution",
+            "hint": "Add the logo"
+          },
+          "election": {
+            "title": "Create the first election",
+            "hint": "Title, dates, poster"
+          }
+        }
+      },
+      "institutionCard": {
+        "title": "Institution",
+        "users": {
+          "one": "{count} user",
+          "other": "{count} users"
+        },
+        "breakdown": "Owners: {owners} · Managers: {managers}",
+        "twoFactor": "Two-factor authentication",
+        "twoFactorOn": "On for your account",
+        "twoFactorOff": "Not on yet for your account",
+        "invite": "Invite a colleague"
       }
     },
     "comingSoon": {
@@ -657,7 +721,13 @@
       "duplicate": "Duplicate",
       "duplicateLabel": "Duplicate {title}",
       "delete": "Delete",
-      "deleteLabel": "Delete {title}"
+      "deleteLabel": "Delete {title}",
+      "facts": {
+        "positions": "Positions",
+        "voters": "Voters",
+        "ballots": "Ballots",
+        "group": "Election figures"
+      }
     },
     "dates": {
       "sameDay": "{date}",
@@ -672,6 +742,12 @@
       "cancel": "Cancel"
     },
     "form": {
+      "sections": {
+        "info": "Details",
+        "calendar": "Calendar",
+        "settings": "Vote settings",
+        "cover": "Poster"
+      },
       "hint": "Everything stays editable while the election is a draft.",
       "save": "Create the draft",
       "saveEdit": "Save",
@@ -769,7 +845,69 @@
       "locked": "This election is no longer a draft: its settings can no longer be changed.",
       "nextTitle": "What comes next",
       "soon": "Not available yet",
-      "coverTitle": "Cover"
+      "coverTitle": "Cover",
+      "back": "Elections",
+      "start": "Start",
+      "end": "End",
+      "zone": "Election details",
+      "changeCover": "Change the poster",
+      "stepsCount": "{done} of {total}",
+      "facts": {
+        "positions": "Positions",
+        "voters": "Voters",
+        "ballots": "Ballots"
+      },
+      "factsSoon": "Available with the next steps"
+    },
+    "rail": {
+      "label": "Calendar and tasks",
+      "calendar": {
+        "title": "Elections calendar",
+        "eventDay": "an election is running this day"
+      },
+      "todo": {
+        "title": "To do",
+        "draft": "Finish the draft",
+        "soon": "Get ready to start",
+        "today": "starts today",
+        "tomorrow": "starts tomorrow",
+        "days": "starts in {count} days",
+        "withWhen": "{title} · {when}",
+        "emptyFirst": "Nothing to do yet. Create your first election to get started.",
+        "emptyCreate": "Create the first election",
+        "emptyDone": "Nothing to do right now: all is in order."
+      }
+    },
+    "picker": {
+      "planning": "Voting dates",
+      "title": "Choose the dates",
+      "start": "Start",
+      "end": "End",
+      "empty": "To be chosen",
+      "presetsLabel": "Quick choices",
+      "presets": {
+        "tomorrow": "Tomorrow",
+        "nextMonday": "Next Monday · 5 days",
+        "inAWeek": "In a week",
+        "oneDay": "One day, 8 am to 5 pm"
+      },
+      "previousMonth": "Previous month",
+      "nextMonth": "Next month",
+      "dayStart": "voting starts",
+      "dayEnd": "voting ends",
+      "timeStart": "Start · {date}",
+      "timeEnd": "End · {date}",
+      "timeNone": "to be chosen",
+      "chipsLabel": "Common times",
+      "hour": "Hours",
+      "minute": "Minutes",
+      "hourPlus": "Next hour",
+      "hourMinus": "Previous hour",
+      "minutePlus": "5 minutes later",
+      "minuteMinus": "5 minutes earlier",
+      "zone": "Time zone: {zone}",
+      "cancel": "Cancel",
+      "apply": "Apply the dates"
     }
   }
 }

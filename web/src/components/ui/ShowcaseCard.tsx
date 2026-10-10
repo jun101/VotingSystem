@@ -21,7 +21,7 @@ export function ShowcaseCard({
   return (
     <section
       className={cx(
-        'flex flex-col overflow-hidden rounded-lg border border-line bg-surface md:flex-row',
+        'flex flex-col overflow-hidden rounded-lg border border-line bg-surface shadow-2 md:flex-row',
         className,
       )}
       {...rest}

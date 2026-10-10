@@ -88,7 +88,7 @@ export function ResetPasswordForm({ token }: { token: string | null }) {
         errorTestId="field-error-password"
       />
 
-      <Button type="submit" variant="accent" loading={busy} data-testid="reset-submit">
+      <Button type="submit" shimmer loading={busy} data-testid="reset-submit">
         {t('auth.reset.submit')}
       </Button>
     </form>

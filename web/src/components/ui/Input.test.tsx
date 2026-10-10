@@ -43,6 +43,6 @@ describe('Input', () => {
   it('is 44 px high at least, with 16 px text on a phone and 14 px from md', () => {
     render(<Input label="Name" />);
 
-    expect(screen.getByLabelText('Name')).toHaveClass('min-h-11', 'text-[16px]', 'md:text-base');
+    expect(screen.getByLabelText('Name')).toHaveClass('min-h-11', 'text-[16px]', 'md:text-md');
   });
 });

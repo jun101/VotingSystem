@@ -34,9 +34,9 @@ export function InstitutionPage({
     <Reveal
       stagger
       data-testid="institution-page"
-      className="grid gap-6 lg:grid-cols-2 lg:items-start"
+      className="grid gap-4 lg:grid-cols-2 lg:items-start"
     >
-      <div className="flex min-w-0 flex-col gap-6">
+      <div className="flex min-w-0 flex-col gap-4">
         <ProfileCard profile={profile} canEdit={owner} onProfile={setProfile} />
         <PublicAddress id={profile.id} />
       </div>

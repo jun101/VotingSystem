@@ -144,6 +144,7 @@ export function LoginForm({
         spellCheck={false}
         required
         data-testid="login-email"
+        labelTestId="login-email-label"
         error={fields.email}
         errorTestId="field-error-email"
       />
@@ -167,7 +168,7 @@ export function LoginForm({
         {t('auth.login.forgot')}
       </Link>
 
-      <Button type="submit" variant="accent" loading={busy} data-testid="login-submit">
+      <Button type="submit" shimmer loading={busy} data-testid="login-submit">
         {t('auth.login.submit')}
       </Button>
 

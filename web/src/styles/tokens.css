@@ -10,28 +10,28 @@
   --color-*: initial;
 
   /* Text and surfaces */
-  --color-ink: #111b33;
-  --color-ink-2: #36425f;
-  --color-ink-soft: #4a556b;
-  --color-ink-muted: #8e99ae;
-  --color-canvas: #f3f5f9;
+  --color-ink: #14162b;
+  --color-ink-2: #34385a;
+  --color-ink-soft: #565b76;
+  --color-ink-muted: #8a8fa8;
+  --color-canvas: #f1f2fc;
   --color-surface: #ffffff;
-  --color-surface-alt: #fafbfd;
+  --color-surface-alt: #f8f9fe;
 
   /* Lines */
-  --color-line: #d8dee9;
-  --color-line-soft: #e7ebf2;
-  --color-line-strong: #b9c2d3;
+  --color-line: #dde0f2;
+  --color-line-soft: #e9ebf7;
+  --color-line-strong: #b5bbdb;
 
   /* Primary */
-  --color-primary: #1e3a8a;
-  --color-primary-hover: #172b66;
-  --color-primary-soft: #e6ecfa;
-  --color-primary-line: #c9d3ea;
+  --color-primary: #5468d4;
+  --color-primary-hover: #4458c2;
+  --color-primary-soft: #e3e8ff;
+  --color-primary-line: #b7c1f6;
 
-  /* Side menu */
-  --color-navy: #111b33;
-  --color-navy-raised: #1b2747;
+  /* Panel: the side menu and the left side of the sign-in card (vertical gradient) */
+  --color-panel-from: #5468d4;
+  --color-panel-to: #7a4fc4;
 
   /* Warm: warnings, things to do */
   --color-warm: #c2410c;
@@ -52,13 +52,26 @@
   --color-danger: #9a2a0a;
   --color-danger-line: #e9b8a8;
 
-  /* Showcase surfaces: the gradient (135 degrees, middle stop at 60 %), the bright accent */
-  --color-navy-deep: #061a3d;
-  --color-hero-from: #09295b;
-  --color-hero-mid: #0d3a7a;
-  --color-hero-to: #1a4a8a;
-  --color-accent: #ff8603;
-  --color-accent-light: #ffb45a;
+  /* Gradient surfaces: the hero (135 degrees, middle stop at 45 %), the backdrop, the accent */
+  --color-deep: #1e2a5a;
+  --color-hero-from: #a8349a;
+  --color-hero-mid: #7c5bd0;
+  --color-hero-to: #5468d4;
+  --color-backdrop-from: #c944b6;
+  --color-backdrop-mid: #a66edc;
+  --color-backdrop-to: #7a92ee;
+  --color-accent: #f29a76;
+  --color-accent-light: #f7d9a8;
+
+  /* Status chips: text and surface */
+  --color-status-open: #17623d;
+  --color-status-open-soft: #ddf3e7;
+  --color-status-scheduled: #2e3fa8;
+  --color-status-scheduled-soft: #e3e8ff;
+  --color-status-draft: #444964;
+  --color-status-draft-soft: #ecedf5;
+  --color-status-published: #6b2da8;
+  --color-status-published-soft: #f0e3fb;
 
   /* Seen through a showcase surface: glass tiles, the soft white text, the lights */
   --color-glass: rgb(255 255 255 / 0.14);
@@ -67,9 +80,12 @@
   --color-hero-light: rgb(255 255 255 / 0.12);
 
   /* Fonts: served from our own origin (see app/layout.tsx) */
-  --font-display: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
-  --font-sans: 'Public Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Archivo', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Roboto', ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+
+  /* Weights: the fonts served are 400, 500 and 700 (Roboto) and 700 and 800 (Archivo) */
+  --font-weight-semibold: 500;
 
   /* Type steps */
   --text-xs: 12px;
@@ -95,8 +111,10 @@
   --radius-*: initial;
   --radius-sm: 6px;
   --radius: 10px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-2xl: 32px;
   --radius-full: 999px;
 
   /* Motion */
@@ -110,7 +128,12 @@
   --breakpoint-md: 768px;
   --breakpoint-lg: 1024px;
   --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1600px;
 
-  /* No shadows: depth comes from borders and background */
+  /* Depth is elevation: a card at rest, in a grid, lifted by hover, and the main button */
   --shadow-*: initial;
+  --shadow-1: 0 1px 2px rgb(20 22 43 / 0.12);
+  --shadow-2: 0 1px 2px rgb(20 22 43 / 0.12), 0 6px 16px -10px rgb(20 22 43 / 0.3);
+  --shadow-3: 0 2px 4px rgb(20 22 43 / 0.12), 0 18px 30px -12px rgb(84 104 212 / 0.55);
+  --shadow-button: 0 2px 4px rgb(84 104 212 / 0.35), 0 8px 18px -6px rgb(84 104 212 / 0.6);
 }

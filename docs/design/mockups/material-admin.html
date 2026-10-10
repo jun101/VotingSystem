@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Panneau d'administration</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;family=Archivo:wght@700;800&amp;display=swap" rel="stylesheet">
+<style>
+:root{--grad-a:#C944B6;--grad-b:#A66EDC;--grad-c:#7A92EE;--panel:#7488F0;--panel-deep:#5F73E6;--primary:#5468D4;--primary-hover:#4458C2;--ink:#14162B;--muted:#565B76;--line:#DDE0F2;--bg:#F1F2FC;--surface:#FFFFFF;--accent:#F29A76}
+body{margin:0;font-family:Roboto,system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+a{color:inherit;text-decoration:none}
+.app{display:flex;flex-wrap:wrap;min-height:1080px}
+.nav{flex:0 0 256px;box-sizing:border-box;background:linear-gradient(180deg,#7B8EF2 0%,#6A7EEB 55%,#8A6FDC 100%);color:#fff;padding:22px 14px 18px;display:flex;flex-direction:column;gap:6px;border-radius:0 28px 28px 0;box-shadow:6px 0 24px -8px rgba(95,115,230,.55)}
+.main{flex:999 1 560px;min-width:0;box-sizing:border-box;padding:20px 28px 32px;display:flex;flex-direction:column;gap:16px}
+@media (max-width:820px){.nav{flex-basis:100%;border-radius:0 0 28px 28px}.main{padding:16px}}
+.item{position:relative;display:flex;align-items:center;gap:14px;height:48px;padding:0 16px;border-radius:24px;font-size:15px;font-weight:500;color:#fff;transition:background .2s,transform .2s}
+.item:hover{background:rgba(255,255,255,.18);transform:translateX(4px)}
+.item.on{background:#fff;color:#3A4DC0;box-shadow:0 6px 14px -4px rgba(20,22,43,.35)}
+.item.on::before{content:"";position:absolute;left:-14px;top:12px;width:5px;height:24px;border-radius:0 4px 4px 0;background:#fff}
+.item .badge{margin-left:auto;min-width:22px;height:22px;border-radius:11px;background:var(--accent);color:#2A1208;font-size:12px;font-weight:700;display:grid;place-items:center;padding:0 6px}
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.search{flex:1 1 260px;display:flex;align-items:center;gap:10px;height:46px;background:#fff;border-radius:23px;padding:0 18px;box-shadow:0 1px 2px rgba(20,22,43,.12);color:var(--muted);font-size:15px;transition:box-shadow .2s}
+.search:focus-within{box-shadow:0 0 0 2px var(--primary)}
+.search input{border:0;outline:0;flex:1;font:400 15px Roboto,sans-serif;background:transparent;color:var(--ink);min-width:0}
+.icon-btn{width:46px;height:46px;border:0;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(20,22,43,.12);display:grid;place-items:center;color:var(--ink);cursor:pointer;position:relative;transition:transform .2s,box-shadow .2s}
+.icon-btn:hover{transform:translateY(-2px);box-shadow:0 6px 14px -4px rgba(20,22,43,.3)}
+.avatar{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--grad-a),var(--grad-c));color:#fff;font:800 16px Archivo,sans-serif;display:grid;place-items:center;box-shadow:0 4px 10px -2px rgba(166,110,220,.6)}
+.row{display:flex;align-items:stretch;gap:12px;flex-wrap:wrap}
+.tiles{flex:1 1 560px;display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:10px}
+.tile{position:relative;overflow:hidden;background:#fff;border-radius:16px;padding:12px 14px;box-shadow:0 1px 2px rgba(20,22,43,.12);cursor:pointer;transition:transform .2s,box-shadow .2s;animation:rise .55s cubic-bezier(.2,.8,.2,1) both}
+.tile:hover{transform:translateY(-3px);box-shadow:0 10px 20px -8px rgba(20,22,43,.35)}
+.tile.sel{background:var(--primary);color:#fff;box-shadow:0 10px 22px -8px rgba(84,104,212,.75)}
+.tile b{display:block;font:800 26px/1 Archivo,sans-serif}
+.tile span{display:block;margin-top:4px;font-size:13px;font-weight:500;color:var(--muted)}
+.tile.sel span{color:#E6EAFF}
+.tile::after{content:"";position:absolute;left:0;bottom:0;height:3px;width:100%;background:var(--c,#5468D4);transform-origin:left;animation:grow 1s .3s cubic-bezier(.2,.8,.2,1) both}
+.chips{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.chip{height:34px;padding:0 16px;border-radius:17px;border:1px solid var(--line);background:#fff;font:500 14px Roboto,sans-serif;color:var(--ink);cursor:pointer;transition:background .2s}
+.chip:hover{background:#E8EBFC}.chip.sel{background:#DDE3FF;border-color:#B7C1F6;color:#2E3FA8}
+.fab{display:inline-flex;align-items:center;gap:10px;height:52px;padding:0 24px 0 18px;border:0;border-radius:26px;background:var(--primary);color:#fff;font:500 15px Roboto,sans-serif;cursor:pointer;box-shadow:0 2px 4px rgba(84,104,212,.35),0 10px 20px -6px rgba(84,104,212,.65);transition:transform .2s,box-shadow .2s;position:relative;overflow:hidden}
+.fab:hover{transform:translateY(-2px);background:var(--primary-hover)}
+.fab::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);transform:skewX(-20deg);animation:shine 5s ease-in-out infinite}
+@keyframes shine{0%,60%{left:-60%}100%{left:130%}}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.ecard{background:#fff;border-radius:20px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 1px 2px rgba(20,22,43,.12),0 6px 16px -10px rgba(20,22,43,.3);transition:transform .25s,box-shadow .25s;animation:rise .6s cubic-bezier(.2,.8,.2,1) both}
+.ecard:hover{transform:translateY(-5px);box-shadow:0 2px 4px rgba(20,22,43,.12),0 18px 30px -12px rgba(84,104,212,.55)}
+.cover{height:76px;position:relative;overflow:hidden}
+.cover::after{content:"";position:absolute;inset:-40%;background:radial-gradient(circle at 30% 40%,rgba(255,255,255,.35),transparent 40%);animation:sweep 9s linear infinite}
+@keyframes sweep{to{transform:rotate(360deg)}}
+.body{padding:14px 16px 14px;display:flex;flex-direction:column;gap:10px;flex:1}
+.status{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:12px;font-size:12px;font-weight:700;letter-spacing:.2px}
+.live{width:8px;height:8px;border-radius:50%;background:#1F7A4D;animation:pulse 1.8s ease-out infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(31,122,77,.6)}100%{box-shadow:0 0 0 9px rgba(31,122,77,0)}}
+.meter{height:8px;border-radius:4px;background:#E6E9F7;overflow:hidden}
+.meter i{display:block;height:100%;width:var(--w,50%);border-radius:4px;background:linear-gradient(90deg,#5468D4,#A66EDC);transform-origin:left;animation:grow 1.4s .5s cubic-bezier(.2,.8,.2,1) both}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.acts{display:flex;gap:6px;margin-top:auto;padding-top:6px;border-top:1px solid #EDEFF9}
+.act{flex:1;height:36px;border:0;border-radius:18px;background:transparent;color:var(--primary);font:500 13px Roboto,sans-serif;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:background .2s}
+.act:hover{background:#E8EBFC}
+.new{border:2px dashed #AEB9F2;background:rgba(255,255,255,.6);border-radius:20px;min-height:230px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#3A4DC0;font:500 15px Roboto,sans-serif;cursor:pointer;transition:background .2s,transform .25s;animation:rise .6s cubic-bezier(.2,.8,.2,1) both}
+.new:hover{background:#fff;transform:translateY(-5px)}
+.plus{width:56px;height:56px;border-radius:50%;background:var(--primary);color:#fff;display:grid;place-items:center;box-shadow:0 8px 16px -4px rgba(84,104,212,.6);animation:bob 3s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+.grid>*:nth-child(1){animation-delay:.1s}.grid>*:nth-child(2){animation-delay:.18s}.grid>*:nth-child(3){animation-delay:.26s}.grid>*:nth-child(4){animation-delay:.34s}.grid>*:nth-child(5){animation-delay:.42s}.grid>*:nth-child(6){animation-delay:.5s}
+.tiles>*:nth-child(2){animation-delay:.06s}.tiles>*:nth-child(3){animation-delay:.12s}.tiles>*:nth-child(4){animation-delay:.18s}.tiles>*:nth-child(5){animation-delay:.24s}
+.inst{margin-top:auto;background:rgba(255,255,255,.18);border-radius:18px;padding:12px 14px;display:flex;gap:12px;align-items:center}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</helmet>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+<symbol id="i-grid" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></g></symbol>
+<symbol id="i-vote" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="18" height="9" rx="2"/><path d="M8 12V6l4-3 4 3v6"/><path d="M9 7.5l2 2 4-4"/></g></symbol>
+<symbol id="i-people" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><path d="M16 5a3.5 3.5 0 010 6.5M18 14.8c2 .6 3.2 2.4 3.5 5.2"/></g></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></g></symbol>
+<symbol id="i-log" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></g></symbol>
+<symbol id="i-school" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-6 9 6M5 10v10h14V10M10 20v-5h4v5"/></g></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4.2 4-6 8-6s7.2 1.8 8 6"/></g></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></g></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0112 0c0 6 2 7 2 7H4s2-1 2-7M10 20a2 2 0 004 0"/></g></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></symbol>
+<symbol id="i-copy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 012-2h9"/></g></symbol>
+<symbol id="i-edit" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></g></symbol>
+<symbol id="i-open" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></g></symbol>
+<symbol id="i-cal" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></g></symbol>
+</defs>
+</svg>
+<div class="app">
+  <nav class="nav" aria-label="Navigation principale">
+    <div style="display:flex;align-items:center;gap:12px;padding:4px 8px 18px">
+      <svg width="44" height="44" viewBox="0 0 48 48" aria-label="Vote" role="img"><rect width="48" height="48" rx="14" fill="#fff"/><path d="M13 25l7 7 15-17" fill="none" stroke="#5F73E6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span style="font:800 22px Archivo,sans-serif;letter-spacing:-.3px">Vote</span>
+    </div>
+    <a class="item" href="#"><svg width="22" height="22"><use href="#i-grid"/></svg>Tableau de bord</a>
+    <a class="item on" href="#" aria-current="page"><svg width="22" height="22"><use href="#i-vote"/></svg>Élections<span class="badge">5</span></a>
+    <a class="item" href="#"><svg width="22" height="22"><use href="#i-people"/></svg>Électeurs</a>
+    <a class="item" href="#"><svg width="22" height="22"><use href="#i-chart"/></svg>Résultats</a>
+    <a class="item" href="#"><svg width="22" height="22"><use href="#i-log"/></svg>Journal d'audit</a>
+    <a class="item" href="#"><svg width="22" height="22"><use href="#i-school"/></svg>Établissement</a>
+    <a class="item" href="#"><svg width="22" height="22"><use href="#i-user"/></svg>Mon compte</a>
+    <div class="inst">
+      <div style="width:40px;height:40px;border-radius:12px;background:#fff;color:#3A4DC0;display:grid;place-items:center;flex:none"><svg width="22" height="22"><use href="#i-school"/></svg></div>
+      <div style="min-width:0"><div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">[Nom de l'établissement]</div><div style="font-size:12px;opacity:.9">Propriétaire · 2FA activée</div></div>
+    </div>
+  </nav>
+  <main class="main">
+    <header class="top">
+      <h1 style="margin:0 8px 0 0;font:800 28px Archivo,sans-serif;letter-spacing:-.4px">Élections</h1>
+      <label class="search"><svg width="20" height="20"><use href="#i-search"/></svg><input type="search" placeholder="Aller à… (élection, page)" aria-label="Rechercher"></label>
+      <button class="icon-btn" type="button" aria-label="Notifications"><svg width="22" height="22"><use href="#i-bell"/></svg></button>
+      <button class="chip" type="button" style="height:46px;border-radius:23px;padding:0 18px">Français ▾</button>
+      <div class="avatar" aria-label="Compte">JF</div>
+    </header>
+    <section class="row" aria-label="Filtres">
+      <div class="tiles">
+        <div class="tile sel" style="--c:#fff"><b>5</b><span>Toutes</span></div>
+        <div class="tile" style="--c:#1F7A4D"><b>1</b><span>En cours</span></div>
+        <div class="tile" style="--c:#5468D4"><b>2</b><span>Programmées</span></div>
+        <div class="tile" style="--c:#8A90AB"><b>1</b><span>Brouillons</span></div>
+        <div class="tile" style="--c:#A66EDC"><b>1</b><span>Publiées</span></div>
+      </div>
+      <div style="display:flex;flex-direction:column;justify-content:space-between;gap:10px;flex:0 1 auto">
+        <div class="chips"><button class="chip sel" type="button">2026</button><button class="chip" type="button">2025</button></div>
+        <button class="fab" type="button"><svg width="22" height="22"><use href="#i-plus"/></svg>Nouvelle élection</button>
+      </div>
+    </section>
+    <section class="grid" aria-label="Liste des élections">
+      <a class="new" href="#"><span class="plus"><svg width="28" height="28"><use href="#i-plus"/></svg></span>Nouvelle élection</a>
+
+      <article class="ecard">
+        <div class="cover" style="background:linear-gradient(120deg,#2FA36B,#5468D4)"></div>
+        <div class="body">
+          <span class="status" style="background:#DDF3E7;color:#17623D"><span class="live"></span>En cours</span>
+          <h2 style="margin:0;font:800 18px/1.2 Archivo,sans-serif">[Élection exemple A]</h2>
+          <div style="display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px"><svg width="16" height="16"><use href="#i-cal"/></svg>Se termine le 16 oct. 2026, 19:00</div>
+          <div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="color:var(--muted)">Participation</span><b>64 %</b></div><div class="meter"><i style="--w:64%"></i></div></div>
+          <div class="acts"><button class="act" type="button"><svg width="18" height="18"><use href="#i-open"/></svg>Ouvrir</button><button class="act" type="button"><svg width="18" height="18"><use href="#i-copy"/></svg>Dupliquer</button></div>
+        </div>
+      </article>
+
+      <article class="ecard">
+        <div class="cover" style="background:linear-gradient(120deg,#5468D4,#8A6FDC)"></div>
+        <div class="body">
+          <span class="status" style="background:#E3E8FF;color:#2E3FA8">Programmée</span>
+          <h2 style="margin:0;font:800 18px/1.2 Archivo,sans-serif">[Élection exemple B]</h2>
+          <div style="display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px"><svg width="16" height="16"><use href="#i-cal"/></svg>Début le 20 oct. 2026, 08:00</div>
+          <div style="font-size:13px;color:var(--muted)">Dans <b style="color:var(--ink)">11 jours</b> · durée 3 jours</div>
+          <div class="acts"><button class="act" type="button"><svg width="18" height="18"><use href="#i-open"/></svg>Ouvrir</button><button class="act" type="button"><svg width="18" height="18"><use href="#i-copy"/></svg>Dupliquer</button></div>
+        </div>
+      </article>
+
+      <article class="ecard">
+        <div class="cover" style="background:linear-gradient(120deg,#A66EDC,#C944B6)"></div>
+        <div class="body">
+          <span class="status" style="background:#E3E8FF;color:#2E3FA8">Programmée</span>
+          <h2 style="margin:0;font:800 18px/1.2 Archivo,sans-serif">[Élection exemple C]</h2>
+          <div style="display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px"><svg width="16" height="16"><use href="#i-cal"/></svg>Début le 3 nov. 2026, 09:00</div>
+          <div style="font-size:13px;color:var(--muted)">Dans <b style="color:var(--ink)">25 jours</b> · durée 2 jours</div>
+          <div class="acts"><button class="act" type="button"><svg width="18" height="18"><use href="#i-open"/></svg>Ouvrir</button><button class="act" type="button"><svg width="18" height="18"><use href="#i-copy"/></svg>Dupliquer</button></div>
+        </div>
+      </article>
+
+      <article class="ecard">
+        <div class="cover" style="background:linear-gradient(120deg,#8A90AB,#B9BEDA)"></div>
+        <div class="body">
+          <span class="status" style="background:#ECEEF5;color:#444964">Brouillon</span>
+          <h2 style="margin:0;font:800 18px/1.2 Archivo,sans-serif">[Élection exemple D]</h2>
+          <div style="display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px"><svg width="16" height="16"><use href="#i-cal"/></svg>Dates à confirmer</div>
+          <div style="font-size:13px;color:var(--muted)">Prochaine étape : <b style="color:var(--ink)">ajouter les candidats</b></div>
+          <div class="acts"><button class="act" type="button"><svg width="18" height="18"><use href="#i-edit"/></svg>Modifier</button><button class="act" type="button"><svg width="18" height="18"><use href="#i-copy"/></svg>Dupliquer</button></div>
+        </div>
+      </article>
+
+      <article class="ecard">
+        <div class="cover" style="background:linear-gradient(120deg,#7A92EE,#A66EDC)"></div>
+        <div class="body">
+          <span class="status" style="background:#F0E3FB;color:#6B2DA8">Publiée</span>
+          <h2 style="margin:0;font:800 18px/1.2 Archivo,sans-serif">[Élection exemple E]</h2>
+          <div style="display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px"><svg width="16" height="16"><use href="#i-cal"/></svg>Terminée le 14 mai 2025</div>
+          <div style="font-size:13px;color:var(--muted)"><b style="color:var(--ink)">412</b> bulletins · <b style="color:var(--ink)">87 %</b> de participation</div>
+          <div class="acts"><button class="act" type="button"><svg width="18" height="18"><use href="#i-chart"/></svg>Résultats</button><button class="act" type="button"><svg width="18" height="18"><use href="#i-copy"/></svg>Dupliquer</button></div>
+        </div>
+      </article>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1080}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

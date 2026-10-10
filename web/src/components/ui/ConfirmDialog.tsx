@@ -106,10 +106,10 @@ export function ConfirmDialog({
         // Only the backdrop is the dialog itself: the content has its own box.
         if (event.target === dialog.current) dismiss();
       }}
-      className="m-auto w-[min(92vw,28rem)] rounded-lg border border-line bg-surface p-0 text-ink backdrop:bg-navy/60"
+      className="m-auto w-[min(92vw,28rem)] rounded-lg border border-line bg-surface p-0 text-ink shadow-3 backdrop:bg-deep/60"
     >
       <div className="flex flex-col gap-4 p-5 md:p-6">
-        <h2 id={titleId} className="text-xl text-ink">
+        <h2 id={titleId} className="text-xl font-extrabold text-ink">
           {title}
         </h2>
         <div id={bodyId} className="text-base text-ink-soft">

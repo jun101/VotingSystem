@@ -30,24 +30,21 @@ export function Select({
 
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={fieldId} className="text-base font-semibold text-ink">
-        {label}
-      </label>
-      <select
-        id={fieldId}
-        aria-invalid={error ? 'true' : undefined}
-        aria-describedby={describedBy || undefined}
-        className={cx(
-          'min-h-11 w-full rounded border bg-surface px-3 text-[16px] text-ink md:text-base',
-          error ? 'border-danger' : 'border-line-strong',
-          'focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary-soft focus-visible:outline-none',
-          'disabled:bg-line-soft disabled:text-ink-2',
-          className,
-        )}
-        {...rest}
-      >
-        {children}
-      </select>
+      <div className="field-box">
+        <select
+          id={fieldId}
+          aria-invalid={error ? 'true' : undefined}
+          aria-describedby={describedBy || undefined}
+          className={cx('field-control min-h-11 rounded-t text-[16px] md:text-md', className)}
+          {...rest}
+        >
+          {children}
+        </select>
+        <label htmlFor={fieldId} className="field-label">
+          {label}
+        </label>
+        <span aria-hidden="true" className="field-bar" />
+      </div>
       {error ? (
         <p id={errorId} data-testid={errorTestId} className="text-sm font-medium text-danger">
           {error}

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Créer un compte</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;family=Archivo:wght@700;800&amp;display=swap" rel="stylesheet">
+<style>
+:root{--grad-a:#C944B6;--grad-b:#A66EDC;--grad-c:#7A92EE;--panel:#7488F0;--primary:#5468D4;--primary-hover:#4458C2;--ink:#14162B;--muted:#5A5F7A;--line:#D5D9EC;--surface:#FFFFFF;--ok:#1F7A4D}
+body{margin:0;font-family:Roboto,system-ui,sans-serif;color:var(--ink)}
+a{color:var(--primary);text-decoration:none;font-weight:500}a:hover{text-decoration:underline}
+.stage{min-height:900px;box-sizing:border-box;padding:48px 24px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--grad-a),var(--grad-b) 45%,var(--grad-c));background-size:220% 220%;animation:drift 14s ease-in-out infinite}
+@keyframes drift{0%,100%{background-position:0% 30%}50%{background-position:100% 70%}}
+.card{width:100%;max-width:1000px;min-height:660px;display:flex;flex-wrap:wrap;background:var(--surface);border-radius:28px;box-shadow:0 2px 4px rgba(20,22,43,.12),0 24px 48px -12px rgba(20,22,43,.35);position:relative;animation:rise .7s cubic-bezier(.2,.8,.2,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(28px) scale(.98)}to{opacity:1;transform:none}}
+.side{flex:1 1 340px;min-width:0;position:relative;background:var(--panel);border-radius:28px 0 0 28px;padding:36px 36px 0;box-sizing:border-box;min-height:520px}
+.form{flex:1 1 380px;min-width:0;box-sizing:border-box;padding:48px 56px 36px;display:flex;flex-direction:column;justify-content:center}
+@media (max-width:760px){.side{border-radius:28px 28px 0 0;min-height:300px;overflow:hidden}.form{padding:32px 24px}}
+.field{position:relative;padding-top:18px}
+.field input{width:100%;box-sizing:border-box;border:0;border-bottom:2px solid var(--line);background:transparent;font:400 16px Roboto,sans-serif;color:var(--ink);padding:12px 40px 10px 0;outline:none;transition:border-color .2s}
+.field input:focus{border-bottom-color:var(--primary)}
+.field label{position:absolute;left:0;top:32px;font-size:16px;color:var(--muted);pointer-events:none;transition:all .18s ease}
+.field input:focus+label,.field input:not(:placeholder-shown)+label{top:6px;font-size:12px;color:var(--primary);font-weight:500}
+.field .bar{position:absolute;left:0;bottom:0;height:2px;width:0;background:var(--primary);transition:width .3s}
+.field input:focus~.bar{width:100%}
+.eye{position:absolute;right:0;bottom:8px;width:32px;height:32px;border:0;background:transparent;border-radius:50%;display:grid;place-items:center;color:var(--muted);cursor:pointer}
+.eye:hover{background:#EEF0FB}
+.btn{position:relative;overflow:hidden;border:0;border-radius:28px;height:52px;background:var(--primary);color:#fff;font:500 16px Roboto,sans-serif;letter-spacing:.3px;cursor:pointer;box-shadow:0 2px 4px rgba(84,104,212,.35),0 8px 18px -6px rgba(84,104,212,.6);transition:transform .2s,box-shadow .2s,background .2s}
+.btn:hover{background:var(--primary-hover);transform:translateY(-2px)}
+.btn::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);transform:skewX(-20deg);animation:shine 4.5s ease-in-out infinite}
+@keyframes shine{0%,60%{left:-60%}100%{left:130%}}
+.lang{position:absolute;top:20px;right:28px;display:flex;align-items:center;gap:6px;border:0;background:transparent;color:var(--muted);font:400 14px Roboto,sans-serif;cursor:pointer;padding:6px 10px;border-radius:16px}
+.strength{display:flex;gap:6px;margin-top:10px}
+.strength i{flex:1;height:4px;border-radius:2px;background:#E4E7F5;overflow:hidden;position:relative}
+.strength i.on::after{content:"";position:absolute;inset:0;background:var(--ok);transform-origin:left;animation:fill 1.2s cubic-bezier(.2,.8,.2,1) both}
+.strength i:nth-child(2).on::after{animation-delay:.15s}.strength i:nth-child(3).on::after{animation-delay:.3s}
+@keyframes fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.step{display:flex;gap:14px;align-items:flex-start;color:#fff;animation:rise .6s cubic-bezier(.2,.8,.2,1) both}
+.step:nth-child(2){animation-delay:.2s}.step:nth-child(3){animation-delay:.35s}.step:nth-child(4){animation-delay:.5s}
+.dot{flex:none;width:34px;height:34px;border-radius:50%;background:#fff;color:#4658C9;font:800 15px Archivo,sans-serif;display:grid;place-items:center;box-shadow:0 4px 10px rgba(20,22,43,.25)}
+.dot.cur{animation:pulse 2.2s ease-out infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,.7)}100%{box-shadow:0 0 0 16px rgba(255,255,255,0)}}
+.stagger>*{animation:rise .6s cubic-bezier(.2,.8,.2,1) both}
+.stagger>*:nth-child(1){animation-delay:.1s}.stagger>*:nth-child(2){animation-delay:.2s}.stagger>*:nth-child(3){animation-delay:.3s}.stagger>*:nth-child(4){animation-delay:.4s}.stagger>*:nth-child(5){animation-delay:.5s}.stagger>*:nth-child(6){animation-delay:.6s}.stagger>*:nth-child(7){animation-delay:.7s}
+.chk{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--muted);line-height:1.4}
+.chk input{width:20px;height:20px;accent-color:var(--primary);margin:0;flex:none}
+.floaty{animation:floaty 8s ease-in-out infinite}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</helmet>
+<main class="stage">
+<div class="card">
+  <aside class="side">
+    <svg width="48" height="48" viewBox="0 0 48 48" aria-label="Vote" role="img"><rect width="48" height="48" rx="14" fill="#fff"/><path d="M13 25l7 7 15-17" fill="none" stroke="#5F73E6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <p style="margin:28px 0 28px;max-width:300px;font:800 26px/1.2 Archivo,sans-serif;color:#fff;letter-spacing:-.2px">Lancez votre première élection en quatre étapes.</p>
+    <ol style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:22px">
+      <li class="step"><span class="dot cur">1</span><span style="font-size:16px;font-weight:500;padding-top:6px">Créez le compte de l'établissement</span></li>
+      <li class="step"><span class="dot">2</span><span style="font-size:16px;font-weight:500;padding-top:6px">Préparez le scrutin et les candidats</span></li>
+      <li class="step"><span class="dot">3</span><span style="font-size:16px;font-weight:500;padding-top:6px">Remettez un code à chaque électeur</span></li>
+      <li class="step"><span class="dot">4</span><span style="font-size:16px;font-weight:500;padding-top:6px">Publiez les résultats</span></li>
+    </ol>
+    <svg class="floaty" style="position:absolute;right:24px;bottom:20px;width:150px" viewBox="0 0 150 120" aria-hidden="true"><rect x="10" y="48" width="130" height="68" rx="10" fill="#F29A76"/><rect x="10" y="48" width="130" height="18" rx="10" fill="#E5805B"/><rect x="46" y="53" width="58" height="8" rx="4" fill="#7A3B25"/><rect x="48" y="14" width="54" height="40" rx="5" fill="#fff" transform="rotate(-6 75 34)"/><path d="M58 28h34M58 38h22" stroke="#7488F0" stroke-width="4" stroke-linecap="round" transform="rotate(-6 75 34)"/></svg>
+  </aside>
+  <section class="form">
+    <button class="lang" type="button" aria-label="Choisir la langue">Français <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5z" fill="currentColor"/></svg></button>
+    <div class="stagger" style="display:flex;flex-direction:column;gap:20px">
+      <div>
+        <h1 style="margin:0;font:800 28px Archivo,sans-serif;letter-spacing:-.3px">Créer un compte</h1>
+        <p style="margin:6px 0 0;color:var(--muted);font-size:15px">Vous serez le propriétaire de l'espace de votre établissement.</p>
+      </div>
+      <div class="field"><input id="inst" type="text" placeholder=" " autocomplete="organization"><label for="inst">Nom de l'établissement</label><span class="bar"></span></div>
+      <div class="field"><input id="name" type="text" placeholder=" " autocomplete="name"><label for="name">Nom complet</label><span class="bar"></span></div>
+      <div class="field"><input id="email" type="email" placeholder=" " autocomplete="email"><label for="email">Adresse e-mail</label><span class="bar"></span></div>
+      <div>
+        <div class="field" style="padding-top:0"><input id="pw" type="password" placeholder=" " value="Lakay-2026-vote" autocomplete="new-password" style="margin-top:18px"><label for="pw" style="top:14px;font-size:12px;color:var(--primary);font-weight:500">Mot de passe</label><span class="bar"></span>
+          <button class="eye" type="button" aria-label="Afficher le mot de passe"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+        <div class="strength" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+        <p style="margin:6px 0 0;font-size:13px;color:var(--ok);font-weight:500">Mot de passe solide</p>
+      </div>
+      <label class="chk"><input type="checkbox" checked><span>J'accepte les conditions d'utilisation et la politique de confidentialité.</span></label>
+      <button class="btn" type="button">Créer le compte</button>
+      <p style="margin:0;color:var(--muted);font-size:14px">Vous avez déjà un compte ? <a href="Main.dc.html">Se connecter</a></p>
+    </div>
+  </section>
+</div>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":900}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -90,21 +90,21 @@ it('uses only the colours of the design tokens [docs/design/email.md section 1]'
     }
 });
 
-it('paints the brand: navy header, hero, white body, accent button with deep navy text [docs/design/email.md section 1]', function () {
+it('paints the brand: deep indigo header, periwinkle hero, white body, coral button with deep indigo text [docs/design/email.md section 1]', function () {
     foreach (mailsToCheck($this) as $item) {
         $html = strtolower($item['mail']['html']);
 
-        foreach (['#061a3d', '#0d3a7a', '#ffffff', '#ff8603'] as $colour) {
+        foreach (['#1e2a5a', '#5468d4', '#ffffff', '#f29a76'] as $colour) {
             expect(str_contains($html, $colour))->toBe(true, "{$item['label']}: no {$colour}");
         }
 
-        // The button: accent background; its text deep navy, never white.
-        expect($html)->toMatch('/bgcolor="#ff8603"/');
-        expect($html)->toMatch('/<a [^>]*style="[^"]*color:\s*#061a3d[^"]*"[^>]*>[^<]*(?:<[^>]+>)*[^<]*<\/a>/s');
+        // The button: accent background; its text deep indigo, never white.
+        expect($html)->toMatch('/bgcolor="#f29a76"/');
+        expect($html)->toMatch('/<a [^>]*style="[^"]*color:\s*#1e2a5a[^"]*"[^>]*>[^<]*(?:<[^>]+>)*[^<]*<\/a>/s');
 
         // The gradient is an addition on top of the solid hero colour.
         expect($html)->toContain('linear-gradient(135deg');
-        expect($html)->toMatch('/bgcolor="#0d3a7a"/');
+        expect($html)->toMatch('/bgcolor="#5468d4"/');
     }
 });
 
@@ -163,12 +163,12 @@ it('has a preheader, hidden from the body, and a title and a hero that say what 
 
 it('keeps the text contrast above 4.5 to 1 on its background [docs/design/email.md section 2, NFR-UX-03]', function () {
     $pairs = [
-        ['#ffffff', '#061a3d'],   // product name on the header
-        ['#ffffff', '#0d3a7a'],   // hero title
-        ['#111b33', '#ffffff'],   // body text
-        ['#4a556b', '#ffffff'],   // small print
-        ['#061a3d', '#ff8603'],   // button
-        ['#1e3a8a', '#ffffff'],   // link
+        ['#ffffff', '#1e2a5a'],   // product name on the header
+        ['#ffffff', '#5468d4'],   // hero title
+        ['#14162b', '#ffffff'],   // body text
+        ['#565b76', '#ffffff'],   // small print
+        ['#1e2a5a', '#f29a76'],   // button
+        ['#4458c2', '#ffffff'],   // link
     ];
 
     foreach ($pairs as [$text, $background]) {
@@ -178,7 +178,7 @@ it('keeps the text contrast above 4.5 to 1 on its background [docs/design/email.
     // Footer text: ink-muted on white is a large-text colour only; the footer is 12 px, so it must
     // not use it.
     foreach (mailsToCheck($this) as $item) {
-        expect(strtolower($item['mail']['html']))->not->toMatch('/color:\s*#8e99ae/');
+        expect(strtolower($item['mail']['html']))->not->toMatch('/color:\s*#8a8fa8/');
     }
 });
 

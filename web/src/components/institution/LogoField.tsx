@@ -96,7 +96,7 @@ export function LogoField({ name, logo, canEdit, onChange }: LogoFieldProps) {
         <div
           aria-hidden="true"
           data-testid="logo-initials"
-          className="flex size-24 shrink-0 items-center justify-center rounded-md bg-navy font-display text-2xl font-bold text-surface"
+          className="bg-hero flex size-24 shrink-0 items-center justify-center rounded-md font-display text-2xl font-extrabold text-surface"
         >
           {initials(name)}
         </div>

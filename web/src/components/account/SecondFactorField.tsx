@@ -141,7 +141,7 @@ export function SecondFactorField({
           swapped.current = true;
           onSwap();
         }}
-        className="ui-control min-h-11 self-start text-start text-base font-semibold text-primary underline"
+        className="ui-control min-h-11 self-start text-start text-base font-semibold text-primary-hover underline"
       >
         {t(mode === 'code' ? 'account.secondFactor.useRecovery' : 'account.secondFactor.useCode')}
       </button>

@@ -111,11 +111,7 @@
   },
   "auth": {
     "panel": {
-      "title": "Les élections de votre école, du coupon au résultat.",
-      "point1": "Importez vos électeurs depuis Excel.",
-      "point2": "Imprimez les coupons ou envoyez les codes par courriel.",
-      "point3": "Vote secret, un seul vote par électeur.",
-      "point4": "Résultats publiés sur une page à partager."
+      "title": "Des élections claires, pour chaque école."
     },
     "password": {
       "show": "Afficher le mot de passe",
@@ -132,7 +128,12 @@
       "passwordHelp": "12 caractères au minimum.",
       "submit": "Créer le compte",
       "haveAccount": "Déjà inscrit ?",
-      "signIn": "Se connecter"
+      "signIn": "Se connecter",
+      "promise": "Lancez votre première élection en quatre étapes.",
+      "step1": "Créez le compte de l’établissement",
+      "step2": "Préparez le scrutin et les candidats",
+      "step3": "Remettez un code à chaque électeur",
+      "step4": "Publiez les résultats"
     },
     "login": {
       "title": "Se connecter",
@@ -258,19 +259,44 @@
     "dashboard": {
       "welcome": "Bienvenue, {name}",
       "institution": "{name}",
-      "lede": "Voici votre tableau de bord. Il se remplira avec votre première élection.",
+      "institutionRole": "{name} · {role}",
       "create": "Créer une élection",
+      "quick": {
+        "newElection": "Nouvelle élection",
+        "invite": "Inviter un collègue",
+        "institution": "Mon établissement"
+      },
+      "zone": {
+        "title": "Vue d’ensemble",
+        "today": "aujourd’hui, {date}"
+      },
       "openElection": {
         "title": "Élection ouverte",
-        "empty": "Aucune élection n’est ouverte pour le moment."
+        "empty": "Aucune élection n’est ouverte pour le moment.",
+        "live": "En cours",
+        "ends": "Se termine le {day} à {time}",
+        "elapsed": "Temps écoulé",
+        "positions": "Postes",
+        "voters": "Électeurs",
+        "ballots": "Bulletins",
+        "open": "Ouvrir l’élection"
       },
       "todo": {
         "title": "À faire",
-        "empty": "Rien à faire pour le moment."
+        "empty": "Rien à faire pour le moment. Tout est à jour.",
+        "draft": "Terminer le brouillon",
+        "soon": "Préparer le démarrage",
+        "detail": "{title} · {when}",
+        "today": "aujourd’hui",
+        "tomorrow": "demain",
+        "inDays": "dans {days} jours"
       },
       "figures": {
         "title": "Chiffres clés",
-        "empty": "Les chiffres apparaîtront avec votre première élection."
+        "empty": "Les chiffres apparaîtront avec votre première élection.",
+        "elections": "Élections",
+        "voters": "Électeurs inscrits",
+        "ballots": "Bulletins"
       },
       "activity": {
         "title": "Activité récente",
@@ -278,7 +304,45 @@
       },
       "latest": {
         "title": "Dernières élections",
-        "empty": "Vous n’avez pas encore d’élection."
+        "empty": "Vous n’avez pas encore d’élection.",
+        "all": "Tout voir"
+      },
+      "gettingStarted": {
+        "title": "Premiers pas",
+        "count": "{done} sur {total}",
+        "progress": "Progression des premiers pas",
+        "percent": "{percent} %",
+        "lead": {
+          "one": "Encore {count} étape avant d’avoir tout prêt.",
+          "other": "Encore {count} étapes avant d’avoir tout prêt."
+        },
+        "done": "Fait",
+        "steps": {
+          "email": {
+            "title": "Vérifier votre courriel",
+            "hint": "Ouvrez le lien reçu par courriel"
+          },
+          "institution": {
+            "title": "Compléter l’établissement",
+            "hint": "Ajoutez le logo"
+          },
+          "election": {
+            "title": "Créer la première élection",
+            "hint": "Titre, dates, affiche"
+          }
+        }
+      },
+      "institutionCard": {
+        "title": "Établissement",
+        "users": {
+          "one": "{count} utilisateur",
+          "other": "{count} utilisateurs"
+        },
+        "breakdown": "Propriétaires : {owners} · Gestionnaires : {managers}",
+        "twoFactor": "Double authentification",
+        "twoFactorOn": "Activée pour votre compte",
+        "twoFactorOff": "Pas encore activée pour votre compte",
+        "invite": "Inviter un collègue"
       }
     },
     "comingSoon": {
@@ -657,7 +721,13 @@
       "duplicate": "Dupliquer",
       "duplicateLabel": "Dupliquer {title}",
       "delete": "Supprimer",
-      "deleteLabel": "Supprimer {title}"
+      "deleteLabel": "Supprimer {title}",
+      "facts": {
+        "positions": "Postes",
+        "voters": "Électeurs",
+        "ballots": "Bulletins",
+        "group": "Chiffres de l’élection"
+      }
     },
     "dates": {
       "sameDay": "{date}",
@@ -672,6 +742,12 @@
       "cancel": "Annuler"
     },
     "form": {
+      "sections": {
+        "info": "Informations",
+        "calendar": "Calendrier",
+        "settings": "Réglages du vote",
+        "cover": "Affiche"
+      },
       "hint": "Tout reste modifiable tant que l’élection est un brouillon.",
       "save": "Créer le brouillon",
       "saveEdit": "Enregistrer",
@@ -769,7 +845,69 @@
       "locked": "Cette élection n’est plus un brouillon : ses réglages ne peuvent plus être modifiés.",
       "nextTitle": "Ce qui vient ensuite",
       "soon": "Pas encore disponible",
-      "coverTitle": "Couverture"
+      "coverTitle": "Couverture",
+      "back": "Élections",
+      "start": "Début",
+      "end": "Fin",
+      "zone": "Détails de l’élection",
+      "changeCover": "Changer l’affiche",
+      "stepsCount": "{done} sur {total}",
+      "facts": {
+        "positions": "Postes",
+        "voters": "Électeurs",
+        "ballots": "Bulletins"
+      },
+      "factsSoon": "Disponible avec les prochaines étapes"
+    },
+    "rail": {
+      "label": "Calendrier et tâches",
+      "calendar": {
+        "title": "Calendrier des élections",
+        "eventDay": "élection en cours ce jour"
+      },
+      "todo": {
+        "title": "À faire",
+        "draft": "Terminer le brouillon",
+        "soon": "Préparer le démarrage",
+        "today": "commence aujourd’hui",
+        "tomorrow": "commence demain",
+        "days": "commence dans {count} jours",
+        "withWhen": "{title} · {when}",
+        "emptyFirst": "Rien à faire pour le moment. Créez votre première élection pour commencer.",
+        "emptyCreate": "Créer la première élection",
+        "emptyDone": "Rien à faire pour le moment : tout est en ordre."
+      }
+    },
+    "picker": {
+      "planning": "Dates du vote",
+      "title": "Choisir les dates",
+      "start": "Début",
+      "end": "Fin",
+      "empty": "À choisir",
+      "presetsLabel": "Choix rapides",
+      "presets": {
+        "tomorrow": "Demain",
+        "nextMonday": "Lundi prochain · 5 jours",
+        "inAWeek": "Dans une semaine",
+        "oneDay": "Un jour, 8 h à 17 h"
+      },
+      "previousMonth": "Mois précédent",
+      "nextMonth": "Mois suivant",
+      "dayStart": "début du vote",
+      "dayEnd": "fin du vote",
+      "timeStart": "Début · {date}",
+      "timeEnd": "Fin · {date}",
+      "timeNone": "à choisir",
+      "chipsLabel": "Heures courantes",
+      "hour": "Heures",
+      "minute": "Minutes",
+      "hourPlus": "Heure suivante",
+      "hourMinus": "Heure précédente",
+      "minutePlus": "5 minutes de plus",
+      "minuteMinus": "5 minutes de moins",
+      "zone": "Fuseau horaire : {zone}",
+      "cancel": "Annuler",
+      "apply": "Valider les dates"
     }
   }
 }

@@ -16,7 +16,7 @@ test.describe('button', () => {
 
     await expect(button).toBeVisible();
     expect(await button.evaluate((element) => element.tagName)).toBe('BUTTON');
-    expect(await cssOf(page, 'demo-button-primary', 'background-color')).toBe(rgb('#1E3A8A'));
+    expect(await cssOf(page, 'demo-button-primary', 'background-color')).toBe(rgb('#5468D4'));
     expect(await cssOf(page, 'demo-button-primary', 'color')).toBe(rgb('#FFFFFF'));
     expect(await cssOf(page, 'demo-button-primary', 'border-top-left-radius')).toBe('10px');
     expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(44);
@@ -101,7 +101,7 @@ test.describe('card and pill', () => {
     expect(await cssOf(page, 'demo-card', 'background-color')).toBe(rgb('#FFFFFF'));
     expect(await cssOf(page, 'demo-card', 'border-top-left-radius')).toBe('16px');
     expect(await cssOf(page, 'demo-card', 'border-top-width')).toBe('1px');
-    expect(await cssOf(page, 'demo-card', 'border-top-color')).toBe(rgb('#D8DEE9'));
+    expect(await cssOf(page, 'demo-card', 'border-top-color')).toBe(rgb('#DDE0F2'));
     expect(await cssOf(page, 'demo-card', 'box-shadow')).toBe('none');
   });
 
@@ -123,7 +123,7 @@ test.describe('page', () => {
   test('uses the canvas colour behind the cards [NFR-UX-02]', async ({ page }) => {
     const background = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
 
-    expect(background).toBe(rgb('#F3F5F9'));
+    expect(background).toBe(rgb('#F1F2FC'));
   });
 
   test('fits the screen without scrolling sideways [NFR-UX-02]', async ({ page }) => {

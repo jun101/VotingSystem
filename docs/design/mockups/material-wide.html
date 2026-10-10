@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Élections, grand écran</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;family=Archivo:wght@700;800&amp;display=swap" rel="stylesheet">
+<style>
+:root{--primary:#5468D4;--primary-hover:#4458C2;--ink:#14162B;--muted:#565B76;--line:#DDE0F2;--bg:#F1F2FC;--accent:#F29A76;--deep:#1E2A5A}
+body{margin:0;font-family:Roboto,system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+a{color:inherit;text-decoration:none}
+svg.i{width:1em;height:1em;flex:none}
+.app{display:flex;flex-wrap:wrap;min-height:1080px}
+.nav{flex:0 0 272px;box-sizing:border-box;background:linear-gradient(180deg,#5468D4 0%,#6A57CC 55%,#7A4FC4 100%);color:#fff;padding:22px 14px 18px;display:flex;flex-direction:column;gap:6px;border-radius:0 28px 28px 0}
+.main{flex:999 1 560px;min-width:0;box-sizing:border-box;padding:22px 32px 32px;display:flex;flex-direction:column;gap:18px}
+.item{position:relative;display:flex;align-items:center;gap:14px;height:52px;padding:0 18px;border-radius:26px;font-size:16px;font-weight:500;color:#fff;font-size:16px;transition:background .2s,transform .2s}
+.item svg{font-size:22px}
+.item:hover{background:rgba(255,255,255,.18);transform:translateX(4px)}
+.item.on{background:#fff;color:#3A4DC0;box-shadow:0 6px 14px -4px rgba(20,22,43,.35)}
+.top{display:flex;align-items:center;gap:14px}
+.pillinfo{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 14px;border-radius:17px;background:#D9F2EE;color:#0B5750;font-size:13px;font-weight:700}
+.avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#A8349A,#5468D4);color:#fff;font:800 16px Archivo,sans-serif;display:grid;place-items:center}
+.row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.tile{display:flex;align-items:center;gap:12px;height:60px;padding:0 20px 0 14px;border-radius:30px;background:#fff;box-shadow:0 1px 2px rgba(20,22,43,.12);position:relative;overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s;animation:rise .55s cubic-bezier(.2,.8,.2,1) both}
+.tile:hover{transform:translateY(-3px);box-shadow:0 10px 20px -8px rgba(20,22,43,.35)}
+.tile .ic{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:19px;background:var(--bgc,#E3E8FF);color:var(--c,#5468D4)}
+.tile b{font:800 22px Archivo,sans-serif}
+.tile span{font-size:15px;font-weight:500;color:var(--muted)}
+.tile.sel{background:var(--primary);color:#fff}.tile.sel span{color:#E6EAFF}.tile.sel .ic{background:rgba(255,255,255,.2);color:#fff}
+.chip{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 20px;border-radius:22px;border:1px solid var(--line);background:#fff;font:500 15px Roboto,sans-serif}
+.chip.sel{background:#DDE3FF;border-color:#B7C1F6;color:#2E3FA8}
+.fab{display:inline-flex;align-items:center;gap:10px;height:56px;padding:0 28px 0 20px;border:0;border-radius:28px;background:var(--primary);color:#fff;font:500 16px Roboto,sans-serif;box-shadow:0 2px 4px rgba(84,104,212,.35),0 12px 22px -6px rgba(84,104,212,.65);position:relative;overflow:hidden;transition:transform .2s}
+.fab svg{font-size:22px}.fab:hover{transform:translateY(-2px)}
+.fab::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);transform:skewX(-20deg);animation:shine 5s ease-in-out infinite}
+@keyframes shine{0%,60%{left:-60%}100%{left:130%}}
+.cols{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
+.grid{flex:1 1 640px;min-width:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:18px}
+.rail{flex:0 0 340px;display:flex;flex-direction:column;gap:18px}
+@media (max-width:1100px){.rail{flex-basis:100%}}
+.ecard{background:#fff;border-radius:24px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 1px 2px rgba(20,22,43,.12),0 8px 18px -10px rgba(20,22,43,.3);transition:transform .25s,box-shadow .25s;animation:rise .6s cubic-bezier(.2,.8,.2,1) both}
+.ecard:hover{transform:translateY(-6px);box-shadow:0 2px 4px rgba(20,22,43,.12),0 22px 36px -14px rgba(84,104,212,.6)}
+.cover{height:120px;position:relative;overflow:hidden;display:flex;align-items:flex-end;padding:14px 18px;box-sizing:border-box}
+.cover::before{content:"";position:absolute;inset:-40%;background:radial-gradient(circle at 30% 40%,rgba(255,255,255,.35),transparent 40%);animation:sweep 9s linear infinite}
+@keyframes sweep{to{transform:rotate(360deg)}}
+.cover .big{position:absolute;right:-14px;top:-18px;font-size:150px;color:rgba(255,255,255,.18);transform:rotate(-12deg)}
+.cover .badge{position:relative;display:inline-flex;align-items:center;gap:8px;height:30px;padding:0 14px;border-radius:15px;background:rgba(255,255,255,.95);font-size:13px;font-weight:700}
+.live{width:9px;height:9px;border-radius:50%;background:#1F7A4D;animation:pulse 1.8s ease-out infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(31,122,77,.6)}100%{box-shadow:0 0 0 10px rgba(31,122,77,0)}}
+.body{padding:18px 20px 16px;display:flex;flex-direction:column;gap:14px;flex:1}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.fact{background:#F4F5FD;border-radius:16px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.fact .ic{font-size:18px;color:var(--primary)}
+.fact b{font:800 20px Archivo,sans-serif}
+.fact span{font-size:12px;color:var(--muted);font-weight:500}
+.dates{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}
+.dates svg{font-size:20px;color:var(--primary)}
+.meter{height:10px;border-radius:5px;background:#E6E9F7;overflow:hidden}
+.meter i{display:block;height:100%;width:var(--w);border-radius:5px;background:linear-gradient(90deg,#5468D4,#A66EDC);transform-origin:left;animation:grow 1.4s .5s cubic-bezier(.2,.8,.2,1) both}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.acts{display:flex;gap:6px;padding-top:12px;border-top:1px solid #EDEFF9;margin-top:auto}
+.act{flex:1;height:42px;border:0;border-radius:21px;background:transparent;color:var(--primary-hover);font:500 14px Roboto,sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s}
+.act svg{font-size:19px}.act:hover{background:#E8EBFC}.act.del{color:#9A2A0A}
+.new{border:2px dashed #AEB9F2;background:rgba(255,255,255,.6);border-radius:24px;min-height:380px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#3A4DC0;font:500 17px Roboto,sans-serif;animation:rise .6s both;transition:background .2s,transform .25s}
+.new:hover{background:#fff;transform:translateY(-6px)}
+.plus{width:68px;height:68px;border-radius:50%;background:var(--primary);color:#fff;display:grid;place-items:center;font-size:34px;box-shadow:0 10px 18px -4px rgba(84,104,212,.6);animation:bob 3s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+.panel{background:#fff;border-radius:24px;padding:18px 20px;box-shadow:0 1px 2px rgba(20,22,43,.12),0 8px 18px -10px rgba(20,22,43,.3);animation:rise .6s .3s both}
+.panel h3{margin:0 0 12px;font:800 17px Archivo,sans-serif;display:flex;align-items:center;gap:10px}
+.panel h3 .ic{width:34px;height:34px;border-radius:50%;background:#E3E8FF;color:var(--primary);display:grid;place-items:center;font-size:18px}
+.todo{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:16px;font-size:14px;font-weight:500;transition:background .2s}
+.todo:hover{background:#F4F5FD}
+.todo .ic{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--bgc);color:var(--c);font-size:17px;flex:none}
+.todo small{display:block;color:var(--muted);font-weight:400;font-size:12px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;font-size:13px}
+.cal b{font-size:11px;color:var(--muted);font-weight:700;padding-bottom:4px}
+.cal span{height:34px;display:grid;place-items:center;border-radius:50%}
+.cal .ev{background:#E3E8FF;color:#2E3FA8;font-weight:700}
+.cal .today{background:var(--primary);color:#fff;font-weight:700}
+.grid>*:nth-child(2){animation-delay:.1s}.grid>*:nth-child(3){animation-delay:.18s}.grid>*:nth-child(4){animation-delay:.26s}.grid>*:nth-child(5){animation-delay:.34s}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</helmet>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-grid" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></g></symbol>
+<symbol id="i-vote" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="18" height="9" rx="2"/><path d="M8 12V6l4-3 4 3v6"/><path d="M9 7.5l2 2 4-4"/></g></symbol>
+<symbol id="i-people" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><path d="M16 5a3.5 3.5 0 010 6.5M18 14.8c2 .6 3.2 2.4 3.5 5.2"/></g></symbol>
+<symbol id="i-log" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></g></symbol>
+<symbol id="i-school" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-6 9 6M5 10v10h14V10M10 20v-5h4v5"/></g></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></symbol>
+<symbol id="i-copy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 012-2h9"/></g></symbol>
+<symbol id="i-edit" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></g></symbol>
+<symbol id="i-open" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></g></symbol>
+<symbol id="i-cal" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></g></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></g></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></g></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></g></symbol>
+<symbol id="i-flag" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></g></symbol>
+<symbol id="i-draft" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M9 13h6M9 17h4"/></g></symbol>
+<symbol id="i-list" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></g></symbol>
+<symbol id="i-qr" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h3M20 17v4"/></g></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></g></symbol>
+</defs></svg>
+<div class="app">
+  <nav class="nav" aria-label="Navigation principale">
+    <div style="display:flex;align-items:center;gap:12px;padding:4px 8px 16px">
+      <svg width="48" height="48" viewBox="0 0 48 48" aria-label="Vote" role="img"><rect width="48" height="48" rx="14" fill="#fff"/><path d="M13 25l7 7 15-17" fill="none" stroke="#5F73E6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span style="font:800 22px Archivo,sans-serif">New Voting System</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;height:46px;padding:0 16px;border-radius:23px;background:rgba(255,255,255,.18);font-size:15px"><svg class="i" style="font-size:20px"><use href="#i-search"/></svg>Aller à…</div>
+    <a class="item" href="#"><svg class="i"><use href="#i-grid"/></svg>Tableau de bord</a>
+    <a class="item on" href="#"><svg class="i"><use href="#i-vote"/></svg>Élections</a>
+    <a class="item" href="#"><svg class="i"><use href="#i-school"/></svg>Établissement</a>
+    <a class="item" href="#"><svg class="i"><use href="#i-log"/></svg>Journal d'audit</a>
+    <div style="margin-top:auto;background:rgba(255,255,255,.18);border-radius:18px;padding:12px 14px;display:flex;gap:12px;align-items:center"><div style="width:42px;height:42px;border-radius:12px;background:#fff;color:#3A4DC0;display:grid;place-items:center;font-size:22px"><svg class="i"><use href="#i-school"/></svg></div><div><div style="font-size:14px;font-weight:700">[Établissement]</div><div style="font-size:12px">Propriétaire</div></div></div>
+  </nav>
+  <main class="main">
+    <header class="top"><h1 style="margin:0;font:800 34px Archivo,sans-serif;flex:1;letter-spacing:-.5px">Élections</h1><span class="pillinfo">✓ Courriel vérifié</span><div class="avatar">MN</div></header>
+    <section class="row">
+      <div class="tile sel"><span class="ic"><svg class="i"><use href="#i-list"/></svg></span><b>4</b><span>Toutes</span></div>
+      <div class="tile" style="--c:#1F7A4D;--bgc:#DDF3E7"><span class="ic"><svg class="i"><use href="#i-flag"/></svg></span><b>1</b><span>En cours</span></div>
+      <div class="tile" style="--c:#2E3FA8;--bgc:#E3E8FF"><span class="ic"><svg class="i"><use href="#i-clock"/></svg></span><b>1</b><span>Programmée</span></div>
+      <div class="tile" style="--c:#444964;--bgc:#ECEEF5"><span class="ic"><svg class="i"><use href="#i-draft"/></svg></span><b>1</b><span>Brouillon</span></div>
+      <div class="tile" style="--c:#6B2DA8;--bgc:#F0E3FB"><span class="ic"><svg class="i"><use href="#i-chart"/></svg></span><b>1</b><span>Publiée</span></div>
+      <span class="chip sel"><svg class="i"><use href="#i-cal"/></svg>2026</span><span class="chip">2025</span>
+      <span style="flex:1"></span>
+      <button class="fab" type="button"><svg class="i"><use href="#i-plus"/></svg>Nouvelle élection</button>
+    </section>
+    <div class="cols">
+      <section class="grid" aria-label="Liste des élections">
+        <a class="new" href="#"><span class="plus"><svg class="i"><use href="#i-plus"/></svg></span>Nouvelle élection</a>
+
+        <article class="ecard">
+          <div class="cover" style="background:linear-gradient(120deg,#2FA36B,#5468D4)"><svg class="i big"><use href="#i-vote"/></svg><span class="badge" style="color:#17623D"><span class="live"></span>En cours</span></div>
+          <div class="body">
+            <h2 style="margin:0;font:800 21px/1.2 Archivo,sans-serif">[Élection exemple A]</h2>
+            <div class="dates"><svg class="i"><use href="#i-cal"/></svg>Jusqu'au 16 oct. 2026 · 19:00</div>
+            <div class="facts"><div class="fact"><svg class="i ic"><use href="#i-flag"/></svg><b>3</b><span>Postes</span></div><div class="fact"><svg class="i ic"><use href="#i-people"/></svg><b>412</b><span>Électeurs</span></div><div class="fact"><svg class="i ic"><use href="#i-vote"/></svg><b>264</b><span>Bulletins</span></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="color:var(--muted)">Participation</span><b>64 %</b></div><div class="meter"><i style="--w:64%"></i></div></div>
+            <div class="acts"><button class="act" type="button"><svg class="i"><use href="#i-open"/></svg>Ouvrir</button><button class="act" type="button"><svg class="i"><use href="#i-copy"/></svg>Dupliquer</button></div>
+          </div>
+        </article>
+
+        <article class="ecard">
+          <div class="cover" style="background:linear-gradient(120deg,#5468D4,#8A6FDC)"><svg class="i big"><use href="#i-clock"/></svg><span class="badge" style="color:#2E3FA8"><svg class="i"><use href="#i-clock"/></svg>Programmée</span></div>
+          <div class="body">
+            <h2 style="margin:0;font:800 21px/1.2 Archivo,sans-serif">[Élection exemple B]</h2>
+            <div class="dates"><svg class="i"><use href="#i-cal"/></svg>20 au 22 oct. 2026 · dans 11 jours</div>
+            <div class="facts"><div class="fact"><svg class="i ic"><use href="#i-flag"/></svg><b>2</b><span>Postes</span></div><div class="fact"><svg class="i ic"><use href="#i-people"/></svg><b>186</b><span>Électeurs</span></div><div class="fact"><svg class="i ic"><use href="#i-qr"/></svg><b>186</b><span>Codes</span></div></div>
+            <div class="acts"><button class="act" type="button"><svg class="i"><use href="#i-open"/></svg>Ouvrir</button><button class="act" type="button"><svg class="i"><use href="#i-copy"/></svg>Dupliquer</button></div>
+          </div>
+        </article>
+
+        <article class="ecard">
+          <div class="cover" style="background:linear-gradient(120deg,#8A90AB,#6F76C9)"><svg class="i big"><use href="#i-draft"/></svg><span class="badge" style="color:#444964"><svg class="i"><use href="#i-draft"/></svg>Brouillon</span></div>
+          <div class="body">
+            <h2 style="margin:0;font:800 21px/1.2 Archivo,sans-serif">[Élection exemple C]</h2>
+            <div class="dates"><svg class="i"><use href="#i-cal"/></svg>9 au 12 oct. 2026</div>
+            <div class="facts"><div class="fact"><svg class="i ic"><use href="#i-flag"/></svg><b>0</b><span>Postes</span></div><div class="fact"><svg class="i ic"><use href="#i-people"/></svg><b>0</b><span>Électeurs</span></div><div class="fact"><svg class="i ic"><use href="#i-vote"/></svg><b>0</b><span>Bulletins</span></div></div>
+            <div class="acts"><button class="act" type="button"><svg class="i"><use href="#i-edit"/></svg>Continuer</button><button class="act" type="button"><svg class="i"><use href="#i-copy"/></svg>Dupliquer</button><button class="act del" type="button"><svg class="i"><use href="#i-trash"/></svg>Supprimer</button></div>
+          </div>
+        </article>
+
+        <article class="ecard">
+          <div class="cover" style="background:linear-gradient(120deg,#7A92EE,#A66EDC)"><svg class="i big"><use href="#i-chart"/></svg><span class="badge" style="color:#6B2DA8"><svg class="i"><use href="#i-chart"/></svg>Publiée</span></div>
+          <div class="body">
+            <h2 style="margin:0;font:800 21px/1.2 Archivo,sans-serif">[Élection exemple D]</h2>
+            <div class="dates"><svg class="i"><use href="#i-cal"/></svg>Terminée le 14 mai 2025</div>
+            <div class="facts"><div class="fact"><svg class="i ic"><use href="#i-flag"/></svg><b>4</b><span>Postes</span></div><div class="fact"><svg class="i ic"><use href="#i-people"/></svg><b>473</b><span>Électeurs</span></div><div class="fact"><svg class="i ic"><use href="#i-vote"/></svg><b>412</b><span>Bulletins</span></div></div>
+            <div class="acts"><button class="act" type="button"><svg class="i"><use href="#i-chart"/></svg>Résultats</button><button class="act" type="button"><svg class="i"><use href="#i-copy"/></svg>Dupliquer</button></div>
+          </div>
+        </article>
+      </section>
+
+      <aside class="rail" aria-label="Aide et calendrier">
+        <section class="panel">
+          <h3><span class="ic"><svg class="i"><use href="#i-cal"/></svg></span>Octobre 2026</h3>
+          <div class="cal"><b>L</b><b>M</b><b>M</b><b>J</b><b>V</b><b>S</b><b>D</b>
+            <span></span><span></span><span></span><span>1</span><span>2</span><span>3</span><span>4</span>
+            <span>5</span><span>6</span><span>7</span><span>8</span><span class="today">9</span><span class="ev">10</span><span class="ev">11</span>
+            <span class="ev">12</span><span>13</span><span>14</span><span>15</span><span class="ev">16</span><span>17</span><span>18</span>
+            <span>19</span><span class="ev">20</span><span class="ev">21</span><span class="ev">22</span><span>23</span><span>24</span><span>25</span>
+            <span>26</span><span>27</span><span>28</span><span>29</span><span>30</span><span>31</span><span></span></div>
+        </section>
+        <section class="panel">
+          <h3><span class="ic"><svg class="i"><use href="#i-flag"/></svg></span>À faire</h3>
+          <a class="todo" href="#" style="--c:#C2410C;--bgc:#FFE8D6"><span class="ic"><svg class="i"><use href="#i-people"/></svg></span><span>Importer les électeurs<small>[Élection exemple C] · 0 électeur</small></span></a>
+          <a class="todo" href="#" style="--c:#5468D4;--bgc:#E3E8FF"><span class="ic"><svg class="i"><use href="#i-flag"/></svg></span><span>Ajouter les candidats<small>[Élection exemple C] · aucun poste</small></span></a>
+          <a class="todo" href="#" style="--c:#0F766E;--bgc:#D9F2EE"><span class="ic"><svg class="i"><use href="#i-qr"/></svg></span><span>Générer les codes d'accès<small>[Élection exemple B] · avant le 20 oct.</small></span></a>
+        </section>
+      </aside>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1920,"height":1080}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -5,7 +5,7 @@ import { useState, useTransition } from 'react';
 import { updateLanguage } from '@/lib/api/browser';
 import { ApiError, errorText } from '@/lib/api/errors';
 import { useI18n } from '@/lib/i18n/client';
-import { navyFocus } from './classes';
+import { panelFocus } from './classes';
 import { Icon } from './Icon';
 
 const GLOBE =
@@ -53,13 +53,13 @@ export function LanguageSwitch() {
         data-language={locale}
         disabled={busy}
         onClick={change}
-        className={`ui-control flex min-h-11 w-full items-center gap-2 rounded border border-ink-2 px-3 text-base font-semibold text-surface hover:bg-navy-raised disabled:text-ink-muted ${navyFocus}`}
+        className={`ui-control flex min-h-11 w-full items-center gap-2 rounded-full border border-surface px-4 text-base font-medium text-surface hover:bg-deep/20 disabled:opacity-60 ${panelFocus}`}
       >
         <Icon path={GLOBE} />
         {t('admin.language.switch')}
       </button>
       {problem ? (
-        <p role="alert" data-testid="language-error" className="text-sm text-warm-soft">
+        <p role="alert" data-testid="language-error" className="text-sm text-surface">
           {problem}
         </p>
       ) : null}

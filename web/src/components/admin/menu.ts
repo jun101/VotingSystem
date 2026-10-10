@@ -1,4 +1,5 @@
 import type { MessageKey } from '@/lib/i18n/messages';
+import type { IconName } from './Icon';
 
 export type MenuKey = 'dashboard' | 'elections' | 'institution' | 'audit';
 
@@ -6,8 +7,8 @@ export type MenuEntry = {
   key: MenuKey;
   href: string;
   label: MessageKey;
-  /** The path of a 24 x 24 icon, drawn with the text colour. */
-  icon: string;
+  /** The icon of the entry, drawn with the text colour. */
+  icon: IconName;
 };
 
 /** The entries of the "Établissement" section of the side menu, in order. */
@@ -16,25 +17,25 @@ export const MENU_ENTRIES: readonly MenuEntry[] = [
     key: 'dashboard',
     href: '/admin',
     label: 'admin.nav.dashboard',
-    icon: 'M4 13h6V4H4zM14 20h6V4h-6zM4 20h6v-4H4z',
+    icon: 'grid',
   },
   {
     key: 'elections',
     href: '/admin/elections',
     label: 'admin.nav.elections',
-    icon: 'M9 11l3 3 8-8M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h9',
+    icon: 'ballot',
   },
   {
     key: 'institution',
     href: '/admin/institution',
     label: 'admin.nav.institution',
-    icon: 'M3 21h18M5 21V9l7-5 7 5v12M9 21v-6h6v6',
+    icon: 'school',
   },
   {
     key: 'audit',
     href: '/admin/audit',
     label: 'admin.nav.audit',
-    icon: 'M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5M9 13h6M9 17h6',
+    icon: 'log',
   },
 ];
 

@@ -7,6 +7,17 @@ import { expect, type Page } from '@playwright/test';
 
 /** WCAG 2.1 A and AA, automated part (NFR-UX-03). */
 export async function expectAccessible(page: Page): Promise<void> {
+  // Let every entrance animation finish: a half-faded text has a lower contrast than the one a
+  // person sees a moment later. Animations that loop on purpose are left running.
+  await page.evaluate(() =>
+    Promise.all(
+      document
+        .getAnimations()
+        .filter((animation) => animation.effect?.getComputedTiming().iterations !== Infinity)
+        .map((animation) => animation.finished.catch(() => undefined)),
+    ),
+  );
+
   const results = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
     .analyze();
@@ -43,7 +54,7 @@ export function recordForeignRequests(page: Page, baseURL: string): string[] {
   return foreign;
 }
 
-/** "rgb(30, 58, 138)" for "#1E3A8A". */
+/** "rgb(84, 104, 212)" for "#5468D4". */
 export function rgb(hex: string): string {
   const n = parseInt(hex.replace('#', ''), 16);
   return `rgb(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255})`;
