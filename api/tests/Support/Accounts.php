@@ -263,6 +263,55 @@ final class Accounts
         return $query->orderBy('id')->get()->map(fn ($row) => (array) $row)->all();
     }
 
+    /**
+     * Inserts a ballot straight into the database (slice 06). Options: `election` (uuid, required), `title`,
+     * `description`, `position`, `seats`, `allow_blank`. The institution is the election's. Returns the uuid.
+     */
+    public static function plantBallot(array $o): string
+    {
+        $db = DB::connection(useMigratorConnection());
+        $election = $db->table('elections')->where('uuid', $o['election'])->first();
+        $uuid = Uuid::uuid4()->toString();
+        $now = Carbon::now('UTC')->format('Y-m-d H:i:s');
+
+        $db->table('ballots')->insert([
+            'uuid' => $uuid,
+            'institution_id' => $election->institution_id,
+            'election_id' => $election->id,
+            'title' => $o['title'] ?? 'Poste '.bin2hex(random_bytes(3)),
+            'description' => $o['description'] ?? null,
+            'position' => $o['position'] ?? ((int) $db->table('ballots')->where('election_id', $election->id)->max('position') + 1),
+            'seats' => $o['seats'] ?? 1,
+            'allow_blank' => $o['allow_blank'] ?? true,
+            'scope' => 'general',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+
+        return $uuid;
+    }
+
+    /** One row of `ballots` by uuid, as an array, or null. */
+    public static function ballotRow(string $uuid): ?array
+    {
+        $row = DB::connection(useMigratorConnection())->table('ballots')->where('uuid', $uuid)->first();
+
+        return $row === null ? null : (array) $row;
+    }
+
+    /**
+     * The rows of `ballots` of one election (its uuid), in display order.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function ballotRows(string $election): array
+    {
+        $db = DB::connection(useMigratorConnection());
+        $id = $db->table('elections')->where('uuid', $election)->value('id');
+
+        return $db->table('ballots')->where('election_id', $id)->orderBy('position')->orderBy('id')->get()->map(fn ($row) => (array) $row)->all();
+    }
+
     /** A new random token of the right shape: 64 hexadecimal characters. */
     public static function token(): string
     {

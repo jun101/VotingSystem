@@ -56,7 +56,7 @@ One election of the institution.
 - `status` is one of `draft`, `scheduled`, `open`, `closed`, `published`, `archived`.
 - `starts_at` and `ends_at` are UTC; `timezone` says how to show them.
 - `cover` is `null` without a cover, else two addresses under `/media` (480 and 960 pixels wide).
-- `ballots_count` and `voters_count` are `0` until slices 06 and 07.
+- `ballots_count` is the number of the election's ballots (slice 06a); `voters_count` is `0` until slice 07.
 - No numeric key, no `parent_election_id`, no file name other than the cover's UUID appears.
 
 ### 404, 401, 403, 405

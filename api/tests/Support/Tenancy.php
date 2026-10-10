@@ -86,6 +86,11 @@ final class Tenancy
         'POST api/v1/elections/{election}/duplicate' => 'Slice05/DuplicateElectionTest.php',
         'PUT api/v1/elections/{election}/cover' => 'Slice05/ElectionCoverTest.php',
         'DELETE api/v1/elections/{election}/cover' => 'Slice05/ElectionCoverTest.php',
+        'GET api/v1/elections/{election}/ballots' => 'Slice06/ListBallotsTest.php',
+        'POST api/v1/elections/{election}/ballots' => 'Slice06/CreateBallotTest.php',
+        'PUT api/v1/elections/{election}/ballots/order' => 'Slice06/ReorderBallotsTest.php',
+        'PATCH api/v1/ballots/{ballot}' => 'Slice06/UpdateBallotTest.php',
+        'DELETE api/v1/ballots/{ballot}' => 'Slice06/DeleteBallotTest.php',
     ];
 
     /**

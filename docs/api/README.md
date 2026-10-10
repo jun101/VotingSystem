@@ -153,8 +153,9 @@ docs/api/
 ```
 
 File name: the method, then the path with `/` replaced by `-`, parameters kept in
-braces. `DELETE /elections/{election}/ballots/{ballot}` is
-`ballots/DELETE-elections-{election}-ballots-{ballot}.md`.
+braces. `DELETE /ballots/{ballot}` is `ballots/DELETE-ballots-{ballot}.md`. A record that
+has a UUID of its own is addressed directly (`/ballots/{ballot}`); only its collection
+(list, create, reorder) is under its parent (`/elections/{election}/ballots`).
 
 ## 7. Template of an endpoint file
 
@@ -270,3 +271,8 @@ Filled slice by slice: each slice adds its endpoints here with a link to their f
 | Elections | `POST /elections/{election}/duplicate` | 05 | [elections/POST-elections-{election}-duplicate.md](elections/POST-elections-{election}-duplicate.md) |
 | Elections | `PUT /elections/{election}/cover` | 05 | [elections/PUT-elections-{election}-cover.md](elections/PUT-elections-{election}-cover.md) |
 | Elections | `DELETE /elections/{election}/cover` | 05 | [elections/DELETE-elections-{election}-cover.md](elections/DELETE-elections-{election}-cover.md) |
+| Ballots | `GET /elections/{election}/ballots` | 06a | [ballots/GET-elections-{election}-ballots.md](ballots/GET-elections-{election}-ballots.md) |
+| Ballots | `POST /elections/{election}/ballots` | 06a | [ballots/POST-elections-{election}-ballots.md](ballots/POST-elections-{election}-ballots.md) |
+| Ballots | `PUT /elections/{election}/ballots/order` | 06a | [ballots/PUT-elections-{election}-ballots-order.md](ballots/PUT-elections-{election}-ballots-order.md) |
+| Ballots | `PATCH /ballots/{ballot}` | 06a | [ballots/PATCH-ballots-{ballot}.md](ballots/PATCH-ballots-{ballot}.md) |
+| Ballots | `DELETE /ballots/{ballot}` | 06a | [ballots/DELETE-ballots-{ballot}.md](ballots/DELETE-ballots-{ballot}.md) |

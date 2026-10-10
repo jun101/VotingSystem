@@ -66,4 +66,4 @@ The shared error shape of [API conventions](../README.md), with the codes of the
 ## Notes
 
 The list is paginated by the server; the counts and the years cost one extra query each, not one per card.
-`ballots_count` and `voters_count` of each item are `0` until slices 06 and 07 give them something to count.
+`ballots_count` of each item is the number of its ballots (slice 06a); `voters_count` is `0` until slice 07.
