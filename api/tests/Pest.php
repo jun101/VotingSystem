@@ -74,3 +74,11 @@ pest()->beforeEach(function () {
     Tests\Support\Spreadsheets::clearImports();
     $this->browser = new Tests\Support\AuthClient($this);
 })->in('Acceptance/Slice08');
+
+// Slice 09: the same (docs/slices/09-scope-copy-schedule.md).
+pest()->beforeEach(function () {
+    Tests\Support\Accounts::reset();
+    Tests\Support\Tenancy::installProbeTables();
+    Tests\Support\Team::clearMedia();
+    $this->browser = new Tests\Support\AuthClient($this);
+})->in('Acceptance/Slice09');

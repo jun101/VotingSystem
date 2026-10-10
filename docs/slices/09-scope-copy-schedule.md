@@ -1,6 +1,6 @@
 # Slice 09 — Group scope, copy voters, checklist and scheduling
 
-Brief (draft) · 2026-10-10 · branch `slice/09-group-scope-and-copy` (from `staging`)
+Brief · 2026-10-10 · branch `slice/09-group-scope-and-copy` (from `staging`)
 
 ## Goal
 
@@ -59,13 +59,74 @@ New files (`docs/api/elections/`, `docs/api/voters/`):
 
 Cut in three runs, each ending green (as slices 06 and 08):
 
-- **09a** Group scope: tables (`ballot_voter_group`), ballot endpoints and modal, group delete and merge rules, the
-  groups card shows `ballots_count`.
-- **09b** Copy voters: the endpoint and a dialog on the voters page ("Charger depuis une élection").
-- **09c** Checklist and scheduling: the two endpoints, the A05 checklist card with blockers and warnings, the schedule
-  and back buttons, ballots and candidates locked once scheduled.
+### 09a. Group scope
 
-Test ids, endpoint files and acceptance tests are written next (steps 1 and 2 of the loop), after this brief is read.
+Server: migration for `ballot_voter_group` (`ballot_id` cascade, `voter_group_id` restrict, primary key both, no id,
+no uuid, no timestamps; docs/design/database.md); `Ballot::groups()`; the ballot resource gets `scope`, `groups`,
+`eligible_voters`, `warnings`; POST and PATCH take `scope` and `groups` (sync inside the transaction that holds the
+election lock; groups looked up in the ballot's own election); the groups resource gets `ballots_count`; group delete
+refuses a group a ballot covers; merge moves the ballots (no duplicate) in its transaction, also while scheduled.
+
+Web (ballots page A06 and voters page A08). Test ids:
+
+| Element | Test id |
+|---|---|
+| Ballot modal: scope radios | `ballot-form-scope-general`, `ballot-form-scope-group` |
+| Group chips (only for the group scope; n from 1 in the groups' order; `aria-pressed`; name and voter count) | `ballot-form-groups`, `ballot-form-group-{n}` |
+| Error | `ballot-form-error-groups` |
+| Ballot card | `ballot-scope-{n}` (number of eligible voters in words), `ballot-groups-{n}` (the group names), `ballot-voters-warning-{n}` (few or no voters) |
+| Groups card (voters page) | `group-ballots-{n}` (number of ballots covering the group), `group-delete-{n}` disabled while a ballot covers it |
+| Merge dialog | `group-merge-ballots` (names the ballots that will follow) |
+
+### 09b. Copy voters
+
+Server: `POST /elections/{election}/voter-copies` as its endpoint file, one transaction that locks the target election
+row, chunks of 500, identifier and email checked as the import does (also against rows copied in the same request);
+limiter `voter-copies` 20 an hour per user.
+
+Web (voters page hero, only in a draft or scheduled election). Test ids:
+
+| Element | Test id |
+|---|---|
+| Hero button | `voters-copy` ("Charger depuis une élection") |
+| Dialog | `copy-dialog`, `copy-source` (select of the other elections of the institution), `copy-groups-all`, `copy-groups-some` (radios), `copy-group-{n}` (checkbox per source group, with its voter count; n from 1), `copy-ungrouped` (checkbox), `copy-rename-{n}` (text input shown for a checked group, empty keeps the name), `copy-submit` ("Charger N électeurs"), `copy-cancel`, `copy-error` |
+| Result | `copy-result`, `copy-result-copied`, `copy-result-skipped`, `copy-result-groups`, `copy-close` (the page then shows the new voters and groups) |
+
+### 09c. Checklist and scheduling
+
+Server: `GET /elections/{election}/checklist`, `POST .../schedule`, `POST .../unschedule` as their endpoint files; the
+checklist is computed again under the election row lock when scheduling; the new error codes
+(`checklist_blocked`, `checklist_warnings`, `election_period_over`, `election_not_scheduled`) in the message files;
+`error.items` on the first two.
+
+Web (summary page A05 and ballots page). Test ids:
+
+| Element | Test id |
+|---|---|
+| Checklist card | `election-checklist`, `checklist-blockers`, `checklist-blocker-{n}`, `checklist-warnings`, `checklist-warning-{n}`, `checklist-ok` (nothing to report) |
+| Buttons | `election-schedule-button` (disabled while there is a blocker, hidden when not a draft), `election-unschedule-button` (only when scheduled) |
+| Dialogs | `schedule-dialog`, `schedule-accept-warnings` (a checkbox, shown only with warnings; `schedule-confirm` is disabled until ticked), `schedule-confirm`, `schedule-cancel`; `unschedule-dialog`, `unschedule-confirm`, `unschedule-cancel` |
+| Status | `election-summary-status` gets `data-status` (`draft`, `scheduled`, …) |
+| Ballots page | `ballots-locked-notice` while the election is not a draft; no `ballots-add`, no edit, delete or reorder controls |
+
+Text in the French and English message files only; tokens only; phone: one column and modals as bottom sheets.
+
+### Tests (written before the code, the coder never edits them)
+
+- API: `api/tests/Acceptance/Slice09/` — `BallotScopeTest`, `GroupBallotRulesTest`, `VoterCopyTest`, `ChecklistTest`,
+  `ScheduleTest`, `UnscheduleTest`; helpers `plantBallot` (option `groups`), `ballotGroups` in
+  `api/tests/Support/Accounts.php`; four routes in `Tenancy::TENANT_ROUTES`; the `Slice09` hook in `api/tests/Pest.php`.
+- Browser: `web/e2e/slice09/scope-copy-schedule.spec.ts`.
+
+Tests written by the coder: unit tests of the pure helpers (eligible-voter count and warnings, rename map, checklist
+item to message key, schedule dialog state) and a component test that a non draft election shows no ballot write
+controls.
+
+## Done when
+
+`make lint`, the unit tests and both acceptance folders pass with no edit; `docs/api/openapi.json` and
+`web/src/lib/api/schema.d.ts` regenerated by the generator; the pages looked at at 1920 × 1080, 1280 × 720 and
+360 × 780 (ballot modal with groups, copy dialog, checklist).
 
 ## Not in this slice
 
