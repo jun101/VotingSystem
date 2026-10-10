@@ -312,6 +312,55 @@ final class Accounts
         return $db->table('ballots')->where('election_id', $id)->orderBy('position')->orderBy('id')->get()->map(fn ($row) => (array) $row)->all();
     }
 
+    /**
+     * Inserts a party straight into the database (slice 06b). Options: `election` (uuid, required), `name`,
+     * `acronym`, `colour`. The institution is the election's. Returns the uuid.
+     */
+    public static function plantParty(array $o): string
+    {
+        $db = DB::connection(useMigratorConnection());
+        $election = $db->table('elections')->where('uuid', $o['election'])->first();
+        $uuid = Uuid::uuid4()->toString();
+        $now = Carbon::now('UTC')->format('Y-m-d H:i:s');
+        $name = $o['name'] ?? 'Parti '.bin2hex(random_bytes(3));
+
+        $db->table('parties')->insert([
+            'uuid' => $uuid,
+            'institution_id' => $election->institution_id,
+            'election_id' => $election->id,
+            'name' => $name,
+            'name_key' => mb_strtolower(trim($name)),
+            'acronym' => $o['acronym'] ?? null,
+            'colour' => $o['colour'] ?? '#5468D4',
+            'logo_file' => null,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+
+        return $uuid;
+    }
+
+    /** One row of `parties` by uuid, as an array, or null. */
+    public static function partyRow(string $uuid): ?array
+    {
+        $row = DB::connection(useMigratorConnection())->table('parties')->where('uuid', $uuid)->first();
+
+        return $row === null ? null : (array) $row;
+    }
+
+    /**
+     * The rows of `parties` of one election (its uuid), by name then creation.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function partyRows(string $election): array
+    {
+        $db = DB::connection(useMigratorConnection());
+        $id = $db->table('elections')->where('uuid', $election)->value('id');
+
+        return $db->table('parties')->where('election_id', $id)->orderBy('name_key')->orderBy('id')->get()->map(fn ($row) => (array) $row)->all();
+    }
+
     /** A new random token of the right shape: 64 hexadecimal characters. */
     public static function token(): string
     {

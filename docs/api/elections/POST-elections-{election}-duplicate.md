@@ -4,7 +4,7 @@ Creates a new draft from an existing election, whatever its status.
 
 | | |
 |---|---|
-| Slice | 05 (settings); 06a adds the ballots; 06c the candidates; 07 the voters |
+| Slice | 05 (settings); 06a adds the ballots; 06b the parties; 06c the candidates; 07 the voters |
 | Requirements | FR-ELEC-06 |
 | Caller | Institution user: owner or manager |
 | Rate limit | 60 requests per hour per user |
@@ -28,6 +28,7 @@ Body, JSON, optional:
 | 1 | A draft, no body | 201 | | |
 | 2 | A closed, published or archived election | 201 | | |
 | 3 | A `title` is given | 201 (that title is used) | | |
+| 3c | The source has parties (06b) | 201 (the new election has the same parties: name, acronym, colour, with new UUIDs) | | |
 | 3b | The source has ballots (06a) | 201 (the new election has the same ballots, same order, `ballots_count` equal to the source's) | | |
 | 4 | `title` blank or longer than 200 | 422 | `validation_failed` (`title: required`, `title: max`) | |
 | 5 | Not a UUID, unknown, or another institution's | 404 | `not_found` | |
@@ -57,7 +58,7 @@ and headers for every cause.
   status and its dates (`opened_at`, `closed_at`, `published_at`, `archived_at`), the link to a first round, and in
   every slice votes, credentials and anything a voter produced.
 - Slice 06a: every ballot is copied (title, description, `seats`, `allow_blank`, `position`) in the same transaction;
-  each copy has its own new UUID. Slice 06c adds an optional `copy_candidates` flag (and the parties they need), and
+  each copy has its own new UUID. Slice 06b: every party is copied the same way (logo excluded: files are not shared). Slice 06c adds an optional `copy_candidates` flag, and
   slice 07 the voters; their endpoint files add the options then.
 
 ## Notes

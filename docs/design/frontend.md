@@ -1,6 +1,6 @@
 # New Voting System — Front-end design
 
-Version 1.4 · 2026-10-10 (ballots page and candidate record, adaptive layout and phone rules; theme Material periwinkle from 1.3) · goes with [SPEC.md](../SPEC.md) 1.3,
+Version 1.5 · 2026-10-10 (parties and candidates are registered in a modal; ballots page and candidate record, adaptive layout and phone rules; theme Material periwinkle from 1.3) · goes with [SPEC.md](../SPEC.md) 1.3,
 [architecture.md](architecture.md) and the approved mockups in [mockups/](mockups/).
 
 Stack: Next.js (App Router), TypeScript in strict mode, Tailwind CSS.
@@ -48,7 +48,7 @@ A UUID is the only kind of identifier in an address (NFR-SEC-08).
 | `/admin/elections/new` | New election | A04 |
 | `/admin/elections/{election}` | Overview and checklist | A05 |
 | `/admin/elections/{election}/ballots` | Ballots, parties, candidates | A06 |
-| `/admin/elections/{election}/ballots/{ballot}/candidates/{candidate}` | Candidate record | A07 |
+| (modal on the ballots page) | Candidate record, opened from a candidate row | A07 |
 | `/admin/elections/{election}/voters` | Voters, list and record | A08 |
 | `/admin/elections/{election}/voters/import` | Import: template and file | A09 |
 | `/admin/elections/{election}/voters/import/{import}` | Import: check before importing | A10 |
@@ -318,7 +318,7 @@ at 1280 and at 1920.
      empty ballot shows an icon and one line. Only data that exists is shown (no scope tag or voter count before slices 07
      and 09).
    - *Right rail* (from 1600 px, 340 px): the **Partis** card (rows with a colour swatch and sigle, a candidate count, edit
-     and delete, and an inline "Nouveau parti" form: name, sigle, eight colour swatches, optional logo; no dialog) and an
+     and delete, and a "Nouveau parti" button that opens the party modal of item 12) and an
      **À vérifier** card with the warnings and a link to each. Below 1600 px the rail goes under the zone, as a row of two
      cards, because it holds real content.
    - *Reordering.* A drag handle and up and down buttons on every ballot and candidate; the buttons are the keyboard and
@@ -337,6 +337,18 @@ at 1280 and at 1920.
     chips wrap, actions full width); zones lose most of their padding; grids are one column; card header icons are hidden in
     narrow cards so titles fit; a form's bottom bar is one row (cancel and the main save), and the secondary save moves to
     the end of the form. Nothing scrolls sideways.
+
+12. **Parties and candidates are registered in a modal, without leaving the page** (Jun, 2026-10-10; mockups
+    [material-party-modal.html](mockups/material-party-modal.html) and
+    [material-candidate-modal.html](mockups/material-candidate-modal.html); the look of the forms is the one of items 9
+    and the candidate mockup, unchanged). A modal is a real dialog (`role="dialog"`, `aria-modal`, focus moved in, kept
+    inside, returned to the button that opened it, Escape and the close button close it, the page behind does not
+    scroll). On a desktop it is centred on a dimmed scrim: 540 px wide for a party, up to 1120 px for a candidate (form on
+    the left, the phone preview and the other candidates on the right; one column under 1300 px); on a phone it is a
+    sheet from the bottom, full width, 92 % of the height, with a sticky coloured header. Its height never exceeds the
+    screen: the body scrolls, the header stays. Saving closes it and the page behind updates in place; "save and add
+    another" keeps it open with the form cleared and the focus on the first field. There is no separate route for a party
+    or a candidate: the old record route of the candidate screen (A07) is this modal.
 
 ### Motion
 

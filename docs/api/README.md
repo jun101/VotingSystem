@@ -276,3 +276,7 @@ Filled slice by slice: each slice adds its endpoints here with a link to their f
 | Ballots | `PUT /elections/{election}/ballots/order` | 06a | [ballots/PUT-elections-{election}-ballots-order.md](ballots/PUT-elections-{election}-ballots-order.md) |
 | Ballots | `PATCH /ballots/{ballot}` | 06a | [ballots/PATCH-ballots-{ballot}.md](ballots/PATCH-ballots-{ballot}.md) |
 | Ballots | `DELETE /ballots/{ballot}` | 06a | [ballots/DELETE-ballots-{ballot}.md](ballots/DELETE-ballots-{ballot}.md) |
+| Parties | `GET /elections/{election}/parties` | 06b | [parties/GET-elections-{election}-parties.md](parties/GET-elections-{election}-parties.md) |
+| Parties | `POST /elections/{election}/parties` | 06b | [parties/POST-elections-{election}-parties.md](parties/POST-elections-{election}-parties.md) |
+| Parties | `PATCH /parties/{party}` | 06b | [parties/PATCH-parties-{party}.md](parties/PATCH-parties-{party}.md) |
+| Parties | `DELETE /parties/{party}` | 06b | [parties/DELETE-parties-{party}.md](parties/DELETE-parties-{party}.md) |
