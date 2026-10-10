@@ -387,7 +387,11 @@
     "election_not_editable": "Cette élection n’est plus un brouillon : elle ne peut plus être modifiée ni supprimée.",
     "ballot_limit_reached": "Une élection ne peut pas avoir plus de 50 postes.",
     "party_limit_reached": "Une élection ne peut pas avoir plus de 30 partis.",
-    "candidate_limit_reached": "Un poste ne peut pas avoir plus de 50 candidats."
+    "candidate_limit_reached": "Un poste ne peut pas avoir plus de 50 candidats.",
+    "election_voters_locked": "Les électeurs et les groupes de cette élection ne peuvent plus être modifiés.",
+    "voter_limit_reached": "Une élection ne peut pas avoir plus de 10 000 électeurs.",
+    "group_limit_reached": "Une élection ne peut pas avoir plus de 100 groupes.",
+    "group_in_use": "Ce groupe a encore des électeurs. Déplacez-les ou fusionnez le groupe."
   },
   "validation": {
     "required": "Ce champ est obligatoire.",
@@ -593,6 +597,41 @@
         "dimensions": "Cette image est trop grande : 8 000 pixels au plus d’un côté, 40 millions de pixels au total.",
         "required": "Choisissez une image.",
         "invalid": "Ce fichier ne peut pas être utilisé."
+      }
+    },
+    "voter": {
+      "full_name": {
+        "required": "Saisissez le nom de l’électeur.",
+        "max": "Le nom doit avoir 150 caractères au plus."
+      },
+      "group": {
+        "max": "Le nom du groupe doit avoir 100 caractères au plus."
+      },
+      "identifier": {
+        "max": "L’identifiant doit avoir 50 caractères au plus.",
+        "unique": "Un électeur de cette élection a déjà cet identifiant."
+      },
+      "email": {
+        "email": "Saisissez une adresse courriel valide.",
+        "max": "Cette adresse est trop longue (255 caractères au plus).",
+        "unique": "Un électeur de cette élection a déjà cette adresse."
+      },
+      "phone": {
+        "max": "Le téléphone doit avoir 30 caractères au plus.",
+        "invalid": "Utilisez seulement des chiffres, des espaces et les signes + ( ) . -"
+      }
+    },
+    "group": {
+      "name": {
+        "required": "Donnez un nom au groupe.",
+        "max": "Le nom doit avoir 100 caractères au plus.",
+        "unique": "Un groupe de cette élection porte déjà ce nom."
+      },
+      "into": {
+        "required": "Choisissez le groupe qui reçoit les électeurs.",
+        "uuid": "Choisissez un groupe dans la liste.",
+        "same": "Choisissez un autre groupe que celui-ci.",
+        "invalid": "Ce groupe n’existe plus. Rechargez la page."
       }
     }
   },
@@ -1180,6 +1219,130 @@
     "delete": {
       "title": "Supprimer ce candidat ?",
       "text": "Le candidat « {name} » sera supprimé. Les suivants remontent d’un rang.",
+      "confirm": "Supprimer",
+      "cancel": "Annuler"
+    }
+  },
+  "voters": {
+    "back": "Retour à l’élection",
+    "title": "Électeurs",
+    "badgeDraft": "Brouillon · modifiable jusqu’à la planification",
+    "count": {
+      "one": "{count} électeur",
+      "other": "{count} électeurs"
+    },
+    "ungrouped": "{count} sans groupe",
+    "range": {
+      "one": "{from} sur {total} électeur",
+      "other": "{from} à {to} sur {total} électeurs"
+    },
+    "add": "Ajouter un électeur",
+    "zone": {
+      "label": "Liste des électeurs",
+      "title": "Électeurs"
+    },
+    "search": "Chercher un nom, un identifiant, un courriel…",
+    "filter": {
+      "label": "Filtrer par groupe",
+      "all": "Tous",
+      "none": "Sans groupe"
+    },
+    "card": {
+      "noGroup": "Sans groupe",
+      "edit": "Modifier l’électeur {name}",
+      "delete": "Supprimer l’électeur {name}",
+      "email": "Courriel : {value}",
+      "phone": "Téléphone : {value}"
+    },
+    "empty": {
+      "title": "Aucun électeur pour l’instant",
+      "text": "Ajoutez les électeurs un à un. Vous pourrez les ranger par groupe : une classe, un niveau, un bureau.",
+      "locked": "Aucun électeur n’a été ajouté à cette élection."
+    },
+    "noMatch": {
+      "text": "Aucun électeur ne correspond à cette recherche.",
+      "reset": "Tout afficher"
+    },
+    "pager": {
+      "label": "Pages de la liste",
+      "prev": "Page précédente",
+      "next": "Page suivante",
+      "page": "Page {page}"
+    },
+    "locked": "Les électeurs et les groupes de cette élection ne peuvent plus être modifiés.",
+    "loadFailed": "La liste n’a pas pu être lue. Réessayez dans un instant.",
+    "form": {
+      "titleNew": "Ajouter un électeur",
+      "titleEdit": "Modifier l’électeur",
+      "name": "Nom complet",
+      "nameHelp": "Prénom et nom, tels qu’ils seront imprimés sur le bulletin de code.",
+      "group": "Groupe",
+      "groupHelp": "Choisissez un groupe ou écrivez-en un nouveau.",
+      "identifier": "Identifiant",
+      "identifierHelp": "Numéro d’élève, unique dans l’élection.",
+      "email": "Courriel",
+      "emailHelp": "Pour envoyer le code. Facultatif.",
+      "phone": "Téléphone",
+      "phoneHelp": "Facultatif.",
+      "privacy": "Aucune date de naissance n’est demandée : beaucoup d’électeurs sont mineurs.",
+      "save": "Enregistrer",
+      "saveAnother": "Enregistrer et ajouter un autre",
+      "cancel": "Annuler",
+      "close": "Fermer",
+      "added": "L’électeur « {name} » est ajouté. Saisissez le suivant.",
+      "error": "L’électeur n’a pas pu être enregistré."
+    },
+    "delete": {
+      "title": "Supprimer cet électeur ?",
+      "text": "L’électeur « {name} » sera supprimé de l’élection. Son groupe est conservé.",
+      "confirm": "Supprimer",
+      "cancel": "Annuler"
+    },
+    "rail": {
+      "label": "Groupes et codes"
+    },
+    "codes": {
+      "title": "Codes de vote",
+      "text": "Les codes se créent à l’étape suivante, une fois les électeurs prêts."
+    }
+  },
+  "groups": {
+    "title": "Groupes",
+    "new": "Nouveau groupe",
+    "count": {
+      "one": "{count} groupe",
+      "other": "{count} groupes"
+    },
+    "empty": "Aucun groupe pour l’instant : un groupe se crée ici, ou en écrivant son nom dans la fiche d’un électeur.",
+    "note": "Un groupe n’est supprimé que s’il n’a aucun électeur.",
+    "row": {
+      "filter": "Voir les électeurs du groupe {name}",
+      "rename": "Renommer le groupe {name}",
+      "merge": "Fusionner le groupe {name}",
+      "delete": "Supprimer le groupe {name}"
+    },
+    "form": {
+      "titleNew": "Nouveau groupe",
+      "titleEdit": "Renommer le groupe",
+      "name": "Nom du groupe",
+      "save": "Enregistrer",
+      "add": "Ajouter le groupe",
+      "cancel": "Annuler",
+      "close": "Fermer",
+      "error": "Le groupe n’a pas pu être enregistré."
+    },
+    "merge": {
+      "title": "Fusionner ce groupe",
+      "text": "Les électeurs du groupe « {name} » passent dans le groupe choisi, puis « {name} » est supprimé.",
+      "into": "Groupe qui reçoit les électeurs",
+      "choose": "Choisir un groupe",
+      "missing": "Choisissez le groupe qui reçoit les électeurs.",
+      "confirm": "Fusionner",
+      "cancel": "Annuler"
+    },
+    "delete": {
+      "title": "Supprimer ce groupe ?",
+      "text": "Le groupe « {name} » sera supprimé. Il n’a aucun électeur.",
       "confirm": "Supprimer",
       "cancel": "Annuler"
     }

@@ -3,6 +3,8 @@ import { cache } from 'react';
 import { createApiClient } from './client';
 import type { Ballot } from './ballots';
 import type { Party } from './parties';
+import type { GroupList, VoterFilters, VoterList } from './voters';
+import { VOTERS_PER_PAGE } from './voters';
 import type { Election, ElectionFilters, ElectionList } from './elections';
 import { SESSION_COOKIE } from './session';
 import type {
@@ -197,5 +199,52 @@ export async function fetchElectionParties(id: string): Promise<Party[] | null> 
     });
 
     return response.ok && data ? data.data : null;
+  });
+}
+
+/** One page of the voters of an election of the institution, or null when the API does not give it. */
+export async function fetchElectionVoters(
+  id: string,
+  filters: VoterFilters,
+): Promise<VoterList | null> {
+  return authorizedGet(async (headers) => {
+    const { data, response } = await createApiClient().GET('/v1/elections/{election}/voters', {
+      headers,
+      params: {
+        path: { election: id },
+        query: {
+          page: filters.page,
+          per_page: VOTERS_PER_PAGE,
+          ...(filters.q === '' ? {} : { q: filters.q }),
+          ...(filters.group === '' ? {} : { group: filters.group }),
+        },
+      },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(4000),
+    });
+
+    if (!response.ok || !data) return null;
+
+    return { items: data.data, total: data.meta.total, page: data.meta.page };
+  });
+}
+
+/** The groups of an election of the institution with their counts, or null when the API does not give them. */
+export async function fetchElectionGroups(id: string): Promise<GroupList | null> {
+  return authorizedGet(async (headers) => {
+    const { data, response } = await createApiClient().GET('/v1/elections/{election}/groups', {
+      headers,
+      params: { path: { election: id }, query: { per_page: 100 } },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(4000),
+    });
+
+    if (!response.ok || !data) return null;
+
+    return {
+      items: data.data,
+      votersTotal: data.meta.voters_total,
+      ungrouped: data.meta.ungrouped,
+    };
   });
 }

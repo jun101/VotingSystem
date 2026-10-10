@@ -387,7 +387,11 @@
     "election_not_editable": "This election is no longer a draft: it can no longer be changed or deleted.",
     "ballot_limit_reached": "An election cannot have more than 50 positions.",
     "party_limit_reached": "An election cannot have more than 30 parties.",
-    "candidate_limit_reached": "A position cannot have more than 50 candidates."
+    "candidate_limit_reached": "A position cannot have more than 50 candidates.",
+    "election_voters_locked": "The voters and groups of this election can no longer be changed.",
+    "voter_limit_reached": "An election cannot have more than 10,000 voters.",
+    "group_limit_reached": "An election cannot have more than 100 groups.",
+    "group_in_use": "This group still has voters. Move them or merge the group."
   },
   "validation": {
     "required": "This field is required.",
@@ -593,6 +597,41 @@
         "dimensions": "This image is too large: 8,000 pixels at most on a side, 40 million pixels in all.",
         "required": "Choose an image.",
         "invalid": "This file cannot be used."
+      }
+    },
+    "voter": {
+      "full_name": {
+        "required": "Enter the voter’s name.",
+        "max": "The name must be 150 characters or fewer."
+      },
+      "group": {
+        "max": "The group name must be 100 characters or fewer."
+      },
+      "identifier": {
+        "max": "The identifier must be 50 characters or fewer.",
+        "unique": "A voter of this election already has this identifier."
+      },
+      "email": {
+        "email": "Enter a valid email address.",
+        "max": "This address is too long (255 characters at most).",
+        "unique": "A voter of this election already has this address."
+      },
+      "phone": {
+        "max": "The phone must be 30 characters or fewer.",
+        "invalid": "Use only digits, spaces and the signs + ( ) . -"
+      }
+    },
+    "group": {
+      "name": {
+        "required": "Give the group a name.",
+        "max": "The name must be 100 characters or fewer.",
+        "unique": "A group of this election already has this name."
+      },
+      "into": {
+        "required": "Choose the group that receives the voters.",
+        "uuid": "Choose a group from the list.",
+        "same": "Choose a group other than this one.",
+        "invalid": "This group no longer exists. Reload the page."
       }
     }
   },
@@ -1180,6 +1219,130 @@
     "delete": {
       "title": "Delete this candidate?",
       "text": "The candidate “{name}” will be deleted. The next ones move up one place.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    }
+  },
+  "voters": {
+    "back": "Back to the election",
+    "title": "Voters",
+    "badgeDraft": "Draft · editable until it is scheduled",
+    "count": {
+      "one": "{count} voter",
+      "other": "{count} voters"
+    },
+    "ungrouped": "{count} without a group",
+    "range": {
+      "one": "{from} of {total} voter",
+      "other": "{from} to {to} of {total} voters"
+    },
+    "add": "Add a voter",
+    "zone": {
+      "label": "List of voters",
+      "title": "Voters"
+    },
+    "search": "Search a name, an identifier, an email…",
+    "filter": {
+      "label": "Filter by group",
+      "all": "All",
+      "none": "No group"
+    },
+    "card": {
+      "noGroup": "No group",
+      "edit": "Edit the voter {name}",
+      "delete": "Delete the voter {name}",
+      "email": "Email: {value}",
+      "phone": "Phone: {value}"
+    },
+    "empty": {
+      "title": "No voter yet",
+      "text": "Add the voters one by one. You can sort them into groups: a class, a level, a polling desk.",
+      "locked": "No voter was added to this election."
+    },
+    "noMatch": {
+      "text": "No voter matches this search.",
+      "reset": "Show all"
+    },
+    "pager": {
+      "label": "Pages of the list",
+      "prev": "Previous page",
+      "next": "Next page",
+      "page": "Page {page}"
+    },
+    "locked": "The voters and groups of this election can no longer be changed.",
+    "loadFailed": "The list could not be read. Try again in a moment.",
+    "form": {
+      "titleNew": "Add a voter",
+      "titleEdit": "Edit the voter",
+      "name": "Full name",
+      "nameHelp": "First and last name, as they will be printed on the code slip.",
+      "group": "Group",
+      "groupHelp": "Choose a group or write a new one.",
+      "identifier": "Identifier",
+      "identifierHelp": "Student number, unique in the election.",
+      "email": "Email",
+      "emailHelp": "To send the code. Optional.",
+      "phone": "Phone",
+      "phoneHelp": "Optional.",
+      "privacy": "No date of birth is asked: many voters are minors.",
+      "save": "Save",
+      "saveAnother": "Save and add another",
+      "cancel": "Cancel",
+      "close": "Close",
+      "added": "The voter “{name}” is added. Enter the next one.",
+      "error": "The voter could not be saved."
+    },
+    "delete": {
+      "title": "Delete this voter?",
+      "text": "The voter “{name}” will be removed from the election. Their group is kept.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    },
+    "rail": {
+      "label": "Groups and codes"
+    },
+    "codes": {
+      "title": "Voting codes",
+      "text": "Codes are created in the next step, once the voters are ready."
+    }
+  },
+  "groups": {
+    "title": "Groups",
+    "new": "New group",
+    "count": {
+      "one": "{count} group",
+      "other": "{count} groups"
+    },
+    "empty": "No group yet: create one here, or write its name in a voter’s form.",
+    "note": "A group is deleted only when it has no voter.",
+    "row": {
+      "filter": "Show the voters of the group {name}",
+      "rename": "Rename the group {name}",
+      "merge": "Merge the group {name}",
+      "delete": "Delete the group {name}"
+    },
+    "form": {
+      "titleNew": "New group",
+      "titleEdit": "Rename the group",
+      "name": "Group name",
+      "save": "Save",
+      "add": "Add the group",
+      "cancel": "Cancel",
+      "close": "Close",
+      "error": "The group could not be saved."
+    },
+    "merge": {
+      "title": "Merge this group",
+      "text": "The voters of the group “{name}” move into the chosen group, then “{name}” is deleted.",
+      "into": "Group that receives the voters",
+      "choose": "Choose a group",
+      "missing": "Choose the group that receives the voters.",
+      "confirm": "Merge",
+      "cancel": "Cancel"
+    },
+    "delete": {
+      "title": "Delete this group?",
+      "text": "The group “{name}” will be deleted. It has no voter.",
       "confirm": "Delete",
       "cancel": "Cancel"
     }
