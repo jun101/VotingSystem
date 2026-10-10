@@ -59,6 +59,7 @@ function ballot(title: string, position: number, extra: Partial<Ballot> = {}): B
     seats: 1,
     allow_blank: true,
     candidates_count: 0,
+    candidates: [],
     created_at: '2026-10-10T14:00:00Z',
     updated_at: '2026-10-10T14:00:00Z',
     ...extra,
