@@ -191,3 +191,18 @@ it('purges an import stuck in importing for more than a day, and keeps a recent 
         ->and(Accounts::importRow($running))->not->toBeNull()
         ->and(Accounts::importRows($running))->toHaveCount(1);
 });
+
+it('reads a workbook made by a spreadsheet library: inline strings, an accented sheet name, an Instructions sheet after it [FR-VOT-03] (scenario 1)', function () {
+    [$t, $election] = hardenSignedIn($this);
+    $cell = fn (string $ref, string $text) => '<c r="'.$ref.'" t="inlineStr"><is><t>'.htmlspecialchars($text, ENT_XML1).'</t></is></c>';
+    $rows = '<row r="1">'.$cell('A1', 'nom_complet').$cell('B1', 'groupe').$cell('C1', 'identifiant').$cell('D1', 'courriel').$cell('E1', 'telephone').'</row>';
+    for ($i = 2; $i <= 101; $i++) {
+        $rows .= '<row r="'.$i.'">'.$cell("A{$i}", "Électeur {$i}").$cell("B{$i}", '6e année').$cell("C{$i}", "E-{$i}").$cell("D{$i}", "e{$i}@example.ht").$cell("E{$i}", '+509 3728 5146').'</row>';
+    }
+
+    $response = hardenUpload($this, $election, Spreadsheets::xlsxWithSheetXml($rows, '', '<dimension ref="A1:E101"/>', 'Électeurs', true), 'modele-electeurs-100.xlsx')->assertStatus(202);
+
+    $import = hardenImport($this, $response->json('data.id'));
+    expect($import)->toMatchArray(['status' => 'checked', 'total_rows' => 100, 'valid_rows' => 100, 'invalid_rows' => 0, 'failure' => null])
+        ->and($import['new_groups'])->toBe(['6e année']);
+});

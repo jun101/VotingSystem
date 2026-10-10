@@ -86,21 +86,60 @@ final class ImportFileInspector
                 throw $this->refuse('invalid_type');
             }
 
-            $expanded = 0;
-
-            for ($i = 0; $i < $zip->numFiles; $i++) {
-                $entry = $zip->statIndex($i);
-                $expanded += $entry === false ? 0 : $entry['size'];
-
-                if ($expanded > self::MAX_EXPANDED_BYTES) {
-                    throw $this->refuse('too_large');
-                }
+            // The sizes the ZIP declares are not trusted: the bytes are counted as they are inflated.
+            if (self::inflatedBytes($zip, self::MAX_EXPANDED_BYTES) > self::MAX_EXPANDED_BYTES) {
+                throw $this->refuse('too_large');
             }
         } finally {
             $zip->close();
         }
 
         return self::XLSX;
+    }
+
+    /**
+     * The real size of the entries of an open ZIP once inflated, counted by reading each one
+     * through a stream. Counting stops as soon as the total passes `$limit` (the result is then
+     * above it, not the full size), so a bomb costs about `$limit` bytes of work. An entry that
+     * cannot be read to its end counts for what was read.
+     */
+    public static function inflatedBytes(ZipArchive $zip, int $limit): int
+    {
+        $total = 0;
+
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $name = $zip->getNameIndex($i);
+
+            if ($name === false || str_ends_with($name, '/')) {
+                continue;
+            }
+
+            $stream = $zip->getStream($name);
+
+            if ($stream === false) {
+                continue;
+            }
+
+            try {
+                while (! feof($stream)) {
+                    $chunk = fread($stream, 65536);
+
+                    if ($chunk === false || $chunk === '') {
+                        break;
+                    }
+
+                    $total += strlen($chunk);
+
+                    if ($total > $limit) {
+                        return $total;
+                    }
+                }
+            } finally {
+                fclose($stream);
+            }
+        }
+
+        return $total;
     }
 
     private function refuse(string $code): ValidationException

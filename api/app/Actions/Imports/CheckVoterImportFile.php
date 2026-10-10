@@ -9,6 +9,7 @@ use App\Models\VoterGroup;
 use App\Models\VoterImport;
 use App\Models\VoterImportRow;
 use App\Support\Imports\ColumnMapper;
+use App\Support\Imports\ImportTempFolder;
 use App\Support\Imports\RowChecker;
 use App\Support\Imports\VoterFileReader;
 use Illuminate\Support\Carbon;
@@ -28,14 +29,27 @@ use Throwable;
  */
 final class CheckVoterImportFile
 {
-    /** A cell kept for the preview and the error file is cut here (the checks ran on the whole text). */
-    private const KEPT = 1000;
+    /** Lines read at most, empty ones included: the header, 10 000 rows and some blank lines. */
+    public const MAX_LINES = 11000;
+
+    /**
+     * What a value kept for the preview and the error file is cut to: its field's maximum length
+     * plus one character (the row is invalid for its length anyway; the checks ran on the whole text).
+     */
+    public const KEPT = ['full_name' => 151, 'group' => 101, 'identifier' => 51, 'email' => 256, 'phone' => 31];
 
     public function __construct(private readonly ColumnMapper $mapper, private readonly VoterFileReader $reader) {}
 
     public function __invoke(VoterImport $import): void
     {
-        $outcome = $this->read($import);
+        // The reader's working files go to a folder of this import, always removed when the check ends.
+        $folder = ImportTempFolder::make($import->uuid);
+
+        try {
+            $outcome = $this->read($import, $folder);
+        } finally {
+            ImportTempFolder::remove($import->uuid);
+        }
 
         // The import may have been deleted, or checked by another worker, while the file was read.
         DB::transaction(function () use ($import, $outcome): void {
@@ -91,7 +105,7 @@ final class CheckVoterImportFile
      *
      * @return array{columns: list<string>|null, mapping: array<string, int|null>|null, failure: string|null, total: int, valid: int, invalid: int, duplicates: int, new_groups: list<string>, rows: list<array{line: int, status: ImportRowStatus, reasons: list<string>, values: array{full_name: string|null, group: string|null, identifier: string|null, email: string|null, phone: string|null}, raw: array<string, string|null>}>}
      */
-    private function read(VoterImport $import): array
+    private function read(VoterImport $import, string $folder): array
     {
         $outcome = [
             'columns' => null, 'mapping' => null, 'failure' => null,
@@ -130,7 +144,11 @@ final class CheckVoterImportFile
         $mapping = null;
 
         try {
-            foreach ($this->reader->lines($disk->path($import->stored_file)) as $line => $cells) {
+            foreach ($this->reader->lines($disk->path($import->stored_file), $folder) as $line => $cells) {
+                if ($line > self::MAX_LINES) {
+                    return ['failure' => 'too_many_rows', 'rows' => [], 'total' => 0, 'valid' => 0, 'invalid' => 0, 'duplicates' => 0, 'new_groups' => []] + $outcome;
+                }
+
                 if ($line === 1) {
                     $columns = $this->header($cells);
 
@@ -138,7 +156,13 @@ final class CheckVoterImportFile
                         return ['failure' => 'no_header'] + $outcome;
                     }
 
-                    $outcome['columns'] = $columns;
+                    // At most 50 cells are stored, even for a header that is refused.
+                    $outcome['columns'] = array_slice($columns, 0, VoterFileReader::MAX_COLUMNS);
+
+                    if (count($columns) > VoterFileReader::MAX_COLUMNS) {
+                        return ['failure' => 'unreadable'] + $outcome;
+                    }
+
                     $mapping = $this->mappingFor($import, $columns);
                     $outcome['mapping'] = $mapping;
 
@@ -163,7 +187,7 @@ final class CheckVoterImportFile
                 foreach (VoterImport::FIELDS as $field) {
                     $index = $mapping[$field];
                     $cell = $index === null ? null : ($cells[$index] ?? null);
-                    $raw[$field] = $cell === null ? null : mb_substr($cell, 0, self::KEPT);
+                    $raw[$field] = $cell === null ? null : mb_substr($cell, 0, self::KEPT[$field]);
                     $text = $cell === null ? '' : trim($cell);
                     $values[$field] = $text === '' ? null : $text;
                 }
@@ -182,7 +206,12 @@ final class CheckVoterImportFile
                     $outcome['duplicates']++;
                 }
 
-                $kept = array_map(fn (?string $value): ?string => $value === null ? null : mb_substr($value, 0, self::KEPT), $judged['values']);
+                $kept = [];
+
+                foreach (self::KEPT as $field => $length) {
+                    $value = $judged['values'][$field];
+                    $kept[$field] = $value === null ? null : mb_substr($value, 0, $length);
+                }
 
                 $outcome['rows'][] = [
                     'line' => $line,

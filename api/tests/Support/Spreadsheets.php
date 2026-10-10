@@ -192,14 +192,14 @@ final class Spreadsheets
      * A workbook with a hostile sheet XML: `$sheet` replaces the `<sheetData>` document, `$prolog` is put before the
      * root (a DOCTYPE with entities).
      */
-    public static function xlsxWithSheetXml(string $sheetData, string $prolog = '', string $dimension = ''): string
+    public static function xlsxWithSheetXml(string $sheetData, string $prolog = '', string $dimension = '', string $sheetName = 'Feuille1', bool $withInstructions = false): string
     {
         return self::zip([
             '[Content_Types].xml' => '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/></Types>',
-            'xl/workbook.xml' => '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Feuille1" sheetId="1" r:id="rId1"/></sheets></workbook>',
-            'xl/_rels/workbook.xml.rels' => '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>',
+            'xl/workbook.xml' => '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="'.htmlspecialchars($sheetName, ENT_XML1).'" sheetId="1" r:id="rId1"/>'.($withInstructions ? '<sheet name="Instructions" sheetId="2" r:id="rId2"/>' : '').'</sheets></workbook>',
+            'xl/_rels/workbook.xml.rels' => '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>'.($withInstructions ? '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet2.xml"/>' : '').'</Relationships>',
             'xl/worksheets/sheet1.xml' => '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'.$prolog.'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'.$dimension.'<sheetData>'.$sheetData.'</sheetData></worksheet>',
-        ]);
+        ] + ($withInstructions ? ['xl/worksheets/sheet2.xml' => '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData><row r="1"><c r="A1" t="inlineStr"><is><t>Colonne</t></is></c></row></sheetData></worksheet>'] : []));
     }
 
     /** The bytes of a file response, whatever kind of response it is. */

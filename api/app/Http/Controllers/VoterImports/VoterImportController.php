@@ -24,6 +24,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
@@ -122,6 +123,13 @@ class VoterImportController extends Controller
                     'original_name' => $this->displayName($file),
                     'stored_file' => $stored,
                     'status' => VoterImportStatus::Uploaded,
+                    // Integers from the first answer (the 202 carries them).
+                    'total_rows' => 0,
+                    'valid_rows' => 0,
+                    'invalid_rows' => 0,
+                    'duplicate_rows' => 0,
+                    'processed_rows' => 0,
+                    'imported_rows' => 0,
                 ])->save();
                 $import->setRelation('election', $locked);
 
@@ -180,16 +188,17 @@ class VoterImportController extends Controller
     {
         $this->allow('update', $import);
 
-        $mapping = $request->merged();
-
-        if ($mapping === null) {
-            throw ValidationException::withMessages(['mapping' => ['invalid']]);
-        }
-
+        // The contract's order: the record (404, the binding), the state (409), then the body (422).
         $this->electionOf($import)->assertVotersDeletable();
 
         if ($import->status !== VoterImportStatus::Checked) {
             throw new ApiException(409, 'import_not_checked');
+        }
+
+        $mapping = $request->merged();
+
+        if ($mapping === null) {
+            throw ValidationException::withMessages(['mapping' => ['invalid']]);
         }
 
         $changed = DB::transaction(function () use ($import, $mapping): VoterImport {
@@ -231,7 +240,19 @@ class VoterImportController extends Controller
             return $locked;
         });
 
-        CheckVoterImport::dispatch($changed->uuid);
+        try {
+            CheckVoterImport::dispatch($changed->uuid);
+        } catch (Throwable $e) {
+            // The queue could not be reached: nothing will check this import, so it must not stay `uploaded`.
+            // Its rows were cleared with the change, so it cannot go back to `checked`: it ends `failed`.
+            $changed->forceFill([
+                'status' => VoterImportStatus::Failed,
+                'failure' => 'unreadable',
+                'finished_at' => Carbon::now('UTC'),
+            ])->save();
+
+            throw $e;
+        }
 
         Log::info('voter_import.map', ['outcome' => 'queued']);
 

@@ -4,6 +4,7 @@ namespace App\Support\Imports;
 
 use App\Models\VoterImport;
 use App\Models\VoterImportRow;
+use App\Support\Exports\FormulaGuard;
 use OpenSpout\Common\Entity\Cell;
 use OpenSpout\Common\Entity\Cell\StringCell;
 use OpenSpout\Common\Entity\Row;
@@ -19,13 +20,10 @@ final class ErrorFileWriter
 {
     public const HEADER = [...VoterFileTemplate::HEADER, 'ligne', 'raison'];
 
-    /** A text that begins with one of these is taken for a formula (tab and carriage return too, as OWASP lists). */
-    private const TRIGGERS = ['=', '+', '-', '@', "\t", "\r"];
-
     /** The text as it is written in a cell: prefixed with `'` when it could run as a formula. */
     public static function guard(string $text): string
     {
-        return $text !== '' && in_array($text[0], self::TRIGGERS, true) ? "'".$text : $text;
+        return FormulaGuard::guard($text);
     }
 
     /**
@@ -53,7 +51,7 @@ final class ErrorFileWriter
                 foreach (VoterImport::FIELDS as $field) {
                     $value = $raw[$field] ?? null;
                     $cells[] = is_string($value) && $value !== ''
-                        ? new StringCell(self::guard($value), null)
+                        ? new StringCell(FormulaGuard::guard($value), null)
                         : Cell::fromValue(null);
                 }
 

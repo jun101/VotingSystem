@@ -36,4 +36,6 @@ return [
     'cannot_reset_self' => 'Use your "My account" page to turn off your own two-factor authentication.',
     'import_in_progress' => 'An import is already running for this election.',
     'import_not_checked' => 'This import is not ready: wait for the check to finish.',
+    'nothing_to_import' => 'There is no valid row to import: correct the file or the column choice.',
+    'no_error_file' => 'This import has no rejected row, so there is no error file.',
 ];

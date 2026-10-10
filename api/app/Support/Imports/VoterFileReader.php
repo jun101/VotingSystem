@@ -21,30 +21,41 @@ use RuntimeException;
  */
 final class VoterFileReader
 {
+    /** A header wider than this is refused by the check, and `columns` keeps this many cells at most. */
+    public const MAX_COLUMNS = 50;
+
     /**
      * The lines of the file as `line number => cells`, the header being line 1. Empty lines are
      * kept so that the numbers are the file's own. A cell is its text, or null when it is empty.
+     * The header is given whole; every other line is cut to the header's width (at most
+     * MAX_COLUMNS cells) before its cells are turned into text, whatever the sheet's declared
+     * dimension is. The working files of the reader go to `$tempFolder` when it is given.
      *
      * @return Generator<int, list<string|null>>
      *
      * @throws RuntimeException when the file cannot be read as a spreadsheet
      */
-    public function lines(string $path): Generator
+    public function lines(string $path, ?string $tempFolder = null): Generator
     {
-        $reader = $this->open($path);
+        $reader = $this->open($path, $tempFolder);
 
         try {
             $reader->open($path);
 
             foreach ($reader->getSheetIterator() as $sheet) {
                 $line = 0;
+                $width = null;
 
                 foreach ($sheet->getRowIterator() as $row) {
                     $line++;
                     $cells = [];
 
-                    foreach ($row->cells as $cell) {
+                    foreach ($width === null ? $row->cells : array_slice($row->cells, 0, $width) as $cell) {
                         $cells[] = $this->text($cell);
+                    }
+
+                    if ($width === null) {
+                        $width = max(1, min(self::MAX_COLUMNS, $this->usedWidth($cells)));
                     }
 
                     yield $line => $cells;
@@ -58,10 +69,24 @@ final class VoterFileReader
         }
     }
 
-    private function open(string $path): XlsxReader|CsvReader
+    /** @param  list<string|null>  $cells */
+    private function usedWidth(array $cells): int
+    {
+        for ($width = count($cells); $width > 0; $width--) {
+            $cell = $cells[$width - 1];
+
+            if ($cell !== null && trim($cell) !== '') {
+                break;
+            }
+        }
+
+        return $width;
+    }
+
+    private function open(string $path, ?string $tempFolder): XlsxReader|CsvReader
     {
         if (ImportFileInspector::looksLikeZip($path)) {
-            return new XlsxReader(new XlsxOptions(SHOULD_PRESERVE_EMPTY_ROWS: true));
+            return new XlsxReader(new XlsxOptions(tempFolder: $tempFolder === '' ? null : $tempFolder, SHOULD_PRESERVE_EMPTY_ROWS: true));
         }
 
         $bytes = file_get_contents($path);

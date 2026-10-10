@@ -5,26 +5,19 @@ namespace App\Http\Requests\VoterImports;
 use App\Models\VoterImport;
 use App\Support\Imports\ColumnMapper;
 use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 
-/** The body of docs/api/voter-imports/PATCH-voter-imports-{import}.md: every fault is `mapping: invalid`. */
+/**
+ * The body of docs/api/voter-imports/PATCH-voter-imports-{import}.md: every fault is `mapping: invalid`.
+ * It is judged by the controller through `merged()`, after the state checks (the contract's order:
+ * 404, 409, then 422), so there is no validation here that would run first.
+ */
 class UpdateImportMappingRequest extends FormRequest
 {
     /** @return array<string, list<ValidationRule|string>> */
     public function rules(): array
     {
         return [];
-    }
-
-    /** @return list<callable(Validator): void> */
-    public function after(): array
-    {
-        return [function (Validator $validator): void {
-            if ($this->merged() === null) {
-                $validator->errors()->add('mapping', 'invalid');
-            }
-        }];
     }
 
     /**

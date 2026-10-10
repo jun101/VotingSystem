@@ -15,6 +15,7 @@ use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Throwable;
 
 /**
@@ -102,6 +103,13 @@ final class ImportVoterRows
             'failure' => null,
             'finished_at' => Carbon::now('UTC'),
         ])->save();
+
+        // Done: the preview and the error file read the rows, not the file.
+        try {
+            Storage::disk('imports')->delete($import->stored_file);
+        } catch (Throwable) {
+            // A file that stays is removed by the clean-up; the import is done all the same.
+        }
     }
 
     /**

@@ -109,7 +109,7 @@ export function ImportCheck({ election, initial }: { election: Election; initial
   const [gone, setGone] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
   const [busy, setBusy] = useState<'mapping' | 'confirm' | 'cancel' | null>(null);
-  const [filter, setFilter] = useState<ImportRowFilter>('all');
+  const [chosenFilter, setFilter] = useState<ImportRowFilter>('all');
   const [page, setPage] = useState(1);
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const checkingRef = useRef<HTMLDivElement>(null);
@@ -117,6 +117,9 @@ export function ImportCheck({ election, initial }: { election: Election; initial
   const votersPage = `/admin/elections/${election.id}/voters`;
   const importPage = `${votersPage}/import`;
   const { status } = imp;
+  // "Errors only" has no meaning, and no switch to leave it, once no row is invalid.
+  const filter: ImportRowFilter =
+    chosenFilter === 'errors' && imp.invalid_rows > 0 ? 'errors' : 'all';
 
   // The file is being checked or imported: read it again until that ends.
   useEffect(() => {
@@ -208,6 +211,7 @@ export function ImportCheck({ election, initial }: { election: Election; initial
 
     try {
       setImp(await updateImportMapping(imp.id, change));
+      setFilter('all');
       setPage(1);
     } catch (caught) {
       say(caught);

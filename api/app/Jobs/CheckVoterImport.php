@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Actions\Imports\CheckVoterImportFile;
 use App\Enums\VoterImportStatus;
 use App\Models\VoterImport;
+use App\Support\Imports\ImportTempFolder;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -47,6 +48,9 @@ class CheckVoterImport implements ShouldQueue
     /** A crash or a timeout: the import must not stay `uploaded` for ever. The error is not logged here (it may quote a cell). */
     public function failed(?Throwable $exception): void
     {
+        // The reader's working files stay behind when the job is killed.
+        ImportTempFolder::remove($this->importUuid);
+
         // The same reason as in `handle`.
         VoterImport::withoutInstitutionScope()
             ->where('uuid', $this->importUuid)
