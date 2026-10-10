@@ -9,12 +9,14 @@ use App\Exceptions\ApiException;
 use App\Models\Concerns\BelongsToInstitution;
 use App\Models\Concerns\HasUuid;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
  * An election of an institution (docs/design/database.md section 2.2). Dates are UTC; the
  * `timezone` says how to show them.
  *
+ * @property int $id
  * @property string $uuid
  * @property string $title
  * @property string|null $description
@@ -80,5 +82,25 @@ class Election extends Model
         if (! $this->isEditable()) {
             throw new ApiException(409, 'election_not_editable', messageKey: $messageKey);
         }
+    }
+
+    /**
+     * The positions of the election, in display order.
+     *
+     * @return HasMany<Ballot, $this>
+     */
+    public function ballots(): HasMany
+    {
+        return $this->hasMany(Ballot::class)->orderBy('position')->orderBy('id');
+    }
+
+    /**
+     * The parties of the election, by name ignoring case, then creation order.
+     *
+     * @return HasMany<Party, $this>
+     */
+    public function parties(): HasMany
+    {
+        return $this->hasMany(Party::class)->orderBy('name_key')->orderBy('id');
     }
 }

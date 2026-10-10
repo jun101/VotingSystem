@@ -153,8 +153,9 @@ docs/api/
 ```
 
 File name: the method, then the path with `/` replaced by `-`, parameters kept in
-braces. `DELETE /elections/{election}/ballots/{ballot}` is
-`ballots/DELETE-elections-{election}-ballots-{ballot}.md`.
+braces. `DELETE /ballots/{ballot}` is `ballots/DELETE-ballots-{ballot}.md`. A record that
+has a UUID of its own is addressed directly (`/ballots/{ballot}`); only its collection
+(list, create, reorder) is under its parent (`/elections/{election}/ballots`).
 
 ## 7. Template of an endpoint file
 
@@ -270,3 +271,18 @@ Filled slice by slice: each slice adds its endpoints here with a link to their f
 | Elections | `POST /elections/{election}/duplicate` | 05 | [elections/POST-elections-{election}-duplicate.md](elections/POST-elections-{election}-duplicate.md) |
 | Elections | `PUT /elections/{election}/cover` | 05 | [elections/PUT-elections-{election}-cover.md](elections/PUT-elections-{election}-cover.md) |
 | Elections | `DELETE /elections/{election}/cover` | 05 | [elections/DELETE-elections-{election}-cover.md](elections/DELETE-elections-{election}-cover.md) |
+| Ballots | `GET /elections/{election}/ballots` | 06a | [ballots/GET-elections-{election}-ballots.md](ballots/GET-elections-{election}-ballots.md) |
+| Ballots | `POST /elections/{election}/ballots` | 06a | [ballots/POST-elections-{election}-ballots.md](ballots/POST-elections-{election}-ballots.md) |
+| Ballots | `PUT /elections/{election}/ballots/order` | 06a | [ballots/PUT-elections-{election}-ballots-order.md](ballots/PUT-elections-{election}-ballots-order.md) |
+| Ballots | `PATCH /ballots/{ballot}` | 06a | [ballots/PATCH-ballots-{ballot}.md](ballots/PATCH-ballots-{ballot}.md) |
+| Ballots | `DELETE /ballots/{ballot}` | 06a | [ballots/DELETE-ballots-{ballot}.md](ballots/DELETE-ballots-{ballot}.md) |
+| Parties | `GET /elections/{election}/parties` | 06b | [parties/GET-elections-{election}-parties.md](parties/GET-elections-{election}-parties.md) |
+| Parties | `POST /elections/{election}/parties` | 06b | [parties/POST-elections-{election}-parties.md](parties/POST-elections-{election}-parties.md) |
+| Parties | `PATCH /parties/{party}` | 06b | [parties/PATCH-parties-{party}.md](parties/PATCH-parties-{party}.md) |
+| Parties | `DELETE /parties/{party}` | 06b | [parties/DELETE-parties-{party}.md](parties/DELETE-parties-{party}.md) |
+| Parties | `PUT /parties/{party}/logo` | 06b2 | [parties/PUT-parties-{party}-logo.md](parties/PUT-parties-{party}-logo.md) |
+| Parties | `DELETE /parties/{party}/logo` | 06b2 | [parties/DELETE-parties-{party}-logo.md](parties/DELETE-parties-{party}-logo.md) |
+| Candidates | `POST /ballots/{ballot}/candidates` | 06c | [candidates/POST-ballots-{ballot}-candidates.md](candidates/POST-ballots-{ballot}-candidates.md) |
+| Candidates | `PUT /ballots/{ballot}/candidates/order` | 06c | [candidates/PUT-ballots-{ballot}-candidates-order.md](candidates/PUT-ballots-{ballot}-candidates-order.md) |
+| Candidates | `PATCH /candidates/{candidate}` | 06c | [candidates/PATCH-candidates-{candidate}.md](candidates/PATCH-candidates-{candidate}.md) |
+| Candidates | `DELETE /candidates/{candidate}` | 06c | [candidates/DELETE-candidates-{candidate}.md](candidates/DELETE-candidates-{candidate}.md) |

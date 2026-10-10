@@ -162,6 +162,47 @@ const SYMBOLS = {
       </>
     ),
   },
+  grip: {
+    shapes: (
+      <>
+        <circle cx="9" cy="6" r="1.2" />
+        <circle cx="15" cy="6" r="1.2" />
+        <circle cx="9" cy="12" r="1.2" />
+        <circle cx="15" cy="12" r="1.2" />
+        <circle cx="9" cy="18" r="1.2" />
+        <circle cx="15" cy="18" r="1.2" />
+      </>
+    ),
+  },
+  up: { stroke: 2.4, shapes: <path d="M6 14l6-6 6 6" /> },
+  down: { stroke: 2.4, shapes: <path d="M6 10l6 6 6-6" /> },
+  seat: { shapes: <path d="M6 11V6a2 2 0 012-2h8a2 2 0 012 2v5M4 11h16v4H4zM7 15v5M17 15v5" /> },
+  blank: {
+    shapes: (
+      <>
+        <rect x="4" y="4" width="16" height="16" rx="3" />
+        <path d="M8 12h8" />
+      </>
+    ),
+  },
+  user: {
+    shapes: (
+      <>
+        <circle cx="12" cy="8" r="4" />
+        <path d="M4 21c.8-4.5 4-7 8-7s7.2 2.5 8 7" />
+      </>
+    ),
+  },
+  warn: {
+    shapes: (
+      <>
+        <path d="M12 3l10 18H2z" />
+        <path d="M12 10v4M12 17.5v.01" />
+      </>
+    ),
+  },
+  party: { shapes: <path d="M5 21V4M5 4h13l-3 4.5L18 13H5" /> },
+  close: { shapes: <path d="M6 6l12 12M18 6L6 18" /> },
   archive: { shapes: <path d="M3 5h18v4H3zM5 9v10h14V9M10 13h4" /> },
 } satisfies Record<string, Glyph>;
 

@@ -384,7 +384,9 @@
     "cannot_reset_self": "For your own account, use the “My account” page.",
     "too_many_attempts_wait_one": "Too many attempts. Try again in 1 minute.",
     "too_many_attempts_wait_many": "Too many attempts. Try again in {minutes} minutes.",
-    "election_not_editable": "This election is no longer a draft: it can no longer be changed or deleted."
+    "election_not_editable": "This election is no longer a draft: it can no longer be changed or deleted.",
+    "ballot_limit_reached": "An election cannot have more than 50 positions.",
+    "party_limit_reached": "An election cannot have more than 30 parties."
   },
   "validation": {
     "required": "This field is required.",
@@ -523,6 +525,39 @@
         "dimensions": "This image is too large: 8,000 pixels at most on a side, 40 million pixels in all.",
         "required": "Choose an image.",
         "invalid": "This file could not be sent. Try again."
+      }
+    },
+    "ballot": {
+      "title": {
+        "required": "Give the position a name.",
+        "max": "The name must be 200 characters or fewer."
+      },
+      "description": {
+        "max": "The description must be 1,000 characters or fewer."
+      },
+      "seats": {
+        "integer": "Enter a whole number of seats.",
+        "min": "There must be at least 1 seat.",
+        "max": "A position has 20 seats at most."
+      }
+    },
+    "party": {
+      "name": {
+        "required": "Give the party a name.",
+        "max": "The name must be 100 characters or fewer.",
+        "unique": "A party of this election already has this name."
+      },
+      "acronym": {
+        "max": "The acronym must be 15 characters or fewer."
+      },
+      "colour": {
+        "hex_colour": "Choose a colour from the list.",
+        "required": "Choose a colour."
+      },
+      "logo": {
+        "dimensions": "This image is too large: 8,000 pixels at most on a side, 40 million pixels in all.",
+        "required": "Choose an image.",
+        "invalid": "This file cannot be used."
       }
     }
   },
@@ -908,6 +943,122 @@
       "zone": "Time zone: {zone}",
       "cancel": "Cancel",
       "apply": "Apply the dates"
+    }
+  },
+  "ballots": {
+    "back": "Back to the election",
+    "title": "Positions and candidates",
+    "badgeDraft": "Draft · editable until it is scheduled",
+    "count": {
+      "one": "{count} position",
+      "other": "{count} positions"
+    },
+    "seats": {
+      "one": "{count} seat",
+      "other": "{count} seats"
+    },
+    "blank": "Blank vote",
+    "noBlank": "No blank vote",
+    "add": "Add a position",
+    "newTile": {
+      "title": "Add a position",
+      "hint": "President, secretary, delegate… as many as needed."
+    },
+    "zone": {
+      "label": "Positions of the election",
+      "title": "Positions",
+      "hint": "Drag a position by its handle, or use the arrows, to change the order."
+    },
+    "card": {
+      "up": "Move {title} up",
+      "down": "Move {title} down",
+      "edit": "Edit the position {title}",
+      "delete": "Delete the position {title}",
+      "noCandidates": "No candidate",
+      "noCandidatesHint": "Candidates arrive in the next step.",
+      "moved": "{title}: position {position} of {total}."
+    },
+    "form": {
+      "titleNew": "New position",
+      "titleEdit": "Edit the position",
+      "title": "Name of the position",
+      "description": "Description (optional)",
+      "seats": "Number of seats",
+      "seatsHelp": "From 1 to 20 people elected for this position.",
+      "blank": "Allow the blank vote",
+      "save": "Save",
+      "add": "Add the position",
+      "cancel": "Cancel",
+      "error": "The position could not be saved."
+    },
+    "delete": {
+      "title": "Delete this position?",
+      "text": "The position “{title}” will be deleted. The following positions move up one place.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    },
+    "notEditable": "This election can no longer be changed.",
+    "locked": "This election is no longer a draft: its positions can no longer be changed.",
+    "reorderFailed": "The order could not be saved: the previous order is restored.",
+    "actionFailed": "The action could not be done.",
+    "rail": {
+      "label": "Parties"
+    }
+  },
+  "parties": {
+    "title": "Parties",
+    "add": "Add a party",
+    "new": "New party",
+    "empty": "No party yet: add one if candidates run as a team.",
+    "count": {
+      "one": "{count} party",
+      "other": "{count} parties"
+    },
+    "row": {
+      "edit": "Edit the party {name}",
+      "delete": "Delete the party {name}",
+      "none": "No candidate",
+      "candidates": {
+        "one": "{count} candidate",
+        "other": "{count} candidates"
+      }
+    },
+    "colours": {
+      "5468D4": "Indigo",
+      "C2410C": "Burnt orange",
+      "0F766E": "Teal",
+      "7C5BD0": "Violet",
+      "A8349A": "Magenta",
+      "8A5A00": "Ochre",
+      "1E2A5A": "Midnight blue",
+      "9A2A0A": "Brick"
+    },
+    "form": {
+      "titleNew": "New party",
+      "titleEdit": "Edit the party",
+      "name": "Party name",
+      "acronym": "Acronym",
+      "colour": "Colour",
+      "add": "Add",
+      "addAnother": "Add and enter another",
+      "save": "Save",
+      "cancel": "Cancel",
+      "close": "Close",
+      "added": "The party “{name}” is added. Enter the next one.",
+      "error": "The party could not be saved.",
+      "logo": "Logo (optional)",
+      "logoHelp": "JPEG, PNG or WebP, 5 MB at most.",
+      "logoChoose": "Choose a logo",
+      "logoChange": "Change the logo",
+      "logoRemove": "Remove the logo",
+      "logoPreviewAlt": "Preview of the party logo",
+      "logoError": "The party is saved, but its logo could not be."
+    },
+    "delete": {
+      "title": "Delete this party?",
+      "text": "The party “{name}” will be deleted. Its candidates stay in the election and become independent.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
     }
   }
 }

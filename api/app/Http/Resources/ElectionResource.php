@@ -34,8 +34,9 @@ final class ElectionResource extends ApiResource
                 'sm' => '/media/'.ImageReEncoder::nameOf($cover, 480),
                 'md' => '/media/'.ImageReEncoder::nameOf($cover, 960),
             ],
-            // Nothing to count until slices 06 and 07.
-            'ballots_count' => 0,
+            // The list loads the count with the elections; any other read counts them here.
+            'ballots_count' => $election->getAttribute('ballots_count') ?? $election->ballots()->count(),
+            // Nothing to count until slice 07.
             'voters_count' => 0,
             'created_at' => $election->created_at?->utc()->format('Y-m-d\TH:i:s\Z'),
         ];

@@ -169,14 +169,15 @@ class ElectionController extends Controller
      * A new draft with the settings of this one, whatever its status: description, dates, time
      * zone, language, candidate order, results display. Not the cover, the status dates or the
      * link to a first round. The title defaults to "Copie de …" ("Copy of …" for an English
-     * election), cut to 200 characters. Owner or manager. Limited to 60 requests per hour per user.
+     * election), cut to 200 characters. Ballots and parties come with it, and the candidates when
+     * `copy_candidates` is true. Owner or manager. Limited to 60 requests per hour per user.
      */
     #[Response(status: 201, type: "array{data: array{id: string, title: string, description: string|null, status: 'draft'|'scheduled'|'open'|'closed'|'published'|'archived', starts_at: string, ends_at: string, timezone: string, language: 'fr'|'en', candidate_order: 'manual'|'shuffled', results_display: 'full'|'winners', cover: array{sm: string, md: string}|null, ballots_count: int, voters_count: int, created_at: string}}")]
     public function duplicate(DuplicateElectionRequest $request, Election $election, DuplicateElection $duplicate): JsonResponse
     {
         $this->allow('duplicate', $election);
 
-        $copy = $duplicate($election, $request->givenTitle());
+        $copy = $duplicate($election, $request->givenTitle(), $request->copyCandidates());
 
         Log::info('election.duplicate', ['outcome' => 'created']);
 

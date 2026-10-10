@@ -1,6 +1,6 @@
 # New Voting System — Front-end design
 
-Version 1.3 · 2026-10-09 (new theme: Material periwinkle; composition and motion rules kept and re-themed) · goes with [SPEC.md](../SPEC.md) 1.3,
+Version 1.5 · 2026-10-10 (parties and candidates are registered in a modal; ballots page and candidate record, adaptive layout and phone rules; theme Material periwinkle from 1.3) · goes with [SPEC.md](../SPEC.md) 1.3,
 [architecture.md](architecture.md) and the approved mockups in [mockups/](mockups/).
 
 Stack: Next.js (App Router), TypeScript in strict mode, Tailwind CSS.
@@ -48,7 +48,7 @@ A UUID is the only kind of identifier in an address (NFR-SEC-08).
 | `/admin/elections/new` | New election | A04 |
 | `/admin/elections/{election}` | Overview and checklist | A05 |
 | `/admin/elections/{election}/ballots` | Ballots, parties, candidates | A06 |
-| `/admin/elections/{election}/ballots/{ballot}/candidates/{candidate}` | Candidate record | A07 |
+| (modal on the ballots page) | Candidate record, opened from a candidate row | A07 |
 | `/admin/elections/{election}/voters` | Voters, list and record | A08 |
 | `/admin/elections/{election}/voters/import` | Import: template and file | A09 |
 | `/admin/elections/{election}/voters/import/{import}` | Import: check before importing | A10 |
@@ -305,6 +305,50 @@ at 1280 and at 1920.
 8. **The election form** gets the same language: the white zone, a coloured header and icon on each section
    (Informations, Calendrier with the picker, Réglages du vote, Affiche), the side panel (schedule in words, duration,
    cover preview, next steps) in the same card style, nothing left empty at 1920.
+
+9. **Ballots page and candidate record** ([material-ballots.html](mockups/material-ballots.html),
+   [material-candidate.html](mockups/material-candidate.html), approved by Jun on 2026-10-10; screens A06 and A07).
+   - *Ballots page.* A compact gradient header band (status badge "Brouillon, modifiable jusqu'à la planification", the
+     title, chips for ballots, candidates, parties and the candidate order; "Ajouter un poste" is the coral main action,
+     "Ajouter un parti" is glass). Below it **one white zone** holding a card per ballot and a dashed creation tile. A ballot
+     card has a coloured header (grip, icon, title that wraps to two lines, up and down buttons), one row of tags (seats,
+     blank vote), its candidate rows and a footer (add a candidate, edit, delete). A candidate row has a grip, a photo (with
+     a small camera badge) or the default avatar by sex (violet for female, blue for male, a silhouette), the name, the party
+     with its colour dot and text, up and down buttons and edit. A ballot with one candidate shows a warm inline notice; an
+     empty ballot shows an icon and one line. Only data that exists is shown (no scope tag or voter count before slices 07
+     and 09).
+   - *Right rail* (from 1600 px, 340 px): the **Partis** card (rows with a colour swatch and sigle, a candidate count, edit
+     and delete, and a "Nouveau parti" button that opens the party modal of item 12) and an
+     **À vérifier** card with the warnings and a link to each. Below 1600 px the rail goes under the zone, as a row of two
+     cards, because it holds real content.
+   - *Reordering.* A drag handle and up and down buttons on every ballot and candidate; the buttons are the keyboard and
+     phone path and are always present. One request saves the whole order.
+   - *Candidate record.* A white zone with two cards, **Identité** (photo or avatar with a drop area, first and last name,
+     sex as two large choices that preview the avatar) and **Candidature** (ballot, party, slogan with counter, biography),
+     a phone preview of the voter's card that follows what is typed, the other candidates of the ballot, and a bottom bar
+     (cancel, save and add another, save).
+10. **The layout adapts to the screen** (checked at 1024, 1280, 1366, 1920 and 2560 wide): grids are `auto-fill`, so the
+    number of columns follows the width (4 at 2560, 3 at 1920, 3 at 1280 with a 270 px floor, 2 at 1024) and no zone is
+    ever narrower than its container. In a narrow card, rows wrap instead of cutting names. Under 820 px of height the
+    header band, rows and paddings are tighter. A class name that is also a layout class is never used on a control (a
+    button class `main` collided with the page's `main`; buttons use `cta`).
+11. **Phones (under 768 px).** The side menu becomes a drawer opened by a round menu button in the top bar; the top bar
+    holds that button, a back link that can shorten with an ellipsis and the avatar; the header band stacks (title 26 px,
+    chips wrap, actions full width); zones lose most of their padding; grids are one column; card header icons are hidden in
+    narrow cards so titles fit; a form's bottom bar is one row (cancel and the main save), and the secondary save moves to
+    the end of the form. Nothing scrolls sideways.
+
+12. **Parties and candidates are registered in a modal, without leaving the page** (Jun, 2026-10-10; mockups
+    [material-party-modal.html](mockups/material-party-modal.html) and
+    [material-candidate-modal.html](mockups/material-candidate-modal.html); the look of the forms is the one of items 9
+    and the candidate mockup, unchanged). A modal is a real dialog (`role="dialog"`, `aria-modal`, focus moved in, kept
+    inside, returned to the button that opened it, Escape and the close button close it, the page behind does not
+    scroll). On a desktop it is centred on a dimmed scrim: 540 px wide for a party, up to 1120 px for a candidate (form on
+    the left, the phone preview and the other candidates on the right; one column under 1300 px); on a phone it is a
+    sheet from the bottom, full width, 92 % of the height, with a sticky coloured header. Its height never exceeds the
+    screen: the body scrolls, the header stays. Saving closes it and the page behind updates in place; "save and add
+    another" keeps it open with the form cleared and the focus on the first field. There is no separate route for a party
+    or a candidate: the old record route of the candidate screen (A07) is this modal.
 
 ### Motion
 

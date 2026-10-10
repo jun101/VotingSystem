@@ -25,6 +25,9 @@ return [
     'two_factor_not_started' => "Commencez d'abord la configuration.",
     'two_factor_not_enabled' => "La double authentification n'est pas activée.",
     'election_not_editable' => 'Cette élection ne peut plus être modifiée.',
+    'ballot_limit_reached' => 'Une élection ne peut pas avoir plus de 50 postes.',
+    'party_limit_reached' => 'Une élection ne peut pas avoir plus de 30 partis.',
+    'candidate_limit_reached' => 'Un poste ne peut pas avoir plus de 50 candidats.',
     'election_not_deletable' => 'Cette élection ne peut plus être supprimée.',
     'cannot_reset_self' => 'Utilisez votre page « Mon compte » pour désactiver votre propre double authentification.',
 ];
