@@ -85,6 +85,37 @@ class Election extends Model
     }
 
     /**
+     * Whether voters may be added and edited: a draft, a scheduled or an open election. The
+     * one place that decides it: slice 12 knows who has voted.
+     */
+    public function isVotersEditable(): bool
+    {
+        return in_array($this->status, [ElectionStatus::Draft, ElectionStatus::Scheduled, ElectionStatus::Open], true);
+    }
+
+    /** Whether voters may be deleted, and groups added, renamed, merged and deleted: a draft or a scheduled election. */
+    public function isVotersDeletable(): bool
+    {
+        return in_array($this->status, [ElectionStatus::Draft, ElectionStatus::Scheduled], true);
+    }
+
+    /** @throws ApiException 409 `election_voters_locked` */
+    public function assertVotersEditable(): void
+    {
+        if (! $this->isVotersEditable()) {
+            throw new ApiException(409, 'election_voters_locked');
+        }
+    }
+
+    /** @throws ApiException 409 `election_voters_locked` */
+    public function assertVotersDeletable(): void
+    {
+        if (! $this->isVotersDeletable()) {
+            throw new ApiException(409, 'election_voters_locked');
+        }
+    }
+
+    /**
      * The positions of the election, in display order.
      *
      * @return HasMany<Ballot, $this>
@@ -102,5 +133,25 @@ class Election extends Model
     public function parties(): HasMany
     {
         return $this->hasMany(Party::class)->orderBy('name_key')->orderBy('id');
+    }
+
+    /**
+     * The groups of voters of the election, by name ignoring case, then creation order.
+     *
+     * @return HasMany<VoterGroup, $this>
+     */
+    public function voterGroups(): HasMany
+    {
+        return $this->hasMany(VoterGroup::class)->orderBy('name_key')->orderBy('id');
+    }
+
+    /**
+     * The voters of the election, by full name ignoring case, then creation order.
+     *
+     * @return HasMany<Voter, $this>
+     */
+    public function voters(): HasMany
+    {
+        return $this->hasMany(Voter::class)->orderBy('full_name')->orderBy('id');
     }
 }

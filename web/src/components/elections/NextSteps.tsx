@@ -26,12 +26,15 @@ export function NextSteps({
   title,
   headerTestId,
   ballotsHref,
+  votersHref,
 }: {
   soon?: boolean;
   title: string;
   headerTestId?: string;
   /** Where the first step is: when given, that step is a link and has no "not available" tag. */
   ballotsHref?: string;
+  /** The same for the second step (the voters). */
+  votersHref?: string;
 }) {
   const { t } = useI18n();
 
@@ -58,9 +61,12 @@ export function NextSteps({
             : 'flex flex-col gap-3',
         )}
       >
-        {STEPS.map((step, index) =>
-          soon ? (
-            step.key === 'ballots' && ballotsHref ? (
+        {STEPS.map((step, index) => {
+          const href =
+            step.key === 'ballots' ? ballotsHref : step.key === 'voters' ? votersHref : undefined;
+
+          return soon ? (
+            href ? (
               <li
                 key={step.key}
                 data-testid={`election-step-${index + 1}`}
@@ -68,7 +74,7 @@ export function NextSteps({
                 className="path-step flex"
               >
                 <Link
-                  href={ballotsHref}
+                  href={href}
                   className={cx(
                     'group flex w-full flex-col items-center gap-2 rounded-lg px-3.5 text-center',
                     focusRing,
@@ -139,8 +145,8 @@ export function NextSteps({
                 {t(`elections.next.${step.key}.text`)}
               </span>
             </li>
-          ),
-        )}
+          );
+        })}
       </ol>
       {soon ? null : <p className="text-sm text-ink-soft">{t('elections.next.footer')}</p>}
     </Panel>

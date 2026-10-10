@@ -17,6 +17,8 @@ use App\Http\Controllers\Candidates\CandidateController;
 use App\Http\Controllers\Candidates\CandidatePhotoController;
 use App\Http\Controllers\Elections\CoverController;
 use App\Http\Controllers\Elections\ElectionController;
+use App\Http\Controllers\Groups\GroupController;
+use App\Http\Controllers\Groups\GroupMergeController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\Institution\InstitutionController;
 use App\Http\Controllers\Institution\LogoController;
@@ -24,6 +26,7 @@ use App\Http\Controllers\Parties\PartyController;
 use App\Http\Controllers\Parties\PartyLogoController;
 use App\Http\Controllers\Users\InvitationController;
 use App\Http\Controllers\Users\UserController;
+use App\Http\Controllers\Voters\VoterController;
 use Illuminate\Support\Facades\Route;
 
 // The `/api` prefix is added by the framework; every route lives under `/api/v1`.
@@ -100,6 +103,12 @@ Route::prefix('v1')->group(function (): void {
         // The parties of an election (slice 06b).
         Route::get('/{election}/parties', [PartyController::class, 'index']);
         Route::post('/{election}/parties', [PartyController::class, 'store'])->middleware('throttle:parties-write');
+
+        // The voters and their groups (slice 07a).
+        Route::get('/{election}/voters', [VoterController::class, 'index']);
+        Route::post('/{election}/voters', [VoterController::class, 'store'])->middleware('throttle:voters-write');
+        Route::get('/{election}/groups', [GroupController::class, 'index']);
+        Route::post('/{election}/groups', [GroupController::class, 'store'])->middleware('throttle:groups-write');
     });
 
     Route::middleware(['cookie-session', 'auth', 'institution.active'])->prefix('ballots')->group(function (): void {
@@ -124,5 +133,18 @@ Route::prefix('v1')->group(function (): void {
         Route::delete('/{party}', [PartyController::class, 'destroy'])->middleware('throttle:parties-write');
         Route::put('/{party}/logo', [PartyLogoController::class, 'update'])->middleware('throttle:party-logo');
         Route::delete('/{party}/logo', [PartyLogoController::class, 'destroy'])->middleware('throttle:parties-write');
+    });
+
+    Route::middleware(['cookie-session', 'auth', 'institution.active'])->prefix('voters')->group(function (): void {
+        Route::patch('/{voter}', [VoterController::class, 'update'])->middleware('throttle:voters-write');
+        Route::delete('/{voter}', [VoterController::class, 'destroy'])->middleware('throttle:voters-write');
+    });
+
+    Route::middleware(['cookie-session', 'auth', 'institution.active'])->prefix('groups')->group(function (): void {
+        Route::patch('/{group}', [GroupController::class, 'update'])->middleware('throttle:groups-write');
+        Route::delete('/{group}', [GroupController::class, 'destroy'])->middleware('throttle:groups-write');
+        // Without the `X-RateLimit-*` counters, so that the same 422 for an unknown, another election's and
+        // another institution's group answers with the same headers (POST-groups-{group}-merge.md, scenario 5).
+        Route::post('/{group}/merge', GroupMergeController::class)->middleware('throttle.quiet:groups-write');
     });
 });

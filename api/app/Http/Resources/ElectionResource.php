@@ -36,8 +36,7 @@ final class ElectionResource extends ApiResource
             ],
             // The list loads the count with the elections; any other read counts them here.
             'ballots_count' => $election->getAttribute('ballots_count') ?? $election->ballots()->count(),
-            // Nothing to count until slice 07.
-            'voters_count' => 0,
+            'voters_count' => $election->getAttribute('voters_count') ?? $election->voters()->count(),
             'created_at' => $election->created_at?->utc()->format('Y-m-d\TH:i:s\Z'),
         ];
     }

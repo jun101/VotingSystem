@@ -482,4 +482,99 @@ final class Accounts
 
         return null;
     }
+
+    /**
+     * Inserts a voter group straight into the database (slice 07). Options: `election` (uuid, required), `name`.
+     * The institution is the election's. Returns the uuid.
+     */
+    public static function plantGroup(array $o): string
+    {
+        $db = DB::connection(useMigratorConnection());
+        $election = $db->table('elections')->where('uuid', $o['election'])->first();
+        $uuid = Uuid::uuid4()->toString();
+        $now = Carbon::now('UTC')->format('Y-m-d H:i:s');
+        $name = $o['name'] ?? 'Groupe '.bin2hex(random_bytes(3));
+
+        $db->table('voter_groups')->insert([
+            'uuid' => $uuid,
+            'institution_id' => $election->institution_id,
+            'election_id' => $election->id,
+            'name' => $name,
+            'name_key' => mb_strtolower(trim($name)),
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+
+        return $uuid;
+    }
+
+    /** One row of `voter_groups` by uuid, as an array, or null. */
+    public static function groupRow(string $uuid): ?array
+    {
+        $row = DB::connection(useMigratorConnection())->table('voter_groups')->where('uuid', $uuid)->first();
+
+        return $row === null ? null : (array) $row;
+    }
+
+    /**
+     * The rows of `voter_groups` of one election (its uuid), by name then creation.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function groupRows(string $election): array
+    {
+        $db = DB::connection(useMigratorConnection());
+        $id = $db->table('elections')->where('uuid', $election)->value('id');
+
+        return $db->table('voter_groups')->where('election_id', $id)->orderBy('name_key')->orderBy('id')->get()->map(fn ($row) => (array) $row)->all();
+    }
+
+    /**
+     * Inserts a voter straight into the database (slice 07). Options: `election` (uuid, required), `group` (a group
+     * uuid or null), `full_name`, `identifier`, `email`, `phone`. The institution is the election's. Returns the uuid.
+     */
+    public static function plantVoter(array $o): string
+    {
+        $db = DB::connection(useMigratorConnection());
+        $election = $db->table('elections')->where('uuid', $o['election'])->first();
+        $group = ($o['group'] ?? null) === null ? null : $db->table('voter_groups')->where('uuid', $o['group'])->value('id');
+        $uuid = Uuid::uuid4()->toString();
+        $now = Carbon::now('UTC')->format('Y-m-d H:i:s');
+
+        $db->table('voters')->insert([
+            'uuid' => $uuid,
+            'institution_id' => $election->institution_id,
+            'election_id' => $election->id,
+            'voter_group_id' => $group,
+            'full_name' => $o['full_name'] ?? 'Électeur '.bin2hex(random_bytes(3)),
+            'identifier' => $o['identifier'] ?? null,
+            'email' => $o['email'] ?? null,
+            'phone' => $o['phone'] ?? null,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+
+        return $uuid;
+    }
+
+    /** One row of `voters` by uuid, as an array, or null. */
+    public static function voterRow(string $uuid): ?array
+    {
+        $row = DB::connection(useMigratorConnection())->table('voters')->where('uuid', $uuid)->first();
+
+        return $row === null ? null : (array) $row;
+    }
+
+    /**
+     * The rows of `voters` of one election (its uuid), by full name then creation.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function voterRows(string $election): array
+    {
+        $db = DB::connection(useMigratorConnection());
+        $id = $db->table('elections')->where('uuid', $election)->value('id');
+
+        return $db->table('voters')->where('election_id', $id)->orderBy('full_name')->orderBy('id')->get()->map(fn ($row) => (array) $row)->all();
+    }
 }

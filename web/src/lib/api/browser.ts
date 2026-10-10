@@ -6,6 +6,16 @@ import type { Ballot, BallotChanges, NewBallot } from './ballots';
 import type { Candidate, CandidateChanges, NewCandidate } from './candidates';
 import type { Election, ElectionChanges, ElectionFilters, NewElection } from './elections';
 import type { NewParty, Party, PartyChanges } from './parties';
+import type {
+  GroupList,
+  NewVoter,
+  Voter,
+  VoterChanges,
+  VoterFilters,
+  VoterGroup,
+  VoterList,
+} from './voters';
+import { VOTERS_PER_PAGE } from './voters';
 import type { paths } from './schema';
 import type {
   CurrentUser,
@@ -679,4 +689,99 @@ export async function uploadCandidatePhoto(id: string, file: File): Promise<Cand
 
     throw failure;
   }
+}
+
+/**
+ * `GET /elections/{election}/voters`: one page, with the search and the group of the filters.
+ * Blank filters are not sent.
+ */
+export async function fetchVoters(election: string, filters: VoterFilters): Promise<VoterList> {
+  const { data } = await send((api) =>
+    api.GET('/v1/elections/{election}/voters', {
+      params: {
+        path: { election },
+        query: {
+          page: filters.page,
+          per_page: VOTERS_PER_PAGE,
+          ...(filters.q === '' ? {} : { q: filters.q }),
+          ...(filters.group === '' ? {} : { group: filters.group }),
+        },
+      },
+    }),
+  );
+
+  return { items: data!.data, total: data!.meta.total, page: data!.meta.page };
+}
+
+/** `POST /elections/{election}/voters`: a voter (the group is sent as its name). */
+export async function createVoter(election: string, body: NewVoter): Promise<Voter> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/voters', { params: { path: { election } }, body }),
+  );
+
+  return data!.data;
+}
+
+/** `PATCH /voters/{voter}`: the fields given change. */
+export async function updateVoter(id: string, body: VoterChanges): Promise<Voter> {
+  const { data } = await send((api) =>
+    api.PATCH('/v1/voters/{voter}', { params: { path: { voter: id } }, body }),
+  );
+
+  return data!.data;
+}
+
+/** `DELETE /voters/{voter}`: a voter of a draft or scheduled election. */
+export async function deleteVoter(id: string): Promise<void> {
+  await send((api) => api.DELETE('/v1/voters/{voter}', { params: { path: { voter: id } } }));
+}
+
+/** `GET /elections/{election}/groups`: every group (at most 100) with the voter counts. */
+export async function fetchGroups(election: string): Promise<GroupList> {
+  const { data } = await send((api) =>
+    api.GET('/v1/elections/{election}/groups', {
+      params: { path: { election }, query: { per_page: 100 } },
+    }),
+  );
+
+  return {
+    items: data!.data,
+    votersTotal: data!.meta.voters_total,
+    ungrouped: data!.meta.ungrouped,
+  };
+}
+
+/** `POST /elections/{election}/groups`: an empty group. */
+export async function createGroup(election: string, name: string): Promise<VoterGroup> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/groups', {
+      params: { path: { election } },
+      body: { name },
+    }),
+  );
+
+  return data!.data;
+}
+
+/** `PATCH /groups/{group}`: renames a group; its voters follow it. */
+export async function renameGroup(id: string, name: string): Promise<VoterGroup> {
+  const { data } = await send((api) =>
+    api.PATCH('/v1/groups/{group}', { params: { path: { group: id } }, body: { name } }),
+  );
+
+  return data!.data;
+}
+
+/** `DELETE /groups/{group}`: a group with no voter. */
+export async function deleteGroup(id: string): Promise<void> {
+  await send((api) => api.DELETE('/v1/groups/{group}', { params: { path: { group: id } } }));
+}
+
+/** `POST /groups/{group}/merge`: the voters move into `into`, the group is deleted. */
+export async function mergeGroup(id: string, into: string): Promise<VoterGroup> {
+  const { data } = await send((api) =>
+    api.POST('/v1/groups/{group}/merge', { params: { path: { group: id } }, body: { into } }),
+  );
+
+  return data!.data;
 }

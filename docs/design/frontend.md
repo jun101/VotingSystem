@@ -491,3 +491,16 @@ WCAG 2.1 AA for the voting flow and the public results:
 - The voting flow loads no chart, date or component library.
 - A test in slice 12 measures the transferred size of the first voting screen and fails
   above 150 KB.
+
+## 11. The voters page (slice 07, Jun, 2026-10-10)
+
+13. **Voters are cards, two per row, with a groups card in the rail** (mockups
+    [material-voters.html](mockups/material-voters.html) and [material-voter-modal.html](mockups/material-voter-modal.html)).
+    Under the hero: a search box and the group chips (with counts, "Sans groupe" last). The cards are compact (initials
+    avatar, name, group tag, identifier and contact icons, edit and delete); the grid is two columns from 768 px, three
+    from 2300 px and one on a phone, every card the same size. 24 per page with a range text and page numbers; the page,
+    the search and the group are kept in the URL. The right rail (below the zone under 1600 px, as item 10) holds the
+    groups card (rename, merge, delete only when empty, new) and the locked "Codes de vote" placeholder. A voter is
+    added and edited in a 540 px modal (item 12); the group is a text field with the existing groups as suggestions, and
+    a new name creates the group. A closed, published or archived election shows the same page with no write button and
+    a notice.
