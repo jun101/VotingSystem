@@ -49,3 +49,11 @@ pest()->beforeEach(function () {
     Tests\Support\Team::clearMedia();
     $this->browser = new Tests\Support\AuthClient($this);
 })->in('Acceptance/Slice05');
+
+// Slice 06: the same (docs/slices/06a-ballots.md).
+pest()->beforeEach(function () {
+    Tests\Support\Accounts::reset();
+    Tests\Support\Tenancy::installProbeTables();
+    Tests\Support\Team::clearMedia();
+    $this->browser = new Tests\Support\AuthClient($this);
+})->in('Acceptance/Slice06');

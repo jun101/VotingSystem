@@ -27,6 +27,80 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/elections/{election}/ballots": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the ballots of an election
+         * @description In display order (position, then creation), in any status of the election. An election
+         *     holds at most 50, so `per_page=100` returns them all. Owner or manager.
+         */
+        get: operations["ballot.index"];
+        put?: never;
+        /**
+         * Add a ballot
+         * @description At the end of a draft election, at most 50 per election (409 `ballot_limit_reached`).
+         *     Owner or manager. Limited to 120 requests per hour per user.
+         */
+        post: operations["ballot.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/elections/{election}/ballots/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Put the ballots in order
+         * @description `ballots` must be exactly the UUIDs of the election's ballots, each once, in the wanted
+         *     order (422 `ballots: set_mismatch` otherwise). A draft election only. Answers the list,
+         *     in the new order. Owner or manager. Limited to 240 requests per hour per user.
+         */
+        put: operations["ballot.reorder"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/ballots/{ballot}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete a ballot
+         * @description A draft election only. The positions after it close the gap. Owner or manager. Limited
+         *     to 120 requests per hour per user.
+         */
+        delete: operations["ballot.destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * Change a ballot
+         * @description Every field is optional; only those sent change. Not the position (see the order
+         *     endpoint). A draft election only. Owner or manager. Limited to 120 requests per hour per user.
+         */
+        patch: operations["ballot.update"];
+        trace?: never;
+    };
     "/v1/elections/{election}/cover": {
         parameters: {
             query?: never;
@@ -690,6 +764,18 @@ export interface components {
         AcceptInvitationRequest: {
             token: string;
         };
+        /** BallotResource */
+        BallotResource: unknown[];
+        /**
+         * CreateBallotRequest
+         * @description docs/api/ballots/POST-elections-{election}-ballots.md.
+         */
+        CreateBallotRequest: {
+            title: string;
+            description?: string | null;
+            seats?: number;
+            allow_blank?: boolean;
+        };
         /**
          * CreateElectionRequest
          * @description docs/api/elections/POST-elections.md.
@@ -754,6 +840,13 @@ export interface components {
             /** @enum {string|null} */
             language?: "fr" | "en" | null;
         };
+        /**
+         * ReorderBallotsRequest
+         * @description docs/api/ballots/PUT-elections-{election}-ballots-order.md.
+         */
+        ReorderBallotsRequest: {
+            ballots: string[];
+        };
         /** ResetPasswordRequest */
         ResetPasswordRequest: {
             token: string;
@@ -786,6 +879,16 @@ export interface components {
          */
         TwoFactorCodeRequest: {
             code: string;
+        };
+        /**
+         * UpdateBallotRequest
+         * @description docs/api/ballots/PATCH-ballots-{ballot}.md: the rules of the creation, every field optional.
+         */
+        UpdateBallotRequest: {
+            title?: string;
+            description?: string | null;
+            seats?: number;
+            allow_blank?: boolean;
         };
         /**
          * UpdateElectionRequest
@@ -920,6 +1023,203 @@ export interface operations {
                     };
                 };
             };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "ballot.index": {
+        parameters: {
+            query?: {
+                page?: number;
+                per_page?: number;
+            };
+            header?: never;
+            path: {
+                /** @description The election UUID */
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            title: string;
+                            description: string | null;
+                            position: number;
+                            seats: number;
+                            allow_blank: boolean;
+                            candidates_count: number;
+                            created_at: string;
+                            updated_at: string;
+                        }[];
+                        meta: {
+                            page: number;
+                            per_page: number;
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "ballot.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The election UUID */
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateBallotRequest"];
+            };
+        };
+        responses: {
+            /** @description `BallotResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            title: string;
+                            description: string | null;
+                            position: number;
+                            seats: number;
+                            allow_blank: boolean;
+                            candidates_count: number;
+                            created_at: string;
+                            updated_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "ballot.reorder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The election UUID */
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReorderBallotsRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            title: string;
+                            description: string | null;
+                            position: number;
+                            seats: number;
+                            allow_blank: boolean;
+                            candidates_count: number;
+                            created_at: string;
+                            updated_at: string;
+                        }[];
+                        meta: {
+                            page: number;
+                            per_page: number;
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "ballot.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The ballot UUID */
+                ballot: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "ballot.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The ballot UUID */
+                ballot: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateBallotRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            title: string;
+                            description: string | null;
+                            position: number;
+                            seats: number;
+                            allow_blank: boolean;
+                            candidates_count: number;
+                            created_at: string;
+                            updated_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
     };

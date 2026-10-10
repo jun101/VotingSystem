@@ -136,6 +136,499 @@
                 "security": []
             }
         },
+        "/v1/elections/{election}/ballots": {
+            "get": {
+                "operationId": "ballot.index",
+                "description": "In display order (position, then creation), in any status of the election. An election\nholds at most 50, so `per_page=100` returns them all. Owner or manager.",
+                "summary": "List the ballots of an election",
+                "tags": [
+                    "Ballot"
+                ],
+                "parameters": [
+                    {
+                        "name": "election",
+                        "in": "path",
+                        "required": true,
+                        "description": "The election UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 1000000
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "title": {
+                                                        "type": "string"
+                                                    },
+                                                    "description": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "position": {
+                                                        "type": "integer"
+                                                    },
+                                                    "seats": {
+                                                        "type": "integer"
+                                                    },
+                                                    "allow_blank": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "candidates_count": {
+                                                        "type": "integer"
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "title",
+                                                    "description",
+                                                    "position",
+                                                    "seats",
+                                                    "allow_blank",
+                                                    "candidates_count",
+                                                    "created_at",
+                                                    "updated_at"
+                                                ]
+                                            }
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "page": {
+                                                    "type": "integer"
+                                                },
+                                                "per_page": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "required": [
+                                                "page",
+                                                "per_page",
+                                                "total"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "meta"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "ballot.store",
+                "description": "At the end of a draft election, at most 50 per election (409 `ballot_limit_reached`).\nOwner or manager. Limited to 120 requests per hour per user.",
+                "summary": "Add a ballot",
+                "tags": [
+                    "Ballot"
+                ],
+                "parameters": [
+                    {
+                        "name": "election",
+                        "in": "path",
+                        "required": true,
+                        "description": "The election UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateBallotRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "`BallotResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "title": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "position": {
+                                                    "type": "integer"
+                                                },
+                                                "seats": {
+                                                    "type": "integer"
+                                                },
+                                                "allow_blank": {
+                                                    "type": "boolean"
+                                                },
+                                                "candidates_count": {
+                                                    "type": "integer"
+                                                },
+                                                "created_at": {
+                                                    "type": "string"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "title",
+                                                "description",
+                                                "position",
+                                                "seats",
+                                                "allow_blank",
+                                                "candidates_count",
+                                                "created_at",
+                                                "updated_at"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/v1/elections/{election}/ballots/order": {
+            "put": {
+                "operationId": "ballot.reorder",
+                "description": "`ballots` must be exactly the UUIDs of the election's ballots, each once, in the wanted\norder (422 `ballots: set_mismatch` otherwise). A draft election only. Answers the list,\nin the new order. Owner or manager. Limited to 240 requests per hour per user.",
+                "summary": "Put the ballots in order",
+                "tags": [
+                    "Ballot"
+                ],
+                "parameters": [
+                    {
+                        "name": "election",
+                        "in": "path",
+                        "required": true,
+                        "description": "The election UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReorderBallotsRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "title": {
+                                                        "type": "string"
+                                                    },
+                                                    "description": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "position": {
+                                                        "type": "integer"
+                                                    },
+                                                    "seats": {
+                                                        "type": "integer"
+                                                    },
+                                                    "allow_blank": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "candidates_count": {
+                                                        "type": "integer"
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "title",
+                                                    "description",
+                                                    "position",
+                                                    "seats",
+                                                    "allow_blank",
+                                                    "candidates_count",
+                                                    "created_at",
+                                                    "updated_at"
+                                                ]
+                                            }
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "page": {
+                                                    "type": "integer"
+                                                },
+                                                "per_page": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "required": [
+                                                "page",
+                                                "per_page",
+                                                "total"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "meta"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/v1/ballots/{ballot}": {
+            "patch": {
+                "operationId": "ballot.update",
+                "description": "Every field is optional; only those sent change. Not the position (see the order\nendpoint). A draft election only. Owner or manager. Limited to 120 requests per hour per user.",
+                "summary": "Change a ballot",
+                "tags": [
+                    "Ballot"
+                ],
+                "parameters": [
+                    {
+                        "name": "ballot",
+                        "in": "path",
+                        "required": true,
+                        "description": "The ballot UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateBallotRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "title": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "position": {
+                                                    "type": "integer"
+                                                },
+                                                "seats": {
+                                                    "type": "integer"
+                                                },
+                                                "allow_blank": {
+                                                    "type": "boolean"
+                                                },
+                                                "candidates_count": {
+                                                    "type": "integer"
+                                                },
+                                                "created_at": {
+                                                    "type": "string"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "title",
+                                                "description",
+                                                "position",
+                                                "seats",
+                                                "allow_blank",
+                                                "candidates_count",
+                                                "created_at",
+                                                "updated_at"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "ballot.destroy",
+                "description": "A draft election only. The positions after it close the gap. Owner or manager. Limited\nto 120 requests per hour per user.",
+                "summary": "Delete a ballot",
+                "tags": [
+                    "Ballot"
+                ],
+                "parameters": [
+                    {
+                        "name": "ballot",
+                        "in": "path",
+                        "required": true,
+                        "description": "The ballot UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/v1/elections/{election}/cover": {
             "put": {
                 "operationId": "cover.update",
@@ -3254,6 +3747,40 @@
                 ],
                 "title": "AcceptInvitationRequest"
             },
+            "BallotResource": {
+                "type": "array",
+                "items": {},
+                "title": "BallotResource"
+            },
+            "CreateBallotRequest": {
+                "type": "object",
+                "description": "docs/api/ballots/POST-elections-{election}-ballots.md.",
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "maxLength": 200
+                    },
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 1000
+                    },
+                    "seats": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 20
+                    },
+                    "allow_blank": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "title"
+                ],
+                "title": "CreateBallotRequest"
+            },
             "CreateElectionRequest": {
                 "type": "object",
                 "description": "docs/api/elections/POST-elections.md.",
@@ -3423,6 +3950,24 @@
                 ],
                 "title": "RegisterRequest"
             },
+            "ReorderBallotsRequest": {
+                "type": "object",
+                "description": "docs/api/ballots/PUT-elections-{election}-ballots-order.md.",
+                "properties": {
+                    "ballots": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "minItems": 1
+                    }
+                },
+                "required": [
+                    "ballots"
+                ],
+                "title": "ReorderBallotsRequest"
+            },
             "ResetPasswordRequest": {
                 "type": "object",
                 "properties": {
@@ -3484,6 +4029,32 @@
                     "code"
                 ],
                 "title": "TwoFactorCodeRequest"
+            },
+            "UpdateBallotRequest": {
+                "type": "object",
+                "description": "docs/api/ballots/PATCH-ballots-{ballot}.md: the rules of the creation, every field optional.",
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "maxLength": 200
+                    },
+                    "description": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 1000
+                    },
+                    "seats": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 20
+                    },
+                    "allow_blank": {
+                        "type": "boolean"
+                    }
+                },
+                "title": "UpdateBallotRequest"
             },
             "UpdateElectionRequest": {
                 "type": "object",

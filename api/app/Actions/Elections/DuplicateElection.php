@@ -2,12 +2,15 @@
 
 namespace App\Actions\Elections;
 
+use App\Models\Ballot;
 use App\Models\Election;
+use Illuminate\Support\Facades\DB;
 
 /**
  * A new draft with the settings of another election (docs/api/elections/POST-elections-{election}-duplicate.md).
  * Copied: description, dates, time zone, language, candidate order, results display. Never the
  * cover (its files are not shared), the status and its dates, or the link to a first round.
+ * Every ballot is copied with it, in the same transaction.
  */
 final class DuplicateElection
 {
@@ -27,8 +30,23 @@ final class DuplicateElection
             'candidate_order' => $source->candidate_order,
             'results_display' => $source->results_display,
         ]);
-        $copy->save();
 
-        return $copy;
+        return DB::transaction(function () use ($source, $copy): Election {
+            $copy->save();
+
+            foreach ($source->ballots()->get() as $ballot) {
+                $new = new Ballot([
+                    'title' => $ballot->title,
+                    'description' => $ballot->description,
+                    'seats' => $ballot->seats,
+                    'allow_blank' => $ballot->allow_blank,
+                ]);
+                $new->election_id = $copy->id;
+                $new->position = $ballot->position;
+                $new->save();
+            }
+
+            return $copy;
+        });
     }
 }

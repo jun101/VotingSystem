@@ -12,6 +12,7 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\TwoFactorChallengeController;
 use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\Ballots\BallotController;
 use App\Http\Controllers\Elections\CoverController;
 use App\Http\Controllers\Elections\ElectionController;
 use App\Http\Controllers\HealthController;
@@ -84,5 +85,17 @@ Route::prefix('v1')->group(function (): void {
         Route::post('/{election}/duplicate', [ElectionController::class, 'duplicate'])->middleware('throttle:elections-write');
         Route::put('/{election}/cover', [CoverController::class, 'update'])->middleware('throttle:election-cover');
         Route::delete('/{election}/cover', [CoverController::class, 'destroy']);
+
+        // The ballots of an election (slice 06a).
+        Route::get('/{election}/ballots', [BallotController::class, 'index']);
+        Route::post('/{election}/ballots', [BallotController::class, 'store'])->middleware('throttle:ballots-write');
+        // Without the `X-RateLimit-*` counters: another institution's ballot and an unknown one must
+        // give the same answer, headers included (PUT-elections-{election}-ballots-order.md, scenario 4).
+        Route::put('/{election}/ballots/order', [BallotController::class, 'reorder'])->middleware('throttle.quiet:ballots-order');
+    });
+
+    Route::middleware(['cookie-session', 'auth', 'institution.active'])->prefix('ballots')->group(function (): void {
+        Route::patch('/{ballot}', [BallotController::class, 'update'])->middleware('throttle:ballots-write');
+        Route::delete('/{ballot}', [BallotController::class, 'destroy'])->middleware('throttle:ballots-write');
     });
 });

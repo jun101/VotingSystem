@@ -63,7 +63,8 @@ it('answers 422 when ballots is missing, not an array or holds a non-UUID [FR-BA
     $response = $this->browser->put(orderUrl($election), $body);
 
     $response->assertStatus(422)->assertJsonPath('error.code', 'validation_failed');
-    expect($response->json("error.fields.{$field}"))->toContain($rule)
+    // The field names are flat keys that can hold a dot ("ballots.0"), so read the map, not a dotted path.
+    expect($response->json('error.fields')[$field] ?? [])->toContain($rule)
         ->and(array_column(Accounts::ballotRows($election), 'uuid'))->toBe($ids);
 })->with([
     'missing' => [[], 'ballots', 'required'],

@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use App\Auth\SessionUserProvider;
+use App\Models\Ballot;
 use App\Models\Election;
 use App\Models\User;
+use App\Policies\BallotPolicy;
 use App\Policies\ElectionPolicy;
 use Dedoc\Scramble\Scramble;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -34,6 +36,7 @@ class AppServiceProvider extends ServiceProvider
         Auth::provider('institution-session', fn (Application $app, array $config) => new SessionUserProvider($app->make('hash'), Config::string('auth.providers.users.model')));
 
         Gate::policy(Election::class, ElectionPolicy::class);
+        Gate::policy(Ballot::class, BallotPolicy::class);
 
         $this->configureRateLimiters();
     }
@@ -139,5 +142,9 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('elections-write', fn (Request $request) => Limit::perHour($times(60))->by($byUser($request)));
         RateLimiter::for('elections-edit', fn (Request $request) => Limit::perHour($times(120))->by($byUser($request)));
         RateLimiter::for('election-cover', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
+
+        // The ballots (docs/api/ballots/): 120 an hour per user to add, change and delete, 240 to put in order.
+        RateLimiter::for('ballots-write', fn (Request $request) => Limit::perHour($times(120))->by($byUser($request)));
+        RateLimiter::for('ballots-order', fn (Request $request) => Limit::perHour($times(240))->by($byUser($request)));
     }
 }
