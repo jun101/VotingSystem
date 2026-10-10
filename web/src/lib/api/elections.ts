@@ -37,3 +37,10 @@ export type NewElection = components['schemas']['CreateElectionRequest'];
 
 /** The body of `PATCH /elections/{election}`. */
 export type ElectionChanges = components['schemas']['UpdateElectionRequest'];
+
+/** `GET /elections/{election}/checklist`: what blocks the scheduling and what to look at. */
+export type Checklist =
+  operations['election.checklist']['responses'][200]['content']['application/json']['data'];
+
+/** One blocker or warning of the checklist (also `error.items` of a refused scheduling). */
+export type ChecklistItem = Checklist['blockers'][number] | Checklist['warnings'][number];

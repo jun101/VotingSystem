@@ -336,6 +336,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/elections/{election}/checklist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The checklist of an election
+         * @description What stops the election from being scheduled (`blockers`) and what to look at first
+         *     (`warnings`), in any status. `can_schedule` is true for a draft with no blocker. Owner or
+         *     manager.
+         */
+        get: operations["election.checklist"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/elections/{election}/schedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Schedule an election
+         * @description A draft becomes scheduled: ballots, candidates and parties are locked; voters and groups stay
+         *     editable. 409 `checklist_blocked` with the blockers in `error.items`; 409 `checklist_warnings`
+         *     with the warnings unless `accept_warnings` is true; 409 `election_period_over` when the end is
+         *     not in the future. The checklist is computed again under the row lock. Owner or manager.
+         *     Limited to 120 requests per hour per user.
+         */
+        post: operations["election.schedule"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/elections/{election}/unschedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Unschedule an election
+         * @description A scheduled election goes back to draft, so ballots and candidates can be edited again.
+         *     Voters, groups and the groups of the ballots are not touched. Owner or manager. Limited to
+         *     120 requests per hour per user.
+         */
+        post: operations["election.unschedule"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/auth/forgot-password": {
         parameters: {
             query?: never;
@@ -1429,6 +1497,13 @@ export interface components {
          */
         ResetTwoFactorRequest: {
             password: string;
+        };
+        /**
+         * ScheduleElectionRequest
+         * @description docs/api/elections/POST-elections-{election}-schedule.md: an optional `accept_warnings` boolean.
+         */
+        ScheduleElectionRequest: {
+            accept_warnings?: boolean;
         };
         /**
          * SecondFactorRequest
@@ -2577,6 +2652,160 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
+        };
+    };
+    "election.checklist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The election UUID */
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            /** @enum {string} */
+                            status: "draft" | "scheduled" | "open" | "closed" | "published" | "archived";
+                            can_schedule: boolean;
+                            counts: {
+                                ballots: number;
+                                candidates: number;
+                                voters: number;
+                                groups: number;
+                            };
+                            blockers: {
+                                /** @enum {string} */
+                                code: "no_ballots" | "ballot_without_candidates" | "no_voters";
+                                ballot?: {
+                                    id: string;
+                                    title: string;
+                                };
+                            }[];
+                            warnings: {
+                                /** @enum {string} */
+                                code: "ballot_single_candidate" | "group_ballot_no_voters" | "group_ballot_few_voters" | "voters_without_ballot";
+                                ballot?: {
+                                    id: string;
+                                    title: string;
+                                };
+                                count?: number;
+                            }[];
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "election.schedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The election UUID */
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ScheduleElectionRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            title: string;
+                            description: string | null;
+                            /** @enum {string} */
+                            status: "draft" | "scheduled" | "open" | "closed" | "published" | "archived";
+                            starts_at: string;
+                            ends_at: string;
+                            timezone: string;
+                            /** @enum {string} */
+                            language: "fr" | "en";
+                            /** @enum {string} */
+                            candidate_order: "manual" | "shuffled";
+                            /** @enum {string} */
+                            results_display: "full" | "winners";
+                            cover: {
+                                sm: string;
+                                md: string;
+                            } | null;
+                            ballots_count: number;
+                            voters_count: number;
+                            created_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "election.unschedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The election UUID */
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            title: string;
+                            description: string | null;
+                            /** @enum {string} */
+                            status: "draft" | "scheduled" | "open" | "closed" | "published" | "archived";
+                            starts_at: string;
+                            ends_at: string;
+                            timezone: string;
+                            /** @enum {string} */
+                            language: "fr" | "en";
+                            /** @enum {string} */
+                            candidate_order: "manual" | "shuffled";
+                            /** @enum {string} */
+                            results_display: "full" | "winners";
+                            cover: {
+                                sm: string;
+                                md: string;
+                            } | null;
+                            ballots_count: number;
+                            voters_count: number;
+                            created_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
         };
     };
     "auth.forgotPassword": {

@@ -29,7 +29,7 @@ function checklistSignedIn($test, string $status = 'draft'): array
 function checklistBallot(string $election, string $title, int $candidates, array $groups = []): string
 {
     $ballot = Accounts::plantBallot(['election' => $election, 'title' => $title, 'groups' => $groups]);
-    foreach (range(1, $candidates) as $i) {
+    for ($i = 1; $i <= $candidates; $i++) {
         Accounts::plantCandidate(['ballot' => $ballot, 'last_name' => "{$title} {$i}"]);
     }
 

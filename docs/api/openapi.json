@@ -2820,6 +2820,473 @@
                 }
             }
         },
+        "/v1/elections/{election}/checklist": {
+            "get": {
+                "operationId": "election.checklist",
+                "description": "What stops the election from being scheduled (`blockers`) and what to look at first\n(`warnings`), in any status. `can_schedule` is true for a draft with no blocker. Owner or\nmanager.",
+                "summary": "The checklist of an election",
+                "tags": [
+                    "Election"
+                ],
+                "parameters": [
+                    {
+                        "name": "election",
+                        "in": "path",
+                        "required": true,
+                        "description": "The election UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "draft",
+                                                        "scheduled",
+                                                        "open",
+                                                        "closed",
+                                                        "published",
+                                                        "archived"
+                                                    ]
+                                                },
+                                                "can_schedule": {
+                                                    "type": "boolean"
+                                                },
+                                                "counts": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "ballots": {
+                                                            "type": "integer"
+                                                        },
+                                                        "candidates": {
+                                                            "type": "integer"
+                                                        },
+                                                        "voters": {
+                                                            "type": "integer"
+                                                        },
+                                                        "groups": {
+                                                            "type": "integer"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "ballots",
+                                                        "candidates",
+                                                        "voters",
+                                                        "groups"
+                                                    ]
+                                                },
+                                                "blockers": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "code": {
+                                                                "type": "string",
+                                                                "enum": [
+                                                                    "no_ballots",
+                                                                    "ballot_without_candidates",
+                                                                    "no_voters"
+                                                                ]
+                                                            },
+                                                            "ballot": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "title": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "id",
+                                                                    "title"
+                                                                ]
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "code"
+                                                        ]
+                                                    }
+                                                },
+                                                "warnings": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "code": {
+                                                                "type": "string",
+                                                                "enum": [
+                                                                    "ballot_single_candidate",
+                                                                    "group_ballot_no_voters",
+                                                                    "group_ballot_few_voters",
+                                                                    "voters_without_ballot"
+                                                                ]
+                                                            },
+                                                            "ballot": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "title": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "id",
+                                                                    "title"
+                                                                ]
+                                                            },
+                                                            "count": {
+                                                                "type": "integer"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "code"
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "status",
+                                                "can_schedule",
+                                                "counts",
+                                                "blockers",
+                                                "warnings"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/v1/elections/{election}/schedule": {
+            "post": {
+                "operationId": "election.schedule",
+                "description": "A draft becomes scheduled: ballots, candidates and parties are locked; voters and groups stay\neditable. 409 `checklist_blocked` with the blockers in `error.items`; 409 `checklist_warnings`\nwith the warnings unless `accept_warnings` is true; 409 `election_period_over` when the end is\nnot in the future. The checklist is computed again under the row lock. Owner or manager.\nLimited to 120 requests per hour per user.",
+                "summary": "Schedule an election",
+                "tags": [
+                    "Election"
+                ],
+                "parameters": [
+                    {
+                        "name": "election",
+                        "in": "path",
+                        "required": true,
+                        "description": "The election UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ScheduleElectionRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "title": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "draft",
+                                                        "scheduled",
+                                                        "open",
+                                                        "closed",
+                                                        "published",
+                                                        "archived"
+                                                    ]
+                                                },
+                                                "starts_at": {
+                                                    "type": "string"
+                                                },
+                                                "ends_at": {
+                                                    "type": "string"
+                                                },
+                                                "timezone": {
+                                                    "type": "string"
+                                                },
+                                                "language": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "fr",
+                                                        "en"
+                                                    ]
+                                                },
+                                                "candidate_order": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "manual",
+                                                        "shuffled"
+                                                    ]
+                                                },
+                                                "results_display": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "full",
+                                                        "winners"
+                                                    ]
+                                                },
+                                                "cover": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "sm": {
+                                                            "type": "string"
+                                                        },
+                                                        "md": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "sm",
+                                                        "md"
+                                                    ]
+                                                },
+                                                "ballots_count": {
+                                                    "type": "integer"
+                                                },
+                                                "voters_count": {
+                                                    "type": "integer"
+                                                },
+                                                "created_at": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "title",
+                                                "description",
+                                                "status",
+                                                "starts_at",
+                                                "ends_at",
+                                                "timezone",
+                                                "language",
+                                                "candidate_order",
+                                                "results_display",
+                                                "cover",
+                                                "ballots_count",
+                                                "voters_count",
+                                                "created_at"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/v1/elections/{election}/unschedule": {
+            "post": {
+                "operationId": "election.unschedule",
+                "description": "A scheduled election goes back to draft, so ballots and candidates can be edited again.\nVoters, groups and the groups of the ballots are not touched. Owner or manager. Limited to\n120 requests per hour per user.",
+                "summary": "Unschedule an election",
+                "tags": [
+                    "Election"
+                ],
+                "parameters": [
+                    {
+                        "name": "election",
+                        "in": "path",
+                        "required": true,
+                        "description": "The election UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "title": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "draft",
+                                                        "scheduled",
+                                                        "open",
+                                                        "closed",
+                                                        "published",
+                                                        "archived"
+                                                    ]
+                                                },
+                                                "starts_at": {
+                                                    "type": "string"
+                                                },
+                                                "ends_at": {
+                                                    "type": "string"
+                                                },
+                                                "timezone": {
+                                                    "type": "string"
+                                                },
+                                                "language": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "fr",
+                                                        "en"
+                                                    ]
+                                                },
+                                                "candidate_order": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "manual",
+                                                        "shuffled"
+                                                    ]
+                                                },
+                                                "results_display": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "full",
+                                                        "winners"
+                                                    ]
+                                                },
+                                                "cover": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "sm": {
+                                                            "type": "string"
+                                                        },
+                                                        "md": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "sm",
+                                                        "md"
+                                                    ]
+                                                },
+                                                "ballots_count": {
+                                                    "type": "integer"
+                                                },
+                                                "voters_count": {
+                                                    "type": "integer"
+                                                },
+                                                "created_at": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "title",
+                                                "description",
+                                                "status",
+                                                "starts_at",
+                                                "ends_at",
+                                                "timezone",
+                                                "language",
+                                                "candidate_order",
+                                                "results_display",
+                                                "cover",
+                                                "ballots_count",
+                                                "voters_count",
+                                                "created_at"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/v1/auth/forgot-password": {
             "post": {
                 "operationId": "auth.forgotPassword",
@@ -7961,6 +8428,16 @@
                     "password"
                 ],
                 "title": "ResetTwoFactorRequest"
+            },
+            "ScheduleElectionRequest": {
+                "type": "object",
+                "description": "docs/api/elections/POST-elections-{election}-schedule.md: an optional `accept_warnings` boolean.",
+                "properties": {
+                    "accept_warnings": {
+                        "type": "boolean"
+                    }
+                },
+                "title": "ScheduleElectionRequest"
             },
             "SecondFactorRequest": {
                 "type": "object",

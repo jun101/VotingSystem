@@ -38,4 +38,8 @@ return [
     'import_not_checked' => 'This import is not ready: wait for the check to finish.',
     'nothing_to_import' => 'There is no valid row to import: correct the file or the column choice.',
     'no_error_file' => 'This import has no rejected row, so there is no error file.',
+    'checklist_blocked' => 'The election is not ready: fix the blocking points.',
+    'checklist_warnings' => 'Some warnings remain: confirm to schedule anyway.',
+    'election_period_over' => 'The end of the election has passed: change the dates before scheduling.',
+    'election_not_scheduled' => 'This election is not scheduled.',
 ];

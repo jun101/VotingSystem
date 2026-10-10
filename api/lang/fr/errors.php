@@ -38,4 +38,8 @@ return [
     'import_not_checked' => 'Cet import n’est pas prêt: attendez la fin de la vérification.',
     'nothing_to_import' => 'Aucune ligne valide à importer: corrigez le fichier ou le choix des colonnes.',
     'no_error_file' => 'Cet import n’a aucune ligne rejetée: il n’y a pas de fichier d’erreurs.',
+    'checklist_blocked' => 'L\'élection n\'est pas prête : corrigez les points bloquants.',
+    'checklist_warnings' => 'Il reste des avertissements : confirmez pour programmer quand même.',
+    'election_period_over' => 'La fin de l\'élection est passée : changez les dates avant de programmer.',
+    'election_not_scheduled' => 'Cette élection n\'est pas programmée.',
 ];

@@ -4,7 +4,13 @@ import { ApiError, parseApiError } from './errors';
 import { XSRF_COOKIE } from './session';
 import type { Ballot, BallotChanges, NewBallot } from './ballots';
 import type { Candidate, CandidateChanges, NewCandidate } from './candidates';
-import type { Election, ElectionChanges, ElectionFilters, NewElection } from './elections';
+import type {
+  Checklist,
+  Election,
+  ElectionChanges,
+  ElectionFilters,
+  NewElection,
+} from './elections';
 import type { NewParty, Party, PartyChanges } from './parties';
 import type {
   GroupList,
@@ -414,6 +420,36 @@ export async function deleteElection(id: string): Promise<void> {
 export async function duplicateElection(id: string): Promise<Election> {
   const { data } = await send((api) =>
     api.POST('/v1/elections/{election}/duplicate', { params: { path: { election: id } } }),
+  );
+
+  return data!.data;
+}
+
+/** `GET /elections/{election}/checklist`: the blockers and warnings of an election. */
+export async function fetchChecklist(id: string): Promise<Checklist> {
+  const { data } = await send((api) =>
+    api.GET('/v1/elections/{election}/checklist', { params: { path: { election: id } } }),
+  );
+
+  return data!.data;
+}
+
+/** `POST /elections/{election}/schedule`: a draft becomes scheduled. */
+export async function scheduleElection(id: string, acceptWarnings: boolean): Promise<Election> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/schedule', {
+      params: { path: { election: id } },
+      body: { accept_warnings: acceptWarnings },
+    }),
+  );
+
+  return data!.data;
+}
+
+/** `POST /elections/{election}/unschedule`: a scheduled election goes back to draft. */
+export async function unscheduleElection(id: string): Promise<Election> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/unschedule', { params: { path: { election: id } } }),
   );
 
   return data!.data;

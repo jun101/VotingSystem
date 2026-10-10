@@ -395,7 +395,11 @@
     "import_in_progress": "Un import est déjà en cours pour cette élection. Attendez qu’il se termine, ou annulez-le.",
     "import_not_checked": "Ce fichier n’est plus à l’étape de vérification. Rechargez la page.",
     "nothing_to_import": "Aucune ligne n’est prête à être importée.",
-    "no_error_file": "Il n’y a pas de ligne rejetée à télécharger."
+    "no_error_file": "Il n’y a pas de ligne rejetée à télécharger.",
+    "checklist_blocked": "L’élection n’est pas prête : des points bloquants restent. Rechargez la page.",
+    "checklist_warnings": "Des avertissements restent : lisez-les et confirmez pour planifier quand même.",
+    "election_period_over": "La fin de l’élection est passée : changez les dates avant de planifier.",
+    "election_not_scheduled": "Cette élection n’est pas planifiée. Rechargez la page."
   },
   "validation": {
     "required": "Ce champ est obligatoire.",
@@ -1042,6 +1046,52 @@
       "zone": "Fuseau horaire : {zone}",
       "cancel": "Annuler",
       "apply": "Valider les dates"
+    },
+    "checklist": {
+      "title": "Avant de planifier",
+      "loading": "Vérification en cours…",
+      "failed": "La liste de vérification n’a pas pu être chargée. Rechargez la page.",
+      "ok": "Tout est prêt : vous pouvez planifier l’élection.",
+      "blockers": "À corriger avant de planifier",
+      "warnings": "À regarder",
+      "blockersCount": {
+        "one": "{count} point bloquant",
+        "other": "{count} points bloquants"
+      },
+      "warningsCount": {
+        "one": "{count} avertissement",
+        "other": "{count} avertissements"
+      },
+      "items": {
+        "no_ballots": "L’élection n’a aucun poste.",
+        "ballot_without_candidates": "Le poste « {title} » n’a aucun candidat.",
+        "no_voters": "L’élection n’a aucun électeur.",
+        "ballot_single_candidate": "Le poste « {title} » n’a qu’un seul candidat.",
+        "group_ballot_no_voters": "Le poste « {title} » ne couvre aucun électeur.",
+        "group_ballot_few_voters": "Le poste « {title} » ne couvre que {voters}.",
+        "voters_without_ballot": "{voters} ne peuvent voter à aucun poste.",
+        "unknown": "Un point reste à vérifier."
+      },
+      "schedule": {
+        "button": "Planifier l’élection",
+        "title": "Planifier cette élection ?",
+        "text": "Les postes, les candidats et les partis seront verrouillés. Les électeurs et les groupes restent modifiables, et vous pourrez revenir au brouillon.",
+        "warnings": "Des avertissements restent :",
+        "accept": "Je comprends ces avertissements et je veux planifier quand même.",
+        "confirm": "Planifier",
+        "cancel": "Annuler"
+      },
+      "unschedule": {
+        "button": "Revenir au brouillon",
+        "title": "Revenir au brouillon ?",
+        "text": "L’élection ne sera plus planifiée et ses postes pourront de nouveau être modifiés. Les électeurs et les groupes ne changent pas.",
+        "confirm": "Revenir au brouillon",
+        "cancel": "Annuler"
+      },
+      "voters": {
+        "one": "{count} électeur",
+        "other": "{count} électeurs"
+      }
     }
   },
   "ballots": {

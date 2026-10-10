@@ -395,7 +395,11 @@
     "import_in_progress": "An import is already under way for this election. Wait for it to finish, or cancel it.",
     "import_not_checked": "This file is no longer at the check step. Reload the page.",
     "nothing_to_import": "No row is ready to import.",
-    "no_error_file": "There is no rejected row to download."
+    "no_error_file": "There is no rejected row to download.",
+    "checklist_blocked": "The election is not ready: blocking points remain. Reload the page.",
+    "checklist_warnings": "Warnings remain: read them and confirm to schedule anyway.",
+    "election_period_over": "The end of the election has passed: change the dates before scheduling.",
+    "election_not_scheduled": "This election is not scheduled. Reload the page."
   },
   "validation": {
     "required": "This field is required.",
@@ -1042,6 +1046,52 @@
       "zone": "Time zone: {zone}",
       "cancel": "Cancel",
       "apply": "Apply the dates"
+    },
+    "checklist": {
+      "title": "Before scheduling",
+      "loading": "Checking…",
+      "failed": "The checklist could not be loaded. Reload the page.",
+      "ok": "Everything is ready: you can schedule the election.",
+      "blockers": "To fix before scheduling",
+      "warnings": "To look at",
+      "blockersCount": {
+        "one": "{count} blocking point",
+        "other": "{count} blocking points"
+      },
+      "warningsCount": {
+        "one": "{count} warning",
+        "other": "{count} warnings"
+      },
+      "items": {
+        "no_ballots": "The election has no position.",
+        "ballot_without_candidates": "The position “{title}” has no candidate.",
+        "no_voters": "The election has no voter.",
+        "ballot_single_candidate": "The position “{title}” has only one candidate.",
+        "group_ballot_no_voters": "The position “{title}” covers no voter.",
+        "group_ballot_few_voters": "The position “{title}” covers only {voters}.",
+        "voters_without_ballot": "{voters} cannot vote for any position.",
+        "unknown": "One point still needs a look."
+      },
+      "schedule": {
+        "button": "Schedule the election",
+        "title": "Schedule this election?",
+        "text": "Positions, candidates and parties will be locked. Voters and groups stay editable, and you can go back to a draft.",
+        "warnings": "Some warnings remain:",
+        "accept": "I understand these warnings and want to schedule anyway.",
+        "confirm": "Schedule",
+        "cancel": "Cancel"
+      },
+      "unschedule": {
+        "button": "Back to draft",
+        "title": "Go back to a draft?",
+        "text": "The election will no longer be scheduled and its positions can be changed again. Voters and groups do not change.",
+        "confirm": "Back to draft",
+        "cancel": "Cancel"
+      },
+      "voters": {
+        "one": "{count} voter",
+        "other": "{count} voters"
+      }
     }
   },
   "ballots": {

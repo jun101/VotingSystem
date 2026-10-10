@@ -634,7 +634,7 @@ export function BallotsPage({
       ) : null}
 
       {editable ? null : (
-        <Notice tone="info" data-testid="ballots-locked">
+        <Notice tone="info" data-testid="ballots-locked-notice">
           {t('ballots.locked')}
         </Notice>
       )}
