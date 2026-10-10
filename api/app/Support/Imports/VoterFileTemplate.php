@@ -5,6 +5,8 @@ namespace App\Support\Imports;
 use OpenSpout\Common\Entity\Cell;
 use OpenSpout\Common\Entity\Cell\StringCell;
 use OpenSpout\Common\Entity\Row;
+use OpenSpout\Common\Entity\Style\Style;
+use OpenSpout\Writer\XLSX\Entity\SheetView;
 use OpenSpout\Writer\XLSX\Writer;
 use RuntimeException;
 
@@ -36,22 +38,41 @@ final class VoterFileTemplate
         try {
             $writer = new Writer;
             $writer->openToFile($path);
-            $writer->getCurrentSheet()->setName(trans('imports.template.sheet', [], $language));
+            $sheet = $writer->getCurrentSheet();
+            $sheet->setName(trans('imports.template.sheet', [], $language));
+            foreach ([30, 18, 16, 32, 20] as $index => $width) {
+                $sheet->setColumnWidth($width, $index + 1);
+            }
+            // The header row stays in view while a long list is filled in.
+            $sheet->setSheetView(new SheetView(freezeRow: 2));
 
-            $writer->addRow($this->row(self::HEADER));
+            $writer->addRow($this->row(self::HEADER, SheetStyles::header(), SheetStyles::HEADER_HEIGHT));
 
-            foreach (self::EXAMPLES as $example) {
-                $writer->addRow($this->row($example));
+            foreach (self::EXAMPLES as $index => $example) {
+                $writer->addRow($this->row($example, SheetStyles::body($index), SheetStyles::ROW_HEIGHT));
             }
 
-            $writer->addNewSheetAndMakeItCurrent()->setName(trans('imports.template.instructions_sheet', [], $language));
-            $writer->addRow($this->row([trans('imports.template.column', [], $language), trans('imports.template.description', [], $language)]));
+            $instructions = $writer->addNewSheetAndMakeItCurrent();
+            $instructions->setName(trans('imports.template.instructions_sheet', [], $language));
+            $instructions->setColumnWidth(20, 1);
+            $instructions->setColumnWidth(90, 2);
 
-            foreach (self::HEADER as $column) {
-                $writer->addRow($this->row([$column, trans('imports.template.columns.'.$column, [], $language)]));
+            $writer->addRow(new Row([
+                new StringCell(trans('imports.template.column', [], $language), SheetStyles::header()),
+                new StringCell(trans('imports.template.description', [], $language), SheetStyles::header()),
+            ], SheetStyles::HEADER_HEIGHT));
+
+            foreach (self::HEADER as $index => $column) {
+                $writer->addRow(new Row([
+                    new StringCell($column, SheetStyles::columnName()),
+                    new StringCell(trans('imports.template.columns.'.$column, [], $language), SheetStyles::body($index)->withShouldWrapText(true)),
+                ], SheetStyles::ROW_HEIGHT));
             }
 
-            $writer->addRow($this->row(['', trans('imports.template.notes', [], $language)]));
+            $writer->addRow(new Row([
+                Cell::fromValue(null),
+                new StringCell(trans('imports.template.notes', [], $language), SheetStyles::body(1)->withShouldWrapText(true)->withFontItalic(true)),
+            ], 36.0));
             $writer->close();
 
             $bytes = file_get_contents($path);
@@ -89,11 +110,11 @@ final class VoterFileTemplate
     /**
      * @param  list<string>  $values
      */
-    private function row(array $values): Row
+    private function row(array $values, ?Style $style = null, float $height = Row::DEFAULT_HEIGHT): Row
     {
         return new Row(array_map(
-            static fn (string $value): Cell => $value === '' ? Cell::fromValue(null) : new StringCell($value, null),
+            static fn (string $value): Cell => $value === '' ? Cell::fromValue(null) : new StringCell($value, $style),
             $values,
-        ));
+        ), $height);
     }
 }

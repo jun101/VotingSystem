@@ -6,8 +6,10 @@ use App\Models\VoterImport;
 use App\Models\VoterImportRow;
 use App\Support\Exports\FormulaGuard;
 use OpenSpout\Common\Entity\Cell;
+use OpenSpout\Common\Entity\Cell\NumericCell;
 use OpenSpout\Common\Entity\Cell\StringCell;
 use OpenSpout\Common\Entity\Row;
+use OpenSpout\Writer\XLSX\Entity\SheetView;
 use OpenSpout\Writer\XLSX\Writer;
 use RuntimeException;
 
@@ -41,8 +43,20 @@ final class ErrorFileWriter
         try {
             $writer = new Writer;
             $writer->openToFile($path);
-            $writer->getCurrentSheet()->setName(trans('imports.template.sheet', [], $language));
-            $writer->addRow(new Row(array_map(static fn (string $name): Cell => new StringCell($name, null), self::HEADER)));
+            $sheet = $writer->getCurrentSheet();
+            $sheet->setName(trans('imports.template.sheet', [], $language));
+            foreach ([30, 18, 16, 32, 20, 9, 60] as $index => $width) {
+                $sheet->setColumnWidth($width, $index + 1);
+            }
+            $sheet->setSheetView(new SheetView(freezeRow: 2));
+
+            $writer->addRow(new Row(array_map(
+                static fn (string $name, int $index): Cell => new StringCell($name, $index < count(VoterFileTemplate::HEADER) ? SheetStyles::header() : SheetStyles::addedHeader()),
+                self::HEADER,
+                array_keys(self::HEADER),
+            ), SheetStyles::HEADER_HEIGHT));
+
+            $line = 0;
 
             foreach ($rows as $row) {
                 $raw = is_array($row->raw) ? $row->raw : [];
@@ -51,14 +65,15 @@ final class ErrorFileWriter
                 foreach (VoterImport::FIELDS as $field) {
                     $value = $raw[$field] ?? null;
                     $cells[] = is_string($value) && $value !== ''
-                        ? new StringCell(FormulaGuard::guard($value), null)
-                        : Cell::fromValue(null);
+                        ? new StringCell(FormulaGuard::guard($value), SheetStyles::body($line))
+                        : new StringCell('', SheetStyles::body($line));
                 }
 
-                $cells[] = Cell::fromValue($row->line);
-                $cells[] = new StringCell(ReasonWords::phrase($row->reasons, $language), null);
+                $cells[] = new NumericCell($row->line, SheetStyles::body($line));
+                $cells[] = new StringCell(ReasonWords::phrase($row->reasons, $language), SheetStyles::reason());
 
-                $writer->addRow(new Row($cells));
+                $writer->addRow(new Row($cells, SheetStyles::ROW_HEIGHT));
+                $line++;
             }
 
             $writer->close();
