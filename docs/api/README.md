@@ -144,7 +144,7 @@ docs/api/
   groups/
   voter-groups/
   voters/
-  imports/
+  imports/                          (listed as voter-imports/ since slice 08)
   credentials/
   vote/
   turnout/
@@ -299,3 +299,11 @@ Filled slice by slice: each slice adds its endpoints here with a link to their f
 | Groups | `PATCH /groups/{group}` | 07 | [groups/PATCH-groups-{group}.md](groups/PATCH-groups-{group}.md) |
 | Groups | `DELETE /groups/{group}` | 07 | [groups/DELETE-groups-{group}.md](groups/DELETE-groups-{group}.md) |
 | Groups | `POST /groups/{group}/merge` | 07 | [groups/POST-groups-{group}-merge.md](groups/POST-groups-{group}-merge.md) |
+| Voter imports | `GET /elections/{election}/voter-imports/template` | 08 | [voter-imports/GET-elections-{election}-voter-imports-template.md](voter-imports/GET-elections-{election}-voter-imports-template.md) |
+| Voter imports | `POST /elections/{election}/voter-imports` | 08 | [voter-imports/POST-elections-{election}-voter-imports.md](voter-imports/POST-elections-{election}-voter-imports.md) |
+| Voter imports | `GET /voter-imports/{import}` | 08 | [voter-imports/GET-voter-imports-{import}.md](voter-imports/GET-voter-imports-{import}.md) |
+| Voter imports | `PATCH /voter-imports/{import}` | 08 | [voter-imports/PATCH-voter-imports-{import}.md](voter-imports/PATCH-voter-imports-{import}.md) |
+| Voter imports | `GET /voter-imports/{import}/rows` | 08 | [voter-imports/GET-voter-imports-{import}-rows.md](voter-imports/GET-voter-imports-{import}-rows.md) |
+| Voter imports | `POST /voter-imports/{import}/confirm` | 08 | [voter-imports/POST-voter-imports-{import}-confirm.md](voter-imports/POST-voter-imports-{import}-confirm.md) |
+| Voter imports | `GET /voter-imports/{import}/errors` | 08 | [voter-imports/GET-voter-imports-{import}-errors.md](voter-imports/GET-voter-imports-{import}-errors.md) |
+| Voter imports | `DELETE /voter-imports/{import}` | 08 | [voter-imports/DELETE-voter-imports-{import}.md](voter-imports/DELETE-voter-imports-{import}.md) |

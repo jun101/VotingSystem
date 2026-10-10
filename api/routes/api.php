@@ -26,6 +26,7 @@ use App\Http\Controllers\Parties\PartyController;
 use App\Http\Controllers\Parties\PartyLogoController;
 use App\Http\Controllers\Users\InvitationController;
 use App\Http\Controllers\Users\UserController;
+use App\Http\Controllers\VoterImports\VoterImportController;
 use App\Http\Controllers\Voters\VoterController;
 use Illuminate\Support\Facades\Route;
 
@@ -109,6 +110,20 @@ Route::prefix('v1')->group(function (): void {
         Route::post('/{election}/voters', [VoterController::class, 'store'])->middleware('throttle:voters-write');
         Route::get('/{election}/groups', [GroupController::class, 'index']);
         Route::post('/{election}/groups', [GroupController::class, 'store'])->middleware('throttle:groups-write');
+
+        // The voter import of an election (slice 08a): the template and the upload.
+        Route::get('/{election}/voter-imports/template', [VoterImportController::class, 'template'])->middleware('throttle:voter-imports');
+        Route::post('/{election}/voter-imports', [VoterImportController::class, 'store'])->middleware('throttle:voter-imports-upload');
+    });
+
+    // An import: its summary, its mapping, its rows (slice 08a). Confirm and the error file (08b).
+    Route::middleware(['cookie-session', 'auth', 'institution.active'])->prefix('voter-imports')->group(function (): void {
+        Route::get('/{import}', [VoterImportController::class, 'show'])->middleware('throttle:voter-imports');
+        Route::patch('/{import}', [VoterImportController::class, 'update'])->middleware('throttle:voter-imports');
+        Route::get('/{import}/rows', [VoterImportController::class, 'rows'])->middleware('throttle:voter-imports');
+        Route::post('/{import}/confirm', [VoterImportController::class, 'confirm'])->middleware('throttle:voter-imports');
+        Route::get('/{import}/errors', [VoterImportController::class, 'errors'])->middleware('throttle:voter-imports');
+        Route::delete('/{import}', [VoterImportController::class, 'destroy'])->middleware('throttle:voter-imports');
     });
 
     Route::middleware(['cookie-session', 'auth', 'institution.active'])->prefix('ballots')->group(function (): void {

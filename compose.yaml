@@ -162,6 +162,8 @@ services:
       <<: *api-environment
       DB_MIGRATOR_USERNAME: migrator
       DB_MIGRATOR_PASSWORD: ${DB_MIGRATOR_PASSWORD:?run make setup}
+      # A queued job runs inside the request that dispatches it (the stack keeps Redis).
+      QUEUE_CONNECTION: sync
     command: ["vendor/bin/pest"]
     healthcheck:
       disable: true

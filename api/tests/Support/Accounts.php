@@ -577,4 +577,111 @@ final class Accounts
 
         return $db->table('voters')->where('election_id', $id)->orderBy('full_name')->orderBy('id')->get()->map(fn ($row) => (array) $row)->all();
     }
+
+    /**
+     * A voter import with its checked rows (slice 08), written straight into the tables of docs/design/database.md.
+     * The counts are worked out from the rows.
+     *
+     * @param  array{election: string, status?: string, name?: string, columns?: list<string>|null, created_at?: string, updated_at?: string, mapping?: array<string, int|null>, failure?: string|null, processed?: int, imported?: int, new_groups?: list<string>, rows?: list<array{status?: string, reasons?: list<string>, full_name?: string|null, group?: string|null, identifier?: string|null, email?: string|null, phone?: string|null, line?: int}>}  $o
+     */
+    public static function plantImport(array $o): string
+    {
+        $db = DB::connection(useMigratorConnection());
+        $election = $db->table('elections')->where('uuid', $o['election'])->first();
+        $uuid = Uuid::uuid4()->toString();
+        $now = Carbon::now('UTC')->format('Y-m-d H:i:s');
+        $rows = $o['rows'] ?? [];
+        $valid = count(array_filter($rows, fn ($r) => ($r['status'] ?? 'ok') === 'ok'));
+        $duplicates = count(array_filter($rows, fn ($r) => ($r['status'] ?? 'ok') === 'duplicate'));
+        $groups = [];
+        foreach ($rows as $r) {
+            if (($r['status'] ?? 'ok') === 'ok' && ($r['group'] ?? null) !== null) {
+                $groups[mb_strtolower(trim($r['group']))] ??= trim($r['group']);
+            }
+        }
+
+        $id = $db->table('voter_imports')->insertGetId([
+            'uuid' => $uuid,
+            'institution_id' => $election->institution_id,
+            'election_id' => $election->id,
+            'user_id' => null,
+            'original_name' => $o['name'] ?? 'eleves.xlsx',
+            'stored_file' => Uuid::uuid4()->toString(),
+            'columns' => array_key_exists('columns', $o) && $o['columns'] === null ? null : json_encode($o['columns'] ?? Spreadsheets::HEADER),
+            'mapping' => json_encode($o['mapping'] ?? ['full_name' => 0, 'group' => 1, 'identifier' => 2, 'email' => 3, 'phone' => 4]),
+            'status' => $o['status'] ?? 'checked',
+            'failure' => $o['failure'] ?? null,
+            'total_rows' => count($rows),
+            'valid_rows' => $valid,
+            'invalid_rows' => count($rows) - $valid,
+            'duplicate_rows' => $duplicates,
+            'new_groups' => json_encode($o['new_groups'] ?? array_values($groups)),
+            'processed_rows' => $o['processed'] ?? 0,
+            'imported_rows' => $o['imported'] ?? 0,
+            'finished_at' => ($o['status'] ?? 'checked') === 'done' ? $now : null,
+            'created_at' => $o['created_at'] ?? $now,
+            'updated_at' => $o['updated_at'] ?? $now,
+        ]);
+
+        foreach (array_values($rows) as $i => $r) {
+            $values = [
+                'full_name' => $r['full_name'] ?? null,
+                'group' => $r['group'] ?? null,
+                'identifier' => $r['identifier'] ?? null,
+                'email' => $r['email'] ?? null,
+                'phone' => $r['phone'] ?? null,
+            ];
+            $db->table('voter_import_rows')->insert([
+                'institution_id' => $election->institution_id,
+                'voter_import_id' => $id,
+                'line' => $r['line'] ?? $i + 2,
+                'status' => $r['status'] ?? 'ok',
+                'reasons' => json_encode($r['reasons'] ?? []),
+                'full_name' => $values['full_name'],
+                'group_name' => $values['group'],
+                'identifier' => $values['identifier'],
+                'email' => $values['email'],
+                'phone' => $values['phone'],
+                'raw' => json_encode($values),
+            ]);
+        }
+
+        return $uuid;
+    }
+
+    /** Sets the status of an election straight in the table (the rows already planted stay as they are). */
+    public static function setElectionStatus(string $uuid, string $status): void
+    {
+        DB::connection(useMigratorConnection())->table('elections')->where('uuid', $uuid)->update(['status' => $status]);
+    }
+
+    /** One row of `voter_imports` by uuid, as an array, or null. */
+    public static function importRow(string $uuid): ?array
+    {
+        $row = DB::connection(useMigratorConnection())->table('voter_imports')->where('uuid', $uuid)->first();
+
+        return $row === null ? null : (array) $row;
+    }
+
+    /**
+     * The rows of `voter_import_rows` of one import (its uuid), by line.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function importRows(string $uuid): array
+    {
+        $db = DB::connection(useMigratorConnection());
+        $id = $db->table('voter_imports')->where('uuid', $uuid)->value('id');
+
+        return $db->table('voter_import_rows')->where('voter_import_id', $id)->orderBy('line')->get()->map(fn ($row) => (array) $row)->all();
+    }
+
+    /** The uuids of the imports of one election, oldest first. */
+    public static function importsOf(string $election): array
+    {
+        $db = DB::connection(useMigratorConnection());
+        $id = $db->table('elections')->where('uuid', $election)->value('id');
+
+        return $db->table('voter_imports')->where('election_id', $id)->orderBy('id')->pluck('uuid')->all();
+    }
 }

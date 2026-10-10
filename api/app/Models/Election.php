@@ -154,4 +154,14 @@ class Election extends Model
     {
         return $this->hasMany(Voter::class)->orderBy('full_name')->orderBy('id');
     }
+
+    /**
+     * The voter files uploaded to the election, newest first.
+     *
+     * @return HasMany<VoterImport, $this>
+     */
+    public function voterImports(): HasMany
+    {
+        return $this->hasMany(VoterImport::class)->orderByDesc('id');
+    }
 }

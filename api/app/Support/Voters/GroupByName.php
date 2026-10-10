@@ -29,7 +29,9 @@ final class GroupByName
             return null;
         }
 
-        $found = VoterGroup::query()
+        // The election row was read by the caller (its own scope, or the import job's lock), and the
+        // groups are looked up by that election; a queue worker has nobody signed in, so the scope would see none.
+        $found = VoterGroup::withoutInstitutionScope()
             ->where('election_id', $locked->getKey())
             ->where('name_key', VoterGroup::keyOf($name))
             ->first();
@@ -41,12 +43,14 @@ final class GroupByName
         // Groups are added in a draft or scheduled election only: an open one keeps the ballots' groups.
         $locked->assertVotersDeletable();
 
-        if (VoterGroup::query()->where('election_id', $locked->getKey())->count() >= self::LIMIT) {
+        // The same reason: the groups are counted by their election.
+        if (VoterGroup::withoutInstitutionScope()->where('election_id', $locked->getKey())->count() >= self::LIMIT) {
             throw new ApiException(409, 'group_limit_reached');
         }
 
         $group = new VoterGroup(['name' => $name]);
         $group->election_id = $locked->id;
+        $group->institution_id = $locked->institution_id;
         $group->save();
 
         return $group;

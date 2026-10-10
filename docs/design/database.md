@@ -216,23 +216,43 @@ hash in the same row.
 | email_sent_at | dt, null | |
 | email_error | str(255), null | |
 
-**`voter_imports`** (FR-VOT-03, 04).
+**`voter_imports`** (FR-VOT-03, 04). Slice 08. One import at a time per election.
 
 | Column | Type | Notes |
 |---|---|---|
-| institution_id | fk | |
+| uuid | UUID | The import's public id |
+| institution_id | fk | Cascade |
 | election_id | fk | Cascade |
-| user_id | fk | |
-| original_name | str(255) | Shown to the user only |
-| stored_file | UUID | The uploaded file, private storage |
-| mapping | json, null | Column of the file → voter field |
+| user_id | fk | Who uploaded (restrict is not needed: set null) |
+| original_name | str(255) | Shown to the user only, never a path |
+| stored_file | UUID | The uploaded file under this name on the private disk |
+| columns | json, null | The header cells of the file |
+| mapping | json, null | Voter field to column index (or null) |
 | status | str(15) | `uploaded`, `checked`, `importing`, `done`, `failed` |
-| total_rows | int | |
+| failure | str(30), null | `no_header`, `too_many_rows`, `no_full_name_column`, `unreadable`, `import_failed` |
+| total_rows | int | Data rows read |
 | valid_rows | int | |
-| invalid_rows | int | |
+| invalid_rows | int | Includes the duplicates |
+| duplicate_rows | int | |
+| new_groups | json, null | Names the import would create |
 | processed_rows | int | For the progress bar |
-| error_file | UUID, null | The rejected rows |
+| imported_rows | int | Voters written |
 | finished_at | dt, null | |
+
+**`voter_import_rows`** (slice 08). The checked rows, read by the preview and the error file; deleted with the import.
+
+| Column | Type | Notes |
+|---|---|---|
+| institution_id | fk | Cascade |
+| voter_import_id | fk | Cascade |
+| line | int | Line in the file (the header is 1); unique with `voter_import_id` |
+| status | str(10) | `ok`, `invalid`, `duplicate` |
+| reasons | json | Reason codes |
+| full_name, group_name, identifier, email, phone | text, null | The values after trimming; `raw` keeps the original cell text of the five fields as json for the error file |
+
+An import's file and rows are deleted when the import is deleted, when a newer import replaces it, when it ends `done`
+(the file only), and by the scheduled clean-up of imports older than 7 days that are not `importing` and of imports left
+`importing` for more than a day. Each kept value is cut to its field's maximum length plus one character.
 
 **`generated_files`** — slip PDFs and code export files (FR-CRED-04, 05). Because only the
 hash of a code is stored, the file is written by the same job that generates the codes.

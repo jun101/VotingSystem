@@ -1068,6 +1068,159 @@ export interface paths {
         patch: operations["voter.update"];
         trace?: never;
     };
+    "/v1/elections/{election}/voter-imports/template": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download the template
+         * @description An `.xlsx` (default, with an `Instructions` sheet in the signed-in user's language) or a
+         *     `.csv` (UTF-8 with a byte-order mark). The header `nom_complet`, `groupe`, `identifiant`,
+         *     `courriel`, `telephone` and three example rows; never a formula. An election in any
+         *     status. Owner or manager. Limited to 240 requests per hour per user.
+         */
+        get: operations["voterImport.template"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/elections/{election}/voter-imports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload a voter file
+         * @description `multipart/form-data` with `file`: an `.xlsx` or a `.csv`, judged by its content, 5 MB at
+         *     most. A draft or scheduled election only. Nothing is imported: the file is checked in the
+         *     background (status `uploaded`, then `checked` or `failed`). One import at a time; a new
+         *     upload deletes the earlier `checked` and `failed` ones. Owner or manager. Limited to 20
+         *     uploads per hour per user.
+         */
+        post: operations["voterImport.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/voter-imports/{import}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read an import
+         * @description Its status, its summary and its progress. Any status. Owner or manager. Limited to 240
+         *     requests per hour per user.
+         */
+        get: operations["voterImport.show"];
+        put?: never;
+        post?: never;
+        /**
+         * Cancel an import
+         * @description Its file and its rows are deleted; the voters already written stay. Any status except
+         *     `importing` (409 `import_in_progress`); an `uploaded` import is cancelled and the check
+         *     ends without writing. Owner or manager. Limited to 240 requests per hour per user.
+         */
+        delete: operations["voterImport.destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * Correct the column mapping
+         * @description Body `mapping`: an object of voter fields to a column index or `null`; a key left out
+         *     keeps its value. A `checked` import of a draft or scheduled election; it is checked
+         *     again in the background (202, status `uploaded`). Owner or manager. Limited to 240
+         *     requests per hour per user.
+         */
+        patch: operations["voterImport.update"];
+        trace?: never;
+    };
+    "/v1/voter-imports/{import}/rows": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the rows of a checked import
+         * @description 50 a page, in file order; `filter` is `all`, `ok` or `errors` (every invalid row,
+         *     duplicates included). An `uploaded` or `failed` import has no rows (409
+         *     `import_not_checked`). Owner or manager. Limited to 240 requests per hour per user.
+         */
+        get: operations["voterImport.rows"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/voter-imports/{import}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm a checked import
+         * @description The valid rows are written in the background, in chunks of 500, each one in a transaction
+         *     that locks the election first; the duplicates are judged again against the voters that
+         *     exist then. Answers 202 with the import (status `importing`); poll the import for the
+         *     progress. A draft or scheduled election (409 `election_voters_locked`), a `checked` import
+         *     (409 `import_not_checked`), at least one valid row (409 `nothing_to_import`), at most
+         *     10 000 voters in all (409 `voter_limit_reached`). Owner or manager. Limited to 240 requests
+         *     per hour per user.
+         */
+        post: operations["voterImport.confirm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/voter-imports/{import}/errors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download the rejected rows
+         * @description An `.xlsx` with the template columns, then `ligne` (the line in the uploaded file) and
+         *     `raison` (the reasons in words, in the signed-in user's language); the values are the
+         *     original cells, and a text beginning with `=`, `+`, `-` or `@` is prefixed with `'`. A
+         *     `checked` or `done` import with rejected rows (409 `no_error_file`). Owner or manager.
+         *     Limited to 240 requests per hour per user.
+         */
+        get: operations["voterImport.errors"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1355,6 +1508,8 @@ export interface components {
         VerifyEmailRequest: {
             token: string;
         };
+        /** VoterImportResource */
+        VoterImportResource: unknown[];
         /** VoterResource */
         VoterResource: unknown[];
     };
@@ -3851,6 +4006,398 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
+        };
+    };
+    "voterImport.template": {
+        parameters: {
+            query?: {
+                format?: "xlsx" | "csv" | null;
+            };
+            header?: never;
+            path: {
+                /** @description The election UUID */
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    "Content-Disposition"?: "attachment; filename=\"modele-electeurs.csv\"" | "attachment; filename=\"modele-electeurs.xlsx\"";
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "voterImport.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The election UUID */
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `VoterImportResource` */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            election: string;
+                            /** @enum {string} */
+                            status: "uploaded" | "checked" | "importing" | "done" | "failed";
+                            original_name: string;
+                            columns: string[];
+                            mapping: {
+                                full_name: number | null;
+                                group: number | null;
+                                identifier: number | null;
+                                email: number | null;
+                                phone: number | null;
+                            } | null;
+                            total_rows: number;
+                            valid_rows: number;
+                            invalid_rows: number;
+                            duplicate_rows: number;
+                            new_groups: string[];
+                            processed_rows: number;
+                            imported_rows: number;
+                            failure: string | null;
+                            has_error_file: boolean;
+                            created_at: string;
+                            finished_at: string | null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "voterImport.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The import UUID */
+                import: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            election: string;
+                            /** @enum {string} */
+                            status: "uploaded" | "checked" | "importing" | "done" | "failed";
+                            original_name: string;
+                            columns: string[];
+                            mapping: {
+                                full_name: number | null;
+                                group: number | null;
+                                identifier: number | null;
+                                email: number | null;
+                                phone: number | null;
+                            } | null;
+                            total_rows: number;
+                            valid_rows: number;
+                            invalid_rows: number;
+                            duplicate_rows: number;
+                            new_groups: string[];
+                            processed_rows: number;
+                            imported_rows: number;
+                            failure: string | null;
+                            has_error_file: boolean;
+                            created_at: string;
+                            finished_at: string | null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "voterImport.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The import UUID */
+                import: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            /** @description An error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "voterImport.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The import UUID */
+                import: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `VoterImportResource` */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            election: string;
+                            /** @enum {string} */
+                            status: "uploaded" | "checked" | "importing" | "done" | "failed";
+                            original_name: string;
+                            columns: string[];
+                            mapping: {
+                                full_name: number | null;
+                                group: number | null;
+                                identifier: number | null;
+                                email: number | null;
+                                phone: number | null;
+                            } | null;
+                            total_rows: number;
+                            valid_rows: number;
+                            invalid_rows: number;
+                            duplicate_rows: number;
+                            new_groups: string[];
+                            processed_rows: number;
+                            imported_rows: number;
+                            failure: string | null;
+                            has_error_file: boolean;
+                            created_at: string;
+                            finished_at: string | null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            /** @description An error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "voterImport.rows": {
+        parameters: {
+            query?: {
+                filter?: "all" | "ok" | "errors";
+                page?: number;
+            };
+            header?: never;
+            path: {
+                /** @description The import UUID */
+                import: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            line: number;
+                            /** @enum {string} */
+                            status: "ok" | "invalid" | "duplicate";
+                            reasons: string[];
+                            full_name: string | null;
+                            group: string | null;
+                            identifier: string | null;
+                            email: string | null;
+                            phone: string | null;
+                        }[];
+                        meta: {
+                            page: number;
+                            per_page: number;
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            /** @description An error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "voterImport.confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The import UUID */
+                import: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `VoterImportResource` */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            election: string;
+                            /** @enum {string} */
+                            status: "uploaded" | "checked" | "importing" | "done" | "failed";
+                            original_name: string;
+                            columns: string[];
+                            mapping: {
+                                full_name: number | null;
+                                group: number | null;
+                                identifier: number | null;
+                                email: number | null;
+                                phone: number | null;
+                            } | null;
+                            total_rows: number;
+                            valid_rows: number;
+                            invalid_rows: number;
+                            duplicate_rows: number;
+                            new_groups: string[];
+                            processed_rows: number;
+                            imported_rows: number;
+                            failure: string | null;
+                            has_error_file: boolean;
+                            created_at: string;
+                            finished_at: string | null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "voterImport.errors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The import UUID */
+                import: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    "Content-Disposition"?: "attachment; filename=\"erreurs-electeurs.xlsx\"";
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            /** @description An error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
+                    };
+                };
+            };
         };
     };
 }

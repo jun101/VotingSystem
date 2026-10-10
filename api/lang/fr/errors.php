@@ -34,4 +34,8 @@ return [
     'group_in_use' => 'Ce groupe a encore des électeurs. Déplacez-les ou fusionnez le groupe.',
     'election_not_deletable' => 'Cette élection ne peut plus être supprimée.',
     'cannot_reset_self' => 'Utilisez votre page « Mon compte » pour désactiver votre propre double authentification.',
+    'import_in_progress' => 'Un import est déjà en cours pour cette élection.',
+    'import_not_checked' => 'Cet import n’est pas prêt: attendez la fin de la vérification.',
+    'nothing_to_import' => 'Aucune ligne valide à importer: corrigez le fichier ou le choix des colonnes.',
+    'no_error_file' => 'Cet import n’a aucune ligne rejetée: il n’y a pas de fichier d’erreurs.',
 ];

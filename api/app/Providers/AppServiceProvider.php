@@ -10,11 +10,13 @@ use App\Models\Party;
 use App\Models\User;
 use App\Models\Voter;
 use App\Models\VoterGroup;
+use App\Models\VoterImport;
 use App\Policies\BallotPolicy;
 use App\Policies\CandidatePolicy;
 use App\Policies\ElectionPolicy;
 use App\Policies\PartyPolicy;
 use App\Policies\VoterGroupPolicy;
+use App\Policies\VoterImportPolicy;
 use App\Policies\VoterPolicy;
 use Dedoc\Scramble\Scramble;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -48,6 +50,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Party::class, PartyPolicy::class);
         Gate::policy(Voter::class, VoterPolicy::class);
         Gate::policy(VoterGroup::class, VoterGroupPolicy::class);
+        Gate::policy(VoterImport::class, VoterImportPolicy::class);
         Gate::policy(Candidate::class, CandidatePolicy::class);
 
         $this->configureRateLimiters();
@@ -168,6 +171,11 @@ class AppServiceProvider extends ServiceProvider
         // The candidates (docs/api/candidates/): 120 an hour per user to add, change and delete, 240 to put in order.
         RateLimiter::for('candidates-write', fn (Request $request) => Limit::perHour($times(120))->by($byUser($request)));
         RateLimiter::for('candidates-order', fn (Request $request) => Limit::perHour($times(240))->by($byUser($request)));
+
+        // The voter import (docs/api/voter-imports/): 20 uploads an hour per user; every other import
+        // route (template, summary, mapping, rows, confirm, errors, cancel) shares 240 an hour.
+        RateLimiter::for('voter-imports-upload', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
+        RateLimiter::for('voter-imports', fn (Request $request) => Limit::perHour($times(240))->by($byUser($request)));
 
         // The logo of a party: 20 an hour per user, as a cover (the removal counts with the writes).
         RateLimiter::for('party-logo', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));

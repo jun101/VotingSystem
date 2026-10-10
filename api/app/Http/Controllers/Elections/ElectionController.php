@@ -17,6 +17,7 @@ use App\Models\Election;
 use App\Models\Party;
 use App\Models\User;
 use App\Models\Voter;
+use App\Models\VoterImport;
 use App\Support\Media\ImageReEncoder;
 use Dedoc\Scramble\Attributes\Response;
 use Illuminate\Http\JsonResponse;
@@ -24,6 +25,7 @@ use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class ElectionController extends Controller
@@ -147,8 +149,9 @@ class ElectionController extends Controller
         $cover = null;
         $photos = [];
         $logos = [];
+        $imports = [];
 
-        DB::transaction(function () use ($election, &$cover, &$photos, &$logos): void {
+        DB::transaction(function () use ($election, &$cover, &$photos, &$logos, &$imports): void {
             // The state is read again under the lock: a change that landed meanwhile counts.
             $locked = Election::query()->whereKey($election->getKey())->lockForUpdate()->first();
 
@@ -162,6 +165,8 @@ class ElectionController extends Controller
             // files after the commit).
             $photos = Candidate::query()->where('election_id', $locked->id)->whereNotNull('photo_file')->pluck('photo_file')->all();
             $logos = Party::query()->where('election_id', $locked->id)->whereNotNull('logo_file')->pluck('logo_file')->all();
+            // The uploaded voter files go with it (the import rows by cascade, the files after the commit).
+            $imports = VoterImport::query()->where('election_id', $locked->id)->pluck('stored_file')->all();
             // The voters go before the election: a group with voters is restricted, and the cascade
             // from the election may reach the groups first.
             Voter::query()->where('election_id', $locked->id)->delete();
@@ -177,6 +182,8 @@ class ElectionController extends Controller
         foreach ($logos as $logo) {
             $images->delete(is_string($logo) ? $logo : null, ImageReEncoder::PARTY_LOGO_SIZES);
         }
+
+        Storage::disk('imports')->delete(array_values(array_filter($imports, is_string(...))));
 
         Log::info('election.delete', ['outcome' => 'deleted']);
 

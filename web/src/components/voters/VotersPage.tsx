@@ -24,6 +24,7 @@ import { MergeGroupDialog } from './MergeGroupDialog';
 import { VoterCard } from './VoterCard';
 import { VoterModal } from './VoterModal';
 import { SEARCH_MAX, queryOf, sameFilters } from './voterQuery';
+import { importAllowed } from './importRules';
 import { rulesOf } from './voterRules';
 import { groupsText, pageCount, pageItems, rangeText, votersText } from './voterText';
 
@@ -43,6 +44,11 @@ const CHIP =
 /** The coral main action on the header band. */
 const ADD =
   'ui-control lift-sm inline-flex h-12 items-center justify-center gap-2 rounded-full border border-accent bg-accent pr-5.5 pl-4 text-md font-bold text-deep shadow-button max-md:w-full ' +
+  focusRing;
+
+/** The glass link of the import, beside the main action. */
+const IMPORT =
+  'ui-control inline-flex h-12 items-center justify-center gap-2 rounded-full border border-glass-line bg-glass pr-5 pl-4 text-md font-semibold text-surface hover:bg-glass-line max-md:w-full ' +
   focusRing;
 
 /** A filter chip under the search: a group name and its count. */
@@ -345,6 +351,16 @@ export function VotersPage({
 
         {rules.write ? (
           <div className="relative z-10 flex w-full flex-wrap gap-2.5 md:ml-auto md:w-auto">
+            {importAllowed(election.status) && !lockedSeen ? (
+              <Link
+                href={`/admin/elections/${election.id}/voters/import`}
+                data-testid="voters-import"
+                className={IMPORT}
+              >
+                <Icon path="M12 16V4M6 10l6-6 6 6M4 20h16" size={18} />
+                {t('voters.import')}
+              </Link>
+            ) : null}
             <button
               ref={addButton}
               type="button"
@@ -586,7 +602,7 @@ export function VotersPage({
         <aside
           data-testid="voters-rail"
           aria-label={t('voters.rail.label')}
-          className="flex w-full flex-wrap gap-4.5 2xl:sticky 2xl:top-20 2xl:w-[340px] 2xl:shrink-0 2xl:flex-col"
+          className="flex w-full flex-wrap items-start gap-4.5 2xl:sticky 2xl:top-20 2xl:w-[340px] 2xl:shrink-0 2xl:flex-col 2xl:flex-nowrap 2xl:items-stretch"
         >
           <GroupsCard
             groups={groups.items}
