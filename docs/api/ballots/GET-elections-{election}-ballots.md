@@ -47,6 +47,7 @@ Order: `position` ascending, then creation order.
       "seats": 1,
       "allow_blank": true,
       "candidates_count": 0,
+      "candidates": [],
       "created_at": "2026-10-10T14:02:11Z",
       "updated_at": "2026-10-10T14:02:11Z"
     }
@@ -55,7 +56,7 @@ Order: `position` ascending, then creation order.
 }
 ```
 
-`id` is the ballot's UUID. `position` is 1, 2, 3… with no gap. `candidates_count` is `0` until slice 06c.
+`id` is the ballot's UUID. `position` is 1, 2, 3… with no gap. `candidates` (from slice 06c) holds the ballot's candidates in order, each as the resource of [POST /ballots/{ballot}/candidates](../candidates/POST-ballots-{ballot}-candidates.md); `candidates_count` is its length (`0` and `[]` before 06c).
 No numeric id, no `election_id`, no `institution_id` appears.
 
 ### 404, 401, 403, 405
@@ -64,5 +65,5 @@ The shared error shape of [API conventions](../README.md). Scenario 4 gives the 
 
 ## Notes
 
-- Slice 06c adds `candidates` (the candidates of each ballot, in order) to every item; slice 09 adds `scope` and `groups`.
+- Slice 09 adds `scope` and `groups` to every item.
 - `result_note` of the schema is not output here: it is read by the results slices.

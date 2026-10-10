@@ -34,7 +34,7 @@ it('lists the ballots in display order with the documented fields [FR-BAL-01] (s
 
     expect(array_column($response->json('data'), 'id'))->toBe([$first, $second])
         ->and($response->json('data.1'))->toMatchArray(['id' => $second, 'title' => 'Secrétaire', 'description' => 'Un poste', 'position' => 2, 'seats' => 2, 'allow_blank' => false, 'candidates_count' => 0])
-        ->and(array_keys($response->json('data.1')))->toEqualCanonicalizing(['id', 'title', 'description', 'position', 'seats', 'allow_blank', 'candidates_count', 'created_at', 'updated_at'])
+        ->and(array_keys($response->json('data.1')))->toEqualCanonicalizing(['id', 'title', 'description', 'position', 'seats', 'allow_blank', 'candidates_count', 'candidates', 'created_at', 'updated_at'])
         ->and($response->json('meta.total'))->toBe(2);
 });
 

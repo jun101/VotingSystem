@@ -282,3 +282,7 @@ Filled slice by slice: each slice adds its endpoints here with a link to their f
 | Parties | `DELETE /parties/{party}` | 06b | [parties/DELETE-parties-{party}.md](parties/DELETE-parties-{party}.md) |
 | Parties | `PUT /parties/{party}/logo` | 06b2 | [parties/PUT-parties-{party}-logo.md](parties/PUT-parties-{party}-logo.md) |
 | Parties | `DELETE /parties/{party}/logo` | 06b2 | [parties/DELETE-parties-{party}-logo.md](parties/DELETE-parties-{party}-logo.md) |
+| Candidates | `POST /ballots/{ballot}/candidates` | 06c | [candidates/POST-ballots-{ballot}-candidates.md](candidates/POST-ballots-{ballot}-candidates.md) |
+| Candidates | `PUT /ballots/{ballot}/candidates/order` | 06c | [candidates/PUT-ballots-{ballot}-candidates-order.md](candidates/PUT-ballots-{ballot}-candidates-order.md) |
+| Candidates | `PATCH /candidates/{candidate}` | 06c | [candidates/PATCH-candidates-{candidate}.md](candidates/PATCH-candidates-{candidate}.md) |
+| Candidates | `DELETE /candidates/{candidate}` | 06c | [candidates/DELETE-candidates-{candidate}.md](candidates/DELETE-candidates-{candidate}.md) |

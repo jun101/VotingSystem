@@ -361,6 +361,59 @@ final class Accounts
         return $db->table('parties')->where('election_id', $id)->orderBy('name_key')->orderBy('id')->get()->map(fn ($row) => (array) $row)->all();
     }
 
+    /**
+     * Inserts a candidate straight into the database (slice 06c). Options: `ballot` (uuid, required), `party`
+     * (uuid or null), `first_name`, `last_name`, `sex`, `slogan`, `biography`, `position`. The institution and the
+     * election are the ballot's. Returns the uuid.
+     */
+    public static function plantCandidate(array $o): string
+    {
+        $db = DB::connection(useMigratorConnection());
+        $ballot = $db->table('ballots')->where('uuid', $o['ballot'])->first();
+        $uuid = Uuid::uuid4()->toString();
+        $now = Carbon::now('UTC')->format('Y-m-d H:i:s');
+
+        $db->table('candidates')->insert([
+            'uuid' => $uuid,
+            'institution_id' => $ballot->institution_id,
+            'election_id' => $ballot->election_id,
+            'ballot_id' => $ballot->id,
+            'party_id' => isset($o['party']) ? $db->table('parties')->where('uuid', $o['party'])->value('id') : null,
+            'first_name' => $o['first_name'] ?? 'Prénom',
+            'last_name' => $o['last_name'] ?? 'Nom '.bin2hex(random_bytes(2)),
+            'sex' => $o['sex'] ?? 'female',
+            'slogan' => $o['slogan'] ?? null,
+            'biography' => $o['biography'] ?? null,
+            'photo_file' => null,
+            'position' => $o['position'] ?? ((int) $db->table('candidates')->where('ballot_id', $ballot->id)->max('position') + 1),
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+
+        return $uuid;
+    }
+
+    /** One row of `candidates` by uuid, as an array, or null. */
+    public static function candidateRow(string $uuid): ?array
+    {
+        $row = DB::connection(useMigratorConnection())->table('candidates')->where('uuid', $uuid)->first();
+
+        return $row === null ? null : (array) $row;
+    }
+
+    /**
+     * The rows of `candidates` of one ballot (its uuid), in display order.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function candidateRows(string $ballot): array
+    {
+        $db = DB::connection(useMigratorConnection());
+        $id = $db->table('ballots')->where('uuid', $ballot)->value('id');
+
+        return $db->table('candidates')->where('ballot_id', $id)->orderBy('position')->orderBy('id')->get()->map(fn ($row) => (array) $row)->all();
+    }
+
     /** A new random token of the right shape: 64 hexadecimal characters. */
     public static function token(): string
     {
