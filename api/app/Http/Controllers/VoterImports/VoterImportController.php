@@ -10,10 +10,13 @@ use App\Http\Requests\VoterImports\TemplateRequest;
 use App\Http\Requests\VoterImports\UpdateImportMappingRequest;
 use App\Http\Resources\VoterImportResource;
 use App\Jobs\CheckVoterImport;
+use App\Jobs\RunVoterImport;
 use App\Models\Election;
 use App\Models\User;
+use App\Models\Voter;
 use App\Models\VoterImport;
 use App\Models\VoterImportRow;
+use App\Support\Imports\ErrorFileWriter;
 use App\Support\Imports\ImportFileInspector;
 use App\Support\Imports\VoterFileTemplate;
 use Dedoc\Scramble\Attributes\Response;
@@ -275,6 +278,123 @@ class VoterImportController extends Controller
             ])->values()->all(),
             'meta' => ['page' => $page->currentPage(), 'per_page' => $page->perPage(), 'total' => $page->total()],
         ]);
+    }
+
+    /**
+     * Confirm a checked import.
+     *
+     * The valid rows are written in the background, in chunks of 500, each one in a transaction
+     * that locks the election first; the duplicates are judged again against the voters that
+     * exist then. Answers 202 with the import (status `importing`); poll the import for the
+     * progress. A draft or scheduled election (409 `election_voters_locked`), a `checked` import
+     * (409 `import_not_checked`), at least one valid row (409 `nothing_to_import`), at most
+     * 10 000 voters in all (409 `voter_limit_reached`). Owner or manager. Limited to 240 requests
+     * per hour per user.
+     */
+    #[Response(status: 202, type: 'array{data: array{id: string, election: string, status: "uploaded"|"checked"|"importing"|"done"|"failed", original_name: string, columns: list<string>, mapping: array{full_name: int|null, group: int|null, identifier: int|null, email: int|null, phone: int|null}|null, total_rows: int, valid_rows: int, invalid_rows: int, duplicate_rows: int, new_groups: list<string>, processed_rows: int, imported_rows: int, failure: string|null, has_error_file: bool, created_at: string, finished_at: string|null}}')]
+    public function confirm(VoterImport $import): JsonResponse
+    {
+        $this->allow('update', $import);
+
+        $this->electionOf($import)->assertVotersDeletable();
+        $this->assertConfirmable($import, null);
+
+        $confirmed = DB::transaction(function () use ($import): VoterImport {
+            // Locked first, as every write of the election's voters.
+            $election = Election::query()->whereKey($import->election_id)->lockForUpdate()->first();
+
+            if ($election === null) {
+                throw new ApiException(404, 'not_found');
+            }
+
+            $election->assertVotersDeletable();
+
+            $locked = VoterImport::query()->whereKey($import->getKey())->lockForUpdate()->first();
+
+            if ($locked === null) {
+                throw new ApiException(404, 'not_found');
+            }
+
+            $this->assertConfirmable($locked, Voter::query()->where('election_id', $election->id)->count());
+
+            $locked->forceFill([
+                'status' => VoterImportStatus::Importing,
+                'failure' => null,
+                'processed_rows' => 0,
+                'imported_rows' => 0,
+                'finished_at' => null,
+            ])->save();
+            $locked->setRelation('election', $election);
+
+            return $locked;
+        });
+
+        try {
+            RunVoterImport::dispatch($confirmed->uuid);
+        } catch (Throwable $e) {
+            // The queue could not be reached: nothing will write, so the import is confirmable again.
+            $confirmed->forceFill(['status' => VoterImportStatus::Checked])->save();
+
+            throw $e;
+        }
+
+        Log::info('voter_import.confirm', ['outcome' => 'queued']);
+
+        return (new VoterImportResource($confirmed))->response()->setStatusCode(202);
+    }
+
+    /**
+     * Download the rejected rows.
+     *
+     * An `.xlsx` with the template columns, then `ligne` (the line in the uploaded file) and
+     * `raison` (the reasons in words, in the signed-in user's language); the values are the
+     * original cells, and a text beginning with `=`, `+`, `-` or `@` is prefixed with `'`. A
+     * `checked` or `done` import with rejected rows (409 `no_error_file`). Owner or manager.
+     * Limited to 240 requests per hour per user.
+     */
+    public function errors(Request $request, VoterImport $import, ErrorFileWriter $writer): HttpResponse
+    {
+        $this->allow('view', $import);
+
+        if (! $import->hasErrorFile()) {
+            throw new ApiException(409, 'no_error_file');
+        }
+
+        $user = $request->user();
+        $language = $user instanceof User && $user->language === 'en' ? 'en' : 'fr';
+
+        $rows = VoterImportRow::query()
+            ->where('voter_import_id', $import->id)
+            ->where('status', '!=', 'ok')
+            ->orderBy('line')
+            ->cursor();
+
+        return response($writer->xlsx($rows, $language), 200, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="erreurs-electeurs.xlsx"',
+            'Cache-Control' => 'no-store',
+        ]);
+    }
+
+    /**
+     * The state checks of a confirmation, in the contract's order. `$voters` is the election's
+     * voter count, known once the election is locked.
+     */
+    private function assertConfirmable(VoterImport $import, ?int $voters): void
+    {
+        if ($import->status !== VoterImportStatus::Checked) {
+            throw new ApiException(409, 'import_not_checked');
+        }
+
+        if ($import->valid_rows < 1) {
+            throw new ApiException(409, 'nothing_to_import');
+        }
+
+        $voters ??= Voter::query()->where('election_id', $import->election_id)->count();
+
+        if ($voters + $import->valid_rows > Voter::LIMIT) {
+            throw new ApiException(409, 'voter_limit_reached');
+        }
     }
 
     /**

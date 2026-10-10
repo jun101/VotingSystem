@@ -26,7 +26,7 @@ use Illuminate\Validation\ValidationException;
 class VoterController extends Controller
 {
     /** An election holds at most this many voters. */
-    private const LIMIT = 10000;
+    private const LIMIT = Voter::LIMIT;
 
     /**
      * List the voters of an election.

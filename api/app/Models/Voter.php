@@ -27,6 +27,9 @@ class Voter extends Model
     use BelongsToInstitution;
     use HasUuid;
 
+    /** An election holds at most this many voters. */
+    public const LIMIT = 10000;
+
     // The institution, the election and the group are never mass-assigned.
     /** @var list<string> */
     protected $fillable = ['full_name', 'identifier', 'email', 'phone'];

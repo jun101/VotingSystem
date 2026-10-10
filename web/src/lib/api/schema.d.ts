@@ -1171,6 +1171,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/voter-imports/{import}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm a checked import
+         * @description The valid rows are written in the background, in chunks of 500, each one in a transaction
+         *     that locks the election first; the duplicates are judged again against the voters that
+         *     exist then. Answers 202 with the import (status `importing`); poll the import for the
+         *     progress. A draft or scheduled election (409 `election_voters_locked`), a `checked` import
+         *     (409 `import_not_checked`), at least one valid row (409 `nothing_to_import`), at most
+         *     10 000 voters in all (409 `voter_limit_reached`). Owner or manager. Limited to 240 requests
+         *     per hour per user.
+         */
+        post: operations["voterImport.confirm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/voter-imports/{import}/errors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download the rejected rows
+         * @description An `.xlsx` with the template columns, then `ligne` (the line in the uploaded file) and
+         *     `raison` (the reasons in words, in the signed-in user's language); the values are the
+         *     original cells, and a text beginning with `=`, `+`, `-` or `@` is prefixed with `'`. A
+         *     `checked` or `done` import with rejected rows (409 `no_error_file`). Owner or manager.
+         *     Limited to 240 requests per hour per user.
+         */
+        get: operations["voterImport.errors"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -4255,6 +4305,99 @@ export interface operations {
                 };
             };
             422: components["responses"]["ValidationException"];
+        };
+    };
+    "voterImport.confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The import UUID */
+                import: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `VoterImportResource` */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            election: string;
+                            /** @enum {string} */
+                            status: "uploaded" | "checked" | "importing" | "done" | "failed";
+                            original_name: string;
+                            columns: string[];
+                            mapping: {
+                                full_name: number | null;
+                                group: number | null;
+                                identifier: number | null;
+                                email: number | null;
+                                phone: number | null;
+                            } | null;
+                            total_rows: number;
+                            valid_rows: number;
+                            invalid_rows: number;
+                            duplicate_rows: number;
+                            new_groups: string[];
+                            processed_rows: number;
+                            imported_rows: number;
+                            failure: string | null;
+                            has_error_file: boolean;
+                            created_at: string;
+                            finished_at: string | null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "voterImport.errors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The import UUID */
+                import: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    "Content-Disposition"?: "attachment; filename=\"erreurs-electeurs.xlsx\"";
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            /** @description An error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
+                    };
+                };
+            };
         };
     };
 }

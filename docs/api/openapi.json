@@ -6938,6 +6938,261 @@
                     }
                 }
             }
+        },
+        "/v1/voter-imports/{import}/confirm": {
+            "post": {
+                "operationId": "voterImport.confirm",
+                "description": "The valid rows are written in the background, in chunks of 500, each one in a transaction\nthat locks the election first; the duplicates are judged again against the voters that\nexist then. Answers 202 with the import (status `importing`); poll the import for the\nprogress. A draft or scheduled election (409 `election_voters_locked`), a `checked` import\n(409 `import_not_checked`), at least one valid row (409 `nothing_to_import`), at most\n10 000 voters in all (409 `voter_limit_reached`). Owner or manager. Limited to 240 requests\nper hour per user.",
+                "summary": "Confirm a checked import",
+                "tags": [
+                    "VoterImport"
+                ],
+                "parameters": [
+                    {
+                        "name": "import",
+                        "in": "path",
+                        "required": true,
+                        "description": "The import UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "`VoterImportResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "election": {
+                                                    "type": "string"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "uploaded",
+                                                        "checked",
+                                                        "importing",
+                                                        "done",
+                                                        "failed"
+                                                    ]
+                                                },
+                                                "original_name": {
+                                                    "type": "string"
+                                                },
+                                                "columns": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "mapping": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "full_name": {
+                                                            "type": [
+                                                                "integer",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "group": {
+                                                            "type": [
+                                                                "integer",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "identifier": {
+                                                            "type": [
+                                                                "integer",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "email": {
+                                                            "type": [
+                                                                "integer",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "phone": {
+                                                            "type": [
+                                                                "integer",
+                                                                "null"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "full_name",
+                                                        "group",
+                                                        "identifier",
+                                                        "email",
+                                                        "phone"
+                                                    ]
+                                                },
+                                                "total_rows": {
+                                                    "type": "integer"
+                                                },
+                                                "valid_rows": {
+                                                    "type": "integer"
+                                                },
+                                                "invalid_rows": {
+                                                    "type": "integer"
+                                                },
+                                                "duplicate_rows": {
+                                                    "type": "integer"
+                                                },
+                                                "new_groups": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "processed_rows": {
+                                                    "type": "integer"
+                                                },
+                                                "imported_rows": {
+                                                    "type": "integer"
+                                                },
+                                                "failure": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "has_error_file": {
+                                                    "type": "boolean"
+                                                },
+                                                "created_at": {
+                                                    "type": "string"
+                                                },
+                                                "finished_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "election",
+                                                "status",
+                                                "original_name",
+                                                "columns",
+                                                "mapping",
+                                                "total_rows",
+                                                "valid_rows",
+                                                "invalid_rows",
+                                                "duplicate_rows",
+                                                "new_groups",
+                                                "processed_rows",
+                                                "imported_rows",
+                                                "failure",
+                                                "has_error_file",
+                                                "created_at",
+                                                "finished_at"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/v1/voter-imports/{import}/errors": {
+            "get": {
+                "operationId": "voterImport.errors",
+                "description": "An `.xlsx` with the template columns, then `ligne` (the line in the uploaded file) and\n`raison` (the reasons in words, in the signed-in user's language); the values are the\noriginal cells, and a text beginning with `=`, `+`, `-` or `@` is prefixed with `'`. A\n`checked` or `done` import with rejected rows (409 `no_error_file`). Owner or manager.\nLimited to 240 requests per hour per user.",
+                "summary": "Download the rejected rows",
+                "tags": [
+                    "VoterImport"
+                ],
+                "parameters": [
+                    {
+                        "name": "import",
+                        "in": "path",
+                        "required": true,
+                        "description": "The import UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Content-Disposition": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "attachment; filename=\"erreurs-electeurs.xlsx\""
+                                }
+                            },
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                ""
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
         }
     },
     "components": {

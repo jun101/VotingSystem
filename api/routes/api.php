@@ -116,11 +116,13 @@ Route::prefix('v1')->group(function (): void {
         Route::post('/{election}/voter-imports', [VoterImportController::class, 'store'])->middleware('throttle:voter-imports-upload');
     });
 
-    // An import: its summary, its mapping, its rows (slice 08a). Confirm and the error file come with 08b.
+    // An import: its summary, its mapping, its rows (slice 08a). Confirm and the error file (08b).
     Route::middleware(['cookie-session', 'auth', 'institution.active'])->prefix('voter-imports')->group(function (): void {
         Route::get('/{import}', [VoterImportController::class, 'show'])->middleware('throttle:voter-imports');
         Route::patch('/{import}', [VoterImportController::class, 'update'])->middleware('throttle:voter-imports');
         Route::get('/{import}/rows', [VoterImportController::class, 'rows'])->middleware('throttle:voter-imports');
+        Route::post('/{import}/confirm', [VoterImportController::class, 'confirm'])->middleware('throttle:voter-imports');
+        Route::get('/{import}/errors', [VoterImportController::class, 'errors'])->middleware('throttle:voter-imports');
         Route::delete('/{import}', [VoterImportController::class, 'destroy'])->middleware('throttle:voter-imports');
     });
 
