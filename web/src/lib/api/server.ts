@@ -3,6 +3,7 @@ import { cache } from 'react';
 import { createApiClient } from './client';
 import type { Ballot } from './ballots';
 import type { Party } from './parties';
+import type { VoterImport } from './voterImports';
 import type { GroupList, VoterFilters, VoterList } from './voters';
 import { VOTERS_PER_PAGE } from './voters';
 import type { Election, ElectionFilters, ElectionList } from './elections';
@@ -246,5 +247,24 @@ export async function fetchElectionGroups(id: string): Promise<GroupList | null>
       votersTotal: data.meta.voters_total,
       ungrouped: data.meta.ungrouped,
     };
+  });
+}
+
+/**
+ * An import of the institution, 'missing' when it does not exist (a malformed id and another
+ * institution's import: the same answer), null when the API does not answer at all.
+ */
+export async function fetchVoterImport(id: string): Promise<VoterImport | 'missing' | null> {
+  return authorizedGet(async (headers) => {
+    const { data, response } = await createApiClient().GET('/v1/voter-imports/{import}', {
+      headers,
+      params: { path: { import: id } },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(4000),
+    });
+
+    if (response.status === 404) return 'missing';
+
+    return response.ok && data ? data.data : null;
   });
 }

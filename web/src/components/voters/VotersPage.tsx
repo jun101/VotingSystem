@@ -602,7 +602,7 @@ export function VotersPage({
         <aside
           data-testid="voters-rail"
           aria-label={t('voters.rail.label')}
-          className="flex w-full flex-wrap gap-4.5 2xl:sticky 2xl:top-20 2xl:w-[340px] 2xl:shrink-0 2xl:flex-col"
+          className="flex w-full flex-wrap items-start gap-4.5 2xl:sticky 2xl:top-20 2xl:w-[340px] 2xl:shrink-0 2xl:flex-col 2xl:flex-nowrap 2xl:items-stretch"
         >
           <GroupsCard
             groups={groups.items}

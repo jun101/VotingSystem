@@ -392,7 +392,10 @@
     "voter_limit_reached": "Une élection ne peut pas avoir plus de 10 000 électeurs.",
     "group_limit_reached": "Une élection ne peut pas avoir plus de 100 groupes.",
     "group_in_use": "Ce groupe a encore des électeurs. Déplacez-les ou fusionnez le groupe.",
-    "import_in_progress": "Un import est déjà en cours pour cette élection. Attendez qu’il se termine, ou annulez-le."
+    "import_in_progress": "Un import est déjà en cours pour cette élection. Attendez qu’il se termine, ou annulez-le.",
+    "import_not_checked": "Ce fichier n’est plus à l’étape de vérification. Rechargez la page.",
+    "nothing_to_import": "Aucune ligne n’est prête à être importée.",
+    "no_error_file": "Il n’y a pas de ligne rejetée à télécharger."
   },
   "validation": {
     "required": "Ce champ est obligatoire.",
@@ -1440,6 +1443,166 @@
         "invalid_type": "Ce fichier n’est ni un classeur Excel (.xlsx) ni un fichier texte CSV. Utilisez le modèle.",
         "empty": "Ce fichier est vide.",
         "too_large": "Ce fichier est trop gros : 5 Mo au plus."
+      }
+    },
+    "check": {
+      "title": "Vérifier le fichier",
+      "text": "Rien n’est encore importé. Contrôlez, puis confirmez.",
+      "badge": "Brouillon · électeurs",
+      "chips": {
+        "rows": {
+          "one": "{count} ligne",
+          "other": "{count} lignes"
+        },
+        "ready": {
+          "one": "{count} prête",
+          "other": "{count} prêtes"
+        },
+        "toFix": {
+          "one": "{count} à corriger",
+          "other": "{count} à corriger"
+        }
+      },
+      "checking": {
+        "title": "Vérification du fichier…",
+        "text": "Nous lisons chaque ligne. Cela prend quelques secondes, même pour un grand fichier."
+      },
+      "failed": {
+        "title": "Ce fichier ne peut pas être utilisé",
+        "retry": "Choisir un autre fichier"
+      },
+      "failure": {
+        "no_header": "Le fichier n’a pas de ligne d’en-tête : la première ligne doit nommer les colonnes. Utilisez le modèle.",
+        "no_full_name_column": "Aucune colonne ne contient le nom complet. Ajoutez une colonne « nom_complet » ou utilisez le modèle.",
+        "too_many_rows": "Ce fichier a plus de 10 000 lignes. Coupez-le en plusieurs fichiers.",
+        "unreadable": "Ce fichier n’a pas pu être lu. Utilisez le modèle, en Excel (.xlsx) ou en CSV.",
+        "import_failed": "L’import s’est arrêté en route. Les électeurs déjà écrits sont conservés ; vérifiez la liste, puis importez le reste.",
+        "unknown": "Ce fichier n’a pas pu être traité. Réessayez avec le modèle."
+      },
+      "summary": {
+        "zone": "Résumé",
+        "title": "Résumé du fichier",
+        "file": "{name} · {rows}",
+        "total": "lignes lues",
+        "valid": "prêtes à importer",
+        "invalid": "en erreur",
+        "duplicates": "doublons",
+        "groupsTitle": "Groupes qui seront créés",
+        "groups": {
+          "one": "{count} nouveau groupe sera créé :",
+          "other": "{count} nouveaux groupes seront créés :"
+        },
+        "noGroups": "Aucun nouveau groupe ne sera créé."
+      },
+      "mapping": {
+        "zone": "Colonnes",
+        "title": "Colonnes",
+        "text": "Nous avons reconnu les colonnes. Corrigez si besoin ; l’aperçu se met à jour.",
+        "field": {
+          "full_name": "Nom complet",
+          "group": "Groupe",
+          "identifier": "Identifiant",
+          "email": "Courriel",
+          "phone": "Téléphone"
+        },
+        "skip": "Ne pas importer",
+        "column": "Colonne {n}",
+        "required": "obligatoire",
+        "invalid": "Cette combinaison de colonnes n’est pas possible : le nom complet est obligatoire et une colonne ne sert qu’à un champ."
+      },
+      "preview": {
+        "zone": "Aperçu",
+        "title": "Aperçu ligne par ligne",
+        "onlyErrors": "Voir seulement les erreurs ({count})",
+        "errorFile": "Fichier des erreurs",
+        "line": "Ligne",
+        "state": "État",
+        "empty": "(vide)",
+        "none": "Aucune ligne à afficher.",
+        "loading": "Chargement des lignes…",
+        "loadFailed": "Les lignes n’ont pas pu être lues. Réessayez dans un instant.",
+        "scroll": "Aperçu des lignes du fichier",
+        "range": {
+          "one": "{from} sur {total} ligne",
+          "other": "{from} à {to} sur {total} lignes"
+        },
+        "pager": "Pages de l’aperçu",
+        "prev": "Page précédente",
+        "next": "Page suivante",
+        "page": "Page {page} sur {pages}"
+      },
+      "status": {
+        "ok": "Prêt",
+        "duplicate": "Doublon"
+      },
+      "reason": {
+        "full_name_required": "Nom manquant",
+        "full_name_max": "Nom trop long",
+        "group_max": "Groupe trop long",
+        "identifier_max": "Identifiant trop long",
+        "email_invalid": "Courriel invalide",
+        "email_max": "Courriel trop long",
+        "phone_invalid": "Téléphone invalide",
+        "phone_max": "Téléphone trop long",
+        "group_limit_reached": "Trop de groupes (100 au plus)",
+        "duplicate_identifier_in_file": "Doublon : identifiant déjà dans le fichier",
+        "duplicate_email_in_file": "Doublon : courriel déjà dans le fichier",
+        "identifier_exists": "Identifiant déjà dans l’élection",
+        "email_exists": "Courriel déjà dans l’élection",
+        "unknown": "Ligne à corriger"
+      },
+      "confirm": {
+        "zone": "Confirmer",
+        "ready": {
+          "one": "{count} électeur sera importé.",
+          "other": "{count} électeurs seront importés."
+        },
+        "rest": {
+          "one": "L’autre ligne ne sera pas importée ; vous pouvez la corriger dans le fichier des erreurs.",
+          "other": "Les {count} autres lignes ne seront pas importées ; vous pouvez les corriger dans le fichier des erreurs."
+        },
+        "nothing": "Aucune ligne n’est prête à être importée. Corrigez le fichier ou les colonnes.",
+        "cancel": "Annuler l’import",
+        "cancelling": "Annulation…",
+        "go": {
+          "one": "Importer {count} électeur",
+          "other": "Importer {count} électeurs"
+        },
+        "going": "Lancement…"
+      },
+      "progress": {
+        "title": "Import en cours",
+        "text": "Les électeurs sont écrits en arrière-plan. Vous pouvez quitter la page : l’import continue.",
+        "label": "Progression de l’import",
+        "counts": "{done} sur {total}"
+      },
+      "done": {
+        "title": "Import terminé",
+        "text": "Les électeurs sont dans l’élection, rangés dans leurs groupes.",
+        "count": {
+          "one": "{count} électeur importé",
+          "other": "{count} électeurs importés"
+        },
+        "errors": {
+          "one": "{count} ligne rejetée",
+          "other": "{count} lignes rejetées"
+        },
+        "noErrors": "Aucune ligne rejetée",
+        "errorFile": "Télécharger les lignes rejetées",
+        "voters": "Voir les électeurs"
+      },
+      "gone": "Cet import n’existe plus.",
+      "rail": {
+        "label": "Après l’import",
+        "title": "Ensuite",
+        "background": {
+          "title": "L’import tourne en arrière-plan",
+          "text": "Une barre de progression montre où il en est ; vous pouvez quitter la page."
+        },
+        "codes": {
+          "title": "Les codes viennent après",
+          "text": "Aucun code n’est créé par l’import. Vous les générez à l’étape « Codes »."
+        }
       }
     }
   }

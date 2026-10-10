@@ -392,7 +392,10 @@
     "voter_limit_reached": "An election cannot have more than 10,000 voters.",
     "group_limit_reached": "An election cannot have more than 100 groups.",
     "group_in_use": "This group still has voters. Move them or merge the group.",
-    "import_in_progress": "An import is already under way for this election. Wait for it to finish, or cancel it."
+    "import_in_progress": "An import is already under way for this election. Wait for it to finish, or cancel it.",
+    "import_not_checked": "This file is no longer at the check step. Reload the page.",
+    "nothing_to_import": "No row is ready to import.",
+    "no_error_file": "There is no rejected row to download."
   },
   "validation": {
     "required": "This field is required.",
@@ -1440,6 +1443,166 @@
         "invalid_type": "This file is neither an Excel workbook (.xlsx) nor a CSV text file. Use the template.",
         "empty": "This file is empty.",
         "too_large": "This file is too large: 5 MB at most."
+      }
+    },
+    "check": {
+      "title": "Check the file",
+      "text": "Nothing is imported yet. Review, then confirm.",
+      "badge": "Draft · voters",
+      "chips": {
+        "rows": {
+          "one": "{count} row",
+          "other": "{count} rows"
+        },
+        "ready": {
+          "one": "{count} ready",
+          "other": "{count} ready"
+        },
+        "toFix": {
+          "one": "{count} to fix",
+          "other": "{count} to fix"
+        }
+      },
+      "checking": {
+        "title": "Checking the file…",
+        "text": "We are reading every row. It takes a few seconds, even for a large file."
+      },
+      "failed": {
+        "title": "This file cannot be used",
+        "retry": "Choose another file"
+      },
+      "failure": {
+        "no_header": "The file has no header row: the first row must name the columns. Use the template.",
+        "no_full_name_column": "No column holds the full name. Add a “full_name” column or use the template.",
+        "too_many_rows": "This file has more than 10,000 rows. Split it into several files.",
+        "unreadable": "This file could not be read. Use the template, as Excel (.xlsx) or CSV.",
+        "import_failed": "The import stopped half way. The voters already written are kept; check the list, then import the rest.",
+        "unknown": "This file could not be processed. Try again with the template."
+      },
+      "summary": {
+        "zone": "Summary",
+        "title": "File summary",
+        "file": "{name} · {rows}",
+        "total": "rows read",
+        "valid": "ready to import",
+        "invalid": "with errors",
+        "duplicates": "duplicates",
+        "groupsTitle": "Groups that will be created",
+        "groups": {
+          "one": "{count} new group will be created:",
+          "other": "{count} new groups will be created:"
+        },
+        "noGroups": "No new group will be created."
+      },
+      "mapping": {
+        "zone": "Columns",
+        "title": "Columns",
+        "text": "We recognised the columns. Correct them if needed; the preview updates.",
+        "field": {
+          "full_name": "Full name",
+          "group": "Group",
+          "identifier": "Identifier",
+          "email": "Email",
+          "phone": "Phone"
+        },
+        "skip": "Do not import",
+        "column": "Column {n}",
+        "required": "required",
+        "invalid": "This choice of columns is not possible: the full name is required and a column serves one field only."
+      },
+      "preview": {
+        "zone": "Preview",
+        "title": "Row by row preview",
+        "onlyErrors": "Show only the errors ({count})",
+        "errorFile": "Error file",
+        "line": "Row",
+        "state": "Status",
+        "empty": "(empty)",
+        "none": "No row to show.",
+        "loading": "Loading the rows…",
+        "loadFailed": "The rows could not be read. Try again in a moment.",
+        "scroll": "Preview of the rows of the file",
+        "range": {
+          "one": "{from} of {total} row",
+          "other": "{from} to {to} of {total} rows"
+        },
+        "pager": "Preview pages",
+        "prev": "Previous page",
+        "next": "Next page",
+        "page": "Page {page} of {pages}"
+      },
+      "status": {
+        "ok": "Ready",
+        "duplicate": "Duplicate"
+      },
+      "reason": {
+        "full_name_required": "Name missing",
+        "full_name_max": "Name too long",
+        "group_max": "Group too long",
+        "identifier_max": "Identifier too long",
+        "email_invalid": "Invalid email",
+        "email_max": "Email too long",
+        "phone_invalid": "Invalid phone",
+        "phone_max": "Phone too long",
+        "group_limit_reached": "Too many groups (100 at most)",
+        "duplicate_identifier_in_file": "Duplicate: identifier already in the file",
+        "duplicate_email_in_file": "Duplicate: email already in the file",
+        "identifier_exists": "Identifier already in the election",
+        "email_exists": "Email already in the election",
+        "unknown": "Row to correct"
+      },
+      "confirm": {
+        "zone": "Confirm",
+        "ready": {
+          "one": "{count} voter will be imported.",
+          "other": "{count} voters will be imported."
+        },
+        "rest": {
+          "one": "The other row will not be imported; you can correct it in the error file.",
+          "other": "The other {count} rows will not be imported; you can correct them in the error file."
+        },
+        "nothing": "No row is ready to import. Correct the file or the columns.",
+        "cancel": "Cancel the import",
+        "cancelling": "Cancelling…",
+        "go": {
+          "one": "Import {count} voter",
+          "other": "Import {count} voters"
+        },
+        "going": "Starting…"
+      },
+      "progress": {
+        "title": "Import under way",
+        "text": "The voters are written in the background. You can leave the page: the import goes on.",
+        "label": "Import progress",
+        "counts": "{done} of {total}"
+      },
+      "done": {
+        "title": "Import finished",
+        "text": "The voters are in the election, placed in their groups.",
+        "count": {
+          "one": "{count} voter imported",
+          "other": "{count} voters imported"
+        },
+        "errors": {
+          "one": "{count} row rejected",
+          "other": "{count} rows rejected"
+        },
+        "noErrors": "No row rejected",
+        "errorFile": "Download the rejected rows",
+        "voters": "See the voters"
+      },
+      "gone": "This import no longer exists.",
+      "rail": {
+        "label": "After the import",
+        "title": "What happens next",
+        "background": {
+          "title": "The import runs in the background",
+          "text": "A progress bar shows how far it is; you can leave the page."
+        },
+        "codes": {
+          "title": "Codes come after",
+          "text": "The import creates no code. You generate them in the “Codes” step."
+        }
       }
     }
   }

@@ -17,7 +17,13 @@ import type {
 } from './voters';
 import { VOTERS_PER_PAGE } from './voters';
 import type { paths } from './schema';
-import type { VoterImportUpload } from './voterImports';
+import type {
+  ImportMapping,
+  ImportRowFilter,
+  ImportRowList,
+  VoterImport,
+  VoterImportUpload,
+} from './voterImports';
 import type {
   CurrentUser,
   InstitutionProfile,
@@ -838,4 +844,60 @@ export async function uploadVoterFile(election: string, file: File): Promise<Vot
 
     throw failure;
   }
+}
+
+/** `GET /voter-imports/{import}`: the status, the summary and the progress. */
+export async function fetchVoterImport(id: string): Promise<VoterImport> {
+  const { data } = await send((api) =>
+    api.GET('/v1/voter-imports/{import}', { params: { path: { import: id } } }),
+  );
+
+  return data!.data;
+}
+
+/** `GET /voter-imports/{import}/rows`: a page of the preview (50 rows). */
+export async function fetchImportRows(
+  id: string,
+  filter: ImportRowFilter,
+  page: number,
+): Promise<ImportRowList> {
+  const { data } = await send((api) =>
+    api.GET('/v1/voter-imports/{import}/rows', {
+      params: { path: { import: id }, query: { filter, page } },
+    }),
+  );
+
+  return { items: data!.data, total: data!.meta.total, page: data!.meta.page ?? page };
+}
+
+/** `PATCH /voter-imports/{import}`: the fields given change column; the file is checked again. */
+export async function updateImportMapping(
+  id: string,
+  mapping: Partial<ImportMapping>,
+): Promise<VoterImport> {
+  const { data } = await send((api) =>
+    api.PATCH('/v1/voter-imports/{import}', {
+      params: { path: { import: id } },
+      // The generated type has no body for this call; the endpoint file says `mapping`.
+      body: { mapping } as never,
+    }),
+  );
+
+  return (data as { data: VoterImport }).data;
+}
+
+/** `POST /voter-imports/{import}/confirm`: the valid rows are written in the background. */
+export async function confirmImport(id: string): Promise<VoterImport> {
+  const { data } = await send((api) =>
+    api.POST('/v1/voter-imports/{import}/confirm', { params: { path: { import: id } } }),
+  );
+
+  return (data as { data: VoterImport }).data;
+}
+
+/** `DELETE /voter-imports/{import}`: the file and its rows are deleted. */
+export async function cancelImport(id: string): Promise<void> {
+  await send((api) =>
+    api.DELETE('/v1/voter-imports/{import}', { params: { path: { import: id } } }),
+  );
 }

@@ -153,6 +153,7 @@ test.describe('the check (A10)', () => {
   test('cancels: nothing is imported and the import is gone [FR-VOT-03]', async ({ page }) => {
     const election = await openImport(page);
     await upload(page, MIXED);
+    await expect(page).toHaveURL(/\/voters\/import\/[0-9a-f-]{36}$/);
     const id = importIdOf(page.url());
 
     await page.getByTestId('check-cancel').click();
@@ -167,6 +168,7 @@ test.describe('the import (A10, steps 3 to 4)', () => {
   test('imports the valid rows in the background and shows the result [FR-VOT-03, FR-VOT-04]', async ({ page }) => {
     const election = await openImport(page);
     await upload(page, MIXED);
+    await expect(page).toHaveURL(/\/voters\/import\/[0-9a-f-]{36}$/);
     const id = importIdOf(page.url());
 
     await page.getByTestId('check-confirm').click();
