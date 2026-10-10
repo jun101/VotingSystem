@@ -59,3 +59,7 @@ The shared error shape of [API conventions](../README.md). Order: 404, 422, 409.
 One transaction: the election row is locked, then both groups in a fixed order; the voters are moved, the ballots that
 covered the merged group cover the receiving group (never twice), the group is deleted. This also happens while the
 election is scheduled, although its ballots are otherwise locked. A failure leaves both groups as they were.
+
+**Effect to know** (review of slice 09, decided by Jun): in a scheduled election the voters allowed to vote on a group
+ballot change when its group is merged, although the ballot itself is locked. The manager chose the merge; nothing
+asks again.

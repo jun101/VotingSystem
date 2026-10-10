@@ -45,7 +45,7 @@ A voter whose identifier or email is already used in the target (the check of PO
 | 5 | Some voters repeat an identifier or an email of the target | 201 (they are skipped; `skipped` counts them) | | |
 | 6 | Nothing matches (an empty source, or groups with no voter) | 201 (`copied` 0) | | |
 | 7 | `source` missing or not a UUID; the target itself; unknown, or another institution's (one answer for the last two) | 422 | `validation_failed` (`source: required`, `source: uuid`, `source: same`, `source: invalid`) | |
-| 8 | `groups` is not a list of UUIDs, or holds a group that is not the source's (unknown, another election's or institution's) | 422 | `validation_failed` (`groups: invalid`) | |
+| 8 | `groups` is not a list of UUIDs, holds more than 100 items (checked before any query), or holds a group that is not the source's (unknown, another election's or institution's) | 422 | `validation_failed` (`groups: invalid`) | |
 | 9 | `rename` is not an object, names a group that is not copied, or gives a blank or too long name | 422 | `validation_failed` (`rename: invalid`) | |
 | 10 | The target would pass 10 000 voters | 409 | `voter_limit_reached` | |
 | 11 | The target would pass 100 groups | 409 | `group_limit_reached` | |
