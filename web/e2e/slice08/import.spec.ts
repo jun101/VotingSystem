@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
 import { registerAndEnter } from '../support/admin';
 import { expectAccessible, expectNoSidewaysScroll } from '../support/checks';
@@ -49,8 +50,11 @@ test.describe('the template and the file (A09)', () => {
 
     const [xlsx] = await Promise.all([page.waitForEvent('download'), page.getByTestId('import-template-xlsx').click()]);
     expect(xlsx.suggestedFilename()).toBe('modele-electeurs.xlsx');
+    expect(await xlsx.failure()).toBeNull();
+    expect(readFileSync((await xlsx.path())!).subarray(0, 2).toString()).toBe('PK');
     const [csv] = await Promise.all([page.waitForEvent('download'), page.getByTestId('import-template-csv').click()]);
     expect(csv.suggestedFilename()).toBe('modele-electeurs.csv');
+    expect(readFileSync((await csv.path())!).toString('utf8')).toContain('nom_complet');
   });
 
   test('is reached from the voters page and goes back to it [FR-VOT-03]', async ({ page }) => {
@@ -131,6 +135,23 @@ test.describe('the check (A10)', () => {
     await expect(page.getByTestId('check-invalid')).toContainText('1');
   });
 
+  test('shows every row again when a new mapping clears the last error [FR-VOT-03]', async ({ page }) => {
+    await openImport(page);
+    await upload(page, csvFile([
+      ['Nom', 'Classe', 'Contact'],
+      ['Rose-Marie Désir', '4e année', 'rose@example.ht'],
+      ['', '5e année', 'jean@example.ht'],
+    ]));
+    await expect(page.getByTestId('check-invalid')).toContainText('1');
+    await page.getByTestId('check-filter-errors').click();
+    await expect(page.locator('[data-testid^="check-row-status-"]')).toHaveCount(1);
+
+    await page.getByTestId('map-select-full_name').selectOption('2');
+
+    await expect(page.getByTestId('check-invalid')).toContainText('0');
+    await expect(page.locator('[data-testid^="check-row-status-"]')).toHaveCount(2);
+  });
+
   test('downloads the rejected rows as a file [FR-VOT-03]', async ({ page }) => {
     await openImport(page);
     await upload(page, MIXED);
@@ -138,6 +159,7 @@ test.describe('the check (A10)', () => {
     const [download] = await Promise.all([page.waitForEvent('download'), page.getByTestId('check-error-file').click()]);
 
     expect(download.suggestedFilename()).toBe('erreurs-electeurs.xlsx');
+    expect(readFileSync((await download.path())!).subarray(0, 2).toString()).toBe('PK');
   });
 
   test('says why a file cannot be used [FR-VOT-04]', async ({ page }) => {

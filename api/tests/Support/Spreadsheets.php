@@ -141,6 +141,67 @@ final class Spreadsheets
         return array_values($rows);
     }
 
+
+    /**
+     * A workbook whose `xl/sharedStrings.xml` says it is 100 bytes long and inflates to `$megabytes` MB of text
+     * (a zip bomb with a false declared size). Written in chunks, so the test itself stays small.
+     */
+    public static function bombXlsx(int $megabytes): string
+    {
+        $parts = [
+            '[Content_Types].xml' => '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/></Types>',
+            'xl/workbook.xml' => '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Feuille1" sheetId="1" r:id="rId1"/></sheets></workbook>',
+            'xl/worksheets/sheet1.xml' => '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData><row r="1"><c r="A1" t="s"><v>0</v></c></row></sheetData></worksheet>',
+        ];
+
+        $local = '';
+        $central = '';
+        $count = 0;
+        $entry = function (string $name, string $stored, int $crc, int $declared, int $method) use (&$local, &$central, &$count): void {
+            $offset = strlen($local);
+            $local .= pack('VvvvvvVVVvv', 0x04034b50, 20, 0, $method, 0, 0x21, $crc, strlen($stored), $declared, strlen($name), 0).$name.$stored;
+            $central .= pack('VvvvvvvVVVvvvvvVV', 0x02014b50, 20, 20, 0, $method, 0, 0x21, $crc, strlen($stored), $declared, strlen($name), 0, 0, 0, 0, 0, $offset).$name;
+            $count++;
+        };
+
+        foreach ($parts as $name => $data) {
+            $entry($name, $data, crc32($data), strlen($data), 0);
+        }
+
+        $deflate = deflate_init(ZLIB_ENCODING_RAW);
+        $hash = hash_init('crc32b');
+        $chunk = str_repeat('a', 1024 * 1024);
+        $compressed = '<?xml version="1.0"?><sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" uniqueCount="1"><si><t>';
+        $stream = deflate_add($deflate, $compressed, ZLIB_NO_FLUSH);
+        hash_update($hash, $compressed);
+        for ($i = 0; $i < $megabytes; $i++) {
+            $stream .= deflate_add($deflate, $chunk, ZLIB_NO_FLUSH);
+            hash_update($hash, $chunk);
+        }
+        $tail = '</t></si></sst>';
+        $stream .= deflate_add($deflate, $tail, ZLIB_FINISH);
+        hash_update($hash, $tail);
+        $entry('xl/sharedStrings.xml', $stream, (int) hexdec(hash_final($hash)), 100, 8);
+
+        $end = pack('VvvvvVVv', 0x06054b50, 0, 0, $count, $count, strlen($central), strlen($local), 0);
+
+        return $local.$central.$end;
+    }
+
+    /**
+     * A workbook with a hostile sheet XML: `$sheet` replaces the `<sheetData>` document, `$prolog` is put before the
+     * root (a DOCTYPE with entities).
+     */
+    public static function xlsxWithSheetXml(string $sheetData, string $prolog = '', string $dimension = ''): string
+    {
+        return self::zip([
+            '[Content_Types].xml' => '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/></Types>',
+            'xl/workbook.xml' => '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Feuille1" sheetId="1" r:id="rId1"/></sheets></workbook>',
+            'xl/_rels/workbook.xml.rels' => '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>',
+            'xl/worksheets/sheet1.xml' => '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'.$prolog.'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'.$dimension.'<sheetData>'.$sheetData.'</sheetData></worksheet>',
+        ]);
+    }
+
     /** The bytes of a file response, whatever kind of response it is. */
     public static function body(\Illuminate\Testing\TestResponse $response): string
     {

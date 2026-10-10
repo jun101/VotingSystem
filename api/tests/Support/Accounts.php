@@ -582,7 +582,7 @@ final class Accounts
      * A voter import with its checked rows (slice 08), written straight into the tables of docs/design/database.md.
      * The counts are worked out from the rows.
      *
-     * @param  array{election: string, status?: string, name?: string, columns?: list<string>, mapping?: array<string, int|null>, failure?: string|null, processed?: int, imported?: int, new_groups?: list<string>, rows?: list<array{status?: string, reasons?: list<string>, full_name?: string|null, group?: string|null, identifier?: string|null, email?: string|null, phone?: string|null, line?: int}>}  $o
+     * @param  array{election: string, status?: string, name?: string, columns?: list<string>|null, created_at?: string, updated_at?: string, mapping?: array<string, int|null>, failure?: string|null, processed?: int, imported?: int, new_groups?: list<string>, rows?: list<array{status?: string, reasons?: list<string>, full_name?: string|null, group?: string|null, identifier?: string|null, email?: string|null, phone?: string|null, line?: int}>}  $o
      */
     public static function plantImport(array $o): string
     {
@@ -607,7 +607,7 @@ final class Accounts
             'user_id' => null,
             'original_name' => $o['name'] ?? 'eleves.xlsx',
             'stored_file' => Uuid::uuid4()->toString(),
-            'columns' => json_encode($o['columns'] ?? Spreadsheets::HEADER),
+            'columns' => array_key_exists('columns', $o) && $o['columns'] === null ? null : json_encode($o['columns'] ?? Spreadsheets::HEADER),
             'mapping' => json_encode($o['mapping'] ?? ['full_name' => 0, 'group' => 1, 'identifier' => 2, 'email' => 3, 'phone' => 4]),
             'status' => $o['status'] ?? 'checked',
             'failure' => $o['failure'] ?? null,
@@ -619,8 +619,8 @@ final class Accounts
             'processed_rows' => $o['processed'] ?? 0,
             'imported_rows' => $o['imported'] ?? 0,
             'finished_at' => ($o['status'] ?? 'checked') === 'done' ? $now : null,
-            'created_at' => $now,
-            'updated_at' => $now,
+            'created_at' => $o['created_at'] ?? $now,
+            'updated_at' => $o['updated_at'] ?? $now,
         ]);
 
         foreach (array_values($rows) as $i => $r) {

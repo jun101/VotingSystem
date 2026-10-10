@@ -52,3 +52,7 @@ voters that exist at that moment, and creates the groups it needs (the same find
 updates `processed_rows` after each chunk. A chunk is all or nothing; if the job stops half way (a crash, a database
 error) the voters of the finished chunks stay, the status is `failed` with `failure: import_failed`, and `imported_rows`
 says how many were written. A rejected row is never written. Codes are never created by an import.
+
+The stored file is deleted when the import ends `done` (the preview and the error file read the checked rows, not the
+file). An import left in `importing` for more than a day (its job was lost) is marked `failed` and purged with its file
+and rows by `imports:purge`, as every import older than 7 days that is not `importing`.

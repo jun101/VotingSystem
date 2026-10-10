@@ -49,5 +49,5 @@ The import resource of [GET /voter-imports/{import}](GET-voter-imports-{import}.
 
 ### 409, 422, 404, 401, 403, 419, 429, 405
 
-The shared error shape of [API conventions](../README.md). Order of the checks: the record (404), the body (422), then
-the state (409; scenario 5 before 4).
+The shared error shape of [API conventions](../README.md). Order of the checks: the record (404), the state (409; scenario 5
+before 4), then the body (422), so an import that has no columns yet answers 409 `import_not_checked`, never 422.

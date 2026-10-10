@@ -48,7 +48,9 @@ Body, `multipart/form-data`:
 The import resource of [GET /voter-imports/{import}](GET-voter-imports-{import}.md), status `uploaded`. Header
 `Location` is `/api/v1/voter-imports/{id}`. The earlier imports of the election that were `checked` or `failed` are
 deleted with their file and rows (one import at a time). The problems found **inside** the file (no header, more than
-10 000 rows, unreadable cells) are not 422: the background check ends in status `failed` with a `failure` code.
+10 000 rows, more than 11 000 lines read, a header of more than 50 columns, unreadable cells) are not 422: the background
+check ends in status `failed` with a `failure` code (`too_many_rows` for the rows and lines, `unreadable` for the
+columns).
 
 ### 409 — scenarios 7 and 8
 
@@ -62,6 +64,13 @@ The shared error shape of [API conventions](../README.md). Order of the checks: 
 `election_voters_locked`), the file (422), then the running import (409 `import_in_progress`).
 
 ## Notes
+
+Limits of the check (they bound its time, its memory and what it stores): it stops after **11 000 lines read, empty
+lines included** (`failed`, `too_many_rows`), whatever the sheet says about its size; the header has at most **50
+columns**; the bytes of a ZIP part are counted as they are inflated, not as the ZIP declares them (a part that inflates
+past 100 MB makes the upload `file: too_large` or the check `failed`/`unreadable`); each value kept for the preview
+and the error file is cut to its field's maximum length plus one character (the row is invalid for its length anyway).
+The check works in a temporary folder of its own that is removed when it ends, fails or is cancelled.
 
 The file is stored under its own random UUID on a private disk that the proxy never serves; the original name is kept
 for display only and never used as a path. Cells are read as values: a formula is never evaluated (its cached value is

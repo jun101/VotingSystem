@@ -250,8 +250,9 @@ hash in the same row.
 | reasons | json | Reason codes |
 | full_name, group_name, identifier, email, phone | text, null | The values after trimming; `raw` keeps the original cell text of the five fields as json for the error file |
 
-An import's file and rows are deleted when the import is deleted, when a newer import replaces it, and by the
-scheduled clean-up of imports older than 7 days that are not `importing`.
+An import's file and rows are deleted when the import is deleted, when a newer import replaces it, when it ends `done`
+(the file only), and by the scheduled clean-up of imports older than 7 days that are not `importing` and of imports left
+`importing` for more than a day. Each kept value is cut to its field's maximum length plus one character.
 
 **`generated_files`** — slip PDFs and code export files (FR-CRED-04, 05). Because only the
 hash of a code is stored, the file is written by the same job that generates the codes.

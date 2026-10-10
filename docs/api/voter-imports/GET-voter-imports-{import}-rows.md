@@ -49,7 +49,7 @@ Pages hold 50 rows, in file order.
 
 | Field | Notes |
 |---|---|
-| line | The line number in the file (the header is line 1) |
+| line | The line number in the file (the header is line 1). For a CSV it counts records, as a spreadsheet application shows them: a cell with a line break inside quotes is one line |
 | status | `ok`, `invalid` or `duplicate` (a row with a duplicate reason; it may also hold others) |
 | reasons | Codes: `full_name_required`, `full_name_max`, `group_max`, `identifier_max`, `email_invalid`, `email_max`, `phone_invalid`, `phone_max`, `group_limit_reached`, `duplicate_identifier_in_file`, `duplicate_email_in_file`, `identifier_exists`, `email_exists`. A duplicate in the file points to the **first** row; that first row stays valid |
 | values | The cell values after the rules of [POST voters](../voters/POST-elections-{election}-voters.md) (trimmed, blank is `null`, email lower-cased); the text is shown as is, never as HTML |
