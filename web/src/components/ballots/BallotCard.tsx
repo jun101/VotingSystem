@@ -5,8 +5,12 @@ import { Icon, type IconName } from '@/components/admin/Icon';
 import { focusRing } from '@/components/admin/classes';
 import { cx } from '@/components/ui/cx';
 import type { Ballot } from '@/lib/api/ballots';
+import type { Candidate } from '@/lib/api/candidates';
+import type { Party } from '@/lib/api/parties';
 import { useI18n } from '@/lib/i18n/client';
 import { seatsText } from './ballotText';
+import { candidateCountText } from './candidateText';
+import { CandidateRow } from './CandidateRow';
 
 /** The round icon of the header, by tone: the four of the mockup. */
 const TONE_ICONS: readonly IconName[] = ['ballot', 'edit', 'flag', 'people'];
@@ -19,10 +23,24 @@ const HEAD_BUTTON =
   'bg-glass text-surface hover:bg-glass-line focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-surface disabled:opacity-40';
 const FOOT_BUTTON = ROUND + 'bg-canvas text-ink-soft hover:bg-primary-soft ' + focusRing;
 
+/** What the page does with the candidates of a card, and the row being dragged in it. */
+export type CandidateActions = {
+  /** The candidate being dragged by its grip in this ballot, and the one under the pointer. */
+  drag: { id: string; over: string } | null;
+  onAdd: (ballot: Ballot) => void;
+  onMove: (ballot: Ballot, candidate: Candidate, step: -1 | 1) => void;
+  onEdit: (candidate: Candidate) => void;
+  onDelete: (candidate: Candidate) => void;
+  onGripDown: (event: PointerEvent<HTMLElement>, ballot: Ballot, candidate: Candidate) => void;
+  onGripMove: (event: PointerEvent<HTMLElement>) => void;
+  onGripUp: (event: PointerEvent<HTMLElement>, cancelled: boolean) => void;
+};
+
 /**
  * One ballot as a card: a coloured header (the grip, the title that wraps to two lines, the up
- * and down buttons), the tags (seats, blank vote), what is to come for the candidates and the
- * footer (edit, delete). `n` is the 1-based position, in the test ids. The grip is the pointer
+ * and down buttons), the tags (seats, blank vote, candidates), the candidate rows (or the
+ * invitation when there are none), the notice of a single candidate and the footer (add a
+ * candidate, edit, delete). `n` is the 1-based position, in the test ids. The grip is the pointer
  * path of the reorder and the buttons are the keyboard and phone path; both are only there when
  * the election can still change.
  */
@@ -31,6 +49,8 @@ export function BallotCard({
   n,
   total,
   editable,
+  parties,
+  candidates: actions,
   dragging,
   over,
   onMove,
@@ -44,6 +64,8 @@ export function BallotCard({
   n: number;
   total: number;
   editable: boolean;
+  parties: readonly Party[];
+  candidates: CandidateActions;
   dragging: boolean;
   over: boolean;
   onMove: (ballot: Ballot, step: -1 | 1) => void;
@@ -143,6 +165,15 @@ export function BallotCard({
             </span>
             {t(ballot.allow_blank ? 'ballots.blank' : 'ballots.noBlank')}
           </span>
+          <span
+            data-testid={`ballot-candidates-${n}`}
+            className="inline-flex h-7 items-center gap-1.5 rounded-full bg-canvas pr-3 pl-2 text-sm font-medium text-ink-2"
+          >
+            <span className="text-primary">
+              <Icon name="people" size={16} />
+            </span>
+            {candidateCountText(ballot.candidates.length, locale, t)}
+          </span>
         </div>
 
         {ballot.description ? (
@@ -151,40 +182,99 @@ export function BallotCard({
           </p>
         ) : null}
 
-        <div
-          data-testid={`ballot-empty-${n}`}
-          className="flex flex-col items-center gap-1.5 px-1 py-1 text-center text-base text-ink-soft"
-        >
-          <span
-            aria-hidden="true"
-            className="float-art flex size-13 items-center justify-center rounded-full bg-status-published-soft text-status-published"
+        {ballot.candidates.length === 0 ? (
+          <div
+            data-testid={`ballot-empty-${n}`}
+            className="flex flex-col items-center gap-1.5 px-1 py-1 text-center text-base text-ink-soft"
           >
-            <Icon name="user" size={28} />
-          </span>
-          <b className="text-md font-medium text-ink">{t('ballots.card.noCandidates')}</b>
-          <span>{t('ballots.card.noCandidatesHint')}</span>
-        </div>
+            <span
+              aria-hidden="true"
+              className="float-art flex size-13 items-center justify-center rounded-full bg-status-published-soft text-status-published"
+            >
+              <Icon name="user" size={28} />
+            </span>
+            <b className="text-md font-medium text-ink">{t('ballots.card.noCandidates')}</b>
+            {editable ? <span>{t('ballots.card.noCandidatesHint')}</span> : null}
+          </div>
+        ) : (
+          <ul
+            aria-label={t('ballots.card.candidatesLabel', { title: ballot.title })}
+            className="flex flex-col gap-1"
+          >
+            {ballot.candidates.map((candidate, index) => (
+              <CandidateRow
+                key={candidate.id}
+                candidate={candidate}
+                party={parties.find((party) => party.id === candidate.party) ?? null}
+                b={n}
+                c={index + 1}
+                total={ballot.candidates.length}
+                editable={editable}
+                dragging={actions.drag?.id === candidate.id}
+                over={
+                  actions.drag !== null &&
+                  actions.drag.id !== candidate.id &&
+                  actions.drag.over === candidate.id
+                }
+                onMove={(chosen, step) => actions.onMove(ballot, chosen, step)}
+                onEdit={actions.onEdit}
+                onDelete={actions.onDelete}
+                onGripDown={(event, chosen) => actions.onGripDown(event, ballot, chosen)}
+                onGripMove={actions.onGripMove}
+                onGripUp={actions.onGripUp}
+              />
+            ))}
+          </ul>
+        )}
+
+        {ballot.candidates.length === 1 ? (
+          <p
+            data-testid={`ballot-warning-${n}`}
+            className="flex items-start gap-2.5 rounded-lg bg-warm-softer px-3 py-2.5 text-base text-warm-ink"
+          >
+            <span className="mt-0.5 shrink-0 text-warm">
+              <Icon name="warn" size={20} />
+            </span>
+            {t('ballots.card.oneCandidate')}
+          </p>
+        ) : null}
 
         {editable ? (
-          <div className="mt-auto flex items-center justify-end gap-2 pt-1">
+          <div className="mt-auto flex flex-wrap items-center gap-2 pt-1">
             <button
               type="button"
-              aria-label={t('ballots.card.edit', { title: ballot.title })}
-              data-testid={`ballot-edit-${n}`}
-              onClick={() => onEdit(ballot)}
-              className={FOOT_BUTTON}
+              aria-label={t('ballots.card.addCandidateTo', { title: ballot.title })}
+              data-testid={`candidate-add-${n}`}
+              data-candidate-add=""
+              onClick={() => actions.onAdd(ballot)}
+              className={cx(
+                'ui-control inline-flex min-h-11 items-center gap-2 rounded-full bg-primary-soft pr-4.5 pl-3 text-base font-medium text-status-scheduled hover:bg-primary-line md:min-h-10',
+                focusRing,
+              )}
             >
-              <Icon name="edit" size={18} />
+              <Icon name="plus" size={18} />
+              {t('ballots.card.addCandidate')}
             </button>
-            <button
-              type="button"
-              aria-label={t('ballots.card.delete', { title: ballot.title })}
-              data-testid={`ballot-delete-${n}`}
-              onClick={() => onDelete(ballot)}
-              className={cx(FOOT_BUTTON, 'text-danger hover:bg-warm-softer')}
-            >
-              <Icon name="trash" size={18} />
-            </button>
+            <span className="ml-auto flex items-center gap-2">
+              <button
+                type="button"
+                aria-label={t('ballots.card.edit', { title: ballot.title })}
+                data-testid={`ballot-edit-${n}`}
+                onClick={() => onEdit(ballot)}
+                className={FOOT_BUTTON}
+              >
+                <Icon name="edit" size={18} />
+              </button>
+              <button
+                type="button"
+                aria-label={t('ballots.card.delete', { title: ballot.title })}
+                data-testid={`ballot-delete-${n}`}
+                onClick={() => onDelete(ballot)}
+                className={cx(FOOT_BUTTON, 'text-danger hover:bg-warm-softer')}
+              >
+                <Icon name="trash" size={18} />
+              </button>
+            </span>
           </div>
         ) : null}
       </div>

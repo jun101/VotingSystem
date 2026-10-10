@@ -1413,6 +1413,166 @@
                 }
             }
         },
+        "/v1/candidates/{candidate}/photo": {
+            "put": {
+                "operationId": "candidatePhoto.update",
+                "description": "Send one `file` part (`multipart/form-data`) under the rules of the election cover: JPEG,\nPNG or WebP recognised by content, 5 MB, 8 000 pixels on a side, 40 million pixels, not\nanimated. Two WebP files are written, 160 and 480 pixels wide, ratio kept, never enlarged,\nmetadata dropped, the upload never kept; the previous photo's files are deleted afterwards.\nA draft election only. Owner or manager. Limited to 20 requests per hour per user.",
+                "summary": "Replace the photo of a candidate",
+                "tags": [
+                    "CandidatePhoto"
+                ],
+                "parameters": [
+                    {
+                        "name": "candidate",
+                        "in": "path",
+                        "required": true,
+                        "description": "The candidate UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "ballot": {
+                                                    "type": "string"
+                                                },
+                                                "party": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "first_name": {
+                                                    "type": "string"
+                                                },
+                                                "last_name": {
+                                                    "type": "string"
+                                                },
+                                                "sex": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "male",
+                                                        "female"
+                                                    ]
+                                                },
+                                                "slogan": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "biography": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "photo": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "sm": {
+                                                            "type": "string"
+                                                        },
+                                                        "md": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "sm",
+                                                        "md"
+                                                    ]
+                                                },
+                                                "position": {
+                                                    "type": "integer"
+                                                },
+                                                "created_at": {
+                                                    "type": "string"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "ballot",
+                                                "party",
+                                                "first_name",
+                                                "last_name",
+                                                "sex",
+                                                "slogan",
+                                                "biography",
+                                                "photo",
+                                                "position",
+                                                "created_at",
+                                                "updated_at"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "candidatePhoto.destroy",
+                "description": "Answers 204 whether or not there was a photo. A draft election only. Owner or manager.\nLimited to 120 requests per hour per user.",
+                "summary": "Remove the photo of a candidate",
+                "tags": [
+                    "CandidatePhoto"
+                ],
+                "parameters": [
+                    {
+                        "name": "candidate",
+                        "in": "path",
+                        "required": true,
+                        "description": "The candidate UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/v1/elections/{election}/cover": {
             "put": {
                 "operationId": "cover.update",

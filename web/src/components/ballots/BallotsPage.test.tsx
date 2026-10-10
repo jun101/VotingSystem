@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderIn } from '@/components/auth/testing';
 import type { Ballot } from '@/lib/api/ballots';
+import type { Candidate } from '@/lib/api/candidates';
 import type { Election } from '@/lib/api/elections';
 import type { Party } from '@/lib/api/parties';
 import { ApiError } from '@/lib/api/errors';
@@ -18,6 +19,9 @@ const fetchBallots = vi.fn();
 const fetchParties = vi.fn();
 const createParty = vi.fn();
 const deleteParty = vi.fn();
+const createCandidate = vi.fn();
+const deleteCandidate = vi.fn();
+const reorderCandidates = vi.fn();
 
 vi.mock('@/lib/api/browser', () => ({
   reorderBallots: (...args: unknown[]) => reorderBallots(...args),
@@ -31,6 +35,12 @@ vi.mock('@/lib/api/browser', () => ({
   deleteParty: (...args: unknown[]) => deleteParty(...args),
   updateBallot: vi.fn(),
   deleteBallot: vi.fn(),
+  createCandidate: (...args: unknown[]) => createCandidate(...args),
+  updateCandidate: vi.fn(),
+  uploadCandidatePhoto: vi.fn(),
+  removeCandidatePhoto: vi.fn(),
+  deleteCandidate: (...args: unknown[]) => deleteCandidate(...args),
+  reorderCandidates: (...args: unknown[]) => reorderCandidates(...args),
 }));
 
 const election: Election = {
@@ -63,6 +73,23 @@ function ballot(title: string, position: number, extra: Partial<Ballot> = {}): B
     created_at: '2026-10-10T14:00:00Z',
     updated_at: '2026-10-10T14:00:00Z',
     ...extra,
+  };
+}
+
+function candidate(name: string, ballotPosition: number, party: string | null = null): Candidate {
+  return {
+    id: `30000000-0000-4000-8000-0000000000${name.charCodeAt(0)}`,
+    ballot: `10000000-0000-4000-8000-00000000000${ballotPosition}`,
+    party,
+    first_name: name,
+    last_name: 'Nom',
+    sex: name === 'a' ? 'male' : 'female',
+    slogan: null,
+    biography: null,
+    photo: null,
+    position: 1,
+    created_at: '2026-10-10T14:00:00Z',
+    updated_at: '2026-10-10T14:00:00Z',
   };
 }
 
@@ -240,11 +267,17 @@ describe('BallotsPage parties', () => {
 
   it('shows a row per party with its swatch, acronym and count', () => {
     const parties = [
-      party('Avenir Étudiant', { acronym: 'AE', colour: '#C2410C', candidates_count: 2 }),
+      party('Avenir Étudiant', { acronym: 'AE', colour: '#C2410C' }),
       party('Ensemble'),
     ];
+    // The count is the real one: counted on the candidates the page holds.
+    const held = [
+      ballot('A', 1, {
+        candidates: [candidate('a', 1, parties[0]!.id), candidate('b', 1, parties[0]!.id)],
+      }),
+    ];
 
-    renderIn('fr', <BallotsPage election={election} initial={three} initialParties={parties} />);
+    renderIn('fr', <BallotsPage election={election} initial={held} initialParties={parties} />);
 
     expect(screen.getByTestId('parties-count')).toHaveTextContent('2 partis');
     expect(screen.getByTestId('party-swatch-1')).toHaveTextContent('AE');
@@ -364,5 +397,193 @@ describe('BallotsPage parties', () => {
     expect(screen.queryByTestId('party-new')).toBeNull();
     expect(screen.queryByTestId('parties-add')).toBeNull();
     expect(screen.queryByTestId('party-edit-1')).toBeNull();
+  });
+});
+
+describe('BallotsPage candidates', () => {
+  // Other tests leave an answer for the list read after a save: start from none.
+  beforeEach(() => {
+    fetchBallots.mockReset();
+    fetchParties.mockReset();
+  });
+
+  const named = [
+    ballot('A', 1, {
+      candidates: [candidate('a', 1), candidate('b', 1)],
+      candidates_count: 2,
+    }),
+    ballot('B', 2, { candidates: [candidate('c', 2)], candidates_count: 1 }),
+    ballot('C', 3),
+  ];
+
+  it('shows a row per candidate with the avatar by sex and the party or "Indépendant"', () => {
+    const parties = [party('Ensemble')];
+    const held = [
+      ballot('A', 1, {
+        candidates: [candidate('a', 1, parties[0]!.id), candidate('b', 1)],
+        candidates_count: 2,
+      }),
+    ];
+
+    renderIn('fr', <BallotsPage election={election} initial={held} initialParties={parties} />);
+
+    expect(screen.getByTestId('candidate-name-1-1')).toHaveTextContent('a Nom');
+    expect(screen.getByTestId('candidate-avatar-1-1')).toHaveAttribute('data-sex', 'male');
+    expect(screen.getByTestId('candidate-avatar-1-2')).toHaveAttribute('data-sex', 'female');
+    expect(screen.getByTestId('candidate-party-1-1')).toHaveTextContent('Ensemble');
+    expect(screen.getByTestId('candidate-party-1-2')).toHaveTextContent('Indépendant');
+    expect(screen.getByTestId('candidate-up-1-1')).toBeDisabled();
+    expect(screen.getByTestId('candidate-down-1-2')).toBeDisabled();
+    expect(screen.getByTestId('candidate-down-1-1')).toBeEnabled();
+  });
+
+  it('counts the candidates on the tags and the header chip', () => {
+    renderIn('fr', <BallotsPage election={election} initial={named} initialParties={[]} />);
+
+    expect(screen.getByTestId('ballot-candidates-1')).toHaveTextContent('2 candidats');
+    expect(screen.getByTestId('ballot-candidates-3')).toHaveTextContent('0 candidat');
+    expect(screen.getByTestId('candidates-count')).toHaveTextContent('3 candidats');
+  });
+
+  it('warns about a single candidate and lists the ballots to complete', () => {
+    renderIn('fr', <BallotsPage election={election} initial={named} initialParties={[]} />);
+
+    expect(screen.queryByTestId('ballot-warning-1')).toBeNull();
+    expect(screen.getByTestId('ballot-warning-2')).toBeInTheDocument();
+    expect(screen.queryByTestId('ballot-warning-3')).toBeNull();
+
+    const checks = screen.getByTestId('ballots-checks');
+
+    expect(checks).toHaveTextContent('B : un seul candidat');
+    expect(checks).toHaveTextContent('C : aucun candidat');
+    expect(checks).not.toHaveTextContent('A : ');
+  });
+
+  it('reorders the candidates of a ballot with the arrows and saves once', async () => {
+    const user = userEvent.setup();
+    const [first, second] = named[0]!.candidates;
+
+    reorderCandidates.mockResolvedValue([second, first]);
+    renderIn('fr', <BallotsPage election={election} initial={named} initialParties={[]} />);
+
+    await user.click(screen.getByTestId('candidate-down-1-1'));
+
+    expect(screen.getAllByTestId(/^candidate-name-1-/).map((n) => n.textContent)).toEqual([
+      'b Nom',
+      'a Nom',
+    ]);
+    await waitFor(() => expect(reorderCandidates).toHaveBeenCalledTimes(1));
+    expect(reorderCandidates).toHaveBeenCalledWith(named[0]!.id, [second!.id, first!.id]);
+  });
+
+  it('puts the old order back with a notice when the save fails', async () => {
+    const user = userEvent.setup();
+
+    reorderCandidates.mockRejectedValue(new ApiError(500, 'server_error'));
+    renderIn('fr', <BallotsPage election={election} initial={named} initialParties={[]} />);
+
+    await user.click(screen.getByTestId('candidate-down-1-1'));
+
+    await waitFor(() => expect(screen.getByTestId('ballots-notice')).toBeInTheDocument());
+    expect(screen.getAllByTestId(/^candidate-name-1-/).map((n) => n.textContent)).toEqual([
+      'a Nom',
+      'b Nom',
+    ]);
+  });
+
+  it('opens the modal for a ballot from the card and from the "to check" card', async () => {
+    const user = userEvent.setup();
+
+    renderIn('fr', <BallotsPage election={election} initial={named} initialParties={[]} />);
+
+    await user.click(screen.getByTestId('candidate-add-2'));
+    expect(screen.getByTestId('candidate-form-ballot')).toHaveValue(named[1]!.id);
+    await user.click(screen.getByTestId('candidate-form-cancel'));
+    expect(screen.queryByTestId('candidate-modal')).toBeNull();
+
+    await user.click(screen.getByTestId('ballots-check-add-3'));
+    expect(screen.getByTestId('candidate-form-ballot')).toHaveValue(named[2]!.id);
+  });
+
+  it('saves a new candidate and shows it in the card', async () => {
+    const user = userEvent.setup();
+    const saved = { ...candidate('z', 3), first_name: 'Zoé', last_name: 'Nom' };
+
+    createCandidate.mockResolvedValue(saved);
+    renderIn('fr', <BallotsPage election={election} initial={named} initialParties={[]} />);
+
+    await user.click(screen.getByTestId('candidate-add-3'));
+    await user.type(screen.getByTestId('candidate-form-first-name'), 'Zoé');
+    await user.type(screen.getByTestId('candidate-form-last-name'), 'Nom');
+    await user.click(screen.getByTestId('candidate-form-save'));
+
+    await waitFor(() => expect(screen.queryByTestId('candidate-modal')).toBeNull());
+    expect(createCandidate).toHaveBeenCalledWith(
+      named[2]!.id,
+      expect.objectContaining({ first_name: 'Zoé', last_name: 'Nom', party: null }),
+    );
+    expect(screen.getByTestId('candidate-name-3-1')).toHaveTextContent('Zoé Nom');
+  });
+
+  it('shows the errors beside the names without calling the API', async () => {
+    const user = userEvent.setup();
+
+    renderIn('fr', <BallotsPage election={election} initial={named} initialParties={[]} />);
+
+    await user.click(screen.getByTestId('candidate-add-1'));
+    await user.click(screen.getByTestId('candidate-form-save'));
+
+    expect(screen.getByTestId('candidate-form-error-first-name')).toBeInTheDocument();
+    expect(screen.getByTestId('candidate-form-error-last-name')).toBeInTheDocument();
+    expect(createCandidate).not.toHaveBeenCalled();
+  });
+
+  it('shows a full ballot as a notice in the modal', async () => {
+    const user = userEvent.setup();
+
+    createCandidate.mockRejectedValue(new ApiError(409, 'candidate_limit_reached'));
+    renderIn('fr', <BallotsPage election={election} initial={named} initialParties={[]} />);
+
+    await user.click(screen.getByTestId('candidate-add-1'));
+    await user.type(screen.getByTestId('candidate-form-first-name'), 'Un');
+    await user.type(screen.getByTestId('candidate-form-last-name'), 'Autre');
+    await user.click(screen.getByTestId('candidate-form-save'));
+
+    expect(await screen.findByTestId('candidate-form-alert')).toHaveTextContent('50 candidats');
+    expect(screen.getByTestId('candidate-modal')).toBeInTheDocument();
+  });
+
+  it('deletes after a confirmation that names the candidate', async () => {
+    const user = userEvent.setup();
+
+    deleteCandidate.mockResolvedValue(undefined);
+    renderIn('fr', <BallotsPage election={election} initial={named} initialParties={[]} />);
+
+    await user.click(screen.getByTestId('candidate-delete-1-1'));
+    expect(screen.getByTestId('candidate-delete-dialog')).toHaveTextContent('a Nom');
+    await user.click(screen.getByTestId('candidate-delete-confirm'));
+
+    await waitFor(() => expect(screen.queryByTestId('candidate-delete-dialog')).toBeNull());
+    expect(deleteCandidate).toHaveBeenCalledWith(named[0]!.candidates[0]!.id);
+    expect(screen.getAllByTestId(/^candidate-name-1-/).map((n) => n.textContent)).toEqual([
+      'b Nom',
+    ]);
+    expect(screen.getByTestId('ballot-warning-1')).toBeInTheDocument();
+  });
+
+  it('shows no candidate button and no arrows on an election that is not a draft', () => {
+    renderIn(
+      'fr',
+      <BallotsPage
+        election={{ ...election, status: 'open' }}
+        initial={named}
+        initialParties={[]}
+      />,
+    );
+
+    expect(screen.getByTestId('candidate-name-1-1')).toBeInTheDocument();
+    expect(screen.queryByTestId('candidate-add-1')).toBeNull();
+    expect(screen.queryByTestId('candidate-up-1-1')).toBeNull();
+    expect(screen.queryByTestId('ballots-check-add-3')).toBeNull();
   });
 });

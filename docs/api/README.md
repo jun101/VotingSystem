@@ -286,3 +286,5 @@ Filled slice by slice: each slice adds its endpoints here with a link to their f
 | Candidates | `PUT /ballots/{ballot}/candidates/order` | 06c | [candidates/PUT-ballots-{ballot}-candidates-order.md](candidates/PUT-ballots-{ballot}-candidates-order.md) |
 | Candidates | `PATCH /candidates/{candidate}` | 06c | [candidates/PATCH-candidates-{candidate}.md](candidates/PATCH-candidates-{candidate}.md) |
 | Candidates | `DELETE /candidates/{candidate}` | 06c | [candidates/DELETE-candidates-{candidate}.md](candidates/DELETE-candidates-{candidate}.md) |
+| Candidates | `PUT /candidates/{candidate}/photo` | 06d | [candidates/PUT-candidates-{candidate}-photo.md](candidates/PUT-candidates-{candidate}-photo.md) |
+| Candidates | `DELETE /candidates/{candidate}/photo` | 06d | [candidates/DELETE-candidates-{candidate}-photo.md](candidates/DELETE-candidates-{candidate}-photo.md) |

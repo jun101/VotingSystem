@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\Candidate;
+use App\Support\Media\ImageReEncoder;
 use Illuminate\Http\Request;
 
 /**
@@ -26,8 +27,10 @@ final class CandidateResource extends ApiResource
             'sex' => $candidate->sex->value,
             'slogan' => $candidate->slogan,
             'biography' => $candidate->biography,
-            // The photo comes in slice 06d.
-            'photo' => null,
+            'photo' => $candidate->photo_file === null ? null : [
+                'sm' => '/media/'.ImageReEncoder::nameOf($candidate->photo_file, 160),
+                'md' => '/media/'.ImageReEncoder::nameOf($candidate->photo_file, 480),
+            ],
             'position' => $candidate->position,
             'created_at' => $candidate->created_at?->utc()->format('Y-m-d\TH:i:s\Z'),
             'updated_at' => $candidate->updated_at?->utc()->format('Y-m-d\TH:i:s\Z'),

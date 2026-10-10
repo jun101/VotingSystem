@@ -43,6 +43,9 @@ final class ImageReEncoder
     /** The sizes of a party logo: the width. */
     public const PARTY_LOGO_SIZES = [96, 192];
 
+    /** The sizes of a candidate photo: the width. */
+    public const CANDIDATE_PHOTO_SIZES = [160, 480];
+
     public const MAX_BYTES = 5 * 1024 * 1024;
 
     public const MAX_SIDE = 8000;

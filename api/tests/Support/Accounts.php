@@ -384,7 +384,7 @@ final class Accounts
             'sex' => $o['sex'] ?? 'female',
             'slogan' => $o['slogan'] ?? null,
             'biography' => $o['biography'] ?? null,
-            'photo_file' => null,
+            'photo_file' => $o['photo_file'] ?? null,
             'position' => $o['position'] ?? ((int) $db->table('candidates')->where('ballot_id', $ballot->id)->max('position') + 1),
             'created_at' => $now,
             'updated_at' => $now,

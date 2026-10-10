@@ -12,7 +12,9 @@ use App\Http\Requests\Elections\ListElectionsRequest;
 use App\Http\Requests\Elections\UpdateElectionRequest;
 use App\Http\Resources\ElectionResource;
 use App\Http\Resources\PageOf;
+use App\Models\Candidate;
 use App\Models\Election;
+use App\Models\Party;
 use App\Models\User;
 use App\Support\Media\ImageReEncoder;
 use Dedoc\Scramble\Attributes\Response;
@@ -142,8 +144,10 @@ class ElectionController extends Controller
         $this->allow('delete', $election);
 
         $cover = null;
+        $photos = [];
+        $logos = [];
 
-        DB::transaction(function () use ($election, &$cover): void {
+        DB::transaction(function () use ($election, &$cover, &$photos, &$logos): void {
             // The state is read again under the lock: a change that landed meanwhile counts.
             $locked = Election::query()->whereKey($election->getKey())->lockForUpdate()->first();
 
@@ -153,10 +157,22 @@ class ElectionController extends Controller
 
             $locked->assertEditable('election_not_deletable');
             $cover = $locked->cover_file;
+            // Candidate photos and party logos go with the election (the rows by cascade, the
+            // files after the commit).
+            $photos = Candidate::query()->where('election_id', $locked->id)->whereNotNull('photo_file')->pluck('photo_file')->all();
+            $logos = Party::query()->where('election_id', $locked->id)->whereNotNull('logo_file')->pluck('logo_file')->all();
             $locked->delete();
         });
 
         $images->delete($cover, ImageReEncoder::COVER_SIZES);
+
+        foreach ($photos as $photo) {
+            $images->delete(is_string($photo) ? $photo : null, ImageReEncoder::CANDIDATE_PHOTO_SIZES);
+        }
+
+        foreach ($logos as $logo) {
+            $images->delete(is_string($logo) ? $logo : null, ImageReEncoder::PARTY_LOGO_SIZES);
+        }
 
         Log::info('election.delete', ['outcome' => 'deleted']);
 

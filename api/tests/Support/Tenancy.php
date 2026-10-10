@@ -101,6 +101,8 @@ final class Tenancy
         'PUT api/v1/ballots/{ballot}/candidates/order' => 'Slice06/ReorderCandidatesTest.php',
         'PATCH api/v1/candidates/{candidate}' => 'Slice06/UpdateCandidateTest.php',
         'DELETE api/v1/candidates/{candidate}' => 'Slice06/DeleteCandidateTest.php',
+        'PUT api/v1/candidates/{candidate}/photo' => 'Slice06/CandidatePhotoTest.php',
+        'DELETE api/v1/candidates/{candidate}/photo' => 'Slice06/CandidatePhotoTest.php',
     ];
 
     /**

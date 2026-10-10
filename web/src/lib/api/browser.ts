@@ -3,6 +3,7 @@ import { apiBaseUrl } from './client';
 import { ApiError, parseApiError } from './errors';
 import { XSRF_COOKIE } from './session';
 import type { Ballot, BallotChanges, NewBallot } from './ballots';
+import type { Candidate, CandidateChanges, NewCandidate } from './candidates';
 import type { Election, ElectionChanges, ElectionFilters, NewElection } from './elections';
 import type { NewParty, Party, PartyChanges } from './parties';
 import type { paths } from './schema';
@@ -586,4 +587,96 @@ export async function uploadPartyLogo(id: string, file: File): Promise<Party> {
 /** `DELETE /parties/{party}`: its candidates stay and become independent. */
 export async function deleteParty(id: string): Promise<void> {
   await send((api) => api.DELETE('/v1/parties/{party}', { params: { path: { party: id } } }));
+}
+
+/** `POST /ballots/{ballot}/candidates`: a candidate at the end of a ballot of a draft election. */
+export async function createCandidate(ballot: string, body: NewCandidate): Promise<Candidate> {
+  const { data } = await send((api) =>
+    api.POST('/v1/ballots/{ballot}/candidates', { params: { path: { ballot } }, body }),
+  );
+
+  return data!.data;
+}
+
+/** `PATCH /candidates/{candidate}`: the fields given change; `ballot` moves it to the end of another. */
+export async function updateCandidate(id: string, body: CandidateChanges): Promise<Candidate> {
+  const { data } = await send((api) =>
+    api.PATCH('/v1/candidates/{candidate}', { params: { path: { candidate: id } }, body }),
+  );
+
+  return data!.data;
+}
+
+/** `DELETE /candidates/{candidate}`: the positions after it close the gap. */
+export async function deleteCandidate(id: string): Promise<void> {
+  await send((api) =>
+    api.DELETE('/v1/candidates/{candidate}', { params: { path: { candidate: id } } }),
+  );
+}
+
+/** `PUT /ballots/{ballot}/candidates/order`: exactly the UUIDs of the ballot's candidates, in the wanted order. */
+export async function reorderCandidates(ballot: string, ids: string[]): Promise<Candidate[]> {
+  const { data } = await send((api) =>
+    api.PUT('/v1/ballots/{ballot}/candidates/order', {
+      params: { path: { ballot } },
+      body: { candidates: ids },
+    }),
+  );
+
+  return data!.data;
+}
+
+/** `DELETE /candidates/{candidate}/photo`: removes the photo of a candidate of a draft election. */
+export async function removeCandidatePhoto(id: string): Promise<void> {
+  await send((api) =>
+    api.DELETE('/v1/candidates/{candidate}/photo', { params: { path: { candidate: id } } }),
+  );
+}
+
+/**
+ * `PUT /candidates/{candidate}/photo`: the picture, as one `file` part, sent by hand like the party
+ * logo (the schema has no multipart body), with the same rules.
+ */
+export async function uploadCandidatePhoto(id: string, file: File): Promise<Candidate> {
+  for (let attempt = 0; ; attempt++) {
+    const body = new FormData();
+    body.append('file', file);
+
+    let response: Response;
+
+    try {
+      response = await fetch(`${apiBaseUrl()}/v1/candidates/${encodeURIComponent(id)}/photo`, {
+        method: 'PUT',
+        body,
+        credentials: 'same-origin',
+        headers: {
+          Accept: 'application/json',
+          'Accept-Language': pageLanguage(),
+          'X-XSRF-TOKEN': await csrfToken(),
+        },
+      });
+    } catch (error) {
+      throw error instanceof ApiError ? error : new ApiError(0, 'network');
+    }
+
+    if (response.ok) return ((await response.json()) as { data: Candidate }).data;
+
+    let answer: unknown = null;
+
+    try {
+      answer = await response.json();
+    } catch {
+      // Not JSON: an `unknown` error.
+    }
+
+    const failure = parseApiError(response.status, answer, response.headers.get('Retry-After'));
+
+    if (failure.code === 'csrf_mismatch' && attempt === 0) {
+      await refreshCsrf();
+
+      continue;
+    }
+
+    throw failure;
+  }
 }
