@@ -384,7 +384,8 @@
     "cannot_reset_self": "For your own account, use the “My account” page.",
     "too_many_attempts_wait_one": "Too many attempts. Try again in 1 minute.",
     "too_many_attempts_wait_many": "Too many attempts. Try again in {minutes} minutes.",
-    "election_not_editable": "This election is no longer a draft: it can no longer be changed or deleted."
+    "election_not_editable": "This election is no longer a draft: it can no longer be changed or deleted.",
+    "ballot_limit_reached": "An election cannot have more than 50 positions."
   },
   "validation": {
     "required": "This field is required.",
@@ -523,6 +524,20 @@
         "dimensions": "This image is too large: 8,000 pixels at most on a side, 40 million pixels in all.",
         "required": "Choose an image.",
         "invalid": "This file could not be sent. Try again."
+      }
+    },
+    "ballot": {
+      "title": {
+        "required": "Give the position a name.",
+        "max": "The name must be 200 characters or fewer."
+      },
+      "description": {
+        "max": "The description must be 1,000 characters or fewer."
+      },
+      "seats": {
+        "integer": "Enter a whole number of seats.",
+        "min": "There must be at least 1 seat.",
+        "max": "A position has 20 seats at most."
       }
     }
   },
@@ -908,6 +923,69 @@
       "zone": "Time zone: {zone}",
       "cancel": "Cancel",
       "apply": "Apply the dates"
+    }
+  },
+  "ballots": {
+    "back": "Back to the election",
+    "title": "Positions and candidates",
+    "badgeDraft": "Draft · editable until it is scheduled",
+    "count": {
+      "one": "{count} position",
+      "other": "{count} positions"
+    },
+    "seats": {
+      "one": "{count} seat",
+      "other": "{count} seats"
+    },
+    "blank": "Blank vote",
+    "noBlank": "No blank vote",
+    "add": "Add a position",
+    "newTile": {
+      "title": "Add a position",
+      "hint": "President, secretary, delegate… as many as needed."
+    },
+    "zone": {
+      "label": "Positions of the election",
+      "title": "Positions",
+      "hint": "Drag a position by its handle, or use the arrows, to change the order."
+    },
+    "card": {
+      "up": "Move {title} up",
+      "down": "Move {title} down",
+      "edit": "Edit the position {title}",
+      "delete": "Delete the position {title}",
+      "noCandidates": "No candidate",
+      "noCandidatesHint": "Candidates arrive in the next step.",
+      "moved": "{title}: position {position} of {total}."
+    },
+    "form": {
+      "titleNew": "New position",
+      "titleEdit": "Edit the position",
+      "title": "Name of the position",
+      "description": "Description (optional)",
+      "seats": "Number of seats",
+      "seatsHelp": "From 1 to 20 people elected for this position.",
+      "blank": "Allow the blank vote",
+      "save": "Save",
+      "add": "Add the position",
+      "cancel": "Cancel",
+      "error": "The position could not be saved."
+    },
+    "delete": {
+      "title": "Delete this position?",
+      "text": "The position “{title}” will be deleted. The following positions move up one place.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    },
+    "notEditable": "This election can no longer be changed.",
+    "locked": "This election is no longer a draft: its positions can no longer be changed.",
+    "reorderFailed": "The order could not be saved: the previous order is restored.",
+    "actionFailed": "The action could not be done.",
+    "rail": {
+      "label": "Parties and points to check",
+      "title": "Parties and candidates",
+      "text": "Parties and candidates arrive in the next steps",
+      "soon": "Soon"
     }
   }
 }

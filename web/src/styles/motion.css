@@ -1173,3 +1173,46 @@
     transform: scaleX(var(--grow, 1)) !important;
   }
 }
+
+/*
+ * The ballots page (docs/design/frontend.md 1.4 item 9): the coloured header of a ballot card.
+ * The four gradients cycle with the position, as in the mockup; tokens only.
+ */
+@layer components {
+  .ballot-head {
+    color: var(--color-surface);
+  }
+
+  .ballot-head::after {
+    content: '';
+    position: absolute;
+    right: -20px;
+    top: -30px;
+    width: 120px;
+    height: 120px;
+    border-radius: 999px;
+    background-color: var(--color-glass);
+    pointer-events: none;
+  }
+
+  .ballot-head > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .ballot-head[data-tone='0'] {
+    background-image: linear-gradient(120deg, var(--color-hero-from), var(--color-primary));
+  }
+
+  .ballot-head[data-tone='1'] {
+    background-image: linear-gradient(120deg, var(--color-primary), var(--color-backdrop-to));
+  }
+
+  .ballot-head[data-tone='2'] {
+    background-image: linear-gradient(120deg, var(--color-teal), var(--color-status-open));
+  }
+
+  .ballot-head[data-tone='3'] {
+    background-image: linear-gradient(120deg, var(--color-hero-mid), var(--color-backdrop-from));
+  }
+}

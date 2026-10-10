@@ -437,6 +437,7 @@ export function ElectionSummary({ election }: { election: Election }) {
               soon
               title={t('elections.summary.nextTitle')}
               headerTestId="election-card-header-steps"
+              ballotsHref={`/admin/elections/${election.id}/ballots`}
             />
           </div>
         </div>

@@ -1,6 +1,8 @@
 'use client';
 
+import Link from 'next/link';
 import { Icon, type IconName } from '@/components/admin/Icon';
+import { focusRing } from '@/components/admin/classes';
 import { Pill } from '@/components/ui';
 import { cx } from '@/components/ui/cx';
 import { useI18n } from '@/lib/i18n/client';
@@ -23,10 +25,13 @@ export function NextSteps({
   soon = false,
   title,
   headerTestId,
+  ballotsHref,
 }: {
   soon?: boolean;
   title: string;
   headerTestId?: string;
+  /** Where the first step is: when given, that step is a link and has no "not available" tag. */
+  ballotsHref?: string;
 }) {
   const { t } = useI18n();
 
@@ -55,29 +60,66 @@ export function NextSteps({
       >
         {STEPS.map((step, index) =>
           soon ? (
-            <li
-              key={step.key}
-              data-testid={`election-step-${index + 1}`}
-              data-state="soon"
-              className="path-step flex flex-col items-center gap-2 px-3.5 text-center"
-            >
-              <span
-                aria-hidden="true"
-                className={cx(
-                  'path-dot relative z-10 flex size-13.5 items-center justify-center rounded-full shadow-[0_0_0_6px_var(--color-surface)]',
-                  step.tone,
-                )}
+            step.key === 'ballots' && ballotsHref ? (
+              <li
+                key={step.key}
+                data-testid={`election-step-${index + 1}`}
+                data-state="ready"
+                className="path-step flex"
               >
-                <Icon name={step.icon} size={26} />
-              </span>
-              <b className="font-display text-lg font-extrabold text-ink">
-                {t(`elections.next.${step.key}.title`)}
-              </b>
-              <span className="max-w-64 text-base text-ink-soft">
-                {t(`elections.next.${step.key}.text`)}
-              </span>
-              <Pill tone="neutral">{t('elections.summary.soon')}</Pill>
-            </li>
+                <Link
+                  href={ballotsHref}
+                  className={cx(
+                    'group flex w-full flex-col items-center gap-2 rounded-lg px-3.5 text-center',
+                    focusRing,
+                  )}
+                >
+                  <span
+                    aria-hidden="true"
+                    className={cx(
+                      'path-dot relative z-10 flex size-13.5 items-center justify-center rounded-full shadow-[0_0_0_6px_var(--color-surface)]',
+                      step.tone,
+                    )}
+                  >
+                    <Icon name={step.icon} size={26} />
+                  </span>
+                  <b className="font-display text-lg font-extrabold text-ink">
+                    {t(`elections.next.${step.key}.title`)}
+                  </b>
+                  <span className="max-w-64 text-base text-ink-soft">
+                    {t(`elections.next.${step.key}.text`)}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-soft px-3 py-1 text-xs font-bold text-primary-hover group-hover:bg-primary-line">
+                    {t('elections.card.open')}
+                    <Icon name="open" size={14} />
+                  </span>
+                </Link>
+              </li>
+            ) : (
+              <li
+                key={step.key}
+                data-testid={`election-step-${index + 1}`}
+                data-state="soon"
+                className="path-step flex flex-col items-center gap-2 px-3.5 text-center"
+              >
+                <span
+                  aria-hidden="true"
+                  className={cx(
+                    'path-dot relative z-10 flex size-13.5 items-center justify-center rounded-full shadow-[0_0_0_6px_var(--color-surface)]',
+                    step.tone,
+                  )}
+                >
+                  <Icon name={step.icon} size={26} />
+                </span>
+                <b className="font-display text-lg font-extrabold text-ink">
+                  {t(`elections.next.${step.key}.title`)}
+                </b>
+                <span className="max-w-64 text-base text-ink-soft">
+                  {t(`elections.next.${step.key}.text`)}
+                </span>
+                <Pill tone="neutral">{t('elections.summary.soon')}</Pill>
+              </li>
+            )
           ) : (
             <li key={step.key} className="flex items-start gap-3">
               <span
