@@ -37,15 +37,15 @@ Two voters may share a full name: the identifier and the email are what tell the
 |---|---|---|---|---|
 | 1 | `full_name` only | 201 (no group) | | |
 | 2 | Every field, the group already exists | 201 (the existing group is used) | | |
-| 3 | Every field, the group does not exist | 201 (the group is created in the election) | | |
+| 3 | Every field, the group does not exist | 201 (the group is created in the election: a draft or scheduled election only) | | |
 | 4 | `full_name` missing, blank or longer than 150 | 422 | `validation_failed` (`full_name: required`, `full_name: max`) | |
 | 5 | `identifier` already used in this election (case ignored) | 422 | `validation_failed` (`identifier: unique`) | |
-| 6 | `email` not valid, or already used in this election | 422 | `validation_failed` (`email: email`, `email: unique`) | |
+| 6 | `email` not valid (strict: a plain `name@domain.tld` address, no quoted part, no IP address, no dotless domain), or already used in this election | 422 | `validation_failed` (`email: email`, `email: unique`) | |
 | 7 | `phone` longer than 30 or with other characters | 422 | `validation_failed` (`phone: max`, `phone: invalid`) | |
 | 8 | `group` longer than 100 | 422 | `validation_failed` (`group: max`) | |
 | 9 | The election already has 10 000 voters | 409 | `voter_limit_reached` | |
 | 10 | A new group is needed and the election already has 100 groups | 409 | `group_limit_reached` | |
-| 11 | The election is closed, published or archived | 409 | `election_voters_locked` | |
+| 11 | The election is closed, published or archived; or it is open and the group does not exist | 409 | `election_voters_locked` | |
 | 12 | Not a UUID, unknown, or another institution's election | 404 | `not_found` | |
 | 13 | Not signed in, or the session has expired | 401 | `unauthenticated` | |
 | 14 | The user's institution was suspended since sign-in | 403 | `institution_suspended` | |
@@ -67,7 +67,7 @@ a list. Header `Location` is `/api/v1/voters/{id}`.
 { "error": { "code": "voter_limit_reached", "message": "Une élection ne peut pas avoir plus de 10 000 électeurs." } }
 ```
 
-`election_voters_locked`: the election is closed, published or archived, so its voters and groups are read-only.
+`election_voters_locked`: the election is closed, published or archived, so its voters and groups are read-only; an open election takes voters in the groups it already has, and no new group.
 
 ### 422, 404, 401, 403, 419, 400, 429, 405
 

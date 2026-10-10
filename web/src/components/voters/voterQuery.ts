@@ -10,6 +10,8 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** The longest search the API takes. */
 export const SEARCH_MAX = 100;
+/** The API refuses a page above this. */
+export const PAGE_MAX = 1_000_000;
 
 export const NO_FILTERS: VoterFilters = { page: 1, q: '', group: '' };
 
@@ -25,7 +27,7 @@ export function filtersOf(params: Params): VoterFilters {
   const group = first(params.group).trim();
 
   return {
-    page: Number.isInteger(page) && page >= 1 ? page : 1,
+    page: Number.isInteger(page) && page >= 1 ? Math.min(page, PAGE_MAX) : 1,
     q: first(params.q).trim().slice(0, SEARCH_MAX),
     group: group === 'none' || UUID.test(group) ? group.toLowerCase() : '',
   };

@@ -20,7 +20,8 @@ final class GroupByName
      * @param  Election  $locked  the election row, read under its lock
      * @param  string|null  $name  already trimmed; null or blank is no group
      *
-     * @throws ApiException 409 `group_limit_reached`
+     * @throws ApiException 409 `group_limit_reached`, or `election_voters_locked` when the group
+     *                      would have to be created in an open election
      */
     public function __invoke(Election $locked, ?string $name): ?VoterGroup
     {
@@ -36,6 +37,9 @@ final class GroupByName
         if ($found !== null) {
             return $found;
         }
+
+        // Groups are added in a draft or scheduled election only: an open one keeps the ballots' groups.
+        $locked->assertVotersDeletable();
 
         if (VoterGroup::query()->where('election_id', $locked->getKey())->count() >= self::LIMIT) {
             throw new ApiException(409, 'group_limit_reached');

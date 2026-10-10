@@ -47,7 +47,7 @@ class CreateVoterRequest extends FormRequest
             $identifier = $this->input('identifier');
 
             if (is_string($email) && ! $errors->has('email')) {
-                if (! ValidatorFactory::make(['email' => $email], ['email' => 'email'])->passes()) {
+                if (! ValidatorFactory::make(['email' => $email], ['email' => 'email:strict,filter'])->passes()) {
                     $errors->add('email', 'email');
                 } elseif ($this->taken('email', mb_strtolower($email))) {
                     $errors->add('email', 'unique');

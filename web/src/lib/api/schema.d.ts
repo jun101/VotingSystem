@@ -1028,7 +1028,8 @@ export interface paths {
          * Add a voter
          * @description To a draft, scheduled or open election, at most 10 000 per election (409
          *     `voter_limit_reached`). `group` is a group's name: the group is found, or created
-         *     (409 `group_limit_reached` at 100). The identifier and the email are unique in the election.
+         *     (409 `group_limit_reached` at 100; an open election takes existing groups only,
+         *     409 `election_voters_locked`). The identifier and the email are unique in the election.
          *     Owner or manager. Limited to 240 requests per hour per user.
          */
         post: operations["voter.store"];
@@ -1060,7 +1061,8 @@ export interface paths {
         /**
          * Change a voter
          * @description Every field is optional; only those sent change. `null` or blank clears the group, the
-         *     identifier, the email and the phone. A draft, scheduled or open election. Owner or manager.
+         *     identifier, the email and the phone. A draft, scheduled or open election; an open one
+         *     keeps the voter's group (409 `election_voters_locked`). Owner or manager.
          *     Limited to 240 requests per hour per user.
          */
         patch: operations["voter.update"];

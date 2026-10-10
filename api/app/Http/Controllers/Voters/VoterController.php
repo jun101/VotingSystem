@@ -75,7 +75,8 @@ class VoterController extends Controller
      *
      * To a draft, scheduled or open election, at most 10 000 per election (409
      * `voter_limit_reached`). `group` is a group's name: the group is found, or created
-     * (409 `group_limit_reached` at 100). The identifier and the email are unique in the election.
+     * (409 `group_limit_reached` at 100; an open election takes existing groups only,
+     * 409 `election_voters_locked`). The identifier and the email are unique in the election.
      * Owner or manager. Limited to 240 requests per hour per user.
      */
     #[Response(status: 201, type: 'array{data: array{id: string, full_name: string, group: array{id: string, name: string}|null, identifier: string|null, email: string|null, phone: string|null, created_at: string, updated_at: string}}')]
@@ -119,7 +120,8 @@ class VoterController extends Controller
      * Change a voter.
      *
      * Every field is optional; only those sent change. `null` or blank clears the group, the
-     * identifier, the email and the phone. A draft, scheduled or open election. Owner or manager.
+     * identifier, the email and the phone. A draft, scheduled or open election; an open one
+     * keeps the voter's group (409 `election_voters_locked`). Owner or manager.
      * Limited to 240 requests per hour per user.
      *
      * @response array{data: array{id: string, full_name: string, group: array{id: string, name: string}|null, identifier: string|null, email: string|null, phone: string|null, created_at: string, updated_at: string}}
@@ -143,7 +145,14 @@ class VoterController extends Controller
                 $row->fill($request->attributesToWrite());
 
                 if ($request->hasGroup()) {
-                    $row->voter_group_id = $groups($locked, $request->groupName())?->id;
+                    $group = $groups($locked, $request->groupName());
+
+                    // An open election keeps each voter in the group they have: it decides their ballots.
+                    if ($group?->id !== $row->voter_group_id) {
+                        $locked->assertVotersDeletable();
+                    }
+
+                    $row->voter_group_id = $group?->id;
                 }
 
                 $row->save();
@@ -221,7 +230,8 @@ class VoterController extends Controller
     /** The 422 of a unique index hit: the field is the one the index names. */
     private function duplicate(UniqueConstraintViolationException $e): ValidationException
     {
-        $field = str_contains($e->getMessage(), 'email') ? 'email' : 'identifier';
+        $driverMessage = $e->errorInfo[2] ?? '';
+        $field = is_string($driverMessage) && str_contains($driverMessage, 'voters_election_id_email_unique') ? 'email' : 'identifier';
 
         return ValidationException::withMessages([$field => ['unique']]);
     }

@@ -5806,7 +5806,7 @@
             },
             "post": {
                 "operationId": "voter.store",
-                "description": "To a draft, scheduled or open election, at most 10 000 per election (409\n`voter_limit_reached`). `group` is a group's name: the group is found, or created\n(409 `group_limit_reached` at 100). The identifier and the email are unique in the election.\nOwner or manager. Limited to 240 requests per hour per user.",
+                "description": "To a draft, scheduled or open election, at most 10 000 per election (409\n`voter_limit_reached`). `group` is a group's name: the group is found, or created\n(409 `group_limit_reached` at 100; an open election takes existing groups only,\n409 `election_voters_locked`). The identifier and the email are unique in the election.\nOwner or manager. Limited to 240 requests per hour per user.",
                 "summary": "Add a voter",
                 "tags": [
                     "Voter"
@@ -5926,7 +5926,7 @@
         "/v1/voters/{voter}": {
             "patch": {
                 "operationId": "voter.update",
-                "description": "Every field is optional; only those sent change. `null` or blank clears the group, the\nidentifier, the email and the phone. A draft, scheduled or open election. Owner or manager.\nLimited to 240 requests per hour per user.",
+                "description": "Every field is optional; only those sent change. `null` or blank clears the group, the\nidentifier, the email and the phone. A draft, scheduled or open election; an open one\nkeeps the voter's group (409 `election_voters_locked`). Owner or manager.\nLimited to 240 requests per hour per user.",
                 "summary": "Change a voter",
                 "tags": [
                     "Voter"

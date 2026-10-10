@@ -24,13 +24,13 @@ Body, JSON: any of `full_name`, `group`, `identifier`, `email`, `phone`, with th
 | # | Scenario | Status | `error.code` | Test |
 |---|---|---|---|---|
 | 1 | One or more fields | 200 (the voter, `updated_at` moves) | | |
-| 2 | `group` is the name of another group of the election, or a new name | 200 (the other group is used, or created) | | |
+| 2 | `group` is the name of another group of the election, or a new name; the election is a draft or scheduled | 200 (the other group is used, or created) | | |
 | 3 | `group` is `null` | 200 (`group: null`) | | |
 | 4 | The same values as stored | 200 (nothing changes) | | |
 | 5 | An empty object | 200 (nothing changes) | | |
 | 6 | `full_name` blank or too long; `identifier` or `email` used by another voter of the election; `email`, `phone`, `group` invalid | 422 | `validation_failed` (as POST) | |
 | 7 | A new group is needed and the election already has 100 groups | 409 | `group_limit_reached` | |
-| 8 | The election is closed, published or archived | 409 | `election_voters_locked` | |
+| 8 | The election is closed, published or archived; or it is open and `group` would change the voter's group (another group, a new one, or none) | 409 | `election_voters_locked` | |
 | 9 | Not a UUID, unknown, or another institution's voter | 404 | `not_found` | |
 | 10 | Not signed in, or the session has expired | 401 | `unauthenticated` | |
 | 11 | The user's institution was suspended since sign-in | 403 | `institution_suspended` | |
@@ -51,5 +51,8 @@ The shared error shape of [API conventions](../README.md). Order of the checks: 
 the state (409). A voter's own identifier or email is not a duplicate of itself.
 
 ## Notes
+
+In an open election the voter keeps their group, which decides their ballots: the other fields may change, `group` may repeat the current group's name.
+
 
 The election cannot be changed through this endpoint: `election`, `id` and every `*_id` in the body are ignored.

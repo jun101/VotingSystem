@@ -115,6 +115,27 @@ it('edits a voter of a scheduled or open election [FR-ELEC-03] (scenario 1)', fu
     $this->browser->patch(voterUpdateUrl($voter), ['full_name' => 'Corrigé'])->assertOk();
 })->with(['scheduled', 'open']);
 
+it('keeps the voter in their group in an open election [FR-SEC-06] (scenario 8)', function (array $body) {
+    [$t, $election, $voter, $group] = voterUpdateSignedIn($this, 'open');
+    Accounts::plantGroup(['election' => $election, 'name' => 'Autre']);
+
+    $this->browser->patch(voterUpdateUrl($voter), $body)->assertStatus(409)->assertJsonPath('error.code', 'election_voters_locked');
+
+    expect(Accounts::groupRows($election))->toHaveCount(2)
+        ->and(Accounts::voterRow($voter)['voter_group_id'] ?? null)->not->toBeNull();
+})->with([
+    'another group' => [['group' => 'Autre']],
+    'a new group' => [['group' => 'Inventé']],
+    'no group' => [['group' => null]],
+]);
+
+it('lets an open election repeat the voter\'s own group while other fields change [FR-SEC-06] (scenario 1)', function () {
+    [$t, $election, $voter, $group] = voterUpdateSignedIn($this, 'open');
+
+    $this->browser->patch(voterUpdateUrl($voter), ['group' => ' 4E ANNÉE ', 'full_name' => 'Corrigé'])
+        ->assertOk()->assertJsonPath('data.group.id', $group);
+});
+
 it('answers 404, the same for every case, for a voter that is unknown, of another institution or not a UUID [FR-INST-05] (scenario 9)', function () {
     $t = Team::two();
     $foreignElection = Accounts::plantElection(['institution' => $t['b']['owner']['institution']]);

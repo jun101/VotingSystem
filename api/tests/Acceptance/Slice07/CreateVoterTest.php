@@ -110,7 +110,23 @@ it('answers 422 for a bad or a used email [FR-VOT-01] (scenario 6)', function (s
 })->with([
     'not an address' => ['not-an-email', 'email'],
     'used' => ['PRIS@example.ht', 'unique'],
+    'no dot in the domain' => ['a@localhost', 'email'],
+    'ip address' => ['a@[127.0.0.1]', 'email'],
+    'quoted part with a line break' => ["\"a\r\n b\"@example.ht", 'email'],
 ]);
+
+it('takes an existing group but refuses a new one in an open election [FR-SEC-06] (scenario 11)', function () {
+    [$t, $election] = voterCreateSignedIn($this, ['status' => 'open']);
+    $group = Accounts::plantGroup(['election' => $election, 'name' => 'Existant']);
+
+    $this->browser->post(voterCreateUrl($election), ['full_name' => 'Dans le groupe', 'group' => 'existant'])
+        ->assertCreated()->assertJsonPath('data.group.id', $group);
+    $this->browser->post(voterCreateUrl($election), ['full_name' => 'Nouveau groupe', 'group' => 'Inventé'])
+        ->assertStatus(409)->assertJsonPath('error.code', 'election_voters_locked');
+
+    expect(Accounts::groupRows($election))->toHaveCount(1)
+        ->and(Accounts::voterRows($election))->toHaveCount(1);
+});
 
 it('answers 422 for a phone that is too long or has other characters, and for a group over 100 [FR-VOT-01] (scenarios 7, 8)', function (array $body, string $field, string $rule) {
     [$t, $election] = voterCreateSignedIn($this);
