@@ -7,6 +7,7 @@ use App\Models\Concerns\BelongsToInstitution;
 use App\Models\Concerns\HasUuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -54,5 +55,15 @@ class Ballot extends Model
     public function election(): BelongsTo
     {
         return $this->belongsTo(Election::class);
+    }
+
+    /**
+     * The candidates of the ballot, in display order.
+     *
+     * @return HasMany<Candidate, $this>
+     */
+    public function candidates(): HasMany
+    {
+        return $this->hasMany(Candidate::class)->orderBy('position')->orderBy('id')->chaperone('ballot');
     }
 }

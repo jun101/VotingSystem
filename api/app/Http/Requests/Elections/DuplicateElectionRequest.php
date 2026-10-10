@@ -6,7 +6,7 @@ use App\Http\Requests\Concerns\ReportsRuleCodes;
 use App\Http\Requests\Concerns\TrimsInput;
 use Illuminate\Foundation\Http\FormRequest;
 
-/** docs/api/elections/POST-elections-{election}-duplicate.md: an optional title. */
+/** docs/api/elections/POST-elections-{election}-duplicate.md: an optional title, and whether to copy the candidates. */
 class DuplicateElectionRequest extends FormRequest
 {
     use ReportsRuleCodes;
@@ -22,6 +22,7 @@ class DuplicateElectionRequest extends FormRequest
     {
         return [
             'title' => ['sometimes', 'bail', 'required', 'string', 'max:200'],
+            'copy_candidates' => ['sometimes', 'boolean'],
         ];
     }
 
@@ -30,5 +31,10 @@ class DuplicateElectionRequest extends FormRequest
         $title = $this->validated('title');
 
         return is_string($title) ? $title : null;
+    }
+
+    public function copyCandidates(): bool
+    {
+        return $this->boolean('copy_candidates');
     }
 }

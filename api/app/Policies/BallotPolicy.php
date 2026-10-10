@@ -28,6 +28,17 @@ final class BallotPolicy extends TenantPolicy
         return $this->mayManage($user, $election);
     }
 
+    /** Adding a candidate to the ballot (the candidates' own abilities are in `CandidatePolicy`). */
+    public function addCandidate(User $user, Ballot $ballot): bool
+    {
+        return $this->mayManage($user, $ballot);
+    }
+
+    public function reorderCandidates(User $user, Ballot $ballot): bool
+    {
+        return $this->mayManage($user, $ballot);
+    }
+
     public function update(User $user, Ballot $ballot): bool
     {
         return $this->mayManage($user, $ballot);

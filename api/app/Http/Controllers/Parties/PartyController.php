@@ -38,7 +38,7 @@ class PartyController extends Controller
     {
         $this->allow('viewAny', [Party::class, $election]);
 
-        return PageOf::from($election->parties()->paginate($request->perPage(), page: $request->page()), PartyResource::class);
+        return PageOf::from($election->parties()->withCount('candidates')->paginate($request->perPage(), page: $request->page()), PartyResource::class);
     }
 
     /**

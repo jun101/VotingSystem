@@ -27,6 +27,7 @@ return [
     'election_not_editable' => 'This election can no longer be changed.',
     'ballot_limit_reached' => 'An election cannot have more than 50 ballots.',
     'party_limit_reached' => 'An election cannot have more than 30 parties.',
+    'candidate_limit_reached' => 'A ballot cannot have more than 50 candidates.',
     'election_not_deletable' => 'This election can no longer be deleted.',
     'cannot_reset_self' => 'Use your "My account" page to turn off your own two-factor authentication.',
 ];

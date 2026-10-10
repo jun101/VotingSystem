@@ -6,6 +6,7 @@ use App\Models\Concerns\BelongsToInstitution;
 use App\Models\Concerns\HasUuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -48,5 +49,11 @@ class Party extends Model
     public function election(): BelongsTo
     {
         return $this->belongsTo(Election::class);
+    }
+
+    /** @return HasMany<Candidate, $this> */
+    public function candidates(): HasMany
+    {
+        return $this->hasMany(Candidate::class);
     }
 }

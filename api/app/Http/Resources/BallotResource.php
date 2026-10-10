@@ -17,6 +17,8 @@ final class BallotResource extends ApiResource
     protected function fields(Request $request): array
     {
         $ballot = $this->resource;
+        // The list loads them all at once; a ballot answered alone reads its own.
+        $candidates = $ballot->loadMissing('candidates.party')->candidates;
 
         return [
             'title' => $ballot->title,
@@ -24,8 +26,8 @@ final class BallotResource extends ApiResource
             'position' => $ballot->position,
             'seats' => $ballot->seats,
             'allow_blank' => $ballot->allow_blank,
-            // Nothing to count until slice 06c.
-            'candidates_count' => 0,
+            'candidates_count' => $candidates->count(),
+            'candidates' => $candidates->map(fn ($candidate): CandidateResource => new CandidateResource($candidate))->all(),
             'created_at' => $ballot->created_at?->utc()->format('Y-m-d\TH:i:s\Z'),
             'updated_at' => $ballot->updated_at?->utc()->format('Y-m-d\TH:i:s\Z'),
         ];

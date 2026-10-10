@@ -13,6 +13,7 @@ use App\Http\Controllers\Auth\TwoFactorChallengeController;
 use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Ballots\BallotController;
+use App\Http\Controllers\Candidates\CandidateController;
 use App\Http\Controllers\Elections\CoverController;
 use App\Http\Controllers\Elections\ElectionController;
 use App\Http\Controllers\HealthController;
@@ -103,6 +104,16 @@ Route::prefix('v1')->group(function (): void {
     Route::middleware(['cookie-session', 'auth', 'institution.active'])->prefix('ballots')->group(function (): void {
         Route::patch('/{ballot}', [BallotController::class, 'update'])->middleware('throttle:ballots-write');
         Route::delete('/{ballot}', [BallotController::class, 'destroy'])->middleware('throttle:ballots-write');
+
+        // The candidates of a ballot (slice 06c). Without the `X-RateLimit-*` counters, so that the same
+        // 422 for an unknown, another election's and another institution's party answers with the same headers.
+        Route::post('/{ballot}/candidates', [CandidateController::class, 'store'])->middleware('throttle.quiet:candidates-write');
+        Route::put('/{ballot}/candidates/order', [CandidateController::class, 'reorder'])->middleware('throttle.quiet:candidates-order');
+    });
+
+    Route::middleware(['cookie-session', 'auth', 'institution.active'])->prefix('candidates')->group(function (): void {
+        Route::patch('/{candidate}', [CandidateController::class, 'update'])->middleware('throttle.quiet:candidates-write');
+        Route::delete('/{candidate}', [CandidateController::class, 'destroy'])->middleware('throttle:candidates-write');
     });
 
     Route::middleware(['cookie-session', 'auth', 'institution.active'])->prefix('parties')->group(function (): void {

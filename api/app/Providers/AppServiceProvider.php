@@ -4,10 +4,12 @@ namespace App\Providers;
 
 use App\Auth\SessionUserProvider;
 use App\Models\Ballot;
+use App\Models\Candidate;
 use App\Models\Election;
 use App\Models\Party;
 use App\Models\User;
 use App\Policies\BallotPolicy;
+use App\Policies\CandidatePolicy;
 use App\Policies\ElectionPolicy;
 use App\Policies\PartyPolicy;
 use Dedoc\Scramble\Scramble;
@@ -40,6 +42,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Election::class, ElectionPolicy::class);
         Gate::policy(Ballot::class, BallotPolicy::class);
         Gate::policy(Party::class, PartyPolicy::class);
+        Gate::policy(Candidate::class, CandidatePolicy::class);
 
         $this->configureRateLimiters();
     }
@@ -152,6 +155,10 @@ class AppServiceProvider extends ServiceProvider
 
         // The parties (docs/api/parties/): 120 an hour per user to add, change and delete.
         RateLimiter::for('parties-write', fn (Request $request) => Limit::perHour($times(120))->by($byUser($request)));
+        // The candidates (docs/api/candidates/): 120 an hour per user to add, change and delete, 240 to put in order.
+        RateLimiter::for('candidates-write', fn (Request $request) => Limit::perHour($times(120))->by($byUser($request)));
+        RateLimiter::for('candidates-order', fn (Request $request) => Limit::perHour($times(240))->by($byUser($request)));
+
         // The logo of a party: 20 an hour per user, as a cover (the removal counts with the writes).
         RateLimiter::for('party-logo', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
     }

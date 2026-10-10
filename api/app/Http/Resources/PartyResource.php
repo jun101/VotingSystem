@@ -27,8 +27,10 @@ final class PartyResource extends ApiResource
                 'sm' => '/media/'.ImageReEncoder::nameOf($party->logo_file, 96),
                 'md' => '/media/'.ImageReEncoder::nameOf($party->logo_file, 192),
             ],
-            // Nothing to count until slice 06c.
-            'candidates_count' => 0,
+            // The list counts in its query; a party answered alone counts here.
+            'candidates_count' => is_numeric($party->getAttribute('candidates_count'))
+                ? (int) $party->getAttribute('candidates_count')
+                : $party->candidates()->count(),
             'created_at' => $party->created_at?->utc()->format('Y-m-d\TH:i:s\Z'),
             'updated_at' => $party->updated_at?->utc()->format('Y-m-d\TH:i:s\Z'),
         ];

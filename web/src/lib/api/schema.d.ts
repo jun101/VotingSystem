@@ -101,6 +101,77 @@ export interface paths {
         patch: operations["ballot.update"];
         trace?: never;
     };
+    "/v1/ballots/{ballot}/candidates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add a candidate
+         * @description At the end of a ballot of a draft election, at most 50 per ballot (409
+         *     `candidate_limit_reached`). The party, when given, is one of the same election. Owner or
+         *     manager. Limited to 120 requests per hour per user.
+         */
+        post: operations["candidate.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/ballots/{ballot}/candidates/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Put the candidates of a ballot in order
+         * @description `candidates` must be exactly the UUIDs of the ballot's candidates, each once, in the
+         *     wanted order (422 `candidates: set_mismatch` otherwise). A draft election only. Answers
+         *     the candidates, in the new order. Owner or manager. Limited to 240 requests per hour per user.
+         */
+        put: operations["candidate.reorder"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidates/{candidate}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete a candidate
+         * @description A draft election only. The positions after it close the gap. Owner or manager. Limited to
+         *     120 requests per hour per user.
+         */
+        delete: operations["candidate.destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * Change a candidate
+         * @description Every field is optional; only those sent change. `ballot` moves it to the end of another
+         *     ballot of the same election. Not the position (see the order endpoint) nor the photo. A
+         *     draft election only. Owner or manager. Limited to 120 requests per hour per user.
+         */
+        patch: operations["candidate.update"];
+        trace?: never;
+    };
     "/v1/elections/{election}/cover": {
         parameters: {
             query?: never;
@@ -226,7 +297,8 @@ export interface paths {
          * @description A new draft with the settings of this one, whatever its status: description, dates, time
          *     zone, language, candidate order, results display. Not the cover, the status dates or the
          *     link to a first round. The title defaults to "Copie de …" ("Copy of …" for an English
-         *     election), cut to 200 characters. Owner or manager. Limited to 60 requests per hour per user.
+         *     election), cut to 200 characters. Ballots and parties come with it, and the candidates when
+         *     `copy_candidates` is true. Owner or manager. Limited to 60 requests per hour per user.
          */
         post: operations["election.duplicate"];
         delete?: never;
@@ -847,6 +919,8 @@ export interface components {
         };
         /** BallotResource */
         BallotResource: unknown[];
+        /** CandidateResource */
+        CandidateResource: unknown[];
         /**
          * CreateBallotRequest
          * @description docs/api/ballots/POST-elections-{election}-ballots.md.
@@ -856,6 +930,20 @@ export interface components {
             description?: string | null;
             seats?: number;
             allow_blank?: boolean;
+        };
+        /**
+         * CreateCandidateRequest
+         * @description docs/api/candidates/POST-ballots-{ballot}-candidates.md.
+         */
+        CreateCandidateRequest: {
+            first_name: string;
+            last_name: string;
+            /** @enum {string} */
+            sex: "male" | "female";
+            /** Format: uuid */
+            party?: string | null;
+            slogan?: string | null;
+            biography?: string | null;
         };
         /**
          * CreateElectionRequest
@@ -894,10 +982,11 @@ export interface components {
         };
         /**
          * DuplicateElectionRequest
-         * @description docs/api/elections/POST-elections-{election}-duplicate.md: an optional title.
+         * @description docs/api/elections/POST-elections-{election}-duplicate.md: an optional title, and whether to copy the candidates.
          */
         DuplicateElectionRequest: {
             title?: string;
+            copy_candidates?: boolean;
         };
         /** ElectionResource */
         ElectionResource: unknown[];
@@ -938,6 +1027,13 @@ export interface components {
          */
         ReorderBallotsRequest: {
             ballots: string[];
+        };
+        /**
+         * ReorderCandidatesRequest
+         * @description docs/api/candidates/PUT-ballots-{ballot}-candidates-order.md.
+         */
+        ReorderCandidatesRequest: {
+            candidates: string[];
         };
         /** ResetPasswordRequest */
         ResetPasswordRequest: {
@@ -981,6 +1077,22 @@ export interface components {
             description?: string | null;
             seats?: number;
             allow_blank?: boolean;
+        };
+        /**
+         * UpdateCandidateRequest
+         * @description docs/api/candidates/PATCH-candidates-{candidate}.md: the rules of the creation, every field optional, and `ballot`.
+         */
+        UpdateCandidateRequest: {
+            first_name?: string;
+            last_name?: string;
+            /** @enum {string} */
+            sex?: "male" | "female";
+            /** Format: uuid */
+            party?: string | null;
+            slogan?: string | null;
+            biography?: string | null;
+            /** Format: uuid */
+            ballot?: string;
         };
         /**
          * UpdateElectionRequest
@@ -1156,6 +1268,23 @@ export interface operations {
                             seats: number;
                             allow_blank: boolean;
                             candidates_count: number;
+                            candidates: {
+                                id: string;
+                                ballot: string;
+                                party: string | null;
+                                first_name: string;
+                                last_name: string;
+                                sex: string;
+                                slogan: string | null;
+                                biography: string | null;
+                                photo: {
+                                    sm: string;
+                                    md: string;
+                                } | null;
+                                position: number;
+                                created_at: string;
+                                updated_at: string;
+                            }[];
                             created_at: string;
                             updated_at: string;
                         }[];
@@ -1203,6 +1332,23 @@ export interface operations {
                             seats: number;
                             allow_blank: boolean;
                             candidates_count: number;
+                            candidates: {
+                                id: string;
+                                ballot: string;
+                                party: string | null;
+                                first_name: string;
+                                last_name: string;
+                                sex: string;
+                                slogan: string | null;
+                                biography: string | null;
+                                photo: {
+                                    sm: string;
+                                    md: string;
+                                } | null;
+                                position: number;
+                                created_at: string;
+                                updated_at: string;
+                            }[];
                             created_at: string;
                             updated_at: string;
                         };
@@ -1244,6 +1390,23 @@ export interface operations {
                             seats: number;
                             allow_blank: boolean;
                             candidates_count: number;
+                            candidates: {
+                                id: string;
+                                ballot: string;
+                                party: string | null;
+                                first_name: string;
+                                last_name: string;
+                                sex: string;
+                                slogan: string | null;
+                                biography: string | null;
+                                photo: {
+                                    sm: string;
+                                    md: string;
+                                } | null;
+                                position: number;
+                                created_at: string;
+                                updated_at: string;
+                            }[];
                             created_at: string;
                             updated_at: string;
                         }[];
@@ -1313,6 +1476,191 @@ export interface operations {
                             seats: number;
                             allow_blank: boolean;
                             candidates_count: number;
+                            candidates: {
+                                id: string;
+                                ballot: string;
+                                party: string | null;
+                                first_name: string;
+                                last_name: string;
+                                sex: string;
+                                slogan: string | null;
+                                biography: string | null;
+                                photo: {
+                                    sm: string;
+                                    md: string;
+                                } | null;
+                                position: number;
+                                created_at: string;
+                                updated_at: string;
+                            }[];
+                            created_at: string;
+                            updated_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "candidate.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The ballot UUID */
+                ballot: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCandidateRequest"];
+            };
+        };
+        responses: {
+            /** @description `CandidateResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            ballot: string;
+                            party: string | null;
+                            first_name: string;
+                            last_name: string;
+                            /** @enum {string} */
+                            sex: "male" | "female";
+                            slogan: string | null;
+                            biography: string | null;
+                            photo: {
+                                sm: string;
+                                md: string;
+                            } | null;
+                            position: number;
+                            created_at: string;
+                            updated_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "candidate.reorder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The ballot UUID */
+                ballot: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReorderCandidatesRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            ballot: string;
+                            party: string | null;
+                            first_name: string;
+                            last_name: string;
+                            /** @enum {string} */
+                            sex: "male" | "female";
+                            slogan: string | null;
+                            biography: string | null;
+                            photo: {
+                                sm: string;
+                                md: string;
+                            } | null;
+                            position: number;
+                            created_at: string;
+                            updated_at: string;
+                        }[];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "candidate.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The candidate UUID */
+                candidate: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "candidate.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The candidate UUID */
+                candidate: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateCandidateRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            ballot: string;
+                            party: string | null;
+                            first_name: string;
+                            last_name: string;
+                            /** @enum {string} */
+                            sex: "male" | "female";
+                            slogan: string | null;
+                            biography: string | null;
+                            photo: {
+                                sm: string;
+                                md: string;
+                            } | null;
+                            position: number;
                             created_at: string;
                             updated_at: string;
                         };
