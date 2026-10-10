@@ -4,7 +4,7 @@ Deletes a candidate of a draft election.
 
 | | |
 |---|---|
-| Slice | 06c (06d: the photo files go with it) |
+| Slice | 06c (06d: the photo files are removed) |
 | Requirements | FR-CAND-02, FR-SEC-06 |
 | Caller | Institution user: owner or manager |
 | Rate limit | 120 requests per hour per user |
@@ -41,4 +41,5 @@ The shared error shape of [API conventions](../README.md). Scenario 3 gives the 
 ## Side effects
 
 - The positions after it in the ballot close up in the same transaction; the counts of the ballot and the party go down.
+- From slice 06d, its photo files are deleted with it (also when its ballot or its election is deleted).
 - The deletion is final: there is no trash.

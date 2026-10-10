@@ -74,8 +74,7 @@ The candidate resource, one item:
 }
 ```
 
-`id`, `ballot` and `party` are UUIDs; `party` is `null` for an independent candidate. `photo` is `null` until slice 06d
-(then `{ "sm": …, "md": … }`). `position` is 1, 2, 3… inside the ballot with no gap. No numeric id, no `ballot_id`, no
+`id`, `ballot` and `party` are UUIDs; `party` is `null` for an independent candidate. `photo` is `null`, or from slice 06d `{ "sm": "/media/…-160.webp", "md": "/media/…-480.webp" }` (see [PUT photo](PUT-candidates-{candidate}-photo.md)). `position` is 1, 2, 3… inside the ballot with no gap. No numeric id, no `ballot_id`, no
 `election_id`, no `institution_id` appears.
 
 Header `Location` is `/api/v1/candidates/{id}`.
