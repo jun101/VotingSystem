@@ -53,7 +53,7 @@ Each party:
 }
 ```
 
-`id` is the party's UUID. `logo` is `null` until slice 06d. `candidates_count` is `0` until slice 06c. No numeric id,
+`id` is the party's UUID. `logo` is `null`, or from slice 06b2 `{ "sm": "/media/…-96.webp", "md": "/media/…-192.webp" }`. `candidates_count` is `0` until slice 06c. No numeric id,
 no `election_id`, no `institution_id` appears.
 
 ### 404, 401, 403, 405

@@ -332,7 +332,7 @@ final class Accounts
             'name_key' => mb_strtolower(trim($name)),
             'acronym' => $o['acronym'] ?? null,
             'colour' => $o['colour'] ?? '#5468D4',
-            'logo_file' => null,
+            'logo_file' => $o['logo_file'] ?? null,
             'created_at' => $now,
             'updated_at' => $now,
         ]);

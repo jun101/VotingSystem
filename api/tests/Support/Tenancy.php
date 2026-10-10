@@ -95,6 +95,8 @@ final class Tenancy
         'POST api/v1/elections/{election}/parties' => 'Slice06/CreatePartyTest.php',
         'PATCH api/v1/parties/{party}' => 'Slice06/UpdatePartyTest.php',
         'DELETE api/v1/parties/{party}' => 'Slice06/DeletePartyTest.php',
+        'PUT api/v1/parties/{party}/logo' => 'Slice06/PartyLogoTest.php',
+        'DELETE api/v1/parties/{party}/logo' => 'Slice06/PartyLogoTest.php',
     ];
 
     /**

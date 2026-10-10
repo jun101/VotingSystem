@@ -4,7 +4,7 @@ Deletes a party of a draft election. Its candidates stay and become independent.
 
 | | |
 |---|---|
-| Slice | 06b (06c: the candidates keep their place; 06d: the logo file is removed) |
+| Slice | 06b (06b2: the logo files are removed; 06c: the candidates keep their place) |
 | Requirements | FR-CAND-01, FR-SEC-06 |
 | Caller | Institution user: owner or manager |
 | Rate limit | 120 requests per hour per user |
@@ -41,4 +41,5 @@ The shared error shape of [API conventions](../README.md).
 ## Side effects
 
 - From slice 06c, the candidates of the party have their party cleared (`party_id` set to null); none is deleted.
+- From slice 06b2, the party's logo files are deleted with it.
 - The deletion is final: there is no trash.

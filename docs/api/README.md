@@ -280,3 +280,5 @@ Filled slice by slice: each slice adds its endpoints here with a link to their f
 | Parties | `POST /elections/{election}/parties` | 06b | [parties/POST-elections-{election}-parties.md](parties/POST-elections-{election}-parties.md) |
 | Parties | `PATCH /parties/{party}` | 06b | [parties/PATCH-parties-{party}.md](parties/PATCH-parties-{party}.md) |
 | Parties | `DELETE /parties/{party}` | 06b | [parties/DELETE-parties-{party}.md](parties/DELETE-parties-{party}.md) |
+| Parties | `PUT /parties/{party}/logo` | 06b2 | [parties/PUT-parties-{party}-logo.md](parties/PUT-parties-{party}-logo.md) |
+| Parties | `DELETE /parties/{party}/logo` | 06b2 | [parties/DELETE-parties-{party}-logo.md](parties/DELETE-parties-{party}-logo.md) |

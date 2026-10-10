@@ -50,4 +50,4 @@ then the state (409).
 
 ## Notes
 
-`id`, `election`, `logo`, `candidates_count` in the body are ignored (the logo has its own endpoint in 06d).
+`id`, `election`, `logo`, `candidates_count` in the body are ignored (the logo has its own endpoints, [PUT](PUT-parties-{party}-logo.md) and [DELETE](DELETE-parties-{party}-logo.md)).
