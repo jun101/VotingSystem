@@ -140,6 +140,8 @@ docs/api/
   ballots/
   parties/
   candidates/
+  voters/
+  groups/
   voter-groups/
   voters/
   imports/
@@ -288,3 +290,12 @@ Filled slice by slice: each slice adds its endpoints here with a link to their f
 | Candidates | `DELETE /candidates/{candidate}` | 06c | [candidates/DELETE-candidates-{candidate}.md](candidates/DELETE-candidates-{candidate}.md) |
 | Candidates | `PUT /candidates/{candidate}/photo` | 06d | [candidates/PUT-candidates-{candidate}-photo.md](candidates/PUT-candidates-{candidate}-photo.md) |
 | Candidates | `DELETE /candidates/{candidate}/photo` | 06d | [candidates/DELETE-candidates-{candidate}-photo.md](candidates/DELETE-candidates-{candidate}-photo.md) |
+| Voters | `GET /elections/{election}/voters` | 07 | [voters/GET-elections-{election}-voters.md](voters/GET-elections-{election}-voters.md) |
+| Voters | `POST /elections/{election}/voters` | 07 | [voters/POST-elections-{election}-voters.md](voters/POST-elections-{election}-voters.md) |
+| Voters | `PATCH /voters/{voter}` | 07 | [voters/PATCH-voters-{voter}.md](voters/PATCH-voters-{voter}.md) |
+| Voters | `DELETE /voters/{voter}` | 07 | [voters/DELETE-voters-{voter}.md](voters/DELETE-voters-{voter}.md) |
+| Groups | `GET /elections/{election}/groups` | 07 | [groups/GET-elections-{election}-groups.md](groups/GET-elections-{election}-groups.md) |
+| Groups | `POST /elections/{election}/groups` | 07 | [groups/POST-elections-{election}-groups.md](groups/POST-elections-{election}-groups.md) |
+| Groups | `PATCH /groups/{group}` | 07 | [groups/PATCH-groups-{group}.md](groups/PATCH-groups-{group}.md) |
+| Groups | `DELETE /groups/{group}` | 07 | [groups/DELETE-groups-{group}.md](groups/DELETE-groups-{group}.md) |
+| Groups | `POST /groups/{group}/merge` | 07 | [groups/POST-groups-{group}-merge.md](groups/POST-groups-{group}-merge.md) |
