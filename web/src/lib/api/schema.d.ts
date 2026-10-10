@@ -358,6 +358,82 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/elections/{election}/groups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the groups of an election
+         * @description By name, ignoring case, then creation order, with their voter counts, in any status of the
+         *     election. An election holds at most 100, so `per_page=100` returns them all. `meta` also
+         *     carries `voters_total` and `ungrouped`. Owner or manager.
+         */
+        get: operations["group.index"];
+        put?: never;
+        /**
+         * Add an empty group
+         * @description To a draft or scheduled election, at most 100 per election (409 `group_limit_reached`).
+         *     The name is unique in the election, ignoring case and surrounding spaces. Owner or
+         *     manager. Limited to 120 requests per hour per user.
+         */
+        post: operations["group.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/groups/{group}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete a group
+         * @description A draft or scheduled election only, and only a group with no voter (409 `group_in_use`).
+         *     Final: there is no trash. Owner or manager. Limited to 120 requests per hour per user.
+         */
+        delete: operations["group.destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * Rename a group
+         * @description A draft or scheduled election only; its voters follow it. Owner or manager. Limited to
+         *     120 requests per hour per user.
+         */
+        patch: operations["group.update"];
+        trace?: never;
+    };
+    "/v1/groups/{group}/merge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Merge a group into another
+         * @description Every voter of the group moves to `into`, another group of the same election, and the
+         *     group is deleted: one transaction. A draft or scheduled election only. Answers the
+         *     receiving group. Owner or manager. Limited to 120 requests per hour per user.
+         */
+        post: operations["groups.groupMerge"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/health": {
         parameters: {
             query?: never;
@@ -933,6 +1009,63 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/elections/{election}/voters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the voters of an election
+         * @description 24 per page by default, by full name ignoring case, then creation order, in any status of
+         *     the election. `q` looks for a text in the full name, the identifier and the email; `group`
+         *     is a group's UUID or `none`. Owner or manager.
+         */
+        get: operations["voter.index"];
+        put?: never;
+        /**
+         * Add a voter
+         * @description To a draft, scheduled or open election, at most 10 000 per election (409
+         *     `voter_limit_reached`). `group` is a group's name: the group is found, or created
+         *     (409 `group_limit_reached` at 100). The identifier and the email are unique in the election.
+         *     Owner or manager. Limited to 240 requests per hour per user.
+         */
+        post: operations["voter.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/voters/{voter}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete a voter
+         * @description A draft or scheduled election only: slice 12 knows who has voted in an open one. Final:
+         *     there is no trash. The voter's group stays. Owner or manager. Limited to 240 requests per
+         *     hour per user.
+         */
+        delete: operations["voter.destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * Change a voter
+         * @description Every field is optional; only those sent change. `null` or blank clears the group, the
+         *     identifier, the email and the phone. A draft, scheduled or open election. Owner or manager.
+         *     Limited to 240 requests per hour per user.
+         */
+        patch: operations["voter.update"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -989,6 +1122,13 @@ export interface components {
             results_display?: string;
         };
         /**
+         * CreateGroupRequest
+         * @description docs/api/groups/POST-elections-{election}-groups.md.
+         */
+        CreateGroupRequest: {
+            name: string;
+        };
+        /**
          * CreateInvitationRequest
          * @description docs/api/users/POST-invitations.md
          */
@@ -1010,6 +1150,17 @@ export interface components {
             colour: string;
         };
         /**
+         * CreateVoterRequest
+         * @description docs/api/voters/POST-elections-{election}-voters.md.
+         */
+        CreateVoterRequest: {
+            full_name: string;
+            group?: string | null;
+            identifier?: string | null;
+            email?: string | null;
+            phone?: string | null;
+        };
+        /**
          * DuplicateElectionRequest
          * @description docs/api/elections/POST-elections-{election}-duplicate.md: an optional title, and whether to copy the candidates.
          */
@@ -1024,12 +1175,22 @@ export interface components {
             /** Format: email */
             email: string;
         };
+        /** GroupResource */
+        GroupResource: unknown[];
         /** InvitationResource */
         InvitationResource: unknown[];
         /** LoginRequest */
         LoginRequest: {
             email: string;
             password: string;
+        };
+        /**
+         * MergeGroupsRequest
+         * @description docs/api/groups/POST-groups-{group}-merge.md.
+         */
+        MergeGroupsRequest: {
+            /** Format: uuid */
+            into: string;
         };
         /** PartyResource */
         PartyResource: unknown[];
@@ -1139,6 +1300,13 @@ export interface components {
             results_display?: string;
         };
         /**
+         * UpdateGroupRequest
+         * @description docs/api/groups/PATCH-groups-{group}.md: the rules of the creation; the group's own name is no duplicate.
+         */
+        UpdateGroupRequest: {
+            name: string;
+        };
+        /**
          * UpdateInstitutionRequest
          * @description docs/api/institution/PATCH-institution.md: every field is optional, only those sent change.
          */
@@ -1168,12 +1336,25 @@ export interface components {
             acronym?: string | null;
             colour?: string;
         };
+        /**
+         * UpdateVoterRequest
+         * @description docs/api/voters/PATCH-voters-{voter}.md: the rules of the creation, every field optional.
+         */
+        UpdateVoterRequest: {
+            full_name?: string;
+            group?: string | null;
+            identifier?: string | null;
+            email?: string | null;
+            phone?: string | null;
+        };
         /** UserResource */
         UserResource: unknown[];
         /** VerifyEmailRequest */
         VerifyEmailRequest: {
             token: string;
         };
+        /** VoterResource */
+        VoterResource: unknown[];
     };
     responses: {
         /** @description Validation error */
@@ -2186,6 +2367,200 @@ export interface operations {
                 };
                 content?: never;
             };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "group.index": {
+        parameters: {
+            query?: {
+                page?: number;
+                per_page?: number;
+            };
+            header?: never;
+            path: {
+                /** @description The election UUID */
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            name: string;
+                            voters_count: number;
+                            created_at: string;
+                            updated_at: string;
+                        }[];
+                        meta: {
+                            page: number;
+                            per_page: number;
+                            total: number;
+                            voters_total: number;
+                            ungrouped: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "group.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The election UUID */
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateGroupRequest"];
+            };
+        };
+        responses: {
+            /** @description `GroupResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            name: string;
+                            voters_count: number;
+                            created_at: string;
+                            updated_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "group.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The group UUID */
+                group: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "group.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The group UUID */
+                group: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateGroupRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            name: string;
+                            voters_count: number;
+                            created_at: string;
+                            updated_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "groups.groupMerge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The group UUID */
+                group: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MergeGroupsRequest"];
+            };
+        };
+        responses: {
+            /** @description `GroupResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            name: string;
+                            voters_count: number;
+                            created_at: string;
+                            updated_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            /** @description An error */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
+                    };
+                };
+            };
+            404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -3314,6 +3689,165 @@ export interface operations {
                 };
                 content?: never;
             };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "voter.index": {
+        parameters: {
+            query?: {
+                page?: number;
+                per_page?: number;
+                q?: string | null;
+                group?: string | null;
+            };
+            header?: never;
+            path: {
+                /** @description The election UUID */
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            full_name: string;
+                            group: {
+                                id: string;
+                                name: string;
+                            } | null;
+                            identifier: string | null;
+                            email: string | null;
+                            phone: string | null;
+                            created_at: string;
+                            updated_at: string;
+                        }[];
+                        meta: {
+                            page: number;
+                            per_page: number;
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "voter.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The election UUID */
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateVoterRequest"];
+            };
+        };
+        responses: {
+            /** @description `VoterResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            full_name: string;
+                            group: {
+                                id: string;
+                                name: string;
+                            } | null;
+                            identifier: string | null;
+                            email: string | null;
+                            phone: string | null;
+                            created_at: string;
+                            updated_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "voter.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The voter UUID */
+                voter: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "voter.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The voter UUID */
+                voter: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateVoterRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            full_name: string;
+                            group: {
+                                id: string;
+                                name: string;
+                            } | null;
+                            identifier: string | null;
+                            email: string | null;
+                            phone: string | null;
+                            created_at: string;
+                            updated_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
     };

@@ -28,6 +28,10 @@ return [
     'ballot_limit_reached' => 'An election cannot have more than 50 ballots.',
     'party_limit_reached' => 'An election cannot have more than 30 parties.',
     'candidate_limit_reached' => 'A ballot cannot have more than 50 candidates.',
+    'election_voters_locked' => 'The voters and groups of this election can no longer be changed.',
+    'voter_limit_reached' => 'An election cannot have more than 10,000 voters.',
+    'group_limit_reached' => 'An election cannot have more than 100 groups.',
+    'group_in_use' => 'This group still has voters. Move them or merge the group.',
     'election_not_deletable' => 'This election can no longer be deleted.',
     'cannot_reset_self' => 'Use your "My account" page to turn off your own two-factor authentication.',
 ];

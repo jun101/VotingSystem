@@ -84,11 +84,16 @@ it('answers 401 when nobody is signed in [FR-VOT-06] (scenario 4)', function () 
 });
 
 it('answers 429 above 240 requests an hour from one user [NFR-SEC-05] (scenario 7)', function () {
-    [$t, $election, $voter] = voterDeleteSignedIn($this);
-    foreach (range(1, 240) as $i) {
-        $this->browser->delete(voterDeleteUrl(VOTER_DELETE_UNKNOWN))->assertStatus(404);
+    [$t, $election, $first] = voterDeleteSignedIn($this);
+    $ids = [$first];
+    foreach (range(2, 241) as $i) {
+        $ids[] = Accounts::plantVoter(['election' => $election, 'full_name' => "Électeur {$i}"]);
     }
 
-    $this->browser->delete(voterDeleteUrl($voter))->assertStatus(429)->assertJsonPath('error.code', 'too_many_attempts');
-    expect(Accounts::voterRow($voter))->not->toBeNull();
+    foreach (array_slice($ids, 0, 240) as $id) {
+        $this->browser->delete(voterDeleteUrl($id))->assertNoContent();
+    }
+
+    $this->browser->delete(voterDeleteUrl($ids[240]))->assertStatus(429)->assertJsonPath('error.code', 'too_many_attempts');
+    expect(Accounts::voterRow($ids[240]))->not->toBeNull();
 });

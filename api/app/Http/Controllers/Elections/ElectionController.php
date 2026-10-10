@@ -16,6 +16,7 @@ use App\Models\Candidate;
 use App\Models\Election;
 use App\Models\Party;
 use App\Models\User;
+use App\Models\Voter;
 use App\Support\Media\ImageReEncoder;
 use Dedoc\Scramble\Attributes\Response;
 use Illuminate\Http\JsonResponse;
@@ -161,6 +162,9 @@ class ElectionController extends Controller
             // files after the commit).
             $photos = Candidate::query()->where('election_id', $locked->id)->whereNotNull('photo_file')->pluck('photo_file')->all();
             $logos = Party::query()->where('election_id', $locked->id)->whereNotNull('logo_file')->pluck('logo_file')->all();
+            // The voters go before the election: a group with voters is restricted, and the cascade
+            // from the election may reach the groups first.
+            Voter::query()->where('election_id', $locked->id)->delete();
             $locked->delete();
         });
 

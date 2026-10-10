@@ -88,11 +88,16 @@ it('answers 401 when nobody is signed in [FR-VOT-08] (scenario 5)', function () 
 });
 
 it('answers 429 above 120 requests an hour from one user [NFR-SEC-05] (scenario 8)', function () {
-    [$t, $election, $group] = groupDeleteSignedIn($this);
-    foreach (range(1, 120) as $i) {
-        $this->browser->delete(groupDeleteUrl(GROUP_DELETE_UNKNOWN))->assertStatus(404);
+    [$t, $election, $first] = groupDeleteSignedIn($this);
+    $ids = [$first];
+    foreach (range(2, 121) as $i) {
+        $ids[] = Accounts::plantGroup(['election' => $election, 'name' => "Groupe {$i}"]);
     }
 
-    $this->browser->delete(groupDeleteUrl($group))->assertStatus(429)->assertJsonPath('error.code', 'too_many_attempts');
-    expect(Accounts::groupRow($group))->not->toBeNull();
+    foreach (array_slice($ids, 0, 120) as $id) {
+        $this->browser->delete(groupDeleteUrl($id))->assertNoContent();
+    }
+
+    $this->browser->delete(groupDeleteUrl($ids[120]))->assertStatus(429)->assertJsonPath('error.code', 'too_many_attempts');
+    expect(Accounts::groupRow($ids[120]))->not->toBeNull();
 });
