@@ -65,3 +65,12 @@ pest()->beforeEach(function () {
     Tests\Support\Team::clearMedia();
     $this->browser = new Tests\Support\AuthClient($this);
 })->in('Acceptance/Slice07');
+
+// Slice 08: the same, and an empty `imports` disk (docs/slices/08-import.md). The queue runs `sync`.
+pest()->beforeEach(function () {
+    Tests\Support\Accounts::reset();
+    Tests\Support\Tenancy::installProbeTables();
+    Tests\Support\Team::clearMedia();
+    Tests\Support\Spreadsheets::clearImports();
+    $this->browser = new Tests\Support\AuthClient($this);
+})->in('Acceptance/Slice08');

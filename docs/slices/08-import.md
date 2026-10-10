@@ -66,17 +66,18 @@ The slice is cut in four runs, each ending green before the next (as slice 06).
 
 | Item | Requirement |
 |---|---|
-| Dependency | `openspout/openspout` (current major), added to `composer.json`; no formula is ever evaluated |
+| Dependency | `openspout/openspout` (current major), added to `composer.json`; it needs the PHP `zip` extension, which the `api` image does not have yet: install it in the image (the `queue`, `scheduler` and `test` services use the same image). No formula is ever evaluated |
 | Migrations | `voter_imports` and `voter_import_rows` as in database.md (`uuid` on imports; tenant column on both) |
 | Models | `VoterImport`, `VoterImportRow`: `HasUuid`, `BelongsToInstitution`; `Election::voterImports()` |
 | Template | Built on the fly (xlsx with an `Instructions` sheet in the user's language; csv UTF-8 with BOM) |
+| Disk | A private disk named `imports` in `config/filesystems.php` (local, not under `public`, never served by the proxy); the tests empty it (`Tests\Support\Spreadsheets::clearImports()`) |
 | Upload | Content check (ZIP with `[Content_Types].xml` and `xl/workbook.xml`, or text with no NUL, UTF-8 or Windows-1252), size, zip-bomb bound; stored under a random UUID on a private disk (never a path from the name); queue job `CheckVoterImport` |
 | Check job | Streams the file; reads the first sheet; detects the separator `,` or `;`; proposes the mapping; validates each row; writes `voter_import_rows`, counts, `new_groups`, status `checked` or `failed`; never logs a cell |
 | Mapping | PATCH re-runs the check with the new mapping |
 | Rows | Paged 50, filter `all`, `ok`, `errors` |
 | Delete | Removes file and rows; an `uploaded` import is cancelled (the job checks the import still exists) |
 | Isolation | The routes are in `Tenancy::TENANT_ROUTES` (added with the acceptance tests) |
-| Test environment | The `test` service uses `QUEUE_CONNECTION=sync` so a job runs inside the request that dispatches it |
+| Test environment | The `test` service uses `QUEUE_CONNECTION=sync` so a job runs inside the request that dispatches it; the running stack keeps its Redis queue and the `queue` service |
 
 ### 08b. Server: confirm, import and error file
 
