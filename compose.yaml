@@ -152,7 +152,8 @@ services:
     volumes:
       - ./api:/var/www/html
       - ./docs/api:/var/www/docs/api
-      - media:/var/www/media
+      # No `media` volume here: the tests empty the media disk, and the dev pictures live there.
+      # The container's own folder serves them.
       # The design tokens, which the email tests read (docs/design/email.md section 1).
       - ./web/src/styles:/var/www/web/src/styles:ro
       # The time zone list of the profile form, which a test compares with PHP's.
