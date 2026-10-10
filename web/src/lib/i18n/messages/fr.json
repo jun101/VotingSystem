@@ -644,6 +644,20 @@
         "same": "Choisissez un autre groupe que celui-ci.",
         "invalid": "Ce groupe n’existe plus. Rechargez la page."
       }
+    },
+    "copy": {
+      "source": {
+        "required": "Choisissez l’élection d’origine.",
+        "uuid": "Choisissez une élection dans la liste.",
+        "same": "Choisissez une autre élection que celle-ci.",
+        "invalid": "Cette élection n’existe plus. Rechargez la page."
+      },
+      "groups": {
+        "invalid": "Un des groupes choisis n’existe plus. Choisissez de nouveau l’élection."
+      },
+      "rename": {
+        "invalid": "Un nouveau nom est vide, trop long (100 caractères au plus) ou ne correspond pas à un groupe chargé."
+      }
     }
   },
   "institution": {
@@ -1323,6 +1337,46 @@
       "text": "L’électeur « {name} » sera supprimé de l’élection. Son groupe est conservé.",
       "confirm": "Supprimer",
       "cancel": "Annuler"
+    },
+    "copy": {
+      "open": "Charger depuis une élection",
+      "title": "Charger des électeurs",
+      "text": "Copie les électeurs d’une autre élection de l’établissement, avec leurs groupes. Les codes ne sont pas copiés.",
+      "source": "Élection d’origine",
+      "choose": "Choisir une élection",
+      "sourcesLoading": "Lecture des élections…",
+      "sourcesNone": "L’établissement n’a pas d’autre élection.",
+      "sourcesFailed": "Les élections n’ont pas pu être lues. Fermez et réessayez dans un instant.",
+      "groupsLoading": "Lecture des groupes…",
+      "groupsFailed": "Les groupes de cette élection n’ont pas pu être lus. Choisissez-la de nouveau.",
+      "scope": "Électeurs à charger",
+      "all": "Tous les électeurs, avec ceux sans groupe",
+      "some": "Seulement certains groupes",
+      "noGroups": "Cette élection n’a aucun groupe.",
+      "ungrouped": "Électeurs sans groupe",
+      "rename": "Nouveau nom pour « {name} »",
+      "renameHelp": "Laissez vide pour garder le nom.",
+      "submit": {
+        "one": "Charger {count} électeur",
+        "other": "Charger {count} électeurs"
+      },
+      "submitPlain": "Charger les électeurs",
+      "cancel": "Annuler",
+      "close": "Fermer",
+      "error": "Les électeurs n’ont pas pu être chargés.",
+      "resultTitle": "Les électeurs sont chargés.",
+      "copied": {
+        "one": "{count} électeur chargé",
+        "other": "{count} électeurs chargés"
+      },
+      "skipped": {
+        "one": "{count} électeur ignoré (identifiant ou courriel déjà présent)",
+        "other": "{count} électeurs ignorés (identifiant ou courriel déjà présent)"
+      },
+      "created": {
+        "one": "{count} groupe créé",
+        "other": "{count} groupes créés"
+      }
     },
     "rail": {
       "label": "Groupes et codes"

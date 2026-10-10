@@ -11,6 +11,8 @@ import type {
   NewVoter,
   Voter,
   VoterChanges,
+  VoterCopyBody,
+  VoterCopyResult,
   VoterFilters,
   VoterGroup,
   VoterList,
@@ -724,6 +726,18 @@ export async function fetchVoters(election: string, filters: VoterFilters): Prom
 export async function createVoter(election: string, body: NewVoter): Promise<Voter> {
   const { data } = await send((api) =>
     api.POST('/v1/elections/{election}/voters', { params: { path: { election } }, body }),
+  );
+
+  return data!.data;
+}
+
+/** `POST /elections/{election}/voter-copies`: loads voters from another election. */
+export async function copyVoters(election: string, body: VoterCopyBody): Promise<VoterCopyResult> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/voter-copies', {
+      params: { path: { election } },
+      body,
+    }),
   );
 
   return data!.data;

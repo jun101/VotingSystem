@@ -6256,6 +6256,104 @@
                 }
             }
         },
+        "/v1/elections/{election}/voter-copies": {
+            "post": {
+                "operationId": "voters.voterCopy",
+                "description": "Copies the voters of `source`, another election of the institution in any status, into this\ndraft or scheduled election, with their groups (found by name or created; `rename` gives a\ngroup another name). `groups` limits the copy to some groups of the source and\n`include_ungrouped` says whether the voters with no group come too. A voter whose identifier\nor email the election already has is skipped and counted. Credentials, codes and dates are\nnever copied. One transaction; a 409 leaves the election as it was. Owner or manager.\nLimited to 20 requests per hour per user.",
+                "summary": "Load the voters of another election",
+                "tags": [
+                    "VoterCopy"
+                ],
+                "parameters": [
+                    {
+                        "name": "election",
+                        "in": "path",
+                        "required": true,
+                        "description": "The election UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CopyVotersRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "copied": {
+                                                    "type": "integer"
+                                                },
+                                                "skipped": {
+                                                    "type": "integer"
+                                                },
+                                                "groups_created": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "required": [
+                                                "copied",
+                                                "skipped",
+                                                "groups_created"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                ""
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
         "/v1/elections/{election}/voter-imports/template": {
             "get": {
                 "operationId": "voterImport.template",
@@ -7404,6 +7502,26 @@
                 "type": "array",
                 "items": {},
                 "title": "CandidateResource"
+            },
+            "CopyVotersRequest": {
+                "type": "object",
+                "description": "docs/api/voters/POST-elections-{election}-voter-copies.md.",
+                "properties": {
+                    "source": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "include_ungrouped": {
+                        "type": [
+                            "boolean",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "source"
+                ],
+                "title": "CopyVotersRequest"
             },
             "CreateBallotRequest": {
                 "type": "object",

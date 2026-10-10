@@ -28,6 +28,7 @@ use App\Http\Controllers\Users\InvitationController;
 use App\Http\Controllers\Users\UserController;
 use App\Http\Controllers\VoterImports\VoterImportController;
 use App\Http\Controllers\Voters\VoterController;
+use App\Http\Controllers\Voters\VoterCopyController;
 use Illuminate\Support\Facades\Route;
 
 // The `/api` prefix is added by the framework; every route lives under `/api/v1`.
@@ -110,6 +111,9 @@ Route::prefix('v1')->group(function (): void {
         Route::post('/{election}/voters', [VoterController::class, 'store'])->middleware('throttle:voters-write');
         Route::get('/{election}/groups', [GroupController::class, 'index']);
         Route::post('/{election}/groups', [GroupController::class, 'store'])->middleware('throttle:groups-write');
+
+        // Voters loaded from another election (slice 09b).
+        Route::post('/{election}/voter-copies', VoterCopyController::class)->middleware('throttle:voter-copies');
 
         // The voter import of an election (slice 08a): the template and the upload.
         Route::get('/{election}/voter-imports/template', [VoterImportController::class, 'template'])->middleware('throttle:voter-imports');

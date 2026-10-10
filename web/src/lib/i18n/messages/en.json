@@ -644,6 +644,20 @@
         "same": "Choose a group other than this one.",
         "invalid": "This group no longer exists. Reload the page."
       }
+    },
+    "copy": {
+      "source": {
+        "required": "Choose the source election.",
+        "uuid": "Choose an election from the list.",
+        "same": "Choose an election other than this one.",
+        "invalid": "This election no longer exists. Reload the page."
+      },
+      "groups": {
+        "invalid": "One of the chosen groups no longer exists. Choose the election again."
+      },
+      "rename": {
+        "invalid": "A new name is empty, too long (100 characters at most) or does not match a group being loaded."
+      }
     }
   },
   "institution": {
@@ -1323,6 +1337,46 @@
       "text": "The voter “{name}” will be removed from the election. Their group is kept.",
       "confirm": "Delete",
       "cancel": "Cancel"
+    },
+    "copy": {
+      "open": "Load from another election",
+      "title": "Load voters",
+      "text": "Copies the voters of another election of the institution, with their groups. Codes are not copied.",
+      "source": "Source election",
+      "choose": "Choose an election",
+      "sourcesLoading": "Reading the elections…",
+      "sourcesNone": "The institution has no other election.",
+      "sourcesFailed": "The elections could not be read. Close and try again in a moment.",
+      "groupsLoading": "Reading the groups…",
+      "groupsFailed": "The groups of this election could not be read. Choose it again.",
+      "scope": "Voters to load",
+      "all": "Every voter, those with no group included",
+      "some": "Only some groups",
+      "noGroups": "This election has no group.",
+      "ungrouped": "Voters with no group",
+      "rename": "New name for “{name}”",
+      "renameHelp": "Leave empty to keep the name.",
+      "submit": {
+        "one": "Load {count} voter",
+        "other": "Load {count} voters"
+      },
+      "submitPlain": "Load the voters",
+      "cancel": "Cancel",
+      "close": "Close",
+      "error": "The voters could not be loaded.",
+      "resultTitle": "The voters are loaded.",
+      "copied": {
+        "one": "{count} voter loaded",
+        "other": "{count} voters loaded"
+      },
+      "skipped": {
+        "one": "{count} voter skipped (identifier or email already there)",
+        "other": "{count} voters skipped (identifier or email already there)"
+      },
+      "created": {
+        "one": "{count} group created",
+        "other": "{count} groups created"
+      }
     },
     "rail": {
       "label": "Groups and codes"

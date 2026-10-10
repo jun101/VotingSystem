@@ -1068,6 +1068,32 @@ export interface paths {
         patch: operations["voter.update"];
         trace?: never;
     };
+    "/v1/elections/{election}/voter-copies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Load the voters of another election
+         * @description Copies the voters of `source`, another election of the institution in any status, into this
+         *     draft or scheduled election, with their groups (found by name or created; `rename` gives a
+         *     group another name). `groups` limits the copy to some groups of the source and
+         *     `include_ungrouped` says whether the voters with no group come too. A voter whose identifier
+         *     or email the election already has is skipped and counted. Credentials, codes and dates are
+         *     never copied. One transaction; a 409 leaves the election as it was. Owner or manager.
+         *     Limited to 20 requests per hour per user.
+         */
+        post: operations["voters.voterCopy"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/elections/{election}/voter-imports/template": {
         parameters: {
             query?: never;
@@ -1238,6 +1264,15 @@ export interface components {
         BallotResource: unknown[];
         /** CandidateResource */
         CandidateResource: unknown[];
+        /**
+         * CopyVotersRequest
+         * @description docs/api/voters/POST-elections-{election}-voter-copies.md.
+         */
+        CopyVotersRequest: {
+            /** Format: uuid */
+            source: string;
+            include_ungrouped?: boolean | null;
+        };
         /**
          * CreateBallotRequest
          * @description docs/api/ballots/POST-elections-{election}-ballots.md.
@@ -4048,6 +4083,56 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "voters.voterCopy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The election UUID */
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CopyVotersRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            copied: number;
+                            skipped: number;
+                            groups_created: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            /** @description An error */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
+                    };
+                };
+            };
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };

@@ -17,6 +17,7 @@ import { ApiError, errorText } from '@/lib/api/errors';
 import type { GroupList, Voter, VoterFilters, VoterGroup, VoterList } from '@/lib/api/voters';
 import { useI18n } from '@/lib/i18n/client';
 import { ballotsCovering } from '@/components/ballots/ballotScope';
+import { CopyVotersDialog } from './CopyVotersDialog';
 import { DeleteGroupDialog } from './DeleteGroupDialog';
 import { DeleteVoterDialog } from './DeleteVoterDialog';
 import { GroupModal } from './GroupModal';
@@ -45,6 +46,11 @@ const CHIP =
 /** The coral main action on the header band. */
 const ADD =
   'ui-control lift-sm inline-flex h-12 items-center justify-center gap-2 rounded-full border border-accent bg-accent pr-5.5 pl-4 text-md font-bold text-deep shadow-button max-md:w-full ' +
+  focusRing;
+
+/** The glass button of the copy, as the import link. */
+const COPY =
+  'ui-control inline-flex h-12 items-center justify-center gap-2 rounded-full border border-glass-line bg-glass pr-5 pl-4 text-md font-semibold text-surface hover:bg-glass-line max-md:w-full ' +
   focusRing;
 
 /** The glass link of the import, beside the main action. */
@@ -100,6 +106,7 @@ export function VotersPage({
   const [list, setList] = useState<VoterList>(initial);
   const [groups, setGroups] = useState<GroupList>(initialGroups);
   const [form, setForm] = useState<FormState | null>(null);
+  const [copying, setCopying] = useState(false);
   const [deleting, setDeleting] = useState<Voter | null>(null);
   const [groupForm, setGroupForm] = useState<GroupFormState | null>(null);
   const [merging, setMerging] = useState<VoterGroup | null>(null);
@@ -206,6 +213,7 @@ export function VotersPage({
   async function locked() {
     setProblem(errorText(new ApiError(409, 'election_voters_locked'), tIfAny));
     setForm(null);
+    setCopying(false);
     setDeleting(null);
     setGroupForm(null);
     setMerging(null);
@@ -385,6 +393,17 @@ export function VotersPage({
                 <Icon path="M12 16V4M6 10l6-6 6 6M4 20h16" size={18} />
                 {t('voters.import')}
               </Link>
+            ) : null}
+            {importAllowed(election.status) && !lockedSeen ? (
+              <button
+                type="button"
+                data-testid="voters-copy"
+                onClick={() => setCopying(true)}
+                className={COPY}
+              >
+                <Icon name="list" size={18} />
+                {t('voters.copy.open')}
+              </button>
             ) : null}
             <button
               ref={addButton}
@@ -671,6 +690,18 @@ export function VotersPage({
           onSaved={() => void refresh()}
           onLocked={() => void locked()}
           onClose={() => setForm(null)}
+        />
+      ) : null}
+
+      {rules.groups && copying ? (
+        <CopyVotersDialog
+          election={election.id}
+          onLocked={() => void locked()}
+          onCancel={() => setCopying(false)}
+          onDone={() => {
+            setCopying(false);
+            void refresh();
+          }}
         />
       ) : null}
 
