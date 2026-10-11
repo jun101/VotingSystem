@@ -78,4 +78,18 @@ variable instead of asked; documented in the command's file).
 
 ## Not in this slice
 
-Platform statistics beyond counts, billing, impersonation (never), the operator's vote-audit command (19).
+Platform statistics beyond counts, billing, the operator's vote-audit command (19). Impersonation is slice 18c below (Jun, 2026-10-12: it replaces "never").
+
+## Slice 18c: the platform admin acts as a school's owner (Jun, 2026-10-12, no consent needed)
+
+Replaces the "never impersonate" rule and changes FR-ADM-02 only as far as an owner already sees: the platform admin
+inherits an owner's reach (voter lists, credentials, files), no more. Ballot secrecy is untouched (rule 3: no vote, no
+`vote_audit`, no count before close for the admin either).
+
+Endpoint files: [impersonate](../api/platform/POST-platform-institutions-{institution}-impersonate.md),
+[end](../api/platform/DELETE-platform-impersonation.md). Safeguards: 60 minutes at most; the account-security routes
+are refused (403 `impersonation_forbidden`); every action is audited under the admin's name and visible to the owner;
+owners are emailed at the start. Tests: `api/tests/Acceptance/Slice18/ImpersonationTest.php`.
+Web (18c-web): a "Se connecter en tant que" button on each active card of `/platform` (`platform-impersonate-{n}`), a
+banner on every admin page while acting (`impersonation-banner`, with the institution, the time left and
+`impersonation-end`), and the end returns to `/platform`.

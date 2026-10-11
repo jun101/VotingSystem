@@ -342,4 +342,6 @@ Filled slice by slice: each slice adds its endpoints here with a link to their f
 | Platform | `GET /platform/institutions` | 18 | [platform/GET-platform-institutions.md](platform/GET-platform-institutions.md) |
 | Platform | `POST /platform/institutions/{institution}/suspend` | 18 | [platform/POST-platform-institutions-{institution}-suspend.md](platform/POST-platform-institutions-{institution}-suspend.md) |
 | Platform | `POST /platform/institutions/{institution}/reactivate` | 18 | [platform/POST-platform-institutions-{institution}-reactivate.md](platform/POST-platform-institutions-{institution}-reactivate.md) |
+| Platform | `POST /platform/institutions/{institution}/impersonate` | 18c | [platform/POST-platform-institutions-{institution}-impersonate.md](platform/POST-platform-institutions-{institution}-impersonate.md) |
+| Platform | `DELETE /platform/impersonation` | 18c | [platform/DELETE-platform-impersonation.md](platform/DELETE-platform-impersonation.md) |
 | Platform | `php artisan platform:create-admin` (command) | 18 | [platform/COMMAND-platform-create-admin.md](platform/COMMAND-platform-create-admin.md) |

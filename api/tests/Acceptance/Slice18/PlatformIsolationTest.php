@@ -43,7 +43,9 @@ it('has no route under /platform that returns votes, credentials or voter data [
     sort($paths);
 
     expect($paths)->toBe([
+        'api/v1/platform/impersonation',
         'api/v1/platform/institutions',
+        'api/v1/platform/institutions/{institution}/impersonate',
         'api/v1/platform/institutions/{institution}/reactivate',
         'api/v1/platform/institutions/{institution}/suspend',
     ]);
