@@ -161,7 +161,7 @@ export default async function HomePage() {
 
               <div
                 data-testid="home-organiser-door"
-                className="flex min-w-0 flex-col gap-4 border-t border-line-soft p-5 md:border-t-0 md:border-l sm:flex-row sm:p-7"
+                className="flex min-w-0 flex-col gap-4 border-t border-line-soft p-5 sm:flex-row sm:p-7 md:border-t-0 md:border-l"
               >
                 <span
                   aria-hidden="true"
