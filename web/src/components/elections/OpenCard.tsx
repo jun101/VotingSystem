@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Icon } from '@/components/admin/Icon';
 import { focusRing } from '@/components/admin/classes';
@@ -32,6 +33,7 @@ export function OpenCard({
   className?: string;
 }) {
   const { t, locale } = useI18n();
+  const router = useRouter();
   const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
@@ -46,6 +48,16 @@ export function OpenCard({
   const end = new Date(election.ends_at);
   const left = now === null ? null : remaining(election.ends_at, now);
   const over = left !== null && left.days + left.hours + left.minutes + left.seconds === 0;
+  // Past the end the scheduler closes the election within the minute: read it again until it has.
+  useEffect(() => {
+    if (!over) return;
+
+    router.refresh();
+    const timer = setInterval(() => router.refresh(), 15_000);
+
+    return () => clearInterval(timer);
+  }, [over, router]);
+
   const pad = (n: number) => String(n).padStart(2, '0');
 
   const units = [

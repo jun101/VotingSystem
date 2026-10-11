@@ -361,7 +361,7 @@ export function ElectionSummary({ election: given }: { election: Election }) {
         className="flex flex-col gap-4.5 rounded-2xl border border-line bg-surface p-5 shadow-1"
       >
         {election.status === 'closed' ? (
-          <Notice tone="teal" data-testid="election-closed-note">
+          <Notice tone="teal" tabIndex={-1} data-testid="election-closed-note">
             {t('elections.close.note')}
           </Notice>
         ) : draft ? null : (
@@ -597,11 +597,20 @@ export function ElectionSummary({ election: given }: { election: Election }) {
         <CloseDialog
           election={election}
           onCancel={() => setClosing(false)}
+          onStale={() => router.refresh()}
           onClosed={(saved) => {
             setElection(saved);
             setClosing(false);
             setProblem(null);
             router.refresh();
+            // The button that opened the dialog is gone: keep the keyboard on the page's news.
+            setTimeout(
+              () =>
+                document
+                  .querySelector<HTMLElement>('[data-testid="election-closed-note"]')
+                  ?.focus(),
+              0,
+            );
           }}
         />
       ) : null}
@@ -610,6 +619,7 @@ export function ElectionSummary({ election: given }: { election: Election }) {
         <ExtendDialog
           election={election}
           onCancel={() => setExtending(false)}
+          onStale={() => router.refresh()}
           onExtended={(saved) => {
             setElection(saved);
             setExtending(false);

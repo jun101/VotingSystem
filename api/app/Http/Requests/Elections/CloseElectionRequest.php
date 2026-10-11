@@ -26,7 +26,7 @@ class CloseElectionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'confirmation' => ['bail', 'required', 'string'],
+            'confirmation' => ['bail', 'required', 'string', 'max:200'],
         ];
     }
 

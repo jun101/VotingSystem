@@ -4,7 +4,7 @@ import { useState, type FormEvent } from 'react';
 import { Button, Input, Modal, Notice } from '@/components/ui';
 import { closeElection } from '@/lib/api/browser';
 import type { Election } from '@/lib/api/elections';
-import { ApiError, errorText, fieldText } from '@/lib/api/errors';
+import { ApiError, fieldText, waitText } from '@/lib/api/errors';
 import { useI18n } from '@/lib/i18n/client';
 
 /** Whether what was typed is the title (case and surrounding spaces ignored, accents counted). */
@@ -20,10 +20,13 @@ export function CloseDialog({
   election,
   onClosed,
   onCancel,
+  onStale,
 }: {
   election: Pick<Election, 'id' | 'title'>;
   onClosed: (election: Election) => void;
   onCancel: () => void;
+  /** The API says the election is no longer in the state the page showed: the page should read it again. */
+  onStale?: () => void;
 }) {
   const { t, tIfAny } = useI18n();
   const [typed, setTyped] = useState('');
@@ -45,7 +48,8 @@ export function CloseDialog({
       const failure = caught instanceof ApiError ? caught : new ApiError(0, 'unknown');
       const code = failure.fields.confirmation?.[0];
 
-      setError(code ? fieldText('closing.confirmation', code, tIfAny) : errorText(failure, tIfAny));
+      setError(code ? fieldText('closing.confirmation', code, tIfAny) : waitText(failure, tIfAny));
+      if (failure.status === 409) onStale?.();
       setBusy(false);
     }
   }

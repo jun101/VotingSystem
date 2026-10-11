@@ -19,7 +19,7 @@ Body, JSON:
 
 | Field | Type | Rules |
 |---|---|---|
-| confirmation | string | Required. The election's title, as written (case and surrounding spaces ignored, accents counted) |
+| confirmation | string | Required, at most 200 characters (422 `max` above). The election's title, as written (case and surrounding spaces ignored, accents counted) |
 
 ```json
 { "confirmation": "Conseil des élèves 2026" }
@@ -29,7 +29,7 @@ Body, JSON:
 
 | # | Scenario | Status | `error.code` | Test |
 |---|---|---|---|---|
-| 1 | An open election, the right title | 200 (the election with `status` `closed`, `closed_at` now) | | |
+| 1 | An open election, the right title | 200 (the election with `status` `closed`; `closed_at` is set in the database, the election resource does not show it) | | |
 | 2 | The same title in other case and with spaces around | 200 | | |
 | 3 | A title that does not match, or no `confirmation` | 422 | `validation_failed` (`confirmation: mismatch`, `confirmation: required`) | |
 | 4 | The election is a draft, scheduled, closed, published or archived | 409 | `election_not_open` | |
@@ -41,10 +41,13 @@ Body, JSON:
 
 ### 200
 
-The election as in [GET election](GET-elections-{election}.md), `status` `closed`, `closed_at` set.
+The election as in [GET election](GET-elections-{election}.md), `status` `closed`.
 
 ## Notes
 
 The election row is locked and its status read again under the lock. Closing writes nothing about votes and reads no
 vote. After closing, vote attempts answer 409 `election_not_open` (the time check and the status both say so). The
 generated slip and code files are removed by the daily purge.
+
+Order of the checks: election (404), then the shape of the body (422 `confirmation: required` or `invalid`, even when the
+election is in another state), then the state under the row lock (409), then the value (422 `mismatch`).

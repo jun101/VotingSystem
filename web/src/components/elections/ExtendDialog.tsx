@@ -4,7 +4,7 @@ import { useState, type FormEvent } from 'react';
 import { Button, Input, Modal } from '@/components/ui';
 import { extendElection } from '@/lib/api/browser';
 import type { Election } from '@/lib/api/elections';
-import { ApiError, errorText, fieldText } from '@/lib/api/errors';
+import { ApiError, fieldText, waitText } from '@/lib/api/errors';
 import { fromLocalInput, toLocalInput } from '@/lib/format/zonedTime';
 import { useI18n } from '@/lib/i18n/client';
 
@@ -17,10 +17,13 @@ export function ExtendDialog({
   election,
   onExtended,
   onCancel,
+  onStale,
 }: {
   election: Pick<Election, 'id' | 'ends_at' | 'timezone'>;
   onExtended: (election: Election) => void;
   onCancel: () => void;
+  /** The API says the election is no longer in the state the page showed: the page should read it again. */
+  onStale?: () => void;
 }) {
   const { t, tIfAny } = useI18n();
   const [value, setValue] = useState(() => toLocalInput(election.ends_at, election.timezone));
@@ -35,7 +38,7 @@ export function ExtendDialog({
     const read = fromLocalInput(value, election.timezone);
 
     if (!read) {
-      setError(fieldText('election.ends_at', 'invalid', tIfAny));
+      setError(fieldText('election.ends_at', value.trim() === '' ? 'required' : 'invalid', tIfAny));
 
       return;
     }
@@ -54,7 +57,8 @@ export function ExtendDialog({
       const failure = caught instanceof ApiError ? caught : new ApiError(0, 'unknown');
       const code = failure.fields.ends_at?.[0];
 
-      setError(code ? fieldText('election.ends_at', code, tIfAny) : errorText(failure, tIfAny));
+      setError(code ? fieldText('election.ends_at', code, tIfAny) : waitText(failure, tIfAny));
+      if (failure.status === 409) onStale?.();
       setBusy(false);
     }
   }

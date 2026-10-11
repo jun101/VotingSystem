@@ -10101,7 +10101,8 @@
                 "description": "docs/api/elections/POST-elections-{election}-close.md: the typed confirmation. That it equals the title\nis judged in the controller, under the row lock, after the status.",
                 "properties": {
                     "confirmation": {
-                        "type": "string"
+                        "type": "string",
+                        "maxLength": 200
                     }
                 },
                 "required": [
