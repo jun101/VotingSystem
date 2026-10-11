@@ -70,7 +70,7 @@ export function Countdown({ target, onDue }: { target: string; onDue: () => void
             >
               {unit.value === undefined ? '--' : String(unit.value).padStart(2, '0')}
             </span>
-            <span className="max-w-full truncate text-xs font-medium text-ink-2 sm:text-sm">
+            <span className="max-w-full text-xs font-medium text-ink-2 sm:text-sm">
               {unit.label}
             </span>
           </div>
