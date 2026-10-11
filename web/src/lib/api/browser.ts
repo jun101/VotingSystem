@@ -34,6 +34,7 @@ import type {
 } from './voters';
 import { VOTERS_PER_PAGE } from './voters';
 import type { paths } from './schema';
+import type { Results, SecondRound } from './results';
 import type { Dashboard, ExportQuery, Turnout, TurnoutBucket } from './turnout';
 import type {
   ImportMapping,
@@ -1113,6 +1114,42 @@ export async function fetchTurnout(election: string, bucket?: TurnoutBucket): Pr
   const { data } = await send((api) =>
     api.GET('/v1/elections/{election}/turnout', {
       params: { path: { election }, ...(bucket ? { query: { bucket } } : {}) },
+      cache: 'no-store',
+    }),
+  );
+
+  return data!.data;
+}
+
+/** `PUT /ballots/{ballot}/result-note`: sets the public note of a ballot's result (null or empty clears it). */
+export async function saveResultNote(ballot: string, note: string | null): Promise<string | null> {
+  const { data } = await send((api) =>
+    api.PUT('/v1/ballots/{ballot}/result-note', {
+      params: { path: { ballot } },
+      body: { note },
+    }),
+  );
+
+  return data!.data.note;
+}
+
+/** `POST /elections/{election}/second-round`: a draft election from a tied ballot. */
+export async function createSecondRound(election: string, ballot: string): Promise<SecondRound> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/second-round', {
+      params: { path: { election } },
+      body: { ballot },
+    }),
+  );
+
+  return data!.data;
+}
+
+/** `GET /elections/{election}/results`, read again after a change. */
+export async function fetchResults(election: string): Promise<Results> {
+  const { data } = await send((api) =>
+    api.GET('/v1/elections/{election}/results', {
+      params: { path: { election } },
       cache: 'no-store',
     }),
   );

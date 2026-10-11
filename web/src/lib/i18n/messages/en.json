@@ -589,7 +589,10 @@
     "email_count_changed": "The number of emails changed. Check the new numbers, then confirm again.",
     "nothing_to_email": "None of these voters has an address: no email to send.",
     "email_not_verified": "Confirm your email address first to send codes by email. You can still print the slips.",
-    "email_quota_exceeded": "The institution’s limit of emails for 24 hours is reached or would be: send fewer emails, or print the slips."
+    "email_quota_exceeded": "The institution’s limit of emails for 24 hours is reached or would be: send fewer emails, or print the slips.",
+    "results_not_available": "The results are not available: the election is not closed.",
+    "second_round_exists": "A second round already exists for this position.",
+    "ballot_not_tied": "This position is not tied: no second round is possible."
   },
   "validation": {
     "required": "This field is required.",
@@ -1205,7 +1208,7 @@
       "timezone": "Time zone",
       "language": "Voting language",
       "order": "Order of the candidates",
-      "results": "Public results page",
+      "results": "See the results",
       "ballots": "Positions and voters",
       "edit": "Edit",
       "duplicate": "Duplicate",
@@ -2412,5 +2415,115 @@
       "action": "Manage the voters"
     },
     "voters": "See the voters"
+  },
+  "results": {
+    "title": "Results",
+    "back": "Back to the election",
+    "zone": "Election results",
+    "empty": "This election has no ballot.",
+    "percent": "{percent}%",
+    "unavailable": {
+      "title": "The results are not available yet",
+      "text": {
+        "open": "Voting is in progress. No result is visible, for anyone, until the election is closed.",
+        "other": "Results appear only after the election is closed. No result is visible, for anyone, before then."
+      },
+      "election": "Back to the election",
+      "turnout": "Follow the turnout"
+    },
+    "hero": {
+      "turnout": {
+        "one": "{voted} of {eligible} voter has voted ({percent}%)",
+        "other": "{voted} of {eligible} voters have voted ({percent}%)"
+      },
+      "ballots": {
+        "one": "{count} position",
+        "other": "{count} positions"
+      },
+      "ties": {
+        "one": "{count} tie to settle",
+        "other": "{count} ties to settle"
+      }
+    },
+    "ballot": {
+      "tags": "About this position",
+      "seats": {
+        "one": "{count} seat",
+        "other": "{count} seats"
+      },
+      "scopeGeneral": "All eligible voters",
+      "scopeGroups": "Groups: {names}",
+      "turnout": "{voted} of {eligible} voted ({percent}%)"
+    },
+    "candidate": {
+      "noParty": "No party",
+      "votes": {
+        "one": "vote",
+        "other": "votes"
+      },
+      "winner": "Elected",
+      "tied": "Tied",
+      "none": "No candidate on this position."
+    },
+    "blank": {
+      "title": "Blank votes",
+      "line": {
+        "one": "{count} blank vote ({percent}%)",
+        "other": "{count} blank votes ({percent}%)"
+      }
+    },
+    "tie": {
+      "title": "Tie",
+      "text": {
+        "one": "{names} are tied for the last seat ({seats} seat left to fill).",
+        "other": "{names} are tied for the last seats ({seats} seats left to fill)."
+      },
+      "never": "The system never breaks a tie: no winner is named for these seats. You can organise a second round."
+    },
+    "check": {
+      "ok": "Ballots checked.",
+      "bad": "A gap to look into.",
+      "line": "{recorded} ballots recorded, {expected} expected.",
+      "badHelp": "The number of ballots does not match the voters who voted: look into it before publishing."
+    },
+    "note": {
+      "label": "Public note for this position",
+      "help": "Shown with the result on the public page. Leave empty to show nothing.",
+      "count": "{count} / {max} characters",
+      "tooLong": "The note cannot be longer than {max} characters.",
+      "save": "Save the note",
+      "saved": "Note saved"
+    },
+    "second": {
+      "button": "Organise a second round",
+      "title": "Organise a second round",
+      "closeLabel": "Close this window",
+      "text": "The position “{ballot}” is tied between {names}. A new draft election will be created.",
+      "points": {
+        "only": "It holds only this position and the tied candidates.",
+        "voters": "It has the same voters and the same groups.",
+        "codes": "New codes must be generated before it can be scheduled."
+      },
+      "cancel": "Cancel",
+      "confirm": "Create the second round",
+      "created": "A second round was created for this position.",
+      "link": "Open the second round",
+      "notTied": "This position is not tied: no second round is possible."
+    },
+    "rail": {
+      "label": "Guide",
+      "election": "The election",
+      "closed": "Closed on {day} at {time}",
+      "turnout": "See the turnout",
+      "legend": "How to read the results",
+      "legendItems": {
+        "winner": "Elected: the candidate wins a seat.",
+        "tie": "Tie: the system never breaks a tie; a second round can be organised.",
+        "blank": "Blank vote: a ballot with no choice, counted in the total.",
+        "percent": "Percentage: votes over all the ballots of the position, blank included."
+      },
+      "secrecy": "Results are counted from the ballots only: nothing links them to a voter."
+    },
+    "refreshError": "The results could not be read again. Reload the page to see the current state."
   }
 }

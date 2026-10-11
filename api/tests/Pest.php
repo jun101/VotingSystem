@@ -140,3 +140,13 @@ pest()->beforeEach(function () {
     $this->auditPair = Tests\Support\Voting::keypair();
     $this->browser = new Tests\Support\AuthClient($this);
 })->in('Acceptance/Slice14');
+
+// Slice 15: results, notes, second round (docs/slices/15-results.md): the same as slice 12.
+pest()->beforeEach(function () {
+    Tests\Support\Accounts::reset();
+    Tests\Support\Tenancy::installProbeTables();
+    Tests\Support\Team::clearMedia();
+    Tests\Support\Voting::forgetCache();
+    $this->auditPair = Tests\Support\Voting::keypair();
+    $this->browser = new Tests\Support\AuthClient($this);
+})->in('Acceptance/Slice15');

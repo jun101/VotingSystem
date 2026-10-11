@@ -59,4 +59,7 @@ return [
     'voter_session_expired' => 'Votre session est terminée. Saisissez à nouveau votre code.',
     'choices_invalid' => 'Vos choix ne sont pas valides pour ce scrutin. Vérifiez-les et réessayez.',
     'ballots_mismatch' => 'Les scrutins envoyés ne sont pas ceux sur lesquels vous pouvez voter. Rechargez la page et réessayez.',
+    'results_not_available' => 'Les résultats de cette élection ne sont pas disponibles tant qu’elle n’est pas terminée.',
+    'ballot_not_tied' => 'Ce poste n’a pas d’égalité : aucun second tour n’est possible.',
+    'second_round_exists' => 'Un second tour existe déjà pour ce poste.',
 ];
