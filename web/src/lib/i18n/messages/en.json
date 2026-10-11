@@ -544,6 +544,9 @@
     "checklist_blocked": "The election is not ready: blocking points remain. Reload the page.",
     "checklist_warnings": "Warnings remain: read them and confirm to schedule anyway.",
     "election_period_over": "The end of the election has passed: change the dates before scheduling.",
+    "election_not_open": "This election is not open: it cannot be closed. Reload the page.",
+    "election_not_extendable": "The end of this election can no longer be moved. Reload the page.",
+    "election_started": "This election has already started: it can no longer go back to a draft. Reload the page.",
     "election_not_scheduled": "This election is not scheduled. Reload the page.",
     "election_codes_locked": "Codes can no longer be created or replaced: the election is over.",
     "run_in_progress": "A generation is already under way for this election. Wait for it to finish.",
@@ -671,7 +674,10 @@
       "ends_at": {
         "required": "Choose when voting ends.",
         "date": "This date and time are not valid.",
-        "after_start": "Voting must end after it starts."
+        "after_start": "Voting must end after it starts.",
+        "not_after": "The new end must be later than the current end. To end sooner, close the election.",
+        "too_far": "The end can move by 30 days at most in one go.",
+        "invalid": "This date and time are not valid."
       },
       "timezone": {
         "required": "Choose a time zone.",
@@ -685,6 +691,12 @@
       },
       "results_display": {
         "in": "Choose a display from the list."
+      }
+    },
+    "closing": {
+      "confirmation": {
+        "required": "Type the title of the election to confirm.",
+        "mismatch": "This is not the title of the election."
       }
     },
     "cover": {
@@ -1122,6 +1134,38 @@
       },
       "footer": "Everything stays editable while the election is a draft.",
       "separator": ": "
+    },
+    "open": {
+      "title": "Voting in progress",
+      "left": "Time left",
+      "days": "days",
+      "hours": "hours",
+      "minutes": "minutes",
+      "seconds": "seconds",
+      "countdown": "{days} d {hours} h {minutes} min {seconds} s left",
+      "over": "The end has been reached: the election closes within a minute.",
+      "ends": "Voting ends",
+      "extend": "Extend the end",
+      "close": "Close now"
+    },
+    "close": {
+      "title": "Close the election now?",
+      "closeLabel": "Close this window",
+      "warning": "This cannot be undone. Nobody can vote afterwards and the election cannot be reopened.",
+      "text": "To confirm, type the title of the election: {title}",
+      "label": "Title of the election",
+      "cancel": "Cancel",
+      "confirm": "Close the election",
+      "note": "This election is closed. Voting has ended and cannot be reopened."
+    },
+    "extend": {
+      "title": "Extend the end",
+      "closeLabel": "Close this window",
+      "text": "Choose a later end. Voters who are voting are not interrupted. The end can move by 30 days at most.",
+      "label": "New end",
+      "help": "Time in {zone}",
+      "cancel": "Cancel",
+      "confirm": "Extend"
     },
     "summary": {
       "dates": "Dates",

@@ -17,7 +17,7 @@ function aroundEnd($test, string $ends): array
     $t = Team::two();
     $e = Voting::election(['institution' => $t['a']['owner']['institution'], 'ends_at' => $ends]);
     $voter = Voting::browser($test);
-    Voting::enter($voter, $e['election'], $e['codes']['Wideline'])->assertCreated();
+    Voting::enter($voter, $e['election'], $e['codes']['Paul'])->assertCreated();
     Team::signIn($test, $t['a']['owner']);
 
     return [$e, $voter];

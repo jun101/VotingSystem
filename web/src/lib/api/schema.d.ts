@@ -474,9 +474,56 @@ export interface paths {
          * Unschedule an election
          * @description A scheduled election goes back to draft, so ballots and candidates can be edited again.
          *     Voters, groups and the groups of the ballots are not touched. Owner or manager. Limited to
-         *     120 requests per hour per user.
+         *     120 requests per hour per user. 409 `election_started` when the start has passed.
          */
         post: operations["election.unschedule"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/elections/{election}/close": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Close an election now
+         * @description An open election is closed before its end, for good. `confirmation` must be the election's
+         *     title (case and surrounding spaces ignored, accents counted): 422 `confirmation: mismatch`.
+         *     409 `election_not_open` for any other status. The status is read again under the row lock.
+         *     Nothing about votes is read or written. Owner or manager. Limited to 20 requests per hour
+         *     per user, shared with extend.
+         */
+        post: operations["election.close"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/elections/{election}/extend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Extend an election
+         * @description Moves the end of a scheduled or open election later; the status stays. The new end must be
+         *     after the current one (422 `ends_at: not_after`) and at most 30 days after it (`too_far`).
+         *     409 `election_not_extendable` for another status, or when the end has passed. Owner or
+         *     manager. Limited to 20 requests per hour per user, shared with close.
+         */
+        post: operations["election.extend"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1612,6 +1659,14 @@ export interface components {
         /** CandidateResource */
         CandidateResource: unknown[];
         /**
+         * CloseElectionRequest
+         * @description docs/api/elections/POST-elections-{election}-close.md: the typed confirmation. That it equals the title
+         *     is judged in the controller, under the row lock, after the status.
+         */
+        CloseElectionRequest: {
+            confirmation: string;
+        };
+        /**
          * CopyVotersRequest
          * @description docs/api/voters/POST-elections-{election}-voter-copies.md.
          */
@@ -1708,6 +1763,14 @@ export interface components {
         };
         /** ElectionResource */
         ElectionResource: unknown[];
+        /**
+         * ExtendElectionRequest
+         * @description docs/api/elections/POST-elections-{election}-extend.md: `ends_at` is required and an ISO 8601 date and time.
+         *     Its place against the current end is judged in the controller, under the row lock.
+         */
+        ExtendElectionRequest: {
+            ends_at: string;
+        };
         /** ForgotPasswordRequest */
         ForgotPasswordRequest: {
             /** Format: email */
@@ -3319,6 +3382,112 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "election.close": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The election UUID */
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CloseElectionRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            title: string;
+                            description: string | null;
+                            /** @enum {string} */
+                            status: "draft" | "scheduled" | "open" | "closed" | "published" | "archived";
+                            starts_at: string;
+                            ends_at: string;
+                            timezone: string;
+                            /** @enum {string} */
+                            language: "fr" | "en";
+                            /** @enum {string} */
+                            candidate_order: "manual" | "shuffled";
+                            /** @enum {string} */
+                            results_display: "full" | "winners";
+                            cover: {
+                                sm: string;
+                                md: string;
+                            } | null;
+                            ballots_count: number;
+                            voters_count: number;
+                            created_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "election.extend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The election UUID */
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExtendElectionRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            title: string;
+                            description: string | null;
+                            /** @enum {string} */
+                            status: "draft" | "scheduled" | "open" | "closed" | "published" | "archived";
+                            starts_at: string;
+                            ends_at: string;
+                            timezone: string;
+                            /** @enum {string} */
+                            language: "fr" | "en";
+                            /** @enum {string} */
+                            candidate_order: "manual" | "shuffled";
+                            /** @enum {string} */
+                            results_display: "full" | "winners";
+                            cover: {
+                                sm: string;
+                                md: string;
+                            } | null;
+                            ballots_count: number;
+                            voters_count: number;
+                            created_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
         };
     };
     "auth.forgotPassword": {

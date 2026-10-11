@@ -103,7 +103,7 @@ it('stops a voter\'s session in progress: the next call answers 409 election_not
 it('keeps the votes already cast and reads none of them [FR-SEC-01] (scenario 1)', function () {
     [$t, $e] = closeSignedIn($this);
     $voter = Voting::browser($this);
-    Voting::enter($voter, $e['election'], $e['codes']['Wideline'])->assertCreated();
+    Voting::enter($voter, $e['election'], $e['codes']['Paul'])->assertCreated();
     $voter->post("/api/v1/vote/{$e['election']}/submit", Voting::body($e), [], false)->assertCreated();
     $before = Voting::counts($e['election']);
 

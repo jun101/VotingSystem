@@ -544,6 +544,9 @@
     "checklist_blocked": "L’élection n’est pas prête : des points bloquants restent. Rechargez la page.",
     "checklist_warnings": "Des avertissements restent : lisez-les et confirmez pour planifier quand même.",
     "election_period_over": "La fin de l’élection est passée : changez les dates avant de planifier.",
+    "election_not_open": "Cette élection n’est pas ouverte : elle ne peut pas être clôturée. Rechargez la page.",
+    "election_not_extendable": "La fin de cette élection ne peut plus être repoussée. Rechargez la page.",
+    "election_started": "Cette élection a déjà commencé : elle ne peut plus revenir à l’état de brouillon. Rechargez la page.",
     "election_not_scheduled": "Cette élection n’est pas planifiée. Rechargez la page.",
     "election_codes_locked": "Les codes ne peuvent plus être créés ni remplacés : l’élection est terminée.",
     "run_in_progress": "Une génération est déjà en cours pour cette élection. Attendez qu’elle se termine.",
@@ -671,7 +674,10 @@
       "ends_at": {
         "required": "Choisissez la fin du vote.",
         "date": "Cette date et cette heure ne sont pas valables.",
-        "after_start": "La fin du vote doit être après son début."
+        "after_start": "La fin du vote doit être après son début.",
+        "not_after": "La nouvelle fin doit être après la fin actuelle. Pour terminer plus tôt, clôturez l’élection.",
+        "too_far": "La fin ne peut être repoussée que de 30 jours au plus à la fois.",
+        "invalid": "Cette date et cette heure ne sont pas valides."
       },
       "timezone": {
         "required": "Choisissez un fuseau horaire.",
@@ -685,6 +691,12 @@
       },
       "results_display": {
         "in": "Choisissez un affichage dans la liste."
+      }
+    },
+    "closing": {
+      "confirmation": {
+        "required": "Saisissez le titre de l’élection pour confirmer.",
+        "mismatch": "Ce n’est pas le titre de l’élection."
       }
     },
     "cover": {
@@ -1122,6 +1134,38 @@
       },
       "footer": "Tout reste modifiable tant que l’élection est un brouillon.",
       "separator": " : "
+    },
+    "open": {
+      "title": "Vote en cours",
+      "left": "Temps restant",
+      "days": "jours",
+      "hours": "heures",
+      "minutes": "minutes",
+      "seconds": "secondes",
+      "countdown": "Il reste {days} j {hours} h {minutes} min {seconds} s",
+      "over": "La fin est atteinte : l’élection se clôture dans la minute.",
+      "ends": "Fin du vote",
+      "extend": "Repousser la fin",
+      "close": "Clôturer maintenant"
+    },
+    "close": {
+      "title": "Clôturer l’élection maintenant ?",
+      "closeLabel": "Fermer cette fenêtre",
+      "warning": "Cette action est définitive. Plus personne ne pourra voter et l’élection ne pourra pas être rouverte.",
+      "text": "Pour confirmer, saisissez le titre de l’élection : {title}",
+      "label": "Titre de l’élection",
+      "cancel": "Annuler",
+      "confirm": "Clôturer l’élection",
+      "note": "Cette élection est clôturée. Le vote est terminé et ne peut pas être rouvert."
+    },
+    "extend": {
+      "title": "Repousser la fin",
+      "closeLabel": "Fermer cette fenêtre",
+      "text": "Choisissez une fin plus tardive. Les électeurs en train de voter ne sont pas interrompus. La fin peut être repoussée de 30 jours au plus.",
+      "label": "Nouvelle fin",
+      "help": "Heure en {zone}",
+      "cancel": "Annuler",
+      "confirm": "Repousser"
     },
     "summary": {
       "dates": "Dates",

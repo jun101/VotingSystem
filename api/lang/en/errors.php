@@ -41,6 +41,8 @@ return [
     'checklist_blocked' => 'The election is not ready: fix the blocking points.',
     'checklist_warnings' => 'Some warnings remain: confirm to schedule anyway.',
     'election_period_over' => 'The end of the election has passed: change the dates before scheduling.',
+    'election_started' => 'This election has already started: it cannot be unscheduled.',
+    'election_not_extendable' => 'This election can no longer be extended.',
     'election_not_scheduled' => 'This election is not scheduled.',
     'nothing_to_generate' => 'Every voter of this choice already has a code, or there is no voter.',
     'email_count_changed' => 'The number of emails changed since the preview: confirm the new number.',
