@@ -589,7 +589,10 @@
     "email_count_changed": "Le nombre de courriels a changé. Vérifiez les nouveaux nombres, puis confirmez de nouveau.",
     "nothing_to_email": "Aucun de ces électeurs n’a d’adresse : aucun courriel à envoyer.",
     "email_not_verified": "Confirmez d’abord votre adresse courriel pour envoyer des codes par courriel. Vous pouvez toujours imprimer les coupons.",
-    "email_quota_exceeded": "La limite de courriels de l’institution pour 24 heures est atteinte ou le serait : envoyez moins de courriels, ou imprimez les coupons."
+    "email_quota_exceeded": "La limite de courriels de l’institution pour 24 heures est atteinte ou le serait : envoyez moins de courriels, ou imprimez les coupons.",
+    "results_not_available": "Les résultats ne sont pas disponibles : l’élection n’est pas clôturée.",
+    "second_round_exists": "Un second tour existe déjà pour ce poste.",
+    "ballot_not_tied": "Ce poste n’est pas à égalité : aucun second tour n’est possible."
   },
   "validation": {
     "required": "Ce champ est obligatoire.",
@@ -1205,7 +1208,7 @@
       "timezone": "Fuseau horaire",
       "language": "Langue du vote",
       "order": "Ordre des candidats",
-      "results": "Page publique des résultats",
+      "results": "Voir les résultats",
       "ballots": "Postes et électeurs",
       "edit": "Modifier",
       "duplicate": "Dupliquer",
@@ -2412,5 +2415,115 @@
       "action": "Gérer les électeurs"
     },
     "voters": "Voir les électeurs"
+  },
+  "results": {
+    "title": "Résultats",
+    "back": "Retour à l’élection",
+    "zone": "Résultats de l’élection",
+    "empty": "Cette élection n’a aucun poste.",
+    "percent": "{percent}%",
+    "unavailable": {
+      "title": "Les résultats ne sont pas encore disponibles",
+      "text": {
+        "open": "Le vote est en cours. Aucun résultat n’est visible, pour personne, tant que l’élection n’est pas clôturée.",
+        "other": "Les résultats n’apparaissent qu’après la clôture de l’élection. Aucun résultat n’est visible, pour personne, avant."
+      },
+      "election": "Retour à l’élection",
+      "turnout": "Suivre la participation"
+    },
+    "hero": {
+      "turnout": {
+        "one": "{voted} électeur sur {eligible} a voté ({percent}%)",
+        "other": "{voted} électeurs sur {eligible} ont voté ({percent}%)"
+      },
+      "ballots": {
+        "one": "{count} poste",
+        "other": "{count} postes"
+      },
+      "ties": {
+        "one": "{count} égalité à régler",
+        "other": "{count} égalités à régler"
+      }
+    },
+    "ballot": {
+      "tags": "Informations du poste",
+      "seats": {
+        "one": "{count} siège",
+        "other": "{count} sièges"
+      },
+      "scopeGeneral": "Tous les électeurs concernés",
+      "scopeGroups": "Groupes : {names}",
+      "turnout": "{voted} sur {eligible} ont voté ({percent}%)"
+    },
+    "candidate": {
+      "noParty": "Sans parti",
+      "votes": {
+        "one": "vote",
+        "other": "votes"
+      },
+      "winner": "Élu(e)",
+      "tied": "À égalité",
+      "none": "Aucun candidat sur ce poste."
+    },
+    "blank": {
+      "title": "Votes blancs",
+      "line": {
+        "one": "{count} vote blanc ({percent}%)",
+        "other": "{count} votes blancs ({percent}%)"
+      }
+    },
+    "tie": {
+      "title": "Égalité",
+      "text": {
+        "one": "{names} sont à égalité pour le dernier siège ({seats} siège à pourvoir).",
+        "other": "{names} sont à égalité pour les derniers sièges ({seats} sièges à pourvoir)."
+      },
+      "never": "Le système ne départage jamais une égalité : aucun gagnant n’est désigné pour ces sièges. Vous pouvez organiser un second tour."
+    },
+    "check": {
+      "ok": "Bulletins vérifiés.",
+      "bad": "Écart à vérifier.",
+      "line": "{recorded} bulletins enregistrés, {expected} attendus.",
+      "badHelp": "Le nombre de bulletins ne correspond pas aux électeurs qui ont voté : vérifiez avant de publier."
+    },
+    "note": {
+      "label": "Note publique de ce poste",
+      "help": "Affichée avec le résultat sur la page publique. Laissez vide pour ne rien afficher.",
+      "count": "{count} / {max} caractères",
+      "tooLong": "La note ne peut pas dépasser {max} caractères.",
+      "save": "Enregistrer la note",
+      "saved": "Note enregistrée"
+    },
+    "second": {
+      "button": "Organiser un second tour",
+      "title": "Organiser un second tour",
+      "closeLabel": "Fermer cette fenêtre",
+      "text": "Le poste « {ballot} » est à égalité entre {names}. Un nouveau brouillon d’élection va être créé.",
+      "points": {
+        "only": "Il ne contient que ce poste et les candidats à égalité.",
+        "voters": "Ce sont les mêmes électeurs et les mêmes groupes.",
+        "codes": "Il faudra générer de nouveaux codes avant de le planifier."
+      },
+      "cancel": "Annuler",
+      "confirm": "Créer le second tour",
+      "created": "Un second tour a été créé pour ce poste.",
+      "link": "Ouvrir le second tour",
+      "notTied": "Ce poste n’est pas à égalité : aucun second tour n’est possible."
+    },
+    "rail": {
+      "label": "Repères",
+      "election": "L’élection",
+      "closed": "Clôturée le {day} à {time}",
+      "turnout": "Voir la participation",
+      "legend": "Pour lire les résultats",
+      "legendItems": {
+        "winner": "Élu(e) : le candidat obtient un siège.",
+        "tie": "Égalité : le système ne départage jamais, un second tour peut être organisé.",
+        "blank": "Vote blanc : un bulletin sans choix, compté dans le total.",
+        "percent": "Pourcentage : les votes sur tous les bulletins du poste, blancs compris."
+      },
+      "secrecy": "Les résultats sont comptés sur les bulletins seulement : aucun lien n’existe avec un électeur."
+    },
+    "refreshError": "Les résultats n’ont pas pu être relus. Rechargez la page pour voir l’état actuel."
   }
 }

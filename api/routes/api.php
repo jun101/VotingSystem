@@ -29,6 +29,9 @@ use App\Http\Controllers\Institution\InstitutionController;
 use App\Http\Controllers\Institution\LogoController;
 use App\Http\Controllers\Parties\PartyController;
 use App\Http\Controllers\Parties\PartyLogoController;
+use App\Http\Controllers\Results\ResultNoteController;
+use App\Http\Controllers\Results\ResultsController;
+use App\Http\Controllers\Results\SecondRoundController;
 use App\Http\Controllers\Turnout\DashboardController;
 use App\Http\Controllers\Turnout\TurnoutController;
 use App\Http\Controllers\Users\InvitationController;
@@ -158,6 +161,10 @@ Route::prefix('v1')->group(function (): void {
         Route::post('/{election}/credential-previews', CredentialPreviewController::class)->middleware('throttle:credential-previews');
         Route::get('/{election}/generated-files', [GeneratedFileController::class, 'index']);
 
+        // The results of a closed election, the second round of a tied ballot (slice 15).
+        Route::get('/{election}/results', ResultsController::class);
+        Route::post('/{election}/second-round', SecondRoundController::class)->middleware('throttle:second-round');
+
         // The voter import of an election (slice 08a): the template and the upload.
         Route::get('/{election}/voter-imports/template', [VoterImportController::class, 'template'])->middleware('throttle:voter-imports');
         Route::post('/{election}/voter-imports', [VoterImportController::class, 'store'])->middleware('throttle:voter-imports-upload');
@@ -176,6 +183,7 @@ Route::prefix('v1')->group(function (): void {
     Route::middleware(['cookie-session', 'auth', 'institution.active'])->prefix('ballots')->group(function (): void {
         Route::patch('/{ballot}', [BallotController::class, 'update'])->middleware('throttle:ballots-write');
         Route::delete('/{ballot}', [BallotController::class, 'destroy'])->middleware('throttle:ballots-write');
+        Route::put('/{ballot}/result-note', ResultNoteController::class)->middleware('throttle:result-note');
 
         // The candidates of a ballot (slice 06c). Without the `X-RateLimit-*` counters, so that the same
         // 422 for an unknown, another election's and another institution's party answers with the same headers.

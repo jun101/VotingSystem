@@ -59,4 +59,7 @@ return [
     'voter_session_expired' => 'Your session has ended. Enter your code again.',
     'choices_invalid' => 'Your choices are not valid for this ballot. Check them and try again.',
     'ballots_mismatch' => 'The ballots sent are not those you may vote on. Reload the page and try again.',
+    'results_not_available' => 'The results of this election are not available until it is closed.',
+    'ballot_not_tied' => 'This ballot has no tie: no second round is possible.',
+    'second_round_exists' => 'A second round already exists for this ballot.',
 ];

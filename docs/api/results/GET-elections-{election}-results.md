@@ -38,7 +38,7 @@ The results of a closed election, per ballot.
 ```json
 {
   "data": {
-    "election": { "id": "9f2c1d3e-6a40-4b8a-8c11-2d5e7f0a9b34", "title": "Conseil des élèves 2026", "status": "closed" },
+    "election": { "id": "9f2c1d3e-6a40-4b8a-8c11-2d5e7f0a9b34", "title": "Conseil des élèves 2026", "status": "closed", "closed_at": "2026-10-16T15:00:00Z" },
     "ballots": [
       {
         "id": "7a1c0b5e-2d4f-4e11-8d3a-0b9c6e4f1a22",
@@ -56,7 +56,8 @@ The results of a closed election, per ballot.
         "winners": ["c2b8e0a4-9d6f-4c3b-a1e7-5f0d3b6a8c91"],
         "tie": null,
         "check": { "recorded": 287, "expected": 287, "ok": true },
-        "note": null
+        "note": null,
+        "second_round": null
       }
     ]
   }
@@ -64,7 +65,7 @@ The results of a closed election, per ballot.
 ```
 
 `groups` is a list of `{ "id", "name" }`, empty for a general ballot. `party` is the party's name or `null`. `candidates` are ordered by votes descending, then by the election's order. `tie` is `null` or `{ "candidates": [ids],
-"seats_left": n }`. `percentage` is `votes` over `cast`, one decimal. A general ballot is never split by group.
+"seats_left": n }`. `second_round` is the UUID of the draft election created from this ballot by [POST second-round](POST-elections-{election}-second-round.md), else `null`. `percentage` is `votes` over `cast`, one decimal. A general ballot is never split by group.
 
 ## Notes
 
@@ -74,3 +75,5 @@ setting applies to the public page in slice 16, not here.
 A candidate with no vote never wins and is never part of a tie: a ballot nobody voted for has empty `winners` and `tie`
 `null`. With fewer voted-for candidates than seats, `winners` holds the voted-for ones. `cast` counts the vote papers of the
 ballot (blank included); `voted` counts the voters eligible for the ballot who have a participation.
+
+`election.closed_at` is the moment the election was closed (an early close is before its end), UTC.
