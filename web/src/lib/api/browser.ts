@@ -13,9 +13,11 @@ import type {
 } from './elections';
 import type { NewParty, Party, PartyChanges } from './parties';
 import type {
+  CredentialPreview,
   CredentialRun,
   CredentialState,
   GeneratedFile,
+  PreviewBody,
   Reissue,
   RunBody,
 } from './credentials';
@@ -757,6 +759,8 @@ export async function fetchVoters(election: string, filters: VoterFilters): Prom
           per_page: VOTERS_PER_PAGE,
           ...(filters.q === '' ? {} : { q: filters.q }),
           ...(filters.group === '' ? {} : { group: filters.group }),
+          ...(filters.credential === '' ? {} : { credential: filters.credential }),
+          ...(filters.email === '' ? {} : { email: filters.email }),
         },
       },
     }),
@@ -984,6 +988,24 @@ export async function fetchGeneratedFiles(election: string): Promise<GeneratedFi
 export async function startCredentialRun(election: string, body: RunBody): Promise<CredentialRun> {
   const { data } = await send((api) =>
     api.POST('/v1/elections/{election}/credential-runs', {
+      params: { path: { election } },
+      body,
+    }),
+  );
+
+  return data!.data;
+}
+
+/**
+ * `POST /elections/{election}/credential-previews`: what a run would do for a scope. A reading:
+ * nothing is made, nothing is sent.
+ */
+export async function previewCredentialRun(
+  election: string,
+  body: PreviewBody,
+): Promise<CredentialPreview> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/credential-previews', {
       params: { path: { election } },
       body,
     }),

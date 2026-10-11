@@ -1,6 +1,7 @@
-import { screen } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { renderIn } from '@/components/auth/testing';
+import * as browser from '@/lib/api/browser';
 import type { Election, ElectionStatus } from '@/lib/api/elections';
 import type { GroupList, Voter, VoterList } from '@/lib/api/voters';
 import { VotersPage } from './VotersPage';
@@ -48,6 +49,8 @@ function voter(name: string, n: number, group: Voter['group']): Voter {
     identifier: `E-${n}`,
     email: null,
     phone: null,
+    has_code: false,
+    email_status: null,
     created_at: '2026-10-10T14:00:00Z',
     updated_at: '2026-10-10T14:00:00Z',
   };
@@ -80,7 +83,7 @@ function show(status: ElectionStatus, locale: 'fr' | 'en' = 'fr') {
     locale,
     <VotersPage
       election={election(status)}
-      initialFilters={{ page: 1, q: '', group: '' }}
+      initialFilters={{ page: 1, q: '', group: '', credential: '', email: '' }}
       initial={list}
       initialGroups={groups}
     />,
@@ -186,7 +189,7 @@ describe('VotersPage', () => {
       'fr',
       <VotersPage
         election={election('closed')}
-        initialFilters={{ page: 1, q: '', group: '' }}
+        initialFilters={{ page: 1, q: '', group: '', credential: '', email: '' }}
         initial={{ items: [], total: 0, page: 1 }}
         initialGroups={{ items: [], votersTotal: 0, ungrouped: 0 }}
       />,
@@ -195,5 +198,72 @@ describe('VotersPage', () => {
     expect(screen.getByTestId('voters-empty')).toBeInTheDocument();
     expect(screen.queryByTestId('voters-empty-add')).not.toBeInTheDocument();
     expect(screen.queryByTestId('voter-add')).not.toBeInTheDocument();
+  });
+});
+
+describe('VotersPage credential and email status', () => {
+  it('shows a code chip and the email status of a voter, nothing for a voter without', () => {
+    const issued: VoterList = {
+      items: [
+        { ...voter('Rose-Marie Désir', 1, GROUP), has_code: true, email_status: 'failed' },
+        voter('Jean Pierre', 2, null),
+      ],
+      total: 2,
+      page: 1,
+    };
+
+    renderIn(
+      'fr',
+      <VotersPage
+        election={election('draft')}
+        initialFilters={{ page: 1, q: '', group: '', credential: '', email: '' }}
+        initial={issued}
+        initialGroups={groups}
+      />,
+    );
+
+    expect(screen.getByTestId('voter-code-1')).toHaveAccessibleName('Code d’accès créé');
+    expect(screen.getByTestId('voter-email-status-1')).toHaveAttribute('data-status', 'failed');
+    expect(screen.getByTestId('voter-email-status-1')).toHaveAccessibleName(
+      'Échec d’envoi du courriel',
+    );
+    expect(screen.queryByTestId('voter-code-2')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('voter-email-status-2')).not.toBeInTheDocument();
+  });
+
+  it('asks the API for the credential and email filters, from page 1', async () => {
+    const api = vi.mocked(browser);
+
+    api.fetchVoters.mockResolvedValue({ ...list, items: [list.items[0]!], total: 1 });
+    api.fetchGroups.mockResolvedValue(groups);
+    renderIn(
+      'fr',
+      <VotersPage
+        election={election('draft')}
+        initialFilters={{ page: 2, q: '', group: '', credential: '', email: '' }}
+        initial={list}
+        initialGroups={groups}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId('voters-filter-credential'), {
+      target: { value: 'issued' },
+    });
+
+    await waitFor(() =>
+      expect(api.fetchVoters).toHaveBeenLastCalledWith(
+        '00000000-0000-4000-8000-000000000001',
+        expect.objectContaining({ page: 1, credential: 'issued', email: '' }),
+      ),
+    );
+
+    fireEvent.change(screen.getByTestId('voters-filter-email'), { target: { value: 'sent' } });
+
+    await waitFor(() =>
+      expect(api.fetchVoters).toHaveBeenLastCalledWith(
+        '00000000-0000-4000-8000-000000000001',
+        expect.objectContaining({ page: 1, credential: 'issued', email: 'sent' }),
+      ),
+    );
   });
 });

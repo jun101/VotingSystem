@@ -1,24 +1,37 @@
 import { describe, expect, it } from 'vitest';
-import { filtersOf, queryOf, sameFilters } from './voterQuery';
+import type { VoterFilters } from '@/lib/api/voters';
+import { NO_FILTERS, filtersOf, queryOf, sameFilters } from './voterQuery';
 
 const GROUP = '4a1f8c52-6d0e-4b79-8f1a-3c9d2e7b5a60';
 
+function filters(over: Partial<VoterFilters> = {}): VoterFilters {
+  return { ...NO_FILTERS, ...over };
+}
+
 describe('filtersOf', () => {
   it('gives the defaults for an address with no query', () => {
-    expect(filtersOf({})).toEqual({ page: 1, q: '', group: '' });
+    expect(filtersOf({})).toEqual(NO_FILTERS);
   });
 
   it('reads the page, the trimmed search and a group UUID', () => {
-    expect(filtersOf({ page: '3', q: '  rose ', group: GROUP })).toEqual({
-      page: 3,
-      q: 'rose',
-      group: GROUP,
-    });
+    expect(filtersOf({ page: '3', q: '  rose ', group: GROUP })).toEqual(
+      filters({ page: 3, q: 'rose', group: GROUP }),
+    );
   });
 
   it('keeps `none` and lower-cases a UUID', () => {
     expect(filtersOf({ group: 'none' }).group).toBe('none');
     expect(filtersOf({ group: GROUP.toUpperCase() }).group).toBe(GROUP);
+  });
+
+  it('reads the credential and email filters, and drops other values', () => {
+    expect(filtersOf({ credential: 'issued', email: 'failed' })).toEqual(
+      filters({ credential: 'issued', email: 'failed' }),
+    );
+    expect(filtersOf({ credential: 'none', email: 'none' })).toEqual(
+      filters({ credential: 'none', email: 'none' }),
+    );
+    expect(filtersOf({ credential: 'maybe', email: 'sent;drop' })).toEqual(NO_FILTERS);
   });
 
   it('drops what is not valid', () => {
@@ -37,33 +50,42 @@ describe('filtersOf', () => {
 
 describe('queryOf', () => {
   it('is empty for the defaults', () => {
-    expect(queryOf({ page: 1, q: '', group: '' })).toBe('');
+    expect(queryOf(NO_FILTERS)).toBe('');
   });
 
   it('writes only what differs from the defaults', () => {
-    expect(queryOf({ page: 2, q: '', group: '' })).toBe('?page=2');
-    expect(queryOf({ page: 1, q: 'rose', group: '' })).toBe('?q=rose');
-    expect(queryOf({ page: 1, q: '', group: 'none' })).toBe('?group=none');
-    expect(queryOf({ page: 4, q: 'a', group: GROUP })).toBe(`?page=4&q=a&group=${GROUP}`);
+    expect(queryOf(filters({ page: 2 }))).toBe('?page=2');
+    expect(queryOf(filters({ q: 'rose' }))).toBe('?q=rose');
+    expect(queryOf(filters({ group: 'none' }))).toBe('?group=none');
+    expect(queryOf(filters({ page: 4, q: 'a', group: GROUP }))).toBe(`?page=4&q=a&group=${GROUP}`);
+    expect(queryOf(filters({ credential: 'issued', email: 'sent' }))).toBe(
+      '?credential=issued&email=sent',
+    );
   });
 
   it('encodes the search, and reads back what it wrote', () => {
-    const filters = { page: 2, q: 'Désir & fils', group: 'none' };
-    const query = queryOf(filters);
+    const wanted = filters({
+      page: 2,
+      q: 'Désir & fils',
+      group: 'none',
+      credential: 'none',
+      email: 'failed',
+    });
+    const query = queryOf(wanted);
     const params = Object.fromEntries(new URLSearchParams(query.slice(1)));
 
     expect(query).not.toContain(' ');
-    expect(filtersOf(params)).toEqual(filters);
+    expect(filtersOf(params)).toEqual(wanted);
   });
 });
 
 describe('sameFilters', () => {
-  it('compares the three fields', () => {
-    expect(sameFilters({ page: 1, q: 'a', group: '' }, { page: 1, q: 'a', group: '' })).toBe(true);
-    expect(sameFilters({ page: 1, q: 'a', group: '' }, { page: 2, q: 'a', group: '' })).toBe(false);
-    expect(sameFilters({ page: 1, q: 'a', group: '' }, { page: 1, q: 'b', group: '' })).toBe(false);
-    expect(sameFilters({ page: 1, q: '', group: 'none' }, { page: 1, q: '', group: '' })).toBe(
-      false,
-    );
+  it('compares every field', () => {
+    expect(sameFilters(filters({ q: 'a' }), filters({ q: 'a' }))).toBe(true);
+    expect(sameFilters(filters({ q: 'a' }), filters({ page: 2, q: 'a' }))).toBe(false);
+    expect(sameFilters(filters({ q: 'a' }), filters({ q: 'b' }))).toBe(false);
+    expect(sameFilters(filters({ group: 'none' }), filters())).toBe(false);
+    expect(sameFilters(filters({ credential: 'issued' }), filters())).toBe(false);
+    expect(sameFilters(filters({ email: 'sent' }), filters({ email: 'failed' }))).toBe(false);
   });
 });

@@ -7,6 +7,7 @@ import { lineKey, type CredentialLine, type GeneratedFile } from '@/lib/api/cred
 import { clock, longDay, pluralForm } from '@/lib/format/electionDates';
 import { useI18n } from '@/lib/i18n/client';
 import { canGenerateGroup, lineState, missingIn, percentOf } from './codeRules';
+import { emailSummary } from './sendRules';
 
 /** The colours of the card headers, one after the other (tokens only, through the panel tones). */
 const TONES: readonly PanelTone[] = ['info', 'settings', 'calendar', 'facts'];
@@ -52,6 +53,7 @@ export function GroupCard({
   const missing = missingIn(line);
   const name = line.group?.name ?? t('codes.group.noGroup');
   const percent = percentOf(line.with_code, line.voters);
+  const email = emailSummary(line);
 
   /** The words of a download button: the part of a split run, or the slips and the date when there are several files. */
   function fileLabel(file: GeneratedFile, several: boolean): string {
@@ -102,6 +104,20 @@ export function GroupCard({
           <div className="h-full rounded-full bg-primary" style={{ width: `${percent}%` }} />
         </div>
       </div>
+
+      {email.any ? (
+        <p
+          data-testid={`codes-group-${key}-email`}
+          className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-soft"
+        >
+          <Icon name="mail" size={16} />
+          <span>{t('codes.group.emailSent', { count: email.sent })}</span>
+          <span>{t('codes.group.emailQueued', { count: email.queued })}</span>
+          <span className={email.failed > 0 ? 'font-bold text-danger' : undefined}>
+            {t('codes.group.emailFailed', { count: email.failed })}
+          </span>
+        </p>
+      ) : null}
 
       <div className="mt-auto flex flex-col gap-2 pt-1">
         {canGenerate ? (

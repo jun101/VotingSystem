@@ -17,7 +17,17 @@ import {
 const G4 = { id: '10000000-0000-4000-8000-000000000004', name: '4e année' };
 
 function line(over: Partial<CredentialLine> = {}): CredentialLine {
-  return { group: G4, voters: 3, with_code: 0, with_email: 0, files_ready: 0, ...over };
+  return {
+    group: G4,
+    voters: 3,
+    with_code: 0,
+    with_email: 0,
+    email_queued: 0,
+    email_sent: 0,
+    email_failed: 0,
+    files_ready: 0,
+    ...over,
+  };
 }
 
 function state(over: Partial<CredentialState> = {}): CredentialState {
@@ -26,6 +36,9 @@ function state(over: Partial<CredentialState> = {}): CredentialState {
     with_code: 0,
     without_code: 6,
     with_email: 0,
+    email_queued: 0,
+    email_sent: 0,
+    email_failed: 0,
     run_in_progress: false,
     groups: [],
     ...over,

@@ -20,6 +20,15 @@ const AVATAR_TONES = [
   'bg-status-published-soft text-status-published',
 ] as const;
 
+/** The chip of an email's status: colour (tokens) and icon, never colour alone. */
+const EMAIL_TONES = {
+  queued: 'bg-canvas text-ink-soft',
+  sent: 'bg-teal-soft text-teal-ink',
+  failed: 'bg-warm-softer text-danger',
+} as const;
+
+const EMAIL_ICONS = { queued: 'clock', sent: 'check', failed: 'warn' } as const;
+
 /** The phone glyph (the icon set has none): a handset as one stroke. */
 const PHONE_PATH =
   'M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z';
@@ -96,6 +105,32 @@ export function VoterCard({
               className="shrink-0"
             >
               <Icon name="mail" size={16} />
+            </span>
+          ) : null}
+          {voter.has_code ? (
+            <span
+              role="img"
+              data-testid={`voter-code-${n}`}
+              aria-label={t('voters.card.hasCode')}
+              title={t('voters.card.hasCode')}
+              className="inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-teal-soft text-teal-ink"
+            >
+              <Icon name="qr" size={14} />
+            </span>
+          ) : null}
+          {voter.email_status ? (
+            <span
+              role="img"
+              data-testid={`voter-email-status-${n}`}
+              data-status={voter.email_status}
+              aria-label={t(`voters.card.emailStatus.${voter.email_status}`)}
+              title={t(`voters.card.emailStatus.${voter.email_status}`)}
+              className={cx(
+                'inline-flex size-6 shrink-0 items-center justify-center rounded-full',
+                EMAIL_TONES[voter.email_status],
+              )}
+            >
+              <Icon name={EMAIL_ICONS[voter.email_status]} size={14} />
             </span>
           ) : null}
           {voter.phone ? (

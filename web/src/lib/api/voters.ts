@@ -19,8 +19,23 @@ export type GroupList = {
   ungrouped: number;
 };
 
-/** What the list is asked for: the page, the search text and the group (`''` all, `none`, or a UUID). */
-export type VoterFilters = { page: number; q: string; group: string };
+/** The credential filter: `''` all, a voter with a current code, or one without. */
+export type CredentialFilter = '' | 'issued' | 'none';
+
+/** The email filter: `''` all, or the status of the last email (`none`: never emailed). */
+export type EmailFilter = '' | 'queued' | 'sent' | 'failed' | 'none';
+
+/**
+ * What the list is asked for: the page, the search text, the group (`''` all, `none`, or a UUID),
+ * the credential status and the email status.
+ */
+export type VoterFilters = {
+  page: number;
+  q: string;
+  group: string;
+  credential: CredentialFilter;
+  email: EmailFilter;
+};
 
 /** The body of `POST /elections/{election}/voters`. */
 export type NewVoter = components['schemas']['CreateVoterRequest'];

@@ -10,6 +10,7 @@ import type { Reissue } from '@/lib/api/credentials';
 import { ApiError, errorText } from '@/lib/api/errors';
 import type { Voter, VoterList } from '@/lib/api/voters';
 import { useI18n } from '@/lib/i18n/client';
+import { NO_FILTERS } from '@/components/voters/voterQuery';
 import { saveBlob } from './saveFile';
 
 /** The search is sent when typing stops for this long. */
@@ -76,7 +77,7 @@ export function LostSlipDialog({
 
     setSearching(true);
     timer.current = window.setTimeout(() => {
-      fetchVoters(election, { page: 1, q: query, group: '' })
+      fetchVoters(election, { ...NO_FILTERS, q: query })
         .then((list) => {
           if (mine !== ticket.current) return;
 

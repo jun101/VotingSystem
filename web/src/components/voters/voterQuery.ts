@@ -4,7 +4,7 @@
  * (the API would answer 422 to a `group` that is neither a UUID nor `none`).
  */
 
-import type { VoterFilters } from '@/lib/api/voters';
+import type { CredentialFilter, EmailFilter, VoterFilters } from '@/lib/api/voters';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -13,7 +13,11 @@ export const SEARCH_MAX = 100;
 /** The API refuses a page above this. */
 export const PAGE_MAX = 1_000_000;
 
-export const NO_FILTERS: VoterFilters = { page: 1, q: '', group: '' };
+export const NO_FILTERS: VoterFilters = { page: 1, q: '', group: '', credential: '', email: '' };
+
+/** The values the credential and email filters take (the API answers 422 to any other). */
+export const CREDENTIAL_FILTERS: readonly CredentialFilter[] = ['', 'issued', 'none'];
+export const EMAIL_FILTERS: readonly EmailFilter[] = ['', 'queued', 'sent', 'failed', 'none'];
 
 type Params = Record<string, string | string[] | undefined>;
 
@@ -30,6 +34,8 @@ export function filtersOf(params: Params): VoterFilters {
     page: Number.isInteger(page) && page >= 1 ? Math.min(page, PAGE_MAX) : 1,
     q: first(params.q).trim().slice(0, SEARCH_MAX),
     group: group === 'none' || UUID.test(group) ? group.toLowerCase() : '',
+    credential: CREDENTIAL_FILTERS.find((one) => one === first(params.credential).trim()) ?? '',
+    email: EMAIL_FILTERS.find((one) => one === first(params.email).trim()) ?? '',
   };
 }
 
@@ -40,6 +46,8 @@ export function queryOf(filters: VoterFilters): string {
   if (filters.page > 1) query.set('page', String(filters.page));
   if (filters.q !== '') query.set('q', filters.q);
   if (filters.group !== '') query.set('group', filters.group);
+  if (filters.credential !== '') query.set('credential', filters.credential);
+  if (filters.email !== '') query.set('email', filters.email);
 
   const text = query.toString();
 
@@ -47,5 +55,11 @@ export function queryOf(filters: VoterFilters): string {
 }
 
 export function sameFilters(a: VoterFilters, b: VoterFilters): boolean {
-  return a.page === b.page && a.q === b.q && a.group === b.group;
+  return (
+    a.page === b.page &&
+    a.q === b.q &&
+    a.group === b.group &&
+    a.credential === b.credential &&
+    a.email === b.email
+  );
 }

@@ -25,6 +25,8 @@ function voter(name: string, n: number, group: Voter['group']): Voter {
     identifier: `E-${n}`,
     email: null,
     phone: null,
+    has_code: false,
+    email_status: null,
     created_at: '2026-10-10T14:00:00Z',
     updated_at: '2026-10-10T14:00:00Z',
   };
@@ -39,6 +41,7 @@ function reissue(count: number): Reissue {
     },
     code: 'K7MP4-QX9RT',
     reissue_count: count,
+    email: null,
     file: {
       id: '50000000-0000-4000-8000-000000000009',
       kind: 'slips_pdf',
@@ -89,7 +92,13 @@ describe('LostSlipDialog', () => {
     show();
     await search('Ros');
 
-    expect(api.fetchVoters).toHaveBeenCalledWith(ELECTION, { page: 1, q: 'Ros', group: '' });
+    expect(api.fetchVoters).toHaveBeenCalledWith(ELECTION, {
+      page: 1,
+      q: 'Ros',
+      group: '',
+      credential: '',
+      email: '',
+    });
     expect(screen.getByTestId('lost-voter-1')).toHaveTextContent('Rose-Marie Désir');
     expect(screen.getByTestId('lost-voter-2')).toHaveTextContent('Sans groupe');
     expect(screen.getByTestId('lost-confirm')).toBeDisabled();

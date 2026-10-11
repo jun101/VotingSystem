@@ -404,7 +404,9 @@
     "run_in_progress": "A generation is already under way for this election. Wait for it to finish.",
     "nothing_to_generate": "Every voter concerned already has a code.",
     "file_not_ready": "This file is not ready yet, or it failed.",
-    "voter_has_voted": "This voter has already voted: the code cannot be replaced."
+    "voter_has_voted": "This voter has already voted: the code cannot be replaced.",
+    "email_count_changed": "The number of emails changed. Check the new numbers, then confirm again.",
+    "nothing_to_email": "None of these voters has an address: no email to send."
   },
   "validation": {
     "required": "This field is required.",
@@ -1344,14 +1346,34 @@
     "filter": {
       "label": "Filter by group",
       "all": "All",
-      "none": "No group"
+      "none": "No group",
+      "credential": {
+        "label": "Access code",
+        "all": "All voters",
+        "issued": "With a code",
+        "none": "Without a code"
+      },
+      "emailStatus": {
+        "label": "Code email",
+        "all": "Any status",
+        "queued": "Waiting to send",
+        "sent": "Sent",
+        "failed": "Failed",
+        "none": "Never sent"
+      }
     },
     "card": {
       "noGroup": "No group",
       "edit": "Edit the voter {name}",
       "delete": "Delete the voter {name}",
       "email": "Email: {value}",
-      "phone": "Phone: {value}"
+      "phone": "Phone: {value}",
+      "hasCode": "Access code created",
+      "emailStatus": {
+        "queued": "Email waiting to send",
+        "sent": "Email sent",
+        "failed": "Email failed"
+      }
     },
     "empty": {
       "title": "No voter yet",
@@ -1757,7 +1779,13 @@
       "voters": "Voters",
       "withCode": "With a code",
       "withoutCode": "Without a code",
-      "progress": "{count} codes created out of {total}"
+      "progress": "{count} codes created out of {total}",
+      "emailSent": "Emails sent",
+      "emailFailed": "Emails failed",
+      "emailQueued": {
+        "one": "{count} email waiting to send",
+        "other": "{count} emails waiting to send"
+      }
     },
     "generateAll": "Generate every missing code",
     "generateAllCount": {
@@ -1802,7 +1830,11 @@
           "other": "{count} files failed: their voters have no code. Run the generation again for those groups."
         }
       },
-      "failed": "The generation could not start."
+      "failed": "The generation could not start.",
+      "emails": {
+        "one": "{count} email queued for sending.",
+        "other": "{count} emails queued for sending."
+      }
     },
     "group": {
       "noGroup": "No group",
@@ -1828,7 +1860,10 @@
         "one": "{count} slip · {date}",
         "other": "{count} slips · {date}"
       },
-      "downloadFailed": "The file could not be downloaded."
+      "downloadFailed": "The file could not be downloaded.",
+      "emailSent": "{count} sent",
+      "emailQueued": "{count} waiting",
+      "emailFailed": "{count} failed"
     },
     "empty": {
       "title": "No voter yet",
@@ -1836,6 +1871,54 @@
       "link": "See the voters"
     },
     "loadFailed": "The state of the codes could not be read.",
-    "note": "A code cannot be shown again: only its fingerprint is kept. A lost slip is replaced by a new code, unless the voter has already voted."
+    "note": "A code cannot be shown again: only its fingerprint is kept. A lost slip is replaced by a new code, unless the voter has already voted.",
+    "send": {
+      "open": "Generate and send",
+      "title": "Generate and send the codes",
+      "text": "Choose the voters, then how they receive their code. Nothing is done before you confirm.",
+      "closeLabel": "Close",
+      "scopeLabel": "Voters concerned",
+      "scope": {
+        "all": "All voters",
+        "ungrouped": "Voters with no group",
+        "failed_email": "Failed emails"
+      },
+      "scopeGroup": "Group: {name}",
+      "email": "Send the code by email",
+      "emailHelp": "Each voter who has an address receives their personal link and code.",
+      "file": "Distribution file",
+      "fileNone": "No file",
+      "fileXlsx": "Excel (.xlsx)",
+      "fileCsv": "CSV (.csv)",
+      "numbers": "What will be done",
+      "countGenerate": "Codes to create",
+      "countEmail": "Emails to send",
+      "countNoEmail": "No address",
+      "countSkipped": "Already have a code",
+      "nothing": "No code to create for these voters.",
+      "nobody": "None of these voters has an address: no email can be sent.",
+      "noEmailTitle": {
+        "one": "{count} voter with no address, left for print",
+        "other": "{count} voters with no address, left for print"
+      },
+      "noEmailMore": "and {count} more",
+      "noEmailPrint": "Their slip is in the PDF file of their group.",
+      "readFailed": "The numbers could not be read.",
+      "retry": "Try again",
+      "changed": "The number of emails changed since you read it. Check the new numbers, then confirm again.",
+      "cancel": "Cancel",
+      "confirm": "Generate the codes",
+      "confirmEmail": {
+        "one": "Generate and send {count} email",
+        "other": "Generate and send {count} emails"
+      }
+    },
+    "resendFailed": "Send the failed emails again",
+    "files": {
+      "title": "Distribution files",
+      "text": "The file holds the codes in clear: keep it safe. It is deleted when the election closes.",
+      "excel": "Excel · {date}",
+      "csv": "CSV · {date}"
+    }
   }
 }

@@ -51,10 +51,31 @@ function state(over: Partial<CredentialState> = {}): CredentialState {
     with_code: 0,
     without_code: 5,
     with_email: 0,
+    email_queued: 0,
+    email_sent: 0,
+    email_failed: 0,
     run_in_progress: false,
     groups: [
-      { group: G4, voters: 3, with_code: 0, with_email: 0, files_ready: 0 },
-      { group: null, voters: 2, with_code: 0, with_email: 0, files_ready: 0 },
+      {
+        group: G4,
+        voters: 3,
+        with_code: 0,
+        with_email: 0,
+        email_queued: 0,
+        email_sent: 0,
+        email_failed: 0,
+        files_ready: 0,
+      },
+      {
+        group: null,
+        voters: 2,
+        with_code: 0,
+        with_email: 0,
+        email_queued: 0,
+        email_sent: 0,
+        email_failed: 0,
+        files_ready: 0,
+      },
     ],
     ...over,
   };
@@ -135,6 +156,7 @@ describe('CodesPage', () => {
       files: [file({ status: 'queued' })],
       voters: 3,
       skipped: 0,
+      emails: 0,
     });
     api.fetchCredentials.mockResolvedValue(state({ run_in_progress: true }));
     api.fetchGeneratedFiles.mockResolvedValue([file({ status: 'queued' })]);
@@ -156,6 +178,7 @@ describe('CodesPage', () => {
       files: [file({ status: 'queued' })],
       voters: 5,
       skipped: 0,
+      emails: 0,
     });
     api.fetchCredentials.mockResolvedValue(state({ run_in_progress: true }));
     api.fetchGeneratedFiles.mockResolvedValue([file({ status: 'queued' })]);
@@ -176,8 +199,26 @@ describe('CodesPage', () => {
         with_code: 5,
         without_code: 0,
         groups: [
-          { group: G4, voters: 3, with_code: 3, with_email: 0, files_ready: 1 },
-          { group: null, voters: 2, with_code: 2, with_email: 0, files_ready: 0 },
+          {
+            group: G4,
+            voters: 3,
+            with_code: 3,
+            with_email: 0,
+            email_queued: 0,
+            email_sent: 0,
+            email_failed: 0,
+            files_ready: 1,
+          },
+          {
+            group: null,
+            voters: 2,
+            with_code: 2,
+            with_email: 0,
+            email_queued: 0,
+            email_sent: 0,
+            email_failed: 0,
+            files_ready: 0,
+          },
         ],
       }),
       [file()],

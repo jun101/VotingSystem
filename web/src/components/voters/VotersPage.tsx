@@ -9,12 +9,20 @@ import { Panel } from '@/components/elections/Panel';
 import { RevealList } from '@/components/elections/RevealList';
 import { COVER_ICONS, STATUS_ICONS } from '@/components/elections/statusIcon';
 import { LiveDot } from '@/components/motion';
-import { Input, Notice } from '@/components/ui';
+import { Input, Notice, Select } from '@/components/ui';
 import { cx } from '@/components/ui/cx';
 import { fetchBallots, fetchGroups, fetchVoters } from '@/lib/api/browser';
 import type { Election, ElectionStatus } from '@/lib/api/elections';
 import { ApiError, errorText } from '@/lib/api/errors';
-import type { GroupList, Voter, VoterFilters, VoterGroup, VoterList } from '@/lib/api/voters';
+import type {
+  CredentialFilter,
+  EmailFilter,
+  GroupList,
+  Voter,
+  VoterFilters,
+  VoterGroup,
+  VoterList,
+} from '@/lib/api/voters';
 import { useI18n } from '@/lib/i18n/client';
 import { ballotsCovering } from '@/components/ballots/ballotScope';
 import { CopyVotersDialog } from './CopyVotersDialog';
@@ -25,7 +33,7 @@ import { GroupsCard } from './GroupsCard';
 import { MergeGroupDialog } from './MergeGroupDialog';
 import { VoterCard } from './VoterCard';
 import { VoterModal } from './VoterModal';
-import { SEARCH_MAX, queryOf, sameFilters } from './voterQuery';
+import { NO_FILTERS, SEARCH_MAX, queryOf, sameFilters } from './voterQuery';
 import { importAllowed } from './importRules';
 import { rulesOf } from './voterRules';
 import { groupsText, pageCount, pageItems, rangeText, votersText } from './voterText';
@@ -292,7 +300,8 @@ export function VotersPage({
     return () => window.clearTimeout(timer);
   }, [searchText]);
 
-  const searching = filters.q !== '' || filters.group !== '';
+  const searching =
+    filters.q !== '' || filters.group !== '' || filters.credential !== '' || filters.email !== '';
   const total = groups.votersTotal;
   const selectedGroup = filters.group;
 
@@ -300,9 +309,17 @@ export function VotersPage({
     setFilters((now) => ({ ...now, group, page: 1 }));
   }
 
+  function chooseCredential(credential: CredentialFilter) {
+    setFilters((now) => ({ ...now, credential, page: 1 }));
+  }
+
+  function chooseEmail(email: EmailFilter) {
+    setFilters((now) => ({ ...now, email, page: 1 }));
+  }
+
   function clearFilters() {
     setSearchText('');
-    setFilters({ page: 1, q: '', group: '' });
+    setFilters(NO_FILTERS);
   }
 
   function goTo(page: number) {
@@ -506,6 +523,30 @@ export function VotersPage({
                     <b>{groups.ungrouped}</b>
                   </button>
                 ) : null}
+              </div>
+              <div className="grid max-w-xl grid-cols-1 gap-3 sm:grid-cols-2">
+                <Select
+                  label={t('voters.filter.credential.label')}
+                  value={filters.credential}
+                  onChange={(event) => chooseCredential(event.target.value as CredentialFilter)}
+                  data-testid="voters-filter-credential"
+                >
+                  <option value="">{t('voters.filter.credential.all')}</option>
+                  <option value="issued">{t('voters.filter.credential.issued')}</option>
+                  <option value="none">{t('voters.filter.credential.none')}</option>
+                </Select>
+                <Select
+                  label={t('voters.filter.emailStatus.label')}
+                  value={filters.email}
+                  onChange={(event) => chooseEmail(event.target.value as EmailFilter)}
+                  data-testid="voters-filter-email"
+                >
+                  <option value="">{t('voters.filter.emailStatus.all')}</option>
+                  <option value="queued">{t('voters.filter.emailStatus.queued')}</option>
+                  <option value="sent">{t('voters.filter.emailStatus.sent')}</option>
+                  <option value="failed">{t('voters.filter.emailStatus.failed')}</option>
+                  <option value="none">{t('voters.filter.emailStatus.none')}</option>
+                </Select>
               </div>
             </div>
           ) : null}

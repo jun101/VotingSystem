@@ -219,6 +219,8 @@ export async function fetchElectionVoters(
           per_page: VOTERS_PER_PAGE,
           ...(filters.q === '' ? {} : { q: filters.q }),
           ...(filters.group === '' ? {} : { group: filters.group }),
+          ...(filters.credential === '' ? {} : { credential: filters.credential }),
+          ...(filters.email === '' ? {} : { email: filters.email }),
         },
       },
       cache: 'no-store',
