@@ -263,10 +263,13 @@ hash of a code is stored, the file is written by the same job that generates the
 | election_id | fk | Cascade |
 | user_id | fk | |
 | kind | str(15) | `slips_pdf`, `codes_xlsx`, `codes_csv` |
-| voter_group_id | fk, null | Set when generated for one group. Set null on delete |
+| voter_group_id | fk, null | The group of the slips; null for the voters with no group, and set null when the group is deleted. Slice 10 |
+| part | smallint | Default 1; a group of more than 1 000 slips is split in parts (slice 10) |
+| parts | smallint | Default 1; the number of parts of that group in the run |
 | voter_count | int | |
 | status | str(10) | `queued`, `ready`, `failed` |
-| stored_file | UUID, null | Encrypted, private storage |
+| failure | str(30), null | `generation_failed` (slice 10) |
+| stored_file | UUID, null | The PDF encrypted with `Crypt::encryptString`, on the private disk `credentials` under this name, no extension |
 | size_bytes | int, null | |
 | expires_at | dt | The election's end; the file is deleted after it |
 

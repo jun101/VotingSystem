@@ -61,6 +61,38 @@ NFR-SEC-05, NFR-UX-02, NFR-UX-03. Not here: email and the export file (slice 11)
 - **10c, screen A11:** page `/admin/elections/{election}/codes` (cards per group, generate, download, reissue dialog
   with the code shown once and a print/download), the "Codes de vote" placeholder of the voters page becomes a link.
 
+## Contract details the tests rely on
+
+- Private disk `credentials` (`config('filesystems.disks.credentials')`, root `CREDENTIALS_ROOT`, default
+  `storage/app/private/credentials`): the tests point its root at a temporary folder.
+- A stored file is the PDF bytes passed through `Crypt::encryptString`, saved under `stored_file` (a UUID, no extension).
+- The PDF is US Letter (`/MediaBox [0 0 612 792]`), 10 slips per page, uses core fonts so the text can be read back, and
+  writes **each code as one string** `XXXXX-XXXXX`. In the page content a slip is written in this order: institution
+  name, election title, voter name, group name (`Sans groupe` when none), code, voting address
+  (`{APP_URL}/vote/{election uuid}`, no code in it), voting period. The QR code is drawn as vectors.
+- The code hash is `hash_hmac('sha256', strtoupper(str_replace('-', '', $code)), CREDENTIAL_HASH_KEY, true)`.
+- A write failure on the `credentials` disk marks the file `failed` and rolls the codes of that file back.
+
+## Tests (written before the code, the coder never edits them)
+
+- API: `api/tests/Acceptance/Slice10/` — `CredentialsStateTest`, `CredentialRunTest`, `CodeRulesTest`,
+  `GeneratedFilesTest`, `DownloadFileTest`, `ReissueCredentialTest`; helpers in `api/tests/Support/Accounts.php`
+  (`plantCredential`, `credentialRow`, `credentialRows`, `plantGeneratedFile`, `generatedFileRows`) and
+  `api/tests/Support/Pdfs.php`; six routes in `Tenancy::TENANT_ROUTES`; the `Slice10` hook in `api/tests/Pest.php`.
+- Browser: `web/e2e/slice10/codes.spec.ts`, helpers `web/e2e/support/credentials.ts`.
+
+### Test ids of A11 (`/admin/elections/{election}/codes`)
+
+| Element | Test id |
+|---|---|
+| Page, totals | `codes-page`, `codes-total-voters`, `codes-total-with-code`, `codes-total-without-code` |
+| Run | `codes-generate-all` (the voters without a code), `codes-run-status` (shown while a file is `queued`), `codes-run-result` (after it) |
+| One group, `{key}` is the group's UUID, or `none` for the voters with no group | `codes-group-{key}`, `codes-group-{key}-count` ("with a code" number), `codes-group-{key}-generate`, `codes-group-{key}-download` (first ready file; absent when there is none) |
+| Lost slip | `codes-lost` (opens the dialog), `lost-search`, `lost-voter-{n}` (n from 1, matches of the search), `lost-confirm`, `lost-code` (the code, shown once), `lost-download` (the one-slip PDF), `lost-close` |
+| Locked | `codes-locked-notice` (election closed, published or archived: no generate or lost button) |
+
+Download names are those of the endpoint file. Text in French and English only; tokens only; phone: one column.
+
 ## Open for the endpoint files
 
 - Whether the QR is SVG drawn into the PDF (vector) — yes unless TCPDF's barcode output is not scannable at 22 mm.
