@@ -124,20 +124,22 @@ describe('downloadsOf', () => {
     expect(downloadsOf([one, none], line({ group: null }))).toEqual([none]);
   });
 
-  it('gives the parts of the newest run, in order', () => {
+  it('gives every ready file, newest first, then in order of part', () => {
     const p2 = file({ part: 2, parts: 2, voter_count: 1000 });
     const p1 = file({ part: 1, parts: 2, voter_count: 1000 });
     const old = file({ created_at: '2026-10-09T10:00:00Z' });
 
-    expect(downloadsOf([p2, old, p1], line())).toEqual([p1, p2]);
+    expect(downloadsOf([p2, old, p1], line())).toEqual([p1, p2, old]);
   });
 
-  it('leaves a reissued one-slip file out when the group has a larger file', () => {
+  it('keeps a reissued one-slip file, newest first, and does not group by equal timestamps', () => {
     const group = file({ created_at: '2026-10-10T19:12:05Z' });
     const slip = file({ voter_count: 1, created_at: '2026-10-10T20:00:00Z' });
+    const sameTime = file({ part: 1, parts: 1, created_at: '2026-10-10T19:12:05Z' });
 
-    expect(downloadsOf([slip, group], line())).toEqual([group]);
+    expect(downloadsOf([group, slip], line())).toEqual([slip, group]);
     expect(downloadsOf([slip], line())).toEqual([slip]);
+    expect(downloadsOf([group, sameTime], line())).toHaveLength(2);
   });
 });
 

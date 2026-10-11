@@ -18,6 +18,7 @@ use App\Http\Resources\PageOf;
 use App\Models\Ballot;
 use App\Models\Candidate;
 use App\Models\Election;
+use App\Models\GeneratedFile;
 use App\Models\Party;
 use App\Models\User;
 use App\Models\Voter;
@@ -154,8 +155,9 @@ class ElectionController extends Controller
         $photos = [];
         $logos = [];
         $imports = [];
+        $slips = [];
 
-        DB::transaction(function () use ($election, &$cover, &$photos, &$logos, &$imports): void {
+        DB::transaction(function () use ($election, &$cover, &$photos, &$logos, &$imports, &$slips): void {
             // The state is read again under the lock: a change that landed meanwhile counts.
             $locked = Election::query()->whereKey($election->getKey())->lockForUpdate()->first();
 
@@ -171,6 +173,8 @@ class ElectionController extends Controller
             $logos = Party::query()->where('election_id', $locked->id)->whereNotNull('logo_file')->pluck('logo_file')->all();
             // The uploaded voter files go with it (the import rows by cascade, the files after the commit).
             $imports = VoterImport::query()->where('election_id', $locked->id)->pluck('stored_file')->all();
+            // The slip files go with it (the rows by cascade, the stored copies after the commit).
+            $slips = GeneratedFile::query()->where('election_id', $locked->id)->whereNotNull('stored_file')->pluck('stored_file')->all();
             // The voters go before the election: a group with voters is restricted, and the cascade
             // from the election may reach the groups first.
             // The ballots' group links go first too: the link restricts the deletion of a group.
@@ -192,6 +196,7 @@ class ElectionController extends Controller
         }
 
         Storage::disk('imports')->delete(array_values(array_filter($imports, is_string(...))));
+        Storage::disk('credentials')->delete(array_values(array_filter($slips, is_string(...))));
 
         Log::info('election.delete', ['outcome' => 'deleted']);
 

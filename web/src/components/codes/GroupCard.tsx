@@ -4,7 +4,7 @@ import { Icon } from '@/components/admin/Icon';
 import { Panel, type PanelTone } from '@/components/elections/Panel';
 import { Button } from '@/components/ui';
 import { lineKey, type CredentialLine, type GeneratedFile } from '@/lib/api/credentials';
-import { pluralForm } from '@/lib/format/electionDates';
+import { clock, longDay, pluralForm } from '@/lib/format/electionDates';
 import { useI18n } from '@/lib/i18n/client';
 import { canGenerateGroup, lineState, missingIn, percentOf } from './codeRules';
 
@@ -16,13 +16,14 @@ const DOWNLOAD_PATH = 'M12 4v12M6 10l6 6 6-6M4 20h16';
 
 /**
  * One group of the codes page: its name and state, how many of its voters have a code, the
- * button that makes the missing ones, and the download of its newest PDF (one button per part
- * when the group was split). `n` picks the colour of the header.
+ * button that makes the missing ones, and a download button for every ready PDF of the group
+ * (the parts of a split run, a reissue's one-slip file). `n` picks the colour of the header.
  */
 export function GroupCard({
   line,
   n,
   files,
+  zone,
   running,
   canGenerate,
   busy,
@@ -32,8 +33,10 @@ export function GroupCard({
 }: {
   line: CredentialLine;
   n: number;
-  /** The ready files of this group's newest run, in order of part. */
+  /** Every ready file of this group, newest first, then in order of part. */
   files: GeneratedFile[];
+  /** The election's time zone, for the date of a file. */
+  zone: string;
   running: boolean;
   /** False once the election is locked: no generate button at all. */
   canGenerate: boolean;
@@ -49,6 +52,22 @@ export function GroupCard({
   const missing = missingIn(line);
   const name = line.group?.name ?? t('codes.group.noGroup');
   const percent = percentOf(line.with_code, line.voters);
+
+  /** The words of a download button: the part of a split run, or the slips and the date when there are several files. */
+  function fileLabel(file: GeneratedFile, several: boolean): string {
+    if (file.parts > 1) {
+      return t('codes.group.part', { part: file.part, parts: file.parts });
+    }
+
+    if (!several) return t('codes.group.download');
+
+    const when = new Date(file.created_at);
+
+    return t(`codes.group.fileOf.${pluralForm(locale, file.voter_count)}`, {
+      count: file.voter_count,
+      date: `${longDay(when, locale, zone)} ${clock(when, locale, zone)}`,
+    });
+  }
 
   return (
     <Panel
@@ -101,24 +120,24 @@ export function GroupCard({
           </Button>
         ) : null}
         {files.map((file, index) => (
-          <Button
+          // The wrapper is `codes-group-{key}-file-{n}`; the first file's button is also `-download`.
+          <div
             key={file.id}
-            variant="secondary"
-            loading={downloading === file.id}
-            onClick={() => onDownload(file)}
-            data-testid={
-              index === 0
-                ? `codes-group-${key}-download`
-                : `codes-group-${key}-download-${file.part}`
-            }
+            className="flex flex-col"
+            data-testid={`codes-group-${key}-file-${index + 1}`}
           >
-            <span className="inline-flex items-center gap-2">
-              <Icon path={DOWNLOAD_PATH} size={18} />
-              {file.parts > 1
-                ? t('codes.group.part', { part: file.part, parts: file.parts })
-                : t('codes.group.download')}
-            </span>
-          </Button>
+            <Button
+              variant="secondary"
+              loading={downloading === file.id}
+              onClick={() => onDownload(file)}
+              data-testid={index === 0 ? `codes-group-${key}-download` : undefined}
+            >
+              <span className="inline-flex items-center gap-2">
+                <Icon path={DOWNLOAD_PATH} size={18} />
+                {fileLabel(file, files.length > 1)}
+              </span>
+            </Button>
+          </div>
         ))}
       </div>
     </Panel>

@@ -68,7 +68,7 @@ function sameGroup(file: GeneratedFile, line: CredentialLine): boolean {
   return (file.group?.id ?? null) === (line.group?.id ?? null);
 }
 
-/** The slip PDFs of a group that are ready, newest first. */
+/** The slip PDFs of a group that are ready, newest first, then by part. */
 function readySlips(files: readonly GeneratedFile[], line: CredentialLine): GeneratedFile[] {
   return files
     .filter((file) => file.kind === 'slips_pdf' && file.status === 'ready' && sameGroup(file, line))
@@ -76,24 +76,15 @@ function readySlips(files: readonly GeneratedFile[], line: CredentialLine): Gene
 }
 
 /**
- * The files a card offers: those of the group's newest run. A reissue writes a one-slip file in
- * the same group, newer than the run; it is left out when the group has a larger file. The
- * parts of one run share their creation time and their count of parts, in order of part.
+ * The files a card offers: EVERY ready slip file of the group, newest first, then in order of
+ * part. A reissue's one-slip file is one of them. Files are never grouped by equal timestamps:
+ * the server's `part` and `parts` say which files are pieces of one run.
  */
 export function downloadsOf(
   files: readonly GeneratedFile[],
   line: CredentialLine,
 ): GeneratedFile[] {
-  const ready = readySlips(files, line);
-  const larger = ready.filter((file) => file.voter_count > 1 || file.parts > 1);
-  const pool = larger.length > 0 ? larger : ready;
-  const first = pool[0];
-
-  if (!first) return [];
-
-  return pool
-    .filter((file) => file.created_at === first.created_at && file.parts === first.parts)
-    .sort((a, b) => a.part - b.part);
+  return readySlips(files, line);
 }
 
 /** What a run came to, read from the files it queued. */

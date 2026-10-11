@@ -11,7 +11,10 @@ use App\Models\VoterGroup;
 use App\Support\Credentials\PartSplitter;
 use App\Support\Credentials\RowCount;
 use Illuminate\Database\Query\JoinClause;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 /**
  * The request side of a run: under the election's row lock it judges the state, counts who is
@@ -20,6 +23,9 @@ use Illuminate\Support\Facades\DB;
  */
 final class StartCredentialRun
 {
+    /** A file still `queued` after this many minutes is taken for lost when a run starts. */
+    public const STALE_MINUTES = 15;
+
     /**
      * @param  'all'|'group'|'ungrouped'  $scope
      * @return array{files: list<GeneratedFile>, voters: int, skipped: int}
@@ -28,7 +34,9 @@ final class StartCredentialRun
      */
     public function __invoke(Election $election, string $scope, ?VoterGroup $group, ?User $user): array
     {
-        return DB::transaction(function () use ($election, $scope, $group, $user): array {
+        $stale = [];
+
+        $run = DB::transaction(function () use ($election, $scope, $group, $user, &$stale): array {
             // Locked first, as every write of the voters and codes of an election.
             $locked = Election::query()->whereKey($election->getKey())->lockForUpdate()->first();
 
@@ -37,6 +45,8 @@ final class StartCredentialRun
             }
 
             $locked->assertCodesOpen();
+
+            $stale = $this->failStale($locked);
 
             if (GeneratedFile::query()
                 ->where('election_id', $locked->id)
@@ -77,6 +87,7 @@ final class StartCredentialRun
                     $file->expires_at = $locked->ends_at;
                     $file->save();
                     $file->setRelation('group', $serving);
+                    $file->setRelation('election', $locked);
 
                     $files[] = $file;
                 }
@@ -84,6 +95,45 @@ final class StartCredentialRun
 
             return ['files' => $files, 'voters' => $toServe, 'skipped' => $skipped];
         });
+
+        // After the commit: the copies a lost job had claimed.
+        foreach ($stale as $name) {
+            try {
+                Storage::disk('credentials')->delete($name);
+            } catch (Throwable) {
+                // An orphan under a random name at worst.
+            }
+        }
+
+        return $run;
+    }
+
+    /**
+     * Marks `failed` the files of the election still `queued` after 15 minutes: a lost job must
+     * not block the election. The election's row is locked by the caller.
+     *
+     * @return list<string> the stored names to remove after the commit
+     */
+    private function failStale(Election $election): array
+    {
+        $old = GeneratedFile::query()
+            ->where('election_id', $election->id)
+            ->where('status', GeneratedFile::STATUS_QUEUED)
+            ->where('created_at', '<', Carbon::now('UTC')->subMinutes(self::STALE_MINUTES))
+            ->get(['id', 'stored_file']);
+
+        if ($old->isEmpty()) {
+            return [];
+        }
+
+        GeneratedFile::query()->whereIn('id', $old->pluck('id'))->update([
+            'status' => GeneratedFile::STATUS_FAILED,
+            'failure' => GeneratedFile::FAILURE_GENERATION,
+            'stored_file' => null,
+            'updated_at' => Carbon::now('UTC'),
+        ]);
+
+        return array_values(array_filter($old->pluck('stored_file')->all(), is_string(...)));
     }
 
     /**

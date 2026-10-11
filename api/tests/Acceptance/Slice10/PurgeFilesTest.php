@@ -84,7 +84,6 @@ it('lets a new run start once the stale file is failed [FR-CRED-04] (scenario 5)
     Accounts::plantVoter(['election' => $election, 'full_name' => 'Attend']);
     Accounts::plantGeneratedFile(['election' => $election, 'status' => 'queued', 'created_at' => now('UTC')->subMinutes(90)->toDateTimeString()]);
     Team::signIn($this, $t['a']['owner']);
-    $this->browser->post("/api/v1/elections/{$election}/credential-runs", ['scope' => 'all'])->assertStatus(409)->assertJsonPath('error.code', 'run_in_progress');
 
     Artisan::call('files:purge');
 

@@ -979,14 +979,13 @@ export async function fetchGeneratedFiles(election: string): Promise<GeneratedFi
 
 /**
  * `POST /elections/{election}/credential-runs`: gives a code to the voters of the scope who have
- * none. The answer comes before the work: the files are `queued`. The generated schema has no
- * body for this route, so the body is sent as it is written in the endpoint file.
+ * none. The answer comes before the work: the files are `queued`.
  */
 export async function startCredentialRun(election: string, body: RunBody): Promise<CredentialRun> {
   const { data } = await send((api) =>
     api.POST('/v1/elections/{election}/credential-runs', {
       params: { path: { election } },
-      body: body as never,
+      body,
     }),
   );
 

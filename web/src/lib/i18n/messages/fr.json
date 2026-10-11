@@ -1824,6 +1824,10 @@
       "complete": "Tous les codes sont créés",
       "download": "Télécharger le PDF",
       "part": "Partie {part} sur {parts}",
+      "fileOf": {
+        "one": "{count} coupon · {date}",
+        "other": "{count} coupons · {date}"
+      },
       "downloadFailed": "Le fichier n’a pas pu être téléchargé."
     },
     "empty": {

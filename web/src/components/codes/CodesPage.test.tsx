@@ -215,9 +215,22 @@ describe('CodesPage', () => {
     ]);
 
     expect(screen.getByTestId(`codes-group-${G4.id}-download`)).toHaveTextContent('Partie 1 sur 2');
-    expect(screen.getByTestId(`codes-group-${G4.id}-download-2`)).toHaveTextContent(
-      'Partie 2 sur 2',
-    );
+    expect(screen.getByTestId(`codes-group-${G4.id}-file-2`)).toHaveTextContent('Partie 2 sur 2');
+  });
+
+  it('lists a reissued one-slip file beside the run file, newest first, with its slips and date', () => {
+    show('draft', state({ with_code: 3, without_code: 2 }), [
+      file({ id: '50000000-0000-4000-8000-000000000001', voter_count: 3 }),
+      file({
+        id: '50000000-0000-4000-8000-000000000002',
+        voter_count: 1,
+        created_at: '2099-01-01T10:00:00Z',
+      }),
+    ]);
+
+    expect(screen.getByTestId(`codes-group-${G4.id}-file-1`)).toHaveTextContent('1 coupon');
+    expect(screen.getByTestId(`codes-group-${G4.id}-download`)).toHaveTextContent('1 coupon');
+    expect(screen.getByTestId(`codes-group-${G4.id}-file-2`)).toHaveTextContent('3 coupons');
   });
 
   it('polls while a file is queued, then says how many voters got a code', async () => {

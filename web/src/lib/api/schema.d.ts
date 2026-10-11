@@ -1653,6 +1653,16 @@ export interface components {
             code?: string;
         };
         /**
+         * StartCredentialRunRequest
+         * @description docs/api/credentials/POST-elections-{election}-credential-runs.md.
+         */
+        StartCredentialRunRequest: {
+            /** @enum {string} */
+            scope: "all" | "group" | "ungrouped";
+            /** Format: uuid */
+            group?: string;
+        };
+        /**
          * TwoFactorCodeRequest
          * @description The code of the authenticator application that confirms a setup. Only its presence is judged
          *     here: anything that is not exactly 6 digits (a number, a list, a long text) is answered
@@ -2474,7 +2484,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartCredentialRunRequest"];
+            };
+        };
         responses: {
             202: {
                 headers: {

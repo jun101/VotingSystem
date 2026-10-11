@@ -1824,6 +1824,10 @@
       "complete": "Every code is created",
       "download": "Download the PDF",
       "part": "Part {part} of {parts}",
+      "fileOf": {
+        "one": "{count} slip · {date}",
+        "other": "{count} slips · {date}"
+      },
       "downloadFailed": "The file could not be downloaded."
     },
     "empty": {

@@ -445,6 +445,7 @@ export function CodesPage({
                     line={line}
                     n={index}
                     files={locked ? [] : downloadsOf(files, line)}
+                    zone={election.timezone}
                     running={running}
                     canGenerate={!locked}
                     busy={starting}

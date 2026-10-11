@@ -8,7 +8,7 @@ use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Credentials\StartCredentialRunRequest;
 use App\Http\Resources\GeneratedFileResource;
-use App\Jobs\GenerateSlipFiles;
+use App\Jobs\GenerateSlipFileJob;
 use App\Models\Election;
 use App\Models\GeneratedFile;
 use App\Models\Voter;
@@ -42,8 +42,9 @@ class CredentialRunController extends Controller
         $uuids = array_map(fn (GeneratedFile $file): string => $file->uuid, $run['files']);
 
         try {
-            // After the commit of the files: the job holds their UUIDs only.
-            GenerateSlipFiles::dispatch($uuids)->afterCommit();
+            // After the commit of the files: one job per file, each holds its file's UUID only and
+            // queues the job of the next file when it is done.
+            GenerateSlipFileJob::dispatch($uuids[0])->afterCommit();
         } catch (Throwable $e) {
             // The queue cannot be reached: the files must not stay queued for ever.
             $generate = app(GenerateSlipFile::class);
