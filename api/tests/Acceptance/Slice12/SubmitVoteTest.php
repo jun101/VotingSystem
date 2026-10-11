@@ -163,8 +163,9 @@ it('records exactly one vote when the same voter submits from several sessions [
 
     expect(array_count_values($statuses)[201] ?? 0)->toBe(1)
         ->and(Voting::counts($e['election']))->toBe([1, 3, 4, 3]);
+    // Since slice 12b only the newest session of a voter is live: the earlier ones answer 401.
     foreach (array_filter($statuses, fn ($s) => $s !== 201) as $status) {
-        expect($status)->toBe(409);
+        expect($status)->toBe(401);
     }
 });
 
