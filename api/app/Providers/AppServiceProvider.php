@@ -225,5 +225,9 @@ class AppServiceProvider extends ServiceProvider
 
         // The photo of a candidate: 20 an hour per user (the removal counts with the candidate writes).
         RateLimiter::for('candidate-photo', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
+
+        // The results (docs/api/results/): the note 60 an hour, the second round 20 an hour, per user.
+        RateLimiter::for('result-note', fn (Request $request) => Limit::perHour($times(60))->by($byUser($request)));
+        RateLimiter::for('second-round', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
     }
 }

@@ -6883,6 +6883,566 @@
                 "security": []
             }
         },
+        "/v1/ballots/{ballot}/result-note": {
+            "put": {
+                "operationId": "results.resultNote",
+                "description": "The public note shown with a ballot's result: trimmed, up to 1 000 characters, control\ncharacters other than line breaks removed; `null` or empty clears it. Only for a closed,\npublished or archived election (409 `results_not_available`). Owner or manager. Limited to\n60 requests per hour per user.",
+                "summary": "Set or clear the note of a result",
+                "tags": [
+                    "ResultNote"
+                ],
+                "parameters": [
+                    {
+                        "name": "ballot",
+                        "in": "path",
+                        "required": true,
+                        "description": "The ballot UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ResultNoteRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "note": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "note"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                ""
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/v1/elections/{election}/results": {
+            "get": {
+                "operationId": "results.results",
+                "description": "Per ballot, in the election's order: the voters eligible and those who voted, the papers cast\n(blank included), the blank ones, the candidates by votes then by the election's order with\ntheir percentage of the papers cast (one decimal), the winners, the tie for the last seats\n(never broken) and the bulletin check. Only for a closed, published or archived election:\n409 `results_not_available` otherwise. Counted from the votes and their choices only; the\naudit table is never read. Owner or manager.",
+                "summary": "The results of an election",
+                "tags": [
+                    "Results"
+                ],
+                "parameters": [
+                    {
+                        "name": "election",
+                        "in": "path",
+                        "required": true,
+                        "description": "The election UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "election": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "string"
+                                                        },
+                                                        "title": {
+                                                            "type": "string"
+                                                        },
+                                                        "status": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "closed",
+                                                                "published",
+                                                                "archived"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "id",
+                                                        "title",
+                                                        "status"
+                                                    ]
+                                                },
+                                                "ballots": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "title": {
+                                                                "type": "string"
+                                                            },
+                                                            "seats": {
+                                                                "type": "integer"
+                                                            },
+                                                            "scope": {
+                                                                "type": "string",
+                                                                "enum": [
+                                                                    "general",
+                                                                    "group"
+                                                                ]
+                                                            },
+                                                            "groups": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "id": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "name": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "id",
+                                                                        "name"
+                                                                    ]
+                                                                }
+                                                            },
+                                                            "eligible": {
+                                                                "type": "integer"
+                                                            },
+                                                            "voted": {
+                                                                "type": "integer"
+                                                            },
+                                                            "cast": {
+                                                                "type": "integer"
+                                                            },
+                                                            "blank": {
+                                                                "type": "integer"
+                                                            },
+                                                            "candidates": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "id": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "first_name": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "last_name": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "party": {
+                                                                            "type": [
+                                                                                "string",
+                                                                                "null"
+                                                                            ]
+                                                                        },
+                                                                        "votes": {
+                                                                            "type": "integer"
+                                                                        },
+                                                                        "percentage": {
+                                                                            "type": "number"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "id",
+                                                                        "first_name",
+                                                                        "last_name",
+                                                                        "party",
+                                                                        "votes",
+                                                                        "percentage"
+                                                                    ]
+                                                                }
+                                                            },
+                                                            "winners": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "tie": {
+                                                                "type": [
+                                                                    "object",
+                                                                    "null"
+                                                                ],
+                                                                "properties": {
+                                                                    "candidates": {
+                                                                        "type": "array",
+                                                                        "items": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    },
+                                                                    "seats_left": {
+                                                                        "type": "integer"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "candidates",
+                                                                    "seats_left"
+                                                                ]
+                                                            },
+                                                            "check": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "recorded": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "expected": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "ok": {
+                                                                        "type": "boolean"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "recorded",
+                                                                    "expected",
+                                                                    "ok"
+                                                                ]
+                                                            },
+                                                            "note": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "title",
+                                                            "seats",
+                                                            "scope",
+                                                            "groups",
+                                                            "eligible",
+                                                            "voted",
+                                                            "cast",
+                                                            "blank",
+                                                            "candidates",
+                                                            "winners",
+                                                            "tie",
+                                                            "check",
+                                                            "note"
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "election",
+                                                "ballots"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                ""
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                ""
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/v1/elections/{election}/second-round": {
+            "post": {
+                "operationId": "results.secondRound",
+                "description": "A new draft election from a ballot of a closed, published or archived election whose result\nhas a tie: that ballot with only the tied candidates and the seats left, the same groups and\nvoters (no code, no vote). Title \"Second tour \u2013 \u2026\" (\"Second round \u2013 \u2026\" for an English\nelection), cut to 200 characters. 409 `ballot_not_tied`, `second_round_exists`,\n`results_not_available`; 422 `ballot: invalid`. `parent` is the first election's UUID, in\nthis response only. Owner or manager. Limited to 20 requests per hour per user.",
+                "summary": "Create a second round",
+                "tags": [
+                    "SecondRound"
+                ],
+                "parameters": [
+                    {
+                        "name": "election",
+                        "in": "path",
+                        "required": true,
+                        "description": "The election UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SecondRoundRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "title": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "draft",
+                                                        "scheduled",
+                                                        "open",
+                                                        "closed",
+                                                        "published",
+                                                        "archived"
+                                                    ]
+                                                },
+                                                "starts_at": {
+                                                    "type": "string"
+                                                },
+                                                "ends_at": {
+                                                    "type": "string"
+                                                },
+                                                "timezone": {
+                                                    "type": "string"
+                                                },
+                                                "language": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "fr",
+                                                        "en"
+                                                    ]
+                                                },
+                                                "candidate_order": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "manual",
+                                                        "shuffled"
+                                                    ]
+                                                },
+                                                "results_display": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "full",
+                                                        "winners"
+                                                    ]
+                                                },
+                                                "cover": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "sm": {
+                                                            "type": "string"
+                                                        },
+                                                        "md": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "sm",
+                                                        "md"
+                                                    ]
+                                                },
+                                                "ballots_count": {
+                                                    "type": "integer"
+                                                },
+                                                "voters_count": {
+                                                    "type": "integer"
+                                                },
+                                                "created_at": {
+                                                    "type": "string"
+                                                },
+                                                "parent": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "title",
+                                                "description",
+                                                "status",
+                                                "starts_at",
+                                                "ends_at",
+                                                "timezone",
+                                                "language",
+                                                "candidate_order",
+                                                "results_display",
+                                                "cover",
+                                                "ballots_count",
+                                                "voters_count",
+                                                "created_at",
+                                                "parent"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                ""
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
         "/v1/elections/{election}/turnout": {
             "get": {
                 "operationId": "turnout.turnout",
@@ -11117,6 +11677,20 @@
                 ],
                 "title": "ResetTwoFactorRequest"
             },
+            "ResultNoteRequest": {
+                "type": "object",
+                "description": "docs/api/results/PUT-ballots-{ballot}-result-note.md: `note` is a string or null. It is trimmed, its\ncontrol characters other than line breaks are removed, and empty clears it; at most 1 000 characters.",
+                "properties": {
+                    "note": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 1000
+                    }
+                },
+                "title": "ResultNoteRequest"
+            },
             "ScheduleElectionRequest": {
                 "type": "object",
                 "description": "docs/api/elections/POST-elections-{election}-schedule.md: an optional `accept_warnings` boolean.",
@@ -11143,6 +11717,20 @@
                     "password"
                 ],
                 "title": "SecondFactorRequest"
+            },
+            "SecondRoundRequest": {
+                "type": "object",
+                "description": "docs/api/results/POST-elections-{election}-second-round.md: `ballot`, the UUID of a ballot of the\nelection. Whether the ballot exists in this election is judged in the action, under the row lock;\nhere a missing or malformed value answers `ballot: invalid`, the same as an unknown ballot.",
+                "properties": {
+                    "ballot": {
+                        "type": "string",
+                        "format": "uuid"
+                    }
+                },
+                "required": [
+                    "ballot"
+                ],
+                "title": "SecondRoundRequest"
             },
             "StartCredentialRunRequest": {
                 "type": "object",

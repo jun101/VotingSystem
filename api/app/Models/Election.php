@@ -18,6 +18,7 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property string $uuid
+ * @property int|null $parent_election_id
  * @property string $title
  * @property string|null $description
  * @property Carbon $starts_at

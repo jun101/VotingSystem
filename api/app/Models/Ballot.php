@@ -23,6 +23,9 @@ use Illuminate\Support\Carbon;
  * @property int $seats
  * @property bool $allow_blank
  * @property BallotScope $scope
+ * @property string|null $result_note
+ * @property int|null $source_ballot_id
+ * @property int $id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
