@@ -46,3 +46,6 @@ doing.
 most 10. `todo`: `voters_not_voted` for each open election with voters who have not voted; `draft_blockers` for each
 draft with checklist blockers (the count of blockers); `codes_missing` for each scheduled or open election with voters
 without a code. No vote count of any ballot.
+
+`upcoming` lists at most 10 scheduled elections, soonest first. `todo` is built from the open elections listed, the first
+10 scheduled ones and the first 10 drafts.

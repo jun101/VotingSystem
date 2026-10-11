@@ -28,6 +28,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $cover_file
  * @property CandidateOrder $candidate_order
  * @property ResultsDisplay $results_display
+ * @property Carbon|null $closed_at
  * @property Carbon|null $created_at
  */
 class Election extends Model

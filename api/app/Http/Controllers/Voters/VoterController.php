@@ -11,8 +11,8 @@ use App\Http\Resources\PageOf;
 use App\Http\Resources\VoterResource;
 use App\Models\Election;
 use App\Models\Voter;
-use App\Models\VoterGroup;
 use App\Support\Voters\GroupByName;
+use App\Support\Voters\VoterFilters;
 use Dedoc\Scramble\Attributes\Response;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\QueryException;
@@ -35,39 +35,22 @@ class VoterController extends Controller
      * 24 per page by default, by full name ignoring case, then creation order, in any status of
      * the election. `q` looks for a text in the full name, the identifier and the email; `group`
      * is a group's UUID or `none`; `credential` is `issued` or `none`; `email` is the status of
-     * the last email (`queued`, `sent`, `failed`, `none`). Owner or manager.
+     * the last email (`queued`, `sent`, `failed`, `none`); `voted` is `yes` or `no`. Owner or manager.
      *
-     * @response array{data: list<array{id: string, full_name: string, group: array{id: string, name: string}|null, identifier: string|null, email: string|null, phone: string|null, has_code: bool, email_status: 'queued'|'sent'|'failed'|null, created_at: string, updated_at: string}>, meta: array{page: int, per_page: int, total: int}}
+     * @response array{data: list<array{id: string, full_name: string, group: array{id: string, name: string}|null, identifier: string|null, email: string|null, phone: string|null, has_code: bool, email_status: 'queued'|'sent'|'failed'|null, has_voted: bool, voted_at: string|null, created_at: string, updated_at: string}>, meta: array{page: int, per_page: int, total: int}}
      */
     public function index(ListVotersRequest $request, Election $election): PageOf
     {
         $this->allow('viewAny', [Voter::class, $election]);
 
-        $query = $election->voters()->with(['group', 'credential']);
+        // The same order as `Election::voters()`; the participation is loaded with the page (no query per voter).
+        $query = Voter::query()
+            ->where('election_id', $election->getKey())
+            ->orderBy('full_name')
+            ->orderBy('id')
+            ->with(['group', 'credential', 'participation']);
 
-        $search = $request->search();
-
-        if ($search !== null) {
-            $like = '%'.addcslashes($search, '\\%_').'%';
-
-            $query->where(function (Builder $any) use ($like): void {
-                $any->where('full_name', 'like', $like)
-                    ->orWhere('identifier', 'like', $like)
-                    ->orWhere('email', 'like', $like);
-            });
-        }
-
-        $group = $request->group();
-
-        if ($group === 'none') {
-            $query->whereNull('voter_group_id');
-        } elseif ($group !== null) {
-            // A UUID that names no group of this election keeps nothing.
-            $query->whereIn('voter_group_id', VoterGroup::query()
-                ->where('election_id', $election->getKey())
-                ->where('uuid', $group)
-                ->select('id'));
-        }
+        VoterFilters::apply($query, $election->id, $request->search(), $request->group(), $request->voted());
 
         $credential = $request->credential();
 
@@ -98,7 +81,7 @@ class VoterController extends Controller
      * 409 `election_voters_locked`). The identifier and the email are unique in the election.
      * Owner or manager. Limited to 240 requests per hour per user.
      */
-    #[Response(status: 201, type: 'array{data: array{id: string, full_name: string, group: array{id: string, name: string}|null, identifier: string|null, email: string|null, phone: string|null, has_code: bool, email_status: \'queued\'|\'sent\'|\'failed\'|null, created_at: string, updated_at: string}}')]
+    #[Response(status: 201, type: 'array{data: array{id: string, full_name: string, group: array{id: string, name: string}|null, identifier: string|null, email: string|null, phone: string|null, has_code: bool, email_status: \'queued\'|\'sent\'|\'failed\'|null, has_voted: bool, voted_at: string|null, created_at: string, updated_at: string}}')]
     public function store(CreateVoterRequest $request, Election $election, GroupByName $groups): JsonResponse
     {
         $this->allow('create', [Voter::class, $election]);
@@ -143,7 +126,7 @@ class VoterController extends Controller
      * keeps the voter's group (409 `election_voters_locked`). Owner or manager.
      * Limited to 240 requests per hour per user.
      *
-     * @response array{data: array{id: string, full_name: string, group: array{id: string, name: string}|null, identifier: string|null, email: string|null, phone: string|null, has_code: bool, email_status: 'queued'|'sent'|'failed'|null, created_at: string, updated_at: string}}
+     * @response array{data: array{id: string, full_name: string, group: array{id: string, name: string}|null, identifier: string|null, email: string|null, phone: string|null, has_code: bool, email_status: 'queued'|'sent'|'failed'|null, has_voted: bool, voted_at: string|null, created_at: string, updated_at: string}}
      */
     public function update(UpdateVoterRequest $request, Voter $voter, GroupByName $groups): VoterResource
     {

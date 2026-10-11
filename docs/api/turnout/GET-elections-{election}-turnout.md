@@ -61,3 +61,7 @@ nobody is eligible). Groups are ordered by name, accents and case ignored; the l
 
 Computed from `participations` (`voted_at`) and the voters; it never reads `votes`, `vote_choices` or `vote_audit`,
 and shows no per-ballot count.
+
+The line with no group appears only when at least one voter has no group. Groups with no voter are listed with 0.
+An open election's series runs to the current bucket, never past the end; a closed, published or archived one runs to
+its end or its closing, whichever is earlier.

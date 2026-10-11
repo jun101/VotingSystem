@@ -2416,6 +2416,199 @@
                 }
             }
         },
+        "/v1/dashboard": {
+            "get": {
+                "operationId": "turnout.dashboard",
+                "description": "The institution's elections counted by status, the voters of all of them, the open elections\nwith their live turnout (at most 10, newest first; an election past its end is not listed),\nthe scheduled ones with their start, and the to-do items (`voters_not_voted`,\n`draft_blockers`, `codes_missing`) with the election each concerns. No vote count of any\nballot. Owner or manager.",
+                "summary": "The dashboard",
+                "tags": [
+                    "Dashboard"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "counts": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "draft": {
+                                                            "type": "integer"
+                                                        },
+                                                        "scheduled": {
+                                                            "type": "integer"
+                                                        },
+                                                        "open": {
+                                                            "type": "integer"
+                                                        },
+                                                        "closed": {
+                                                            "type": "integer"
+                                                        },
+                                                        "published": {
+                                                            "type": "integer"
+                                                        },
+                                                        "archived": {
+                                                            "type": "integer"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "draft",
+                                                        "scheduled",
+                                                        "open",
+                                                        "closed",
+                                                        "published",
+                                                        "archived"
+                                                    ]
+                                                },
+                                                "voters": {
+                                                    "type": "integer"
+                                                },
+                                                "open": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "title": {
+                                                                "type": "string"
+                                                            },
+                                                            "ends_at": {
+                                                                "type": "string"
+                                                            },
+                                                            "eligible": {
+                                                                "type": "integer"
+                                                            },
+                                                            "voted": {
+                                                                "type": "integer"
+                                                            },
+                                                            "percentage": {
+                                                                "type": "number"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "title",
+                                                            "ends_at",
+                                                            "eligible",
+                                                            "voted",
+                                                            "percentage"
+                                                        ]
+                                                    }
+                                                },
+                                                "upcoming": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "title": {
+                                                                "type": "string"
+                                                            },
+                                                            "starts_at": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "title",
+                                                            "starts_at"
+                                                        ]
+                                                    }
+                                                },
+                                                "todo": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "kind": {
+                                                                "type": "string",
+                                                                "enum": [
+                                                                    "voters_not_voted",
+                                                                    "draft_blockers",
+                                                                    "codes_missing"
+                                                                ]
+                                                            },
+                                                            "election": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "title": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "id",
+                                                                    "title"
+                                                                ]
+                                                            },
+                                                            "count": {
+                                                                "type": "integer"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "kind",
+                                                            "election",
+                                                            "count"
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "counts",
+                                                "voters",
+                                                "open",
+                                                "upcoming",
+                                                "todo"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                ""
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/v1/elections": {
             "get": {
                 "operationId": "election.index",
@@ -6690,6 +6883,174 @@
                 "security": []
             }
         },
+        "/v1/elections/{election}/turnout": {
+            "get": {
+                "operationId": "turnout.turnout",
+                "description": "How many voters have voted, in total, by group and over time, in any status. `bucket` is\n`hour` or `day` (default: hour for an election of up to 3 days, else day); the series runs in\nthe election's time zone, empty buckets listed, empty while nobody has voted. Computed from\nthe participations only: never a vote, never what was voted. Owner or manager.",
+                "summary": "The turnout of an election",
+                "tags": [
+                    "Turnout"
+                ],
+                "parameters": [
+                    {
+                        "name": "election",
+                        "in": "path",
+                        "required": true,
+                        "description": "The election UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "bucket",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "hour",
+                                "day"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "eligible": {
+                                                    "type": "integer"
+                                                },
+                                                "voted": {
+                                                    "type": "integer"
+                                                },
+                                                "percentage": {
+                                                    "type": "number"
+                                                },
+                                                "by_group": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "group": {
+                                                                "type": [
+                                                                    "object",
+                                                                    "null"
+                                                                ],
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "name": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "id",
+                                                                    "name"
+                                                                ]
+                                                            },
+                                                            "voters": {
+                                                                "type": "integer"
+                                                            },
+                                                            "voted": {
+                                                                "type": "integer"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "group",
+                                                            "voters",
+                                                            "voted"
+                                                        ]
+                                                    }
+                                                },
+                                                "bucket": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "hour",
+                                                        "day"
+                                                    ]
+                                                },
+                                                "over_time": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "at": {
+                                                                "type": "string"
+                                                            },
+                                                            "voted": {
+                                                                "type": "integer"
+                                                            },
+                                                            "total": {
+                                                                "type": "integer"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "at",
+                                                            "voted",
+                                                            "total"
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "eligible",
+                                                "voted",
+                                                "percentage",
+                                                "by_group",
+                                                "bucket",
+                                                "over_time"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                ""
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
         "/v1/auth/two-factor": {
             "get": {
                 "operationId": "twoFactor.show",
@@ -7760,7 +8121,7 @@
         "/v1/vote/{election}/session": {
             "post": {
                 "operationId": "vote.session.store",
-                "description": "The code (any case, with or without the hyphen, spaces ignored) is hashed with the credential\nkey and looked up in this election only; an unknown, wrong, another election's, malformed or\nreplaced code answers the same 401 `invalid_code`, after the same work. A valid code opens a\nsession: a random token in the `vote_session` cookie (HttpOnly, SameSite=Strict, path\n`/api/v1/vote`), kept at most 15 minutes; a session the browser already had is replaced.\nOnly wrong codes are counted: 30 in 10 minutes per address (an IPv6 client by its /64) and election, 300 in an hour per\nelection, 429 with `Retry-After` (a locked-out address is refused even with a valid code).\n409 `already_voted`, then 409 `election_not_open` with its `phase`.",
+                "description": "The code (any case, with or without the hyphen, spaces ignored) is hashed with the credential\nkey and looked up in this election only; an unknown, wrong, another election's, malformed or\nreplaced code answers the same 401 `invalid_code`, after the same work. A valid code opens a\nsession: a random token in the `vote_session` cookie (HttpOnly, SameSite=Strict, path\n`/api/v1/vote`), kept at most 15 minutes; a session the browser already had is replaced.\nOnly wrong codes are counted: 30 in 10 minutes per address (an IPv6 client by its /64) and election, 300 in an hour per\nelection, 429 with `Retry-After` (a locked-out address is refused even with a valid code; the election\nlimit refuses wrong codes only). A voter has one live session: a new one ends the earlier one.\n409 `already_voted`, then 409 `election_not_open` with its `phase`.",
                 "summary": "Enter a code and open a voter session",
                 "tags": [
                     "VoteSession"
@@ -7829,28 +8190,6 @@
                         }
                     },
                     "429": {
-                        "description": "An error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "description": "Error overview.",
-                                            "examples": [
-                                                ""
-                                            ]
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "401": {
                         "description": "An error",
                         "content": {
                             "application/json": {
@@ -8082,7 +8421,7 @@
         "/v1/elections/{election}/voters": {
             "get": {
                 "operationId": "voter.index",
-                "description": "24 per page by default, by full name ignoring case, then creation order, in any status of\nthe election. `q` looks for a text in the full name, the identifier and the email; `group`\nis a group's UUID or `none`; `credential` is `issued` or `none`; `email` is the status of\nthe last email (`queued`, `sent`, `failed`, `none`). Owner or manager.",
+                "description": "24 per page by default, by full name ignoring case, then creation order, in any status of\nthe election. `q` looks for a text in the full name, the identifier and the email; `group`\nis a group's UUID or `none`; `credential` is `issued` or `none`; `email` is the status of\nthe last email (`queued`, `sent`, `failed`, `none`); `voted` is `yes` or `no`. Owner or manager.",
                 "summary": "List the voters of an election",
                 "tags": [
                     "Voter"
@@ -8168,6 +8507,22 @@
                                 null
                             ]
                         }
+                    },
+                    {
+                        "name": "voted",
+                        "in": "query",
+                        "description": "Slice 14: who has voted.",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "enum": [
+                                "yes",
+                                "no",
+                                null
+                            ]
+                        }
                     }
                 ],
                 "responses": {
@@ -8240,6 +8595,15 @@
                                                             null
                                                         ]
                                                     },
+                                                    "has_voted": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "voted_at": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
                                                     "created_at": {
                                                         "type": "string"
                                                     },
@@ -8256,6 +8620,8 @@
                                                     "phone",
                                                     "has_code",
                                                     "email_status",
+                                                    "has_voted",
+                                                    "voted_at",
                                                     "created_at",
                                                     "updated_at"
                                                 ]
@@ -8396,6 +8762,15 @@
                                                         null
                                                     ]
                                                 },
+                                                "has_voted": {
+                                                    "type": "boolean"
+                                                },
+                                                "voted_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
                                                 "created_at": {
                                                     "type": "string"
                                                 },
@@ -8412,6 +8787,8 @@
                                                 "phone",
                                                 "has_code",
                                                 "email_status",
+                                                "has_voted",
+                                                "voted_at",
                                                 "created_at",
                                                 "updated_at"
                                             ]
@@ -8532,6 +8909,15 @@
                                                         null
                                                     ]
                                                 },
+                                                "has_voted": {
+                                                    "type": "boolean"
+                                                },
+                                                "voted_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
                                                 "created_at": {
                                                     "type": "string"
                                                 },
@@ -8548,6 +8934,8 @@
                                                 "phone",
                                                 "has_code",
                                                 "email_status",
+                                                "has_voted",
+                                                "voted_at",
                                                 "created_at",
                                                 "updated_at"
                                             ]
@@ -8909,6 +9297,126 @@
                                 "schema": {
                                     "type": "string",
                                     "const": "no-store"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                ""
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/v1/elections/{election}/voters/export": {
+            "get": {
+                "operationId": "voters.voterExport",
+                "description": "An Excel or CSV file of the voters of an election, written as a stream: full name, group,\nidentifier, email, phone, and `has voted` for `voted=all`. `voted` is `no` (default), `yes`\nor `all`; `group` is a group's UUID or `none`; `q` searches as in the list. Sorted by group\nname then full name, the voters with no group last. Never a code, a hash, a link or a time of\nvote; every text cell is guarded against formulas. Owner or manager. Limited to 20 requests\nper hour per user.",
+                "summary": "Export the voters",
+                "tags": [
+                    "VoterExport"
+                ],
+                "parameters": [
+                    {
+                        "name": "election",
+                        "in": "path",
+                        "required": true,
+                        "description": "The election UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "format",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "xlsx",
+                                "csv"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "voted",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "no",
+                                "yes",
+                                "all"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "maxLength": 100
+                        }
+                    },
+                    {
+                        "name": "group",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Transfer-Encoding": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "enum": [
+                                        "chunked"
+                                    ]
                                 }
                             }
                         }

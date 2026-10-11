@@ -29,6 +29,8 @@ class ListVotersRequest extends FormRequest
             // Slice 11: the credential and the last email of the voter.
             'credential' => ['nullable', 'string', 'in:issued,none'],
             'email' => ['nullable', 'string', 'in:queued,sent,failed,none'],
+            // Slice 14: who has voted.
+            'voted' => ['nullable', 'string', 'in:yes,no'],
         ];
     }
 
@@ -76,6 +78,14 @@ class ListVotersRequest extends FormRequest
         $value = $this->input('email');
 
         return in_array($value, ['queued', 'sent', 'failed', 'none'], true) ? $value : null;
+    }
+
+    /** `yes`, `no`, or null for no filter. */
+    public function voted(): ?string
+    {
+        $value = $this->input('voted');
+
+        return $value === 'yes' || $value === 'no' ? $value : null;
     }
 
     /** `none`, a lower-cased group UUID, or null for no filter. */

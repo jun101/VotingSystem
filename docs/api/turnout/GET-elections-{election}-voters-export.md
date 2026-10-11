@@ -46,3 +46,5 @@ election), plus `A voté` / `Has voted` (`Oui` / `Non`, `Yes` / `No`) when `vote
 ## Notes
 
 At most 10 000 rows (the voter limit). Written in a stream, nothing kept on disk.
+
+A phone number that begins with `+` followed by digits, spaces, dots, dashes or parentheses is an international number and stays as it is; any other text that begins with `=`, `+`, `-` or `@` is guarded.
