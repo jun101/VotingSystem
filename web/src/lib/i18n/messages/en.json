@@ -1174,7 +1174,8 @@
         "text": "printed slips by group"
       },
       "footer": "Everything stays editable while the election is a draft.",
-      "separator": ": "
+      "separator": ": ",
+      "done": "Done"
     },
     "open": {
       "title": "Voting in progress",

@@ -581,7 +581,13 @@ export function ElectionSummary({ election: given }: { election: Election }) {
               headerTestId="election-card-header-steps"
               ballotsHref={`/admin/elections/${election.id}/ballots`}
               votersHref={`/admin/elections/${election.id}/voters`}
+              scheduleHref={election.status === 'draft' ? '#election-checklist-title' : undefined}
               codesHref={`/admin/elections/${election.id}/codes`}
+              done={[
+                ...(election.ballots_count > 0 ? ['ballots'] : []),
+                ...(election.voters_count > 0 ? ['voters'] : []),
+                ...(election.status !== 'draft' ? ['schedule'] : []),
+              ]}
             />
           </div>
         </div>

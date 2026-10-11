@@ -1174,7 +1174,8 @@
         "text": "coupons imprimés par groupe"
       },
       "footer": "Tout reste modifiable tant que l’élection est un brouillon.",
-      "separator": " : "
+      "separator": " : ",
+      "done": "Fait"
     },
     "open": {
       "title": "Vote en cours",
