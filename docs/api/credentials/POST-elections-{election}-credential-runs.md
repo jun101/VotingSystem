@@ -107,3 +107,29 @@ file in its own transaction with the election row locked first; the codes of the
 together, so a code that no file shows is never kept. A voter who got a code between the request and the job (another
 run cannot start, but a reissue can) is skipped by the job and the file lists only the voters it served; the file's
 `voter_count` is then lowered. The job never writes a code, a hash input or a voter's name to a log.
+
+## Slice 11: email, file and resend
+
+Body fields added:
+
+| Field | Type | Rules |
+|---|---|---|
+| scope | string | `failed_email` is added: the voters whose email failed get a **new** code (`reissue_count` + 1, the old code stops working), a slip and an email. It needs `email` true and ignores `group` |
+| email | boolean | Optional, default `false`. Sends one email to each voter served who has an address; the others are left for print |
+| confirm_emails | integer | Required when `email` is true: the `with_email` count of the preview the person confirmed |
+| file | string, null | Optional. `xlsx` or `csv`: also writes one self-distribution file for the run (kind `codes_xlsx` or `codes_csv`) |
+
+| # | Scenario | Status | `error.code` | Test |
+|---|---|---|---|---|
+| 20 | `email` true with the right `confirm_emails` | 202 (the codes are made; each voter with an address is `queued`; the messages are sent in the background; the others are left) | | |
+| 21 | `confirm_emails` is not the number of voters that would be emailed now | 409, `error.count` holds the right number, nothing is done | `email_count_changed` | |
+| 22 | `email` true and nobody in the scope has an address | 409 | `nothing_to_email` | |
+| 23 | `file` `xlsx` or `csv` | 202 (one more file, with a row for every voter served, kind `codes_xlsx` or `codes_csv`, group the run's group or `null`, status as the others) | | |
+| 24 | `scope` `failed_email` | 202 (only the voters whose `email_status` is `failed`; new codes; slips and email as above) | | |
+| 25 | `scope` `failed_email` with no failed email | 409 | `nothing_to_generate` | |
+| 26 | `email` is not a boolean, `file` is not `xlsx`, `csv` or null, `confirm_emails` is missing with `email` true or is not an integer of 0 or more, `scope` `failed_email` with `email` false | 422 | `validation_failed` (`email: invalid`, `file: invalid`, `confirm_emails: required`, `confirm_emails: invalid`, `email: required`) | |
+
+Each email is a queued job with an encrypted payload holding the voter's UUID, the election's UUID and the code; the
+code is in no other queue field, no log and no failed-jobs row in clear. The answer carries the same `data` as before
+plus `emails`: the number of messages queued. The status of each message is read from
+[GET credentials](GET-elections-{election}-credentials.md) and the voters list.

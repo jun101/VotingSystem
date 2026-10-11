@@ -46,3 +46,16 @@ The shared error shape of [API conventions](../README.md).
 Anything that can be read from the PDF is a code: the response is never cached by the proxy or the browser, and the
 download is written to the log as an outcome line (user UUID, file UUID, count), never the content. The stored file is
 decrypted in memory or in a stream; no clear copy is written to disk.
+
+## Slice 11: file kinds
+
+| Kind | Content type | File name |
+|---|---|---|
+| `slips_pdf` | `application/pdf` | `coupons-{slug}.pdf` as before |
+| `codes_xlsx` | `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet` | `codes-{slug}.xlsx`, `codes-tous.xlsx` when the run was for all groups |
+| `codes_csv` | `text/csv; charset=UTF-8` | `codes-{slug}.csv`, `codes-tous.csv` |
+
+The file holds one row per voter served, sorted by group then name; columns `Nom complet`, `Groupe`, `Code`, `Lien`
+(`Full name`, `Group`, `Code`, `Link` for an English election); `Lien` is the personal link with the code in the
+fragment. A text that starts with `=`, `+`, `-` or `@` is quoted by `FormulaGuard`. The CSV has a UTF-8 byte order
+mark and the comma of the import template. Same headers (`no-store`, `nosniff`), same lifetime and purge as slips.

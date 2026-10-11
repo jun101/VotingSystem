@@ -63,3 +63,14 @@ The shared error shape of [API conventions](../README.md).
 
 Reads `credentials` and `generated_files` of the election through the tenant scope. The `code_hash` is never read here
 or anywhere else in the API.
+
+## Slice 11: email counts
+
+`data` and each line of `groups` get `email_queued`, `email_sent` and `email_failed`: the voters whose credential has
+that `email_status`. A voter with no address, or never emailed, counts in none of them.
+
+```json
+{ "voters": 300, "with_code": 74, "without_code": 226, "with_email": 20, "email_queued": 0, "email_sent": 18, "email_failed": 2, "run_in_progress": false, "groups": [ … ] }
+```
+
+`run_in_progress` is also true while an email of the election is `queued`.

@@ -24,7 +24,7 @@ Query:
 | q | string | Optional. Trimmed, 1 to 100 characters; a voter is kept when the text is found, ignoring case, in the full name, the identifier or the email. A blank `q` is ignored |
 | group | UUID or `none` | Optional. A group's UUID keeps the voters of that group; `none` keeps the voters without a group. A UUID that names no group of this election gives an empty list, never an error |
 
-The credential-status and "has voted" filters of FR-VOT-06 arrive with slices 10 and 12.
+The credential and email filters arrive with slice 11 (below), the "has voted" filter with slice 12.
 
 ## Scenarios
 
@@ -74,3 +74,11 @@ participation appears (codes come in slice 10, participation in slice 12).
 ### 422, 404, 401, 403, 419, 429, 405
 
 The shared error shape of [API conventions](../README.md).
+
+## Slice 11: credential and email status
+
+Query parameters added: `credential` (`issued` or `none`: has a current code or not) and `email` (`queued`, `sent`,
+`failed` or `none`: the status of the last email, `none` for a voter never emailed or with no address). Both can be
+combined with the others; a value that is not in the list answers 422 `validation_failed` (`credential: invalid`,
+`email: invalid`). The voter object gets `has_code` (boolean) and `email_status` (`queued`, `sent`, `failed` or
+`null`). The code and its hash never appear.

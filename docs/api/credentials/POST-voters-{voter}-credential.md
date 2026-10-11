@@ -63,3 +63,9 @@ The shared error shape of [API conventions](../README.md). Order of the checks: 
 One transaction with the election row locked first, then the voter's credential row (created if none) is written with
 the new hash, `issued_at` now and `issued_by` the user; the slip file is written inside it, so a failure keeps the old
 code. A one-slip file counts in the election's files like any other and is deleted with them.
+
+## Slice 11: email
+
+Body (optional): `{ "email": true }`. The new code is also emailed to the voter, in the background; `email_status`
+becomes `queued`. A voter with no address: 422 `validation_failed` (`email: no_address`) and nothing is changed. The
+answer is the same, plus `email`: `queued` or `null`.
