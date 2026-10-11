@@ -43,7 +43,7 @@ write one `participations` row, then for each ballot one `votes` row, its `vote_
 | 7 | Body not valid: `ballots` missing, not a list, an item without `ballot` or `candidates`, ids not UUIDs | 422 | `validation_failed` | |
 | 8 | The election is not open, or the server time is outside its period even if the status says `open` | 409 | `election_not_open` | |
 | 9 | No session, expired, ended, or of another election | 401 | `voter_session_expired` | |
-| 10 | Two requests of the same voter at once | Exactly one participation and one set of votes; the second sees `already_voted` or the same-session repeat | | |
+| 10 | Two requests of the same voter at once | Exactly one participation and one set of votes; the second sees `already_voted` or the same-session repeat. Requests from an earlier session of the voter (a newer one was opened, slice 12b) answer 401 `voter_session_expired` | | |
 | 11 | The audit key is missing or malformed, or any write fails | 500, **nothing recorded**, no participation | `server_error` | |
 | 12 | More than 10 submissions in a minute for a session | 429 | `too_many_attempts` | |
 | 13 | Another method; body not valid JSON | 405, 400 | `method_not_allowed`, `malformed_request` | |

@@ -67,7 +67,7 @@ state (409: `already_voted` before `election_not_open`).
 ## Notes
 
 A voter has one live session: opening a session records the new token as the voter's current one in the cache
-(`voter_session:{election}:{voter}`, expiring with it) and the earlier session of that voter answers 401
+(under a key of the election and the voter, expiring with it) and the earlier session of that voter answers 401
 `voter_session_expired` from then on (slice 12b). A leaked cookie therefore dies when the voter enters again.
 The cookie keeps its name `vote_session`: the `__Secure-` prefix was considered and not adopted (the cookie is
 already `Secure`, `HttpOnly`, `SameSite=Strict` and path-scoped).

@@ -22,23 +22,51 @@ final class CodeAttempts
      */
     public function begin(string $election, string $address): ?int
     {
-        $limits = $this->limits($election, $address);
-        $exceeded = [];
+        [$addressWait, $electionWait] = $this->count($election, $address);
+        $waits = array_filter([$addressWait, $electionWait], static fn (?int $wait): bool => $wait !== null);
 
-        foreach ($limits as [$key, $max, $window]) {
-            if (RateLimiter::increment($key, $window) > $max) {
-                $exceeded[] = $key;
-            }
-        }
-
-        if ($exceeded === []) {
+        if ($waits === []) {
             return null;
         }
 
-        $waits = array_map(static fn (string $key): int => max(1, RateLimiter::availableIn($key)), $exceeded);
         $this->forgive($election, $address);
 
         return max($waits);
+    }
+
+    /**
+     * Like `begin`, for the code entry, where the election-wide limit slows only wrong codes. The
+     * address limit refuses at once (the request is given back, valid code or not). The election
+     * limit is returned as a wait to apply only once the code is known to be wrong; the request stays
+     * counted until `forgive` (a valid code) or, for a refusal, until the caller gives it back.
+     *
+     * @return array{address: int|null, election: int|null} seconds to wait, null when not exceeded
+     */
+    public function beginCode(string $election, string $address): array
+    {
+        [$addressWait, $electionWait] = $this->count($election, $address);
+
+        if ($addressWait !== null) {
+            $this->forgive($election, $address);
+        }
+
+        return ['address' => $addressWait, 'election' => $electionWait];
+    }
+
+    /**
+     * Increments both counters at once (the increment decides, atomically) and tells which are exceeded.
+     *
+     * @return array{int|null, int|null} wait of the address limit, wait of the election limit
+     */
+    private function count(string $election, string $address): array
+    {
+        $waits = [];
+
+        foreach ($this->limits($election, $address) as [$key, $max, $window]) {
+            $waits[] = RateLimiter::increment($key, $window) > $max ? max(1, RateLimiter::availableIn($key)) : null;
+        }
+
+        return [$waits[0], $waits[1]];
     }
 
     /** The request was not a wrong code (a valid code, or a refusal): it is given back. */
@@ -47,6 +75,18 @@ final class CodeAttempts
         foreach ($this->limits($election, $address) as [$key, , $window]) {
             RateLimiter::decrement($key, $window);
         }
+    }
+
+    /**
+     * A wrong code refused by the election-wide limit: only that counter is given back (it stays at its maximum).
+     * The wrong code stays counted on the address, so a saturated election is no way to guess without the
+     * per-address limit.
+     */
+    public function forgiveElection(string $election, string $address): void
+    {
+        [, [$key, , $window]] = $this->limits($election, $address);
+
+        RateLimiter::decrement($key, $window);
     }
 
     /**

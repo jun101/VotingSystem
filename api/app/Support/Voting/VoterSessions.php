@@ -13,6 +13,9 @@ use Illuminate\Support\Facades\Config;
  * Stateless, for Octane: every call reads the cache and the application clock. The expiry is held
  * in the record and compared with `Carbon::now()`, so a test that travels in time ends a session as
  * a real clock does, whatever the cache store does with its own time.
+ *
+ * A voter has one live session (slice 12b): opening one records the hash of its token as the voter's
+ * current one, and a session whose token is not the current one is ended. Cache only, hash only.
  */
 final class VoterSessions
 {
@@ -36,6 +39,8 @@ final class VoterSessions
         );
 
         Cache::put(self::key($token), $session->toArray(), $ttl);
+        // The newest session is the voter's only live one: any earlier token is ended from now on.
+        Cache::put(self::currentKey($electionId, $voterId), self::fingerprint($token), $ttl);
 
         return $session;
     }
@@ -56,6 +61,15 @@ final class VoterSessions
         $session = VoterSession::fromArray($token, $data);
 
         if ($session === null || $session->expiresAt <= Carbon::now()->getTimestamp()) {
+            Cache::forget(self::key($token));
+
+            return null;
+        }
+
+        // Not the voter's current token (a newer session was opened, or the newest one ended): ended for good.
+        $current = Cache::get(self::currentKey($session->electionId, $session->voterId));
+
+        if (! is_string($current) || ! hash_equals($current, self::fingerprint($token))) {
             Cache::forget(self::key($token));
 
             return null;
@@ -94,6 +108,12 @@ final class VoterSessions
     public static function looksLikeToken(?string $token): bool
     {
         return is_string($token) && preg_match('/\A[A-Za-z0-9_-]{43}\z/', $token) === 1;
+    }
+
+    /** The voter's current token, as a hash: the numeric keys stay in the cache and are never output. */
+    private static function currentKey(int $electionId, int $voterId): string
+    {
+        return 'voter-session-current:'.$electionId.':'.$voterId;
     }
 
     private static function key(string $token): string

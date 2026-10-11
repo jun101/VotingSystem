@@ -34,7 +34,8 @@ class VoteSessionController extends Controller
      * session: a random token in the `vote_session` cookie (HttpOnly, SameSite=Strict, path
      * `/api/v1/vote`), kept at most 15 minutes; a session the browser already had is replaced.
      * Only wrong codes are counted: 30 in 10 minutes per address (an IPv6 client by its /64) and election, 300 in an hour per
-     * election, 429 with `Retry-After` (a locked-out address is refused even with a valid code).
+     * election, 429 with `Retry-After` (a locked-out address is refused even with a valid code; the election
+     * limit refuses wrong codes only). A voter has one live session: a new one ends the earlier one.
      * 409 `already_voted`, then 409 `election_not_open` with its `phase`.
      */
     #[Response(status: 201, type: 'array{data: array{expires_at: string}}')]
@@ -51,10 +52,11 @@ class VoteSessionController extends Controller
 
         $address = (string) $request->ip();
 
-        $wait = $attempts->begin($found->uuid, $address);
+        $wait = $attempts->beginCode($found->uuid, $address);
 
-        if ($wait !== null) {
-            throw new ApiException(429, 'too_many_attempts', ['Retry-After' => (string) $wait]);
+        // A locked-out address is refused even with a valid code.
+        if ($wait['address'] !== null) {
+            throw new ApiException(429, 'too_many_attempts', ['Retry-After' => (string) max($wait['address'], $wait['election'] ?? 0)]);
         }
 
         // Spaces and hyphens ignored, upper case; hashed and looked up whatever was typed: same work for every answer.
@@ -68,15 +70,14 @@ class VoteSessionController extends Controller
             ->first();
 
         if ($credential === null) {
-            // A wrong code stays counted (begin already counted it).
-            throw new ApiException(401, 'invalid_code');
+            $this->wrongCode($attempts, $found->uuid, $address, $wait['election']);
         }
 
         // The voter of that code: a voter has no institution user to scope by.
         $voter = Voter::withoutInstitutionScope()->whereKey($credential->voter_id)->where('election_id', $found->id)->first();
 
         if ($voter === null) {
-            throw new ApiException(401, 'invalid_code');
+            $this->wrongCode($attempts, $found->uuid, $address, $wait['election']);
         }
 
         // The code is valid: only wrong codes count, so the request is given back.
@@ -143,6 +144,22 @@ class VoteSessionController extends Controller
         }
 
         return $response;
+    }
+
+    /**
+     * A wrong code: counted (begin did), and refused with 429 when the election-wide limit is reached,
+     * with only that counter given back so it stays at its maximum (the address keeps the failure counted);
+     * else 401 `invalid_code`.
+     */
+    private function wrongCode(CodeAttempts $attempts, string $election, string $address, ?int $electionWait): never
+    {
+        if ($electionWait !== null) {
+            $attempts->forgiveElection($election, $address);
+
+            throw new ApiException(429, 'too_many_attempts', ['Retry-After' => (string) $electionWait]);
+        }
+
+        throw new ApiException(401, 'invalid_code');
     }
 
     /** `Secure` outside local development, and whenever the request itself came over TLS. */

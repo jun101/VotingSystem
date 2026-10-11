@@ -128,18 +128,18 @@ it('accepts only the application/json media type, whatever its case and paramete
     'text' => ['text/plain', 400],
 ]);
 
-it('answers 409 already_voted to a session of a voter who voted in another session [FR-SEC-02]', function () {
+it('answers 409 already_voted when a voter who voted in an earlier session enters the code again [FR-SEC-02, FR-VOTE-06]', function () {
     Accounts::reset();
     Voting::keypair();
     $e = Voting::election();
     $first = Voting::browser($this);
     $second = Voting::browser($this);
     Voting::enter($first, $e['election'], $e['codes']['Wideline'])->assertCreated();
-    Voting::enter($second, $e['election'], $e['codes']['Wideline'])->assertCreated();
 
     $first->post("/api/v1/vote/{$e['election']}/submit", Voting::body($e, ['G' => ['H']]), [], false)->assertCreated();
 
-    $second->get("/api/v1/vote/{$e['election']}/ballots")->assertStatus(409)->assertJsonPath('error.code', 'already_voted');
+    // One live session per voter (slice 12b): a new session is refused once the voter has voted.
+    Voting::enter($second, $e['election'], $e['codes']['Wideline'])->assertStatus(409)->assertJsonPath('error.code', 'already_voted');
 });
 
 it('gives no new code to a voter whose email failed and who voted, in the run and in its preview [FR-CRED-04]', function () {

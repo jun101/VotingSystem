@@ -120,3 +120,13 @@ pest()->beforeEach(function () {
     $this->auditPair = Tests\Support\Voting::keypair();
     $this->browser = new Tests\Support\AuthClient($this);
 })->in('Acceptance/Slice13');
+
+// Slice 12b: voter session hardening (docs/slices/12b-voter-hardening.md): the same as slice 12.
+pest()->beforeEach(function () {
+    Tests\Support\Accounts::reset();
+    Tests\Support\Tenancy::installProbeTables();
+    Tests\Support\Team::clearMedia();
+    Tests\Support\Voting::forgetCache();
+    $this->auditPair = Tests\Support\Voting::keypair();
+    $this->browser = new Tests\Support\AuthClient($this);
+})->in('Acceptance/Slice12b');
