@@ -213,8 +213,12 @@ hash in the same row.
 | issued_by_user_id | fk, null | |
 | reissue_count | smallint | Default 0 |
 | email_status | str(10), null | `queued`, `sent`, `failed` |
-| email_sent_at | dt, null | |
-| email_error | str(255), null | |
+| email_sent_at | dt, null | The time the message was sent. While the status is `queued`, a value is the marker of the one worker that holds the message (a send in progress): a second delivery of the job finds it and sends nothing |
+| email_error | str(255), null | A fixed reason code (`send_failed`, `no_address`, `address_changed`, `institution_suspended`, `election_locked`) |
+| email_hash | binary(32), null | Slice 11 review. Keyed hash of the address the run queued the message for; the job refuses a changed address. Cleared when the message is done. Never the address itself |
+| email_file_id | fk, null | Slice 11 review. The slip file whose job queued the message (set null with the file): a file that crashes fails the messages it queued. Never output |
+
+A code written without an email (reissue, replacement) clears `email_status`, `email_sent_at`, `email_error`, `email_hash` and `email_file_id`.
 
 **`voter_imports`** (FR-VOT-03, 04). Slice 08. One import at a time per election.
 
@@ -271,6 +275,8 @@ hash of a code is stored, the file is written by the same job that generates the
 | failure | str(30), null | `generation_failed` (slice 10) |
 | send_email | bool | Default false (slice 11). The job queues one email for each voter it serves who has an address |
 | replace | bool | Default false (slice 11). The scope `failed_email`: the job serves the voters whose email failed and replaces their code |
+| run | UUID, null | Slice 11 review. One value for all the files of a run (the slips and the file of codes); a reissue's file has its own. The file of codes finds the slips of its run by it, never by `created_at`. Null only for a file written before |
+| ungrouped | bool | Default false (slice 11 review). The file of codes was asked for the scope `ungrouped`: it downloads as `codes-sans-groupe` |
 | stored_file | UUID, null | The PDF encrypted with `Crypt::encryptString`, on the private disk `credentials` under this name, no extension |
 | size_bytes | int, null | |
 | expires_at | dt | The election's end; the file is deleted after it |

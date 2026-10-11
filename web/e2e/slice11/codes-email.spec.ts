@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
-import { registerAndEnter } from '../support/admin';
+import { registerAndEnter, verifyEmail } from '../support/admin';
 import { expectAccessible, expectNoSidewaysScroll } from '../support/checks';
 import { createElection } from '../support/elections';
 import { createVoter, readVoters } from '../support/voters';
@@ -14,7 +14,8 @@ import { uniqueEmail, waitForMails } from '../support/mail';
 
 /** An election with Rose and Jean (an address each, group "4e année"), Nadège (no address) on the codes page. */
 async function openCodes(page: Page) {
-  await registerAndEnter(page);
+  const me = await registerAndEnter(page);
+  await verifyEmail(page, me.email);
   const election = await createElection(page, 'Courriels');
   const rose = uniqueEmail('rose');
   const jean = uniqueEmail('jean');

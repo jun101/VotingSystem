@@ -11,6 +11,7 @@ use App\Models\Institution;
 use App\Models\User;
 use App\Models\Voter;
 use App\Support\Credentials\AccessCode;
+use App\Support\Credentials\EmailQuota;
 use App\Support\Credentials\Slip;
 use App\Support\Credentials\SlipSheet;
 use App\Support\Credentials\SlipWriter;
@@ -39,12 +40,18 @@ final class ReissueCredential
      * @param  bool  $email  the new code is also emailed to the voter (in the background)
      * @return array{code: string, reissue_count: int, file: GeneratedFile, email: 'queued'|null}
      *
-     * @throws ApiException 404, 409 `election_codes_locked`, or 500 `server_error`
+     * @throws ApiException 404, 403 `email_not_verified` (with `$email`), 409 `election_codes_locked`,
+     *                      409 `email_quota_exceeded` (with the number left), or 500 `server_error`
      * @throws ValidationException 422 `email: no_address` (nothing is changed)
      */
     public function __invoke(Voter $voter, ?User $user, bool $email = false): array
     {
         $stored = null;
+
+        // A person whose own address is unconfirmed cannot make the platform send mail in the institution's name.
+        if ($email && $user !== null && $user->email_verified_at === null) {
+            throw new ApiException(403, 'email_not_verified');
+        }
 
         try {
             $result = DB::transaction(function () use ($voter, $user, $email, &$stored): array {
@@ -133,7 +140,21 @@ final class ReissueCredential
 
         $existing = Credential::query()->where('voter_id', $current->id)->lockForUpdate()->first();
 
-        $code = ($this->credentials)($election, $current->id, $user?->id, $existing, $email);
+        if ($email) {
+            // The institution's row after the election's: two runs of two elections cannot both pass.
+            Institution::query()->whereKey($election->institution_id)->lockForUpdate()->first();
+
+            // A code of the last 24 hours already counted as an email that this one replaces: no net addition.
+            $counted = $existing !== null
+                && in_array($existing->email_status, [Credential::EMAIL_QUEUED, Credential::EMAIL_SENT], true)
+                && $existing->issued_at->gte(now('UTC')->subDay());
+
+            if (! $counted && EmailQuota::left($election->institution_id) < 1) {
+                throw new ApiException(409, 'email_quota_exceeded', count: 0);
+            }
+        }
+
+        $code = ($this->credentials)($election, $current->id, $user?->id, $existing, $email, $email ? $current->email : null);
 
         // The row was updated in place: its count is the new one.
         $reissues = $existing === null ? 0 : $existing->reissue_count;
@@ -157,6 +178,8 @@ final class ReissueCredential
         $stored = $name;
 
         $file = new GeneratedFile;
+        // A reissue is a run of its own.
+        $file->run = Uuid::uuid4()->toString();
         $file->institution_id = $election->institution_id;
         $file->election_id = $election->id;
         $file->user_id = $user?->id;

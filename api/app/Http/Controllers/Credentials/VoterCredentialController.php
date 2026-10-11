@@ -23,7 +23,7 @@ class VoterCredentialController extends Controller
      * `election_codes_locked`); a file that cannot be written gives a 500 and keeps the old code.
      * With `email` true the new code is also emailed to the voter in the background (`email`
      * `queued` in the answer; 422 `email: no_address` for a voter with no address, and nothing
-     * changes). Owner or manager. Limited to 60 requests per hour per user.
+     * changes; 403 `email_not_verified`; 409 `email_quota_exceeded`). Owner or manager. Limited to 60 requests per hour per user.
      */
     #[Response(status: 201, type: 'array{data: array{voter: array{id: string, full_name: string, group: array{id: string, name: string}|null}, code: string, reissue_count: int, email: \'queued\'|null, file: array{id: string, kind: string, group: array{id: string, name: string}|null, part: int, parts: int, voter_count: int, status: \'queued\'|\'ready\'|\'failed\', failure: string|null, size_bytes: int|null, expires_at: string, created_at: string}}}')]
     public function __invoke(ReissueCredentialRequest $request, Voter $voter, ReissueCredential $reissue): JsonResponse

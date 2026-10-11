@@ -87,6 +87,70 @@ beforeEach(() => {
   });
 });
 
+describe('LostSlipDialog email', () => {
+  function withAddress(name: string, n: number): Voter {
+    return { ...voter(name, n, GROUP), email: 'rose@example.ht' };
+  }
+
+  it('offers the email choice, unchecked, for a voter who has an address', async () => {
+    api.fetchVoters.mockResolvedValue({
+      items: [withAddress('Rose-Marie Désir', 1), voter('Rosa Pierre', 2, null)],
+      total: 2,
+      page: 1,
+    });
+    show();
+    await search('Ros');
+
+    expect(screen.queryByTestId('lost-email')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('lost-voter-1'));
+
+    expect(screen.getByTestId('lost-email')).not.toBeChecked();
+    expect(screen.getByTestId('lost-dialog')).toHaveTextContent('Envoyer aussi par courriel');
+
+    fireEvent.click(screen.getByTestId('lost-voter-2'));
+
+    expect(screen.queryByTestId('lost-email')).not.toBeInTheDocument();
+  });
+
+  it('sends email true when checked and says the message is queued', async () => {
+    api.fetchVoters.mockResolvedValue({
+      items: [withAddress('Rose-Marie Désir', 1)],
+      total: 1,
+      page: 1,
+    });
+    api.reissueCredential.mockResolvedValue({ ...reissue(1), email: 'queued' });
+    show();
+    await search('Rose');
+
+    fireEvent.click(screen.getByTestId('lost-voter-1'));
+    fireEvent.click(screen.getByTestId('lost-email'));
+    fireEvent.click(screen.getByTestId('lost-confirm'));
+
+    await waitFor(() => expect(screen.getByTestId('lost-email-queued')).toBeInTheDocument());
+    expect(api.reissueCredential).toHaveBeenCalledWith('20000000-0000-4000-8000-000000000001', {
+      email: true,
+    });
+  });
+
+  it('shows the message of a refusal because the email is not verified', async () => {
+    api.fetchVoters.mockResolvedValue({
+      items: [withAddress('Rose-Marie Désir', 1)],
+      total: 1,
+      page: 1,
+    });
+    api.reissueCredential.mockRejectedValue(new ApiError(403, 'email_not_verified'));
+    show();
+    await search('Rose');
+
+    fireEvent.click(screen.getByTestId('lost-voter-1'));
+    fireEvent.click(screen.getByTestId('lost-email'));
+    fireEvent.click(screen.getByTestId('lost-confirm'));
+
+    await waitFor(() => expect(screen.getByTestId('lost-error')).toBeInTheDocument());
+    expect(screen.getByTestId('lost-error')).toHaveTextContent('Confirmez d’abord');
+  });
+});
+
 describe('LostSlipDialog', () => {
   it('searches by name with the election, and numbers the results from 1', async () => {
     show();

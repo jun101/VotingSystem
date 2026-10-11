@@ -71,12 +71,17 @@ final class GenerateCodesFile
                 $disk = Storage::disk('credentials');
                 $rows = AppendCodeRows::decode(Crypt::decryptString((string) $disk->get($partial)));
 
-                // No user is signed in: the slip files of the run are read by the election and the instant.
+                // No user is signed in: the slip files of the run are read by the election and the run's identifier
+                // (the instant of creation only for a file that has none).
                 $expected = (int) GeneratedFile::withoutInstitutionScope()
                     ->where('election_id', $current->election_id)
                     ->where('kind', GeneratedFile::KIND_SLIPS)
                     ->where('status', GeneratedFile::STATUS_READY)
-                    ->where('created_at', $current->created_at)
+                    ->when(
+                        $current->run !== null,
+                        fn ($query) => $query->where('run', $current->run),
+                        fn ($query) => $query->whereNull('run')->where('created_at', $current->created_at),
+                    )
                     ->sum('voter_count');
 
                 // A slip file whose rows could not be handed over would leave voters out: no incomplete file.

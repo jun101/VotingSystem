@@ -44,6 +44,8 @@ return [
     'election_not_scheduled' => 'This election is not scheduled.',
     'nothing_to_generate' => 'Every voter of this choice already has a code, or there is no voter.',
     'email_count_changed' => 'The number of emails changed since the preview: confirm the new number.',
+    'email_not_verified' => 'Only an account whose email address is confirmed can send codes by email.',
+    'email_quota_exceeded' => 'The institution’s email quota for 24 hours is reached or would be: send fewer emails, or print the slips.',
     'nothing_to_email' => 'No voter of this choice has an email address: no message can be sent.',
     'run_in_progress' => 'A code run is already in progress for this election.',
     'election_codes_locked' => 'Codes can no longer be generated or reissued for this election.',

@@ -29,7 +29,7 @@ final class CredentialState
                 $join->on('credentials.voter_id', '=', 'voters.id')
                     ->on('credentials.institution_id', '=', 'voters.institution_id');
             })
-            ->selectRaw('voters.voter_group_id as group_key, count(*) as voters, count(credentials.id) as with_code, sum(voters.email is not null) as with_email, sum(credentials.email_status = \'queued\') as email_queued, sum(credentials.email_status = \'sent\') as email_sent, sum(credentials.email_status = \'failed\') as email_failed')
+            ->selectRaw('voters.voter_group_id as group_key, count(*) as voters, count(credentials.id) as with_code, sum(voters.email is not null) as with_email, sum(credentials.email_status = \'queued\') as email_queued, sum(credentials.email_status = \'sent\') as email_sent, sum(credentials.email_status = \'failed\' and voters.email is not null) as email_failed')
             ->groupBy('voters.voter_group_id')
             ->get();
 

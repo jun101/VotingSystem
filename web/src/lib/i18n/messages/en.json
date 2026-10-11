@@ -406,7 +406,9 @@
     "file_not_ready": "This file is not ready yet, or it failed.",
     "voter_has_voted": "This voter has already voted: the code cannot be replaced.",
     "email_count_changed": "The number of emails changed. Check the new numbers, then confirm again.",
-    "nothing_to_email": "None of these voters has an address: no email to send."
+    "nothing_to_email": "None of these voters has an address: no email to send.",
+    "email_not_verified": "Confirm your email address first to send codes by email. You can still print the slips.",
+    "email_quota_exceeded": "The institution’s limit of emails for 24 hours is reached or would be: send fewer emails, or print the slips."
   },
   "validation": {
     "required": "This field is required.",
@@ -1815,7 +1817,9 @@
       "download": "Download the slip (PDF)",
       "downloadFailed": "The slip could not be downloaded.",
       "close": "Close and erase the code",
-      "closeLabel": "Close"
+      "closeLabel": "Close",
+      "email": "Also send by email",
+      "emailQueued": "The new code was queued to be sent by email."
     },
     "locked": "Codes can no longer be created or replaced: the election is over. Slip files are deleted when it closes.",
     "run": {
@@ -1828,7 +1832,8 @@
         "failed": {
           "one": "{count} file failed: its voters have no code. Run the generation again for that group.",
           "other": "{count} files failed: their voters have no code. Run the generation again for those groups."
-        }
+        },
+        "codeFileFailed": "The distribution file could not be written. The codes are issued and the printed slips are ready: run the file again with a new send."
       },
       "failed": "The generation could not start.",
       "emails": {
@@ -1861,9 +1866,18 @@
         "other": "{count} slips · {date}"
       },
       "downloadFailed": "The file could not be downloaded.",
-      "emailSent": "{count} sent",
-      "emailQueued": "{count} waiting",
-      "emailFailed": "{count} failed"
+      "emailSent": {
+        "one": "{count} sent",
+        "other": "{count} sent"
+      },
+      "emailQueued": {
+        "one": "{count} waiting",
+        "other": "{count} waiting"
+      },
+      "emailFailed": {
+        "one": "{count} failed",
+        "other": "{count} failed"
+      }
     },
     "empty": {
       "title": "No voter yet",

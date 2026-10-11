@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Enums\ElectionStatus;
+use App\Models\Credential;
 use App\Models\Election;
 use App\Models\GeneratedFile;
 use Illuminate\Console\Command;
@@ -24,6 +25,9 @@ class PurgeGeneratedFiles extends Command
 {
     /** A file still `queued` after this many minutes is taken for lost. */
     public const STUCK_MINUTES = 60;
+
+    /** A message still `queued` after this many hours has no job behind it any more (a job gives up sooner). */
+    public const EMAIL_STUCK_HOURS = 7;
 
     protected $signature = 'files:purge';
 
@@ -94,7 +98,14 @@ class PurgeGeneratedFiles extends Command
                 }
             });
 
-        $this->info("Deleted {$deleted}. Marked failed {$failed}. Copies left {$failedCopies}.");
+        // No user is signed in: an old queued status is failed in any institution, on its age only. Nothing but
+        // the status and its reason are written: the code stays, and `failed_email` can serve the voter.
+        $emails = Credential::withoutInstitutionScope()
+            ->where('email_status', Credential::EMAIL_QUEUED)
+            ->where('issued_at', '<', Carbon::now('UTC')->subHours(self::EMAIL_STUCK_HOURS))
+            ->update(['email_status' => Credential::EMAIL_FAILED, 'email_sent_at' => null, 'email_error' => Credential::ERROR_SEND_FAILED]);
+
+        $this->info("Deleted {$deleted}. Marked failed {$failed}. Copies left {$failedCopies}. Emails failed {$emails}.");
 
         return self::SUCCESS;
     }
@@ -158,6 +169,12 @@ class PurgeGeneratedFiles extends Command
                 'failure' => GeneratedFile::FAILURE_GENERATION,
                 'stored_file' => null,
             ])->save();
+
+            // No user is signed in: the messages this file queued are named by the file. They will not be sent.
+            Credential::withoutInstitutionScope()
+                ->where('email_file_id', $file->id)
+                ->where('email_status', Credential::EMAIL_QUEUED)
+                ->update(['email_status' => Credential::EMAIL_FAILED, 'email_sent_at' => null, 'email_error' => Credential::ERROR_SEND_FAILED]);
 
             return $stored;
         });

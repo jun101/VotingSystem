@@ -270,12 +270,15 @@ final class GenerateSlipFile
                 'email_status' => $row->email_status,
                 'email_sent_at' => $row->email_sent_at,
                 'email_error' => $row->email_error,
+                'email_hash' => $row->email_hash,
+                'email_file_id' => $row->email_file_id,
             ];
 
             // A message is queued for a voter with an address; the others are left for print.
             $queue = $current->send_email && $voter->email !== null;
 
-            $code = ($this->credentials)($election, $voter->id, $current->user_id, $row, $queue);
+            // The address read now is the one the message is held to: the job refuses a changed one.
+            $code = ($this->credentials)($election, $voter->id, $current->user_id, $row, $queue, $queue ? $voter->email : null, $queue ? $current->id : null);
             $hash = AccessCode::hash($code);
             $slips[] = new Slip($voter->full_name, $group->name ?? self::NO_GROUP, $code);
             $issued[] = ['voter' => $voter->id, 'hash' => $hash, 'previous' => $previous];
@@ -404,6 +407,8 @@ final class GenerateSlipFile
                             'email_status' => $one['previous']['email_status'],
                             'email_sent_at' => $one['previous']['email_sent_at'],
                             'email_error' => $one['previous']['email_error'],
+                            'email_hash' => $one['previous']['email_hash'],
+                            'email_file_id' => $one['previous']['email_file_id'],
                         ]);
                     }
 
@@ -451,6 +456,13 @@ final class GenerateSlipFile
             'stored_file' => null,
             'updated_at' => Carbon::now('UTC'),
         ])->save();
+
+        // The codes this file wrote stay (a slip file that was lost is rerun with a new send), and the
+        // messages it queued will not be sent: they are `failed`, so `failed_email` can serve them.
+        Credential::withoutInstitutionScope()
+            ->where('email_file_id', $file->id)
+            ->where('email_status', Credential::EMAIL_QUEUED)
+            ->update(['email_status' => Credential::EMAIL_FAILED, 'email_sent_at' => null, 'email_error' => Credential::ERROR_SEND_FAILED]);
 
         return [true, $stored];
     }

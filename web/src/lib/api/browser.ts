@@ -1018,9 +1018,16 @@ export async function previewCredentialRun(
  * `POST /voters/{voter}/credential`: a new code for one voter, shown once, with a one-slip file.
  * The answer is the only place a code is ever sent: the caller shows it and keeps it nowhere.
  */
-export async function reissueCredential(voter: string): Promise<Reissue> {
+export async function reissueCredential(
+  voter: string,
+  options: { email?: boolean } = {},
+): Promise<Reissue> {
   const { data } = await send((api) =>
-    api.POST('/v1/voters/{voter}/credential', { params: { path: { voter } } }),
+    api.POST('/v1/voters/{voter}/credential', {
+      params: { path: { voter } },
+      // The body is sent only when the code is also to be emailed.
+      ...(options.email ? { body: { email: true } } : {}),
+    }),
   );
 
   return data!.data;

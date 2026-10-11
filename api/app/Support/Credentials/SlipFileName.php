@@ -19,10 +19,13 @@ final class SlipFileName
         return 'coupons-'.$slug.($parts > 1 ? '-partie-'.$part : '').'.pdf';
     }
 
-    /** `codes-4e-annee.xlsx`, `codes-tous.csv`: the file of a run for one group, or `tous` for the others. */
-    public static function codes(?string $groupName, string $extension): string
+    /**
+     * `codes-4e-annee.xlsx`, `codes-sans-groupe.csv`, `codes-tous.csv`: the file of a run for one group,
+     * for the scope of the voters with no group, or `tous` for the others.
+     */
+    public static function codes(?string $groupName, string $extension, bool $ungrouped = false): string
     {
-        $slug = $groupName === null ? 'tous' : Str::slug(mb_substr($groupName, 0, 100));
+        $slug = $groupName === null ? ($ungrouped ? 'sans-groupe' : 'tous') : Str::slug(mb_substr($groupName, 0, 100));
 
         if ($slug === '') {
             $slug = 'groupe';

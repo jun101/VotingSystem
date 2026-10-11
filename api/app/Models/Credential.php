@@ -21,6 +21,8 @@ use Illuminate\Support\Carbon;
  * @property string|null $email_status
  * @property Carbon|null $email_sent_at
  * @property string|null $email_error
+ * @property string|null $email_hash
+ * @property int|null $email_file_id
  */
 class Credential extends Model
 {

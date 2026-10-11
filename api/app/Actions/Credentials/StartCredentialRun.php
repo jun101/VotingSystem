@@ -6,15 +6,18 @@ use App\Exceptions\ApiException;
 use App\Models\Credential;
 use App\Models\Election;
 use App\Models\GeneratedFile;
+use App\Models\Institution;
 use App\Models\User;
 use App\Models\Voter;
 use App\Models\VoterGroup;
+use App\Support\Credentials\EmailQuota;
 use App\Support\Credentials\PartSplitter;
 use App\Support\Credentials\RowCount;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Ramsey\Uuid\Uuid;
 use Throwable;
 
 /**
@@ -34,12 +37,18 @@ final class StartCredentialRun
      * @param  'xlsx'|'csv'|null  $format  the self-distribution file asked for: one more file, written last
      * @return array{files: list<GeneratedFile>, voters: int, skipped: int, emails: int}
      *
-     * @throws ApiException 404, or 409 `election_codes_locked`, `run_in_progress`, `nothing_to_generate`,
-     *                      `nothing_to_email`, `email_count_changed` (with the count now true)
+     * @throws ApiException 404, 403 `email_not_verified` (with `$email`), or 409 `election_codes_locked`,
+     *                      `run_in_progress`, `nothing_to_generate`, `nothing_to_email`, `email_count_changed`
+     *                      (with the count now true), `email_quota_exceeded` (with the number left)
      */
     public function __invoke(Election $election, string $scope, ?VoterGroup $group, ?User $user, bool $email = false, ?int $confirmEmails = null, ?string $format = null): array
     {
         $stale = [];
+
+        // A person whose own address is unconfirmed cannot make the platform send mail in the institution's name.
+        if ($email && $user !== null && $user->email_verified_at === null) {
+            throw new ApiException(403, 'email_not_verified');
+        }
 
         $run = DB::transaction(function () use ($election, $scope, $group, $user, $email, $confirmEmails, $format, &$stale): array {
             // Locked first, as every write of the voters and codes of an election.
@@ -84,10 +93,20 @@ final class StartCredentialRun
                 if ($confirmEmails !== $emails) {
                     throw new ApiException(409, 'email_count_changed', count: $emails);
                 }
+
+                // The institution's emails of the last 24 hours, under the institution's row so two
+                // runs of two elections cannot both pass (the election's row is held: that order only).
+                Institution::query()->whereKey($locked->institution_id)->lockForUpdate()->first();
+                $left = EmailQuota::left($locked->institution_id);
+
+                if ($emails > $left) {
+                    throw new ApiException(409, 'email_quota_exceeded', count: $left);
+                }
             }
 
             $files = [];
-            // One instant for every file of the run: the file of codes finds the slips of its run by it.
+            // The files of a run share one identifier: the file of codes finds the slips of its run by it.
+            $runId = Uuid::uuid4()->toString();
             $now = Carbon::now('UTC');
 
             foreach ($this->groupsToServe($locked, $counts) as [$serving, $left]) {
@@ -95,6 +114,7 @@ final class StartCredentialRun
 
                 foreach ($sizes as $index => $size) {
                     $file = new GeneratedFile;
+                    $file->run = $runId;
                     $file->institution_id = $locked->institution_id;
                     $file->election_id = $locked->id;
                     $file->user_id = $user?->id;
@@ -122,6 +142,7 @@ final class StartCredentialRun
                 // The codes are made inside the jobs of the slip files and never stored: this file is
                 // assembled from what they hand over, and it is the last of the chain.
                 $file = new GeneratedFile;
+                $file->run = $runId;
                 $file->institution_id = $locked->institution_id;
                 $file->election_id = $locked->id;
                 $file->user_id = $user?->id;
@@ -134,6 +155,7 @@ final class StartCredentialRun
                 $file->failure = null;
                 $file->send_email = false;
                 $file->replace = false;
+                $file->ungrouped = $scope === 'ungrouped';
                 $file->expires_at = $locked->ends_at;
                 $file->created_at = $now;
                 $file->updated_at = $now;
@@ -176,6 +198,12 @@ final class StartCredentialRun
         if ($old->isEmpty()) {
             return [];
         }
+
+        // The messages the lost files had queued will never be sent: a resend can serve them.
+        Credential::withoutInstitutionScope()
+            ->whereIn('email_file_id', $old->pluck('id'))
+            ->where('email_status', Credential::EMAIL_QUEUED)
+            ->update(['email_status' => Credential::EMAIL_FAILED, 'email_sent_at' => null, 'email_error' => Credential::ERROR_SEND_FAILED]);
 
         GeneratedFile::query()->whereIn('id', $old->pluck('id'))->update([
             'status' => GeneratedFile::STATUS_FAILED,

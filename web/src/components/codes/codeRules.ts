@@ -22,9 +22,25 @@ export function isQueued(file: GeneratedFile): boolean {
   return file.status === 'queued';
 }
 
-/** The page polls while a file is queued or the server says a run is in progress. */
-export function isRunning(state: CredentialState, files: readonly GeneratedFile[]): boolean {
-  return state.run_in_progress || files.some(isQueued);
+/**
+ * A run is going on while a FILE is queued. Messages waiting to be sent do not make a run: the
+ * buttons stay usable (the server only refuses a new run while a file is queued).
+ */
+export function isRunning(files: readonly GeneratedFile[]): boolean {
+  return files.some(isQueued);
+}
+
+/** The page reads the state this often while a file is being written. */
+export const POLL_MS = 1500;
+
+/** And this often while only messages are waiting to be sent. */
+export const EMAIL_POLL_MS = 5000;
+
+/** The delay before the page reads the state again, or `null` when nothing is waiting. */
+export function pollDelay(state: CredentialState, files: readonly GeneratedFile[]): number | null {
+  if (isRunning(files)) return POLL_MS;
+
+  return state.email_queued > 0 ? EMAIL_POLL_MS : null;
 }
 
 /** "Generate for everyone" is offered when someone has no code and no run is going on. */
@@ -88,11 +104,19 @@ export function downloadsOf(
 }
 
 /** What a run came to, read from the files it queued. */
-export type RunOutcome = { voters: number; failed: number };
+export type RunOutcome = {
+  voters: number;
+  /** Slip files that failed. */
+  failed: number;
+  /** The self-distribution file failed: the codes and the slips are fine, the file is not. */
+  codeFileFailed?: true;
+};
 
 /**
- * The outcome of the files this page watched (by UUID): the voters of the files that are ready,
- * and how many of them failed. `null` while any of them is still queued, or when none is known.
+ * The outcome of the files this page watched (by UUID): the voters of the slip files that are
+ * ready, and how many slip files failed; a failed file of codes is reported on its own (its voters
+ * are those of the slips, never counted twice). `null` while any of them is still queued, or when
+ * none is known.
  */
 export function outcomeOf(
   files: readonly GeneratedFile[],
@@ -102,11 +126,15 @@ export function outcomeOf(
 
   if (mine.length === 0 || mine.some(isQueued)) return null;
 
+  const slips = mine.filter((file) => file.kind === 'slips_pdf');
+  const codeFileFailed = mine.some((file) => file.kind !== 'slips_pdf' && file.status === 'failed');
+
   return {
-    voters: mine
+    voters: slips
       .filter((file) => file.status === 'ready')
       .reduce((sum, file) => sum + file.voter_count, 0),
-    failed: mine.filter((file) => file.status === 'failed').length,
+    failed: slips.filter((file) => file.status === 'failed').length,
+    ...(codeFileFailed ? { codeFileFailed: true as const } : {}),
   };
 }
 

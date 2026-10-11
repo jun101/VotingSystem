@@ -406,7 +406,9 @@
     "file_not_ready": "Ce fichier n’est pas encore prêt ou a échoué.",
     "voter_has_voted": "Cet électeur a déjà voté : son code ne peut pas être remplacé.",
     "email_count_changed": "Le nombre de courriels a changé. Vérifiez les nouveaux nombres, puis confirmez de nouveau.",
-    "nothing_to_email": "Aucun de ces électeurs n’a d’adresse : aucun courriel à envoyer."
+    "nothing_to_email": "Aucun de ces électeurs n’a d’adresse : aucun courriel à envoyer.",
+    "email_not_verified": "Confirmez d’abord votre adresse courriel pour envoyer des codes par courriel. Vous pouvez toujours imprimer les coupons.",
+    "email_quota_exceeded": "La limite de courriels de l’institution pour 24 heures est atteinte ou le serait : envoyez moins de courriels, ou imprimez les coupons."
   },
   "validation": {
     "required": "Ce champ est obligatoire.",
@@ -1815,7 +1817,9 @@
       "download": "Télécharger le coupon (PDF)",
       "downloadFailed": "Le coupon n’a pas pu être téléchargé.",
       "close": "Fermer et effacer le code",
-      "closeLabel": "Fermer"
+      "closeLabel": "Fermer",
+      "email": "Envoyer aussi par courriel",
+      "emailQueued": "Le nouveau code a été mis en file d’envoi par courriel."
     },
     "locked": "Les codes ne peuvent plus être créés ni remplacés : l’élection est terminée. Les fichiers de coupons sont supprimés à la clôture.",
     "run": {
@@ -1828,7 +1832,8 @@
         "failed": {
           "one": "{count} fichier a échoué : ses électeurs n’ont pas de code. Relancez la génération pour ce groupe.",
           "other": "{count} fichiers ont échoué : leurs électeurs n’ont pas de code. Relancez la génération pour ces groupes."
-        }
+        },
+        "codeFileFailed": "Le fichier de distribution n’a pas pu être écrit. Les codes sont créés et les coupons imprimables sont prêts : relancez le fichier avec un nouvel envoi."
       },
       "failed": "La génération n’a pas pu démarrer.",
       "emails": {
@@ -1861,9 +1866,18 @@
         "other": "{count} coupons · {date}"
       },
       "downloadFailed": "Le fichier n’a pas pu être téléchargé.",
-      "emailSent": "{count} envoyés",
-      "emailQueued": "{count} en attente",
-      "emailFailed": "{count} en échec"
+      "emailSent": {
+        "one": "{count} envoyé",
+        "other": "{count} envoyés"
+      },
+      "emailQueued": {
+        "one": "{count} en attente",
+        "other": "{count} en attente"
+      },
+      "emailFailed": {
+        "one": "{count} en échec",
+        "other": "{count} en échec"
+      }
     },
     "empty": {
       "title": "Aucun électeur pour le moment",

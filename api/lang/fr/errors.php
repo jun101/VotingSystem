@@ -44,6 +44,8 @@ return [
     'election_not_scheduled' => 'Cette élection n\'est pas programmée.',
     'nothing_to_generate' => 'Tous les électeurs de ce choix ont déjà un code, ou il n’y a aucun électeur.',
     'email_count_changed' => 'Le nombre de courriels a changé depuis l’aperçu : confirmez le nouveau nombre.',
+    'email_not_verified' => 'Seul un compte dont l’adresse courriel est confirmée peut envoyer des codes par courriel.',
+    'email_quota_exceeded' => 'Le quota de courriels de l’institution pour 24 heures est atteint ou le serait : envoyez moins de courriels, ou imprimez les coupons.',
     'nothing_to_email' => 'Aucun électeur de ce choix n’a d’adresse courriel : aucun message ne peut être envoyé.',
     'run_in_progress' => 'Une génération de codes est déjà en cours pour cette élection.',
     'election_codes_locked' => 'Les codes ne peuvent plus être générés ni remplacés pour cette élection.',

@@ -269,7 +269,9 @@ export interface paths {
          *     for a new code to the voters whose email failed) who have none and writes their slips, one
          *     PDF per group (parts of 1 000 voters at most). With `email` the voters served who have an
          *     address are emailed their link and code in the background; `confirm_emails` is the count the
-         *     person saw (409 `email_count_changed` with `error.count`, 409 `nothing_to_email`). `file` is
+         *     person saw (409 `email_count_changed` with `error.count`, 409 `nothing_to_email`); with `email` the user's
+         *     own email must be verified (403 `email_not_verified`) and the institution's emails of the last 24
+         *     hours are limited (409 `email_quota_exceeded`, `error.count` is the number left). `file` is
          *     `xlsx`, `csv` or null. The answer comes before the work: the files are `queued`, and polled
          *     with `GET /generated-files/{file}`. A draft, scheduled or open election (409
          *     `election_codes_locked`), one run at a time (409 `run_in_progress`), something to serve (409
@@ -1323,7 +1325,7 @@ export interface paths {
          *     `election_codes_locked`); a file that cannot be written gives a 500 and keeps the old code.
          *     With `email` true the new code is also emailed to the voter in the background (`email`
          *     `queued` in the answer; 422 `email: no_address` for a voter with no address, and nothing
-         *     changes). Owner or manager. Limited to 60 requests per hour per user.
+         *     changes; 403 `email_not_verified`; 409 `email_quota_exceeded`). Owner or manager. Limited to 60 requests per hour per user.
          */
         post: operations["credentials.voterCredential"];
         delete?: never;

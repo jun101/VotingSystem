@@ -37,6 +37,8 @@ import {
   mergeFiles,
   outcomeOf,
   percentOf,
+  POLL_MS,
+  pollDelay,
   runBodyOf,
 } from './codeRules';
 import { GroupCard } from './GroupCard';
@@ -45,8 +47,8 @@ import { saveBlob } from './saveFile';
 import { SendDialog } from './SendDialog';
 import { canResend, codeFilesOf, draftFor, emailSummary, type SendDraft } from './sendRules';
 
-/** While a file is queued the page reads the state this often. */
-export const POLL_MS = 1500;
+// The delays are in codeRules; kept exported here for the callers that had them.
+export { POLL_MS };
 
 /** The text colour of the badge on the header band, by status (as on the voters page). */
 const BADGE_TEXT: Record<ElectionStatus, string> = {
@@ -111,7 +113,8 @@ export function CodesPage({
 
   const lockedSeen = lockedAt === election;
   const locked = lockedSeen || codesLocked(election.status);
-  const running = isRunning(state, files);
+  const running = isRunning(files);
+  const delay = pollDelay(state, files);
   const outcome = useMemo(() => outcomeOf(files, watched), [files, watched]);
 
   /** The state and the files, read again. */
@@ -157,9 +160,10 @@ export function CodesPage({
     }
   }
 
-  // While something is being written: read again, one request after the other.
+  // While a file is being written (fast) or a message waits to be sent (slow): read again, one
+  // request after the other.
   useEffect(() => {
-    if (!running) return;
+    if (delay === null) return;
 
     const timer = window.setTimeout(() => {
       refresh().then(
@@ -175,12 +179,12 @@ export function CodesPage({
           setTick((n) => n + 1);
         },
       );
-    }, POLL_MS);
+    }, delay);
 
     return () => window.clearTimeout(timer);
     // `refresh` reads only the election and setters.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [running, tick]);
+  }, [delay, tick]);
 
   /** A run was accepted: its files are watched, and the page reads the state again. */
   function started(run: CredentialRun) {
@@ -361,7 +365,7 @@ export function CodesPage({
         </Notice>
       ) : outcome ? (
         <Notice
-          tone={outcome.failed > 0 ? 'danger' : 'teal'}
+          tone={outcome.failed > 0 || outcome.codeFileFailed ? 'danger' : 'teal'}
           role="status"
           data-testid="codes-run-result"
         >
@@ -381,6 +385,11 @@ export function CodesPage({
                 {t(`codes.run.result.failed.${pluralForm(locale, outcome.failed)}`, {
                   count: outcome.failed,
                 })}
+              </span>
+            ) : null}
+            {outcome.codeFileFailed ? (
+              <span data-testid="codes-run-file-failed">
+                {t('codes.run.result.codeFileFailed')}
               </span>
             ) : null}
           </span>

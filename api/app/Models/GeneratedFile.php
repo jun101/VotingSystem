@@ -14,6 +14,7 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property string $uuid
+ * @property string|null $run
  * @property int $election_id
  * @property int|null $user_id
  * @property string $kind
@@ -25,6 +26,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $failure
  * @property bool $send_email
  * @property bool $replace
+ * @property bool $ungrouped
  * @property string|null $stored_file
  * @property int|null $size_bytes
  * @property Carbon $expires_at
@@ -64,6 +66,7 @@ class GeneratedFile extends Model
             'expires_at' => 'datetime',
             'send_email' => 'boolean',
             'replace' => 'boolean',
+            'ungrouped' => 'boolean',
         ];
     }
 

@@ -115,10 +115,10 @@ class GeneratedFileController extends Controller
         $pdf = Crypt::decryptString($encrypted);
         [$name, $type] = match ($file->kind) {
             GeneratedFile::KIND_CODES_XLSX => [
-                SlipFileName::codes($file->group?->name, 'xlsx'),
+                SlipFileName::codes($file->group?->name, 'xlsx', $file->ungrouped),
                 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             ],
-            GeneratedFile::KIND_CODES_CSV => [SlipFileName::codes($file->group?->name, 'csv'), 'text/csv; charset=UTF-8'],
+            GeneratedFile::KIND_CODES_CSV => [SlipFileName::codes($file->group?->name, 'csv', $file->ungrouped), 'text/csv; charset=UTF-8'],
             default => [SlipFileName::for($file->group?->name, $file->part, $file->parts), 'application/pdf'],
         };
 

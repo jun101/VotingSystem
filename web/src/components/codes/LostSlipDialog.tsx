@@ -18,6 +18,8 @@ const DEBOUNCE_MS = 300;
 
 const DOWNLOAD_PATH = 'M12 4v12M6 10l6 6 6-6M4 20h16';
 
+const CHECKBOX = `size-5 shrink-0 cursor-pointer accent-primary ${focusRing}`;
+
 /**
  * The lost-slip dialog (A11): look a voter up by name, choose one, create a new code. The code
  * is shown here and nowhere else, once; it lives in this component's state only, so closing the
@@ -41,6 +43,8 @@ export function LostSlipDialog({
   const [searching, setSearching] = useState(false);
   const [searchFailed, setSearchFailed] = useState(false);
   const [chosen, setChosen] = useState<Voter | null>(null);
+  // Also email the new code: off by default, offered only for a voter with an address.
+  const [emailIt, setEmailIt] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<Reissue | null>(null);
@@ -63,6 +67,7 @@ export function LostSlipDialog({
 
     setText(value);
     setChosen(null);
+    setEmailIt(false);
     setError(null);
 
     if (timer.current !== null) window.clearTimeout(timer.current);
@@ -101,7 +106,12 @@ export function LostSlipDialog({
     setError(null);
 
     try {
-      setResult(await reissueCredential(chosen.id));
+      // The second argument only when the code is also emailed: a voter with no address has no choice.
+      setResult(
+        chosen.email && emailIt
+          ? await reissueCredential(chosen.id, { email: true })
+          : await reissueCredential(chosen.id),
+      );
     } catch (caught) {
       const failure = caught instanceof ApiError ? caught : new ApiError(0, 'unknown');
 
@@ -168,6 +178,11 @@ export function LostSlipDialog({
           <p className="text-base text-ink-soft">
             {result.reissue_count > 0 ? t('codes.lost.replaced') : t('codes.lost.first')}
           </p>
+          {result.email === 'queued' ? (
+            <p data-testid="lost-email-queued" className="text-base text-ink-soft">
+              {t('codes.lost.emailQueued')}
+            </p>
+          ) : null}
           {error ? (
             <Notice tone="danger" role="alert" data-testid="lost-error">
               {error}
@@ -240,7 +255,10 @@ export function LostSlipDialog({
                         type="button"
                         aria-pressed={on}
                         disabled={busy}
-                        onClick={() => setChosen(voter)}
+                        onClick={() => {
+                          setChosen(voter);
+                          setEmailIt(false);
+                        }}
                         data-testid={`lost-voter-${index + 1}`}
                         className={cx(
                           'ui-control flex min-h-12 w-full items-center gap-3 rounded-lg border px-3.5 text-left',
@@ -272,6 +290,20 @@ export function LostSlipDialog({
               <p className="text-sm text-ink-soft">{t('codes.lost.more')}</p>
             ) : null}
           </div>
+
+          {chosen?.email ? (
+            <label className="flex min-h-11 cursor-pointer items-start gap-3 text-md text-ink">
+              <input
+                type="checkbox"
+                checked={emailIt}
+                onChange={(event) => setEmailIt(event.target.checked)}
+                disabled={busy}
+                data-testid="lost-email"
+                className={`${CHECKBOX} mt-0.5`}
+              />
+              <span className="font-medium">{t('codes.lost.email')}</span>
+            </label>
+          ) : null}
 
           {error ? (
             <Notice tone="danger" role="alert" data-testid="lost-error">

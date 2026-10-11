@@ -303,6 +303,27 @@ describe('CodesPage', () => {
     expect(api.fetchGeneratedFiles).toHaveBeenCalledTimes(1);
   });
 
+  it('keeps the buttons usable and reads slowly while only messages wait to be sent', async () => {
+    vi.useFakeTimers();
+    api.fetchCredentials.mockResolvedValue(state({ email_queued: 2 }));
+    api.fetchGeneratedFiles.mockResolvedValue([file()]);
+    show('draft', state({ run_in_progress: true, email_queued: 2 }), [file()]);
+
+    expect(screen.queryByTestId('codes-run-status')).not.toBeInTheDocument();
+    expect(screen.getByTestId('codes-generate-all')).toBeEnabled();
+    expect(screen.getByTestId('codes-send')).toBeEnabled();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(POLL_MS + 10);
+    });
+    expect(api.fetchGeneratedFiles).not.toHaveBeenCalled();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5000);
+    });
+    expect(api.fetchGeneratedFiles).toHaveBeenCalledTimes(1);
+  });
+
   it('tells how many files failed', async () => {
     vi.useFakeTimers();
     api.fetchCredentials.mockResolvedValue(state());

@@ -111,10 +111,18 @@ export function GroupCard({
           className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-soft"
         >
           <Icon name="mail" size={16} />
-          <span>{t('codes.group.emailSent', { count: email.sent })}</span>
-          <span>{t('codes.group.emailQueued', { count: email.queued })}</span>
+          <span>
+            {t(`codes.group.emailSent.${pluralForm(locale, email.sent)}`, { count: email.sent })}
+          </span>
+          <span>
+            {t(`codes.group.emailQueued.${pluralForm(locale, email.queued)}`, {
+              count: email.queued,
+            })}
+          </span>
           <span className={email.failed > 0 ? 'font-bold text-danger' : undefined}>
-            {t('codes.group.emailFailed', { count: email.failed })}
+            {t(`codes.group.emailFailed.${pluralForm(locale, email.failed)}`, {
+              count: email.failed,
+            })}
           </span>
         </p>
       ) : null}
