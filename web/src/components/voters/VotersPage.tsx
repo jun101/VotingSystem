@@ -18,6 +18,7 @@ import type {
   CredentialFilter,
   EmailFilter,
   GroupList,
+  VotedFilter,
   Voter,
   VoterFilters,
   VoterGroup,
@@ -301,7 +302,11 @@ export function VotersPage({
   }, [searchText]);
 
   const searching =
-    filters.q !== '' || filters.group !== '' || filters.credential !== '' || filters.email !== '';
+    filters.q !== '' ||
+    filters.group !== '' ||
+    filters.credential !== '' ||
+    filters.email !== '' ||
+    Boolean(filters.voted);
   const total = groups.votersTotal;
   const selectedGroup = filters.group;
 
@@ -315,6 +320,10 @@ export function VotersPage({
 
   function chooseEmail(email: EmailFilter) {
     setFilters((now) => ({ ...now, email, page: 1 }));
+  }
+
+  function chooseVoted(voted: VotedFilter) {
+    setFilters((now) => ({ ...now, voted, page: 1 }));
   }
 
   function clearFilters() {
@@ -524,7 +533,7 @@ export function VotersPage({
                   </button>
                 ) : null}
               </div>
-              <div className="grid max-w-xl grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="grid max-w-3xl grid-cols-1 gap-3 sm:grid-cols-3">
                 <Select
                   label={t('voters.filter.credential.label')}
                   value={filters.credential}
@@ -546,6 +555,16 @@ export function VotersPage({
                   <option value="sent">{t('voters.filter.emailStatus.sent')}</option>
                   <option value="failed">{t('voters.filter.emailStatus.failed')}</option>
                   <option value="none">{t('voters.filter.emailStatus.none')}</option>
+                </Select>
+                <Select
+                  label={t('voters.filter.voted.label')}
+                  value={filters.voted ?? ''}
+                  onChange={(event) => chooseVoted(event.target.value as VotedFilter)}
+                  data-testid="voters-filter-voted"
+                >
+                  <option value="">{t('voters.filter.voted.all')}</option>
+                  <option value="yes">{t('voters.filter.voted.yes')}</option>
+                  <option value="no">{t('voters.filter.voted.no')}</option>
                 </Select>
               </div>
             </div>

@@ -9,6 +9,7 @@ import type { GroupList, VoterFilters, VoterList } from './voters';
 import { VOTERS_PER_PAGE } from './voters';
 import type { Election, ElectionFilters, ElectionList } from './elections';
 import { SESSION_COOKIE } from './session';
+import type { Dashboard, Turnout } from './turnout';
 import type {
   CurrentUser,
   InstitutionProfile,
@@ -221,6 +222,7 @@ export async function fetchElectionVoters(
           ...(filters.group === '' ? {} : { group: filters.group }),
           ...(filters.credential === '' ? {} : { credential: filters.credential }),
           ...(filters.email === '' ? {} : { email: filters.email }),
+          ...(!filters.voted ? {} : { voted: filters.voted }),
         },
       },
       cache: 'no-store',
@@ -300,5 +302,36 @@ export async function fetchElectionFiles(id: string): Promise<GeneratedFile[] | 
     );
 
     return response.ok && data ? data.data : null;
+  });
+}
+
+/** The turnout of an election (slice 14), null when the API does not answer. */
+export async function fetchElectionTurnout(id: string): Promise<Turnout | null> {
+  return authorizedGet(async (headers) => {
+    const { data, response } = await createApiClient().GET('/v1/elections/{election}/turnout', {
+      headers,
+      params: { path: { election: id } },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(4000),
+    });
+
+    if (!response.ok || !data) return null;
+
+    return data.data;
+  });
+}
+
+/** The dashboard's live data (slice 14), null when the API does not answer. */
+export async function fetchDashboard(): Promise<Dashboard | null> {
+  return authorizedGet(async (headers) => {
+    const { data, response } = await createApiClient().GET('/v1/dashboard', {
+      headers,
+      cache: 'no-store',
+      signal: AbortSignal.timeout(4000),
+    });
+
+    if (!response.ok || !data) return null;
+
+    return data.data;
   });
 }

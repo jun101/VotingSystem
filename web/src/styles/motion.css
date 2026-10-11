@@ -982,6 +982,10 @@
     background-image: linear-gradient(120deg, var(--color-primary), var(--color-backdrop-to));
   }
 
+  .dash-head[data-head='upcoming'] {
+    background-image: linear-gradient(120deg, var(--color-status-scheduled), var(--color-primary));
+  }
+
   .dash-head[data-head='figures'] {
     background-image: linear-gradient(120deg, var(--color-teal), var(--color-status-open));
   }

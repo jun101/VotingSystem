@@ -146,6 +146,17 @@ export function VoterCard({
           ) : null}
         </span>
       </span>
+      <span
+        data-testid={`voter-voted-${n}`}
+        data-voted={voter.has_voted ? 'yes' : 'no'}
+        className={cx(
+          'inline-flex h-7 shrink-0 items-center gap-1.5 rounded-full px-2.5 text-xs font-bold',
+          voter.has_voted ? 'bg-status-open-soft text-status-open' : 'bg-canvas text-ink-soft',
+        )}
+      >
+        <Icon name={voter.has_voted ? 'check' : 'clock'} size={14} />
+        {t(voter.has_voted ? 'voters.card.voted' : 'voters.card.notVoted')}
+      </span>
       {canEdit ? (
         <button
           type="button"

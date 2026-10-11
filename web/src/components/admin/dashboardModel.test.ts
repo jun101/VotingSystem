@@ -7,7 +7,9 @@ import {
   gettingStarted,
   latestOf,
   openElectionOf,
+  openShown,
   roleCounts,
+  timeLeft,
   todayText,
   todoOf,
 } from './dashboardModel';
@@ -139,5 +141,42 @@ describe('small helpers', () => {
       owners: 1,
       managers: 2,
     });
+  });
+});
+
+describe('timeLeft', () => {
+  const end = '2026-10-16T19:00:00Z';
+
+  it('shows days and hours, then hours and minutes, then minutes', () => {
+    const at = (iso: string) => new Date(iso).getTime();
+
+    expect(timeLeft(end, at('2026-10-14T15:00:00Z'))).toEqual({
+      kind: 'days',
+      days: 2,
+      hours: 4,
+      minutes: 0,
+    });
+    expect(timeLeft(end, at('2026-10-16T15:40:00Z'))).toEqual({
+      kind: 'hours',
+      days: 0,
+      hours: 3,
+      minutes: 20,
+    });
+    expect(timeLeft(end, at('2026-10-16T18:48:00Z'))).toMatchObject({
+      kind: 'minutes',
+      minutes: 12,
+    });
+  });
+
+  it('says it is over at the end and after it', () => {
+    expect(timeLeft(end, new Date(end).getTime()).kind).toBe('over');
+    expect(timeLeft(end, new Date(end).getTime() + 5 * 60_000).kind).toBe('over');
+  });
+});
+
+describe('openShown', () => {
+  it('keeps the first three and counts the others', () => {
+    expect(openShown([1, 2, 3, 4, 5])).toEqual({ shown: [1, 2, 3], more: 2 });
+    expect(openShown([1])).toEqual({ shown: [1], more: 0 });
   });
 });

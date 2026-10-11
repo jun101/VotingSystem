@@ -27,6 +27,8 @@ function voter(name: string, n: number, group: Voter['group']): Voter {
     phone: null,
     has_code: false,
     email_status: null,
+    has_voted: false,
+    voted_at: null,
     created_at: '2026-10-10T14:00:00Z',
     updated_at: '2026-10-10T14:00:00Z',
   };

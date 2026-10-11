@@ -488,6 +488,39 @@
         "twoFactorOn": "On for your account",
         "twoFactorOff": "Not on yet for your account",
         "invite": "Invite a colleague"
+      },
+      "live": {
+        "left": "{time} left",
+        "leftDays": "{days}d {hours}h",
+        "leftHours": "{hours}h {minutes}min",
+        "leftMinutes": "{minutes}min",
+        "over": "Voting is over, the closing is under way",
+        "turnout": "Turnout",
+        "percent": "{percent}%",
+        "votedOf": "{voted} / {eligible} have voted",
+        "viewTurnout": "See the turnout",
+        "viewElection": "Open the election",
+        "more": "See all open elections ({count})",
+        "todoKinds": {
+          "voters_not_voted": {
+            "one": "{count} voter has not voted yet",
+            "other": "{count} voters have not voted yet"
+          },
+          "draft_blockers": {
+            "one": "{count} item to fix before scheduling",
+            "other": "{count} items to fix before scheduling"
+          },
+          "codes_missing": {
+            "one": "{count} voter without an access code",
+            "other": "{count} voters without an access code"
+          }
+        },
+        "counts": "By status",
+        "upcoming": {
+          "title": "Coming up",
+          "empty": "No scheduled election.",
+          "starts": "Starts on {day} at {time}"
+        }
       }
     },
     "comingSoon": {
@@ -1193,7 +1226,8 @@
         "voters": "Voters",
         "ballots": "Ballots"
       },
-      "factsSoon": "Available with the next steps"
+      "factsSoon": "Available with the next steps",
+      "turnout": "See the turnout"
     },
     "rail": {
       "label": "Calendar and tasks",
@@ -1551,6 +1585,12 @@
         "sent": "Sent",
         "failed": "Failed",
         "none": "Never sent"
+      },
+      "voted": {
+        "label": "Turnout",
+        "all": "All voters",
+        "yes": "Have voted",
+        "no": "Have not voted"
       }
     },
     "card": {
@@ -1564,7 +1604,9 @@
         "queued": "Email waiting to send",
         "sent": "Email sent",
         "failed": "Email failed"
-      }
+      },
+      "voted": "Has voted",
+      "notVoted": "Has not voted"
     },
     "empty": {
       "title": "No voter yet",
@@ -2289,5 +2331,80 @@
       "homeText": "You can also start again from the home page.",
       "secure": "No vote has been recorded here."
     }
+  },
+  "turnout": {
+    "title": "Turnout",
+    "back": "Back to the election",
+    "zone": "Election turnout",
+    "live": "Updated automatically every 15 seconds",
+    "notStarted": "Voting has not started yet: nobody could vote.",
+    "final": "Voting is over: these figures are final.",
+    "secrecy": "Votes stay hidden until the election is closed, for everyone.",
+    "loadFailed": "The figures could not be refreshed.",
+    "headline": {
+      "label": "Turnout rate",
+      "percent": "{percent}%",
+      "of": "{voted} of {eligible} voters have voted"
+    },
+    "eligible": "Registered voters",
+    "voted": "Have voted",
+    "left": "Still to vote",
+    "end": {
+      "title": "Closing",
+      "line": "On {day} at {time}"
+    },
+    "chart": {
+      "title": "Votes over time",
+      "bucketLabel": "Group by",
+      "hour": "Hour",
+      "day": "Day",
+      "empty": "Nobody has voted yet. The curve will appear with the first vote.",
+      "label": "Turnout curve, by {unit}: {total} voters have voted in all, {last} in the latest period ({at}).",
+      "labelEmpty": "Turnout curve: nobody has voted yet.",
+      "unit": {
+        "hour": "hour",
+        "day": "day"
+      },
+      "legendTotal": "Running total",
+      "legendBucket": "Votes per {unit}"
+    },
+    "groups": {
+      "title": "By group",
+      "hint": "Click a group to see who has not voted.",
+      "none": "No group",
+      "line": "{voted} / {voters}",
+      "percent": "{percent}%",
+      "empty": "No group: the voters are not split up.",
+      "filter": "See who has not voted: {name}"
+    },
+    "nonvoters": {
+      "title": "Who has not voted",
+      "count": "{count} to remind",
+      "search": "Search for a voter",
+      "group": "Group",
+      "groupAll": "All groups",
+      "groupNone": "No group",
+      "export": "Export the list",
+      "exportFailed": "The export could not be made.",
+      "allVoted": "Everyone has voted",
+      "allVotedText": "No voter needs a reminder.",
+      "noMatch": "No voter matches these filters.",
+      "reset": "Clear the filters",
+      "none": "No voter is registered for this election.",
+      "noGroup": "No group",
+      "list": "Voters who have not voted",
+      "pager": "Pages of the list",
+      "prev": "Previous page",
+      "next": "Next page",
+      "range": "{from} to {to} of {total}",
+      "exportXlsx": "Export to Excel",
+      "exportCsv": "Export to CSV"
+    },
+    "empty": {
+      "title": "No voters yet",
+      "text": "Add voters to follow the turnout.",
+      "action": "Manage the voters"
+    },
+    "voters": "See the voters"
   }
 }

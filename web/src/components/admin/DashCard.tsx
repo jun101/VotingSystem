@@ -6,7 +6,14 @@ import { Icon, type IconName } from './Icon';
 
 /** The key of each card: its test id, and the colours of its header. */
 export type CardKey =
-  'open-election' | 'todo' | 'figures' | 'activity' | 'latest' | 'getting-started' | 'institution';
+  | 'open-election'
+  | 'todo'
+  | 'figures'
+  | 'activity'
+  | 'latest'
+  | 'getting-started'
+  | 'institution'
+  | 'upcoming';
 
 /** The colours of a round icon: a token pair, text on its soft surface. */
 export const TONES = {

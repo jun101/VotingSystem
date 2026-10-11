@@ -34,6 +34,7 @@ import type {
 } from './voters';
 import { VOTERS_PER_PAGE } from './voters';
 import type { paths } from './schema';
+import type { Dashboard, ExportQuery, Turnout, TurnoutBucket } from './turnout';
 import type {
   ImportMapping,
   ImportRowFilter,
@@ -785,6 +786,7 @@ export async function fetchVoters(election: string, filters: VoterFilters): Prom
           ...(filters.group === '' ? {} : { group: filters.group }),
           ...(filters.credential === '' ? {} : { credential: filters.credential }),
           ...(filters.email === '' ? {} : { email: filters.email }),
+          ...(!filters.voted ? {} : { voted: filters.voted }),
         },
       },
     }),
@@ -1103,5 +1105,77 @@ export async function downloadGeneratedFile(file: string): Promise<DownloadedFil
   return {
     blob: await response.blob(),
     name: dispositionName(response.headers.get('Content-Disposition'), 'coupons.pdf'),
+  };
+}
+
+/** `GET /elections/{election}/turnout`: how many have voted, by group and over time (never what). */
+export async function fetchTurnout(election: string, bucket?: TurnoutBucket): Promise<Turnout> {
+  const { data } = await send((api) =>
+    api.GET('/v1/elections/{election}/turnout', {
+      params: { path: { election }, ...(bucket ? { query: { bucket } } : {}) },
+      cache: 'no-store',
+    }),
+  );
+
+  return data!.data;
+}
+
+/** `GET /dashboard`: the counts by status, the open elections with their turnout, the to-do list. */
+export async function fetchDashboard(): Promise<Dashboard> {
+  const { data } = await send((api) => api.GET('/v1/dashboard', { cache: 'no-store' }));
+
+  return data!.data;
+}
+
+/**
+ * `GET /elections/{election}/voters/export`: the voters as an Excel or CSV file, with the name
+ * the API gives it. Read by hand so a refusal (429, 404) is an `ApiError` the page can say.
+ */
+export async function downloadVoterExport(
+  election: string,
+  query: ExportQuery,
+): Promise<DownloadedFile> {
+  const params = new URLSearchParams({ format: query.format, voted: query.voted });
+
+  if (query.group !== '') params.set('group', query.group);
+  if (query.q !== '') params.set('q', query.q);
+
+  let response: Response;
+
+  try {
+    response = await fetch(
+      `${apiBaseUrl()}/v1/elections/${encodeURIComponent(election)}/voters/export?${params}`,
+      {
+        credentials: 'same-origin',
+        cache: 'no-store',
+        headers: {
+          Accept:
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, text/csv, application/json',
+          'Accept-Language': pageLanguage(),
+        },
+      },
+    );
+  } catch {
+    throw new ApiError(0, 'network');
+  }
+
+  if (!response.ok) {
+    let answer: unknown = null;
+
+    try {
+      answer = await response.json();
+    } catch {
+      // Not JSON: an `unknown` error.
+    }
+
+    throw parseApiError(response.status, answer, response.headers.get('Retry-After'));
+  }
+
+  return {
+    blob: await response.blob(),
+    name: dispositionName(
+      response.headers.get('Content-Disposition'),
+      query.format === 'csv' ? 'electeurs.csv' : 'electeurs.xlsx',
+    ),
   };
 }
