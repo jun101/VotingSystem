@@ -52,7 +52,7 @@ decrypted in memory or in a stream; no clear copy is written to disk.
 | Kind | Content type | File name |
 |---|---|---|
 | `slips_pdf` | `application/pdf` | `coupons-{slug}.pdf` as before |
-| `codes_xlsx` | `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet` | `codes-{slug}.xlsx`, `codes-tous.xlsx` when the run was for all groups |
+| `codes_xlsx` | `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet` | `codes-{slug}.xlsx`, `codes-tous.xlsx` when the run was for all groups, `codes-sans-groupe.xlsx` for the voters with no group |
 | `codes_csv` | `text/csv; charset=UTF-8` | `codes-{slug}.csv`, `codes-tous.csv` |
 
 The file holds one row per voter served, sorted by group then name; columns `Nom complet`, `Groupe`, `Code`, `Lien`

@@ -26,6 +26,9 @@ class ListVotersRequest extends FormRequest
             'per_page' => ['bail', 'integer', 'min:1', 'max:100'],
             'q' => ['nullable', 'string', 'max:100'],
             'group' => ['nullable', 'string'],
+            // Slice 11: the credential and the last email of the voter.
+            'credential' => ['nullable', 'string', 'in:issued,none'],
+            'email' => ['nullable', 'string', 'in:queued,sent,failed,none'],
         ];
     }
 
@@ -57,6 +60,22 @@ class ListVotersRequest extends FormRequest
         $q = $this->input('q');
 
         return is_string($q) && $q !== '' ? $q : null;
+    }
+
+    /** `issued` (has a current code), `none`, or null for no filter. */
+    public function credential(): ?string
+    {
+        $value = $this->input('credential');
+
+        return $value === 'issued' || $value === 'none' ? $value : null;
+    }
+
+    /** `queued`, `sent`, `failed`, `none` (never emailed, or no address), or null for no filter. */
+    public function emailStatus(): ?string
+    {
+        $value = $this->input('email');
+
+        return in_array($value, ['queued', 'sent', 'failed', 'none'], true) ? $value : null;
     }
 
     /** `none`, a lower-cased group UUID, or null for no filter. */

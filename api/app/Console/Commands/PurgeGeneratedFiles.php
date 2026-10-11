@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Enums\ElectionStatus;
+use App\Models\Credential;
 use App\Models\Election;
 use App\Models\GeneratedFile;
 use Illuminate\Console\Command;
@@ -24,6 +25,9 @@ class PurgeGeneratedFiles extends Command
 {
     /** A file still `queued` after this many minutes is taken for lost. */
     public const STUCK_MINUTES = 60;
+
+    /** A message still `queued` after this many hours has no job behind it any more (a job gives up sooner). */
+    public const EMAIL_STUCK_HOURS = 7;
 
     protected $signature = 'files:purge';
 
@@ -73,15 +77,35 @@ class PurgeGeneratedFiles extends Command
             ->where('status', GeneratedFile::STATUS_QUEUED)
             ->where('created_at', '<', $stuck)
             ->orderBy('id')
-            ->chunkById(100, function ($files) use ($stuck, &$failed): void {
+            ->chunkById(100, function ($files) use ($stuck, $disk, &$failed, &$failedCopies): void {
                 foreach ($files as $candidate) {
-                    if ($this->markFailed($candidate->id, $candidate->election_id, $stuck)) {
-                        $failed++;
+                    $stored = $this->markFailed($candidate->id, $candidate->election_id, $stuck);
+
+                    if ($stored === false) {
+                        continue;
+                    }
+
+                    $failed++;
+
+                    // The claimed copy, or the partial of a file of codes: a failed file keeps none.
+                    if ($stored !== null) {
+                        try {
+                            $disk->delete($stored);
+                        } catch (Throwable) {
+                            $failedCopies++;
+                        }
                     }
                 }
             });
 
-        $this->info("Deleted {$deleted}. Marked failed {$failed}. Copies left {$failedCopies}.");
+        // No user is signed in: an old queued status is failed in any institution, on its age only. Nothing but
+        // the status and its reason are written: the code stays, and `failed_email` can serve the voter.
+        $emails = Credential::withoutInstitutionScope()
+            ->where('email_status', Credential::EMAIL_QUEUED)
+            ->where('issued_at', '<', Carbon::now('UTC')->subHours(self::EMAIL_STUCK_HOURS))
+            ->update(['email_status' => Credential::EMAIL_FAILED, 'email_sent_at' => null, 'email_error' => Credential::ERROR_SEND_FAILED]);
+
+        $this->info("Deleted {$deleted}. Marked failed {$failed}. Copies left {$failedCopies}. Emails failed {$emails}.");
 
         return self::SUCCESS;
     }
@@ -117,10 +141,14 @@ class PurgeGeneratedFiles extends Command
         });
     }
 
-    /** Marks the file failed if it is still queued and older than the limit, under the locks. */
-    private function markFailed(int $fileKey, int $electionKey, Carbon $stuck): bool
+    /**
+     * Marks the file failed if it is still queued and older than the limit, under the locks.
+     *
+     * @return string|false|null the stored name to remove (null when there is none), false when nothing was marked
+     */
+    private function markFailed(int $fileKey, int $electionKey, Carbon $stuck): string|false|null
     {
-        return DB::transaction(function () use ($fileKey, $electionKey, $stuck): bool {
+        return DB::transaction(function () use ($fileKey, $electionKey, $stuck): string|false|null {
             // No user is signed in: locked by its own key, in the job's order (election first, then file).
             Election::withoutInstitutionScope()->whereKey($electionKey)->lockForUpdate()->first();
 
@@ -134,12 +162,21 @@ class PurgeGeneratedFiles extends Command
                 return false;
             }
 
+            $stored = $file->stored_file;
+
             $file->forceFill([
                 'status' => GeneratedFile::STATUS_FAILED,
                 'failure' => GeneratedFile::FAILURE_GENERATION,
+                'stored_file' => null,
             ])->save();
 
-            return true;
+            // No user is signed in: the messages this file queued are named by the file. They will not be sent.
+            Credential::withoutInstitutionScope()
+                ->where('email_file_id', $file->id)
+                ->where('email_status', Credential::EMAIL_QUEUED)
+                ->update(['email_status' => Credential::EMAIL_FAILED, 'email_sent_at' => null, 'email_error' => Credential::ERROR_SEND_FAILED]);
+
+            return $stored;
         });
     }
 }

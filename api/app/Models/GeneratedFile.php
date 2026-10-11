@@ -14,6 +14,7 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property string $uuid
+ * @property string|null $run
  * @property int $election_id
  * @property int|null $user_id
  * @property string $kind
@@ -23,6 +24,9 @@ use Illuminate\Support\Carbon;
  * @property int $voter_count
  * @property string $status
  * @property string|null $failure
+ * @property bool $send_email
+ * @property bool $replace
+ * @property bool $ungrouped
  * @property string|null $stored_file
  * @property int|null $size_bytes
  * @property Carbon $expires_at
@@ -35,6 +39,13 @@ class GeneratedFile extends Model
     use HasUuid;
 
     public const KIND_SLIPS = 'slips_pdf';
+
+    public const KIND_CODES_XLSX = 'codes_xlsx';
+
+    public const KIND_CODES_CSV = 'codes_csv';
+
+    /** The kinds of the self-distribution file of a run. */
+    public const CODE_KINDS = [self::KIND_CODES_XLSX, self::KIND_CODES_CSV];
 
     public const STATUS_QUEUED = 'queued';
 
@@ -53,6 +64,9 @@ class GeneratedFile extends Model
     {
         return [
             'expires_at' => 'datetime',
+            'send_email' => 'boolean',
+            'replace' => 'boolean',
+            'ungrouped' => 'boolean',
         ];
     }
 

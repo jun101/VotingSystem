@@ -15,6 +15,7 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Ballots\BallotController;
 use App\Http\Controllers\Candidates\CandidateController;
 use App\Http\Controllers\Candidates\CandidatePhotoController;
+use App\Http\Controllers\Credentials\CredentialPreviewController;
 use App\Http\Controllers\Credentials\CredentialRunController;
 use App\Http\Controllers\Credentials\CredentialStateController;
 use App\Http\Controllers\Credentials\GeneratedFileController;
@@ -125,6 +126,7 @@ Route::prefix('v1')->group(function (): void {
         // The access codes of an election and their slip files (slice 10).
         Route::get('/{election}/credentials', CredentialStateController::class);
         Route::post('/{election}/credential-runs', CredentialRunController::class)->middleware('throttle:credential-runs');
+        Route::post('/{election}/credential-previews', CredentialPreviewController::class)->middleware('throttle:credential-previews');
         Route::get('/{election}/generated-files', [GeneratedFileController::class, 'index']);
 
         // The voter import of an election (slice 08a): the template and the upload.

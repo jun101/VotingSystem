@@ -78,7 +78,8 @@ class GeneratedFileController extends Controller
     /**
      * Download a file.
      *
-     * The PDF, decrypted on the way out, with a fixed name (`coupons-{group}.pdf`), never cached.
+     * The PDF of slips (`coupons-{group}.pdf`), or the Excel or CSV file of codes (`codes-{group}.xlsx`,
+     * `codes-tous.csv`), decrypted on the way out, with a fixed name, never cached.
      * 409 `file_not_ready` for a queued or failed file; 404 once the election is closed,
      * published or archived. Owner or manager. Limited to 120 requests per hour per user.
      *
@@ -112,7 +113,14 @@ class GeneratedFileController extends Controller
 
         // Decrypted in memory: no clear copy is written to a disk.
         $pdf = Crypt::decryptString($encrypted);
-        $name = SlipFileName::for($file->group?->name, $file->part, $file->parts);
+        [$name, $type] = match ($file->kind) {
+            GeneratedFile::KIND_CODES_XLSX => [
+                SlipFileName::codes($file->group?->name, 'xlsx', $file->ungrouped),
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            ],
+            GeneratedFile::KIND_CODES_CSV => [SlipFileName::codes($file->group?->name, 'csv', $file->ungrouped), 'text/csv; charset=UTF-8'],
+            default => [SlipFileName::for($file->group?->name, $file->part, $file->parts), 'application/pdf'],
+        };
 
         // The user and file UUIDs and the count: never the content.
         Log::info('credentials.download', [
@@ -123,7 +131,7 @@ class GeneratedFileController extends Controller
         ]);
 
         return response($pdf, 200, [
-            'Content-Type' => 'application/pdf',
+            'Content-Type' => $type,
             'Content-Disposition' => 'attachment; filename="'.$name.'"',
             'Cache-Control' => 'no-store',
             'X-Content-Type-Options' => 'nosniff',

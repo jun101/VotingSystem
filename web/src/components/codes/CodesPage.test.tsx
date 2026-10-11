@@ -51,10 +51,31 @@ function state(over: Partial<CredentialState> = {}): CredentialState {
     with_code: 0,
     without_code: 5,
     with_email: 0,
+    email_queued: 0,
+    email_sent: 0,
+    email_failed: 0,
     run_in_progress: false,
     groups: [
-      { group: G4, voters: 3, with_code: 0, with_email: 0, files_ready: 0 },
-      { group: null, voters: 2, with_code: 0, with_email: 0, files_ready: 0 },
+      {
+        group: G4,
+        voters: 3,
+        with_code: 0,
+        with_email: 0,
+        email_queued: 0,
+        email_sent: 0,
+        email_failed: 0,
+        files_ready: 0,
+      },
+      {
+        group: null,
+        voters: 2,
+        with_code: 0,
+        with_email: 0,
+        email_queued: 0,
+        email_sent: 0,
+        email_failed: 0,
+        files_ready: 0,
+      },
     ],
     ...over,
   };
@@ -135,6 +156,7 @@ describe('CodesPage', () => {
       files: [file({ status: 'queued' })],
       voters: 3,
       skipped: 0,
+      emails: 0,
     });
     api.fetchCredentials.mockResolvedValue(state({ run_in_progress: true }));
     api.fetchGeneratedFiles.mockResolvedValue([file({ status: 'queued' })]);
@@ -156,6 +178,7 @@ describe('CodesPage', () => {
       files: [file({ status: 'queued' })],
       voters: 5,
       skipped: 0,
+      emails: 0,
     });
     api.fetchCredentials.mockResolvedValue(state({ run_in_progress: true }));
     api.fetchGeneratedFiles.mockResolvedValue([file({ status: 'queued' })]);
@@ -176,8 +199,26 @@ describe('CodesPage', () => {
         with_code: 5,
         without_code: 0,
         groups: [
-          { group: G4, voters: 3, with_code: 3, with_email: 0, files_ready: 1 },
-          { group: null, voters: 2, with_code: 2, with_email: 0, files_ready: 0 },
+          {
+            group: G4,
+            voters: 3,
+            with_code: 3,
+            with_email: 0,
+            email_queued: 0,
+            email_sent: 0,
+            email_failed: 0,
+            files_ready: 1,
+          },
+          {
+            group: null,
+            voters: 2,
+            with_code: 2,
+            with_email: 0,
+            email_queued: 0,
+            email_sent: 0,
+            email_failed: 0,
+            files_ready: 0,
+          },
         ],
       }),
       [file()],
@@ -259,6 +300,27 @@ describe('CodesPage', () => {
     });
 
     // Nothing is queued any more: no more reading.
+    expect(api.fetchGeneratedFiles).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the buttons usable and reads slowly while only messages wait to be sent', async () => {
+    vi.useFakeTimers();
+    api.fetchCredentials.mockResolvedValue(state({ email_queued: 2 }));
+    api.fetchGeneratedFiles.mockResolvedValue([file()]);
+    show('draft', state({ run_in_progress: true, email_queued: 2 }), [file()]);
+
+    expect(screen.queryByTestId('codes-run-status')).not.toBeInTheDocument();
+    expect(screen.getByTestId('codes-generate-all')).toBeEnabled();
+    expect(screen.getByTestId('codes-send')).toBeEnabled();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(POLL_MS + 10);
+    });
+    expect(api.fetchGeneratedFiles).not.toHaveBeenCalled();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5000);
+    });
     expect(api.fetchGeneratedFiles).toHaveBeenCalledTimes(1);
   });
 

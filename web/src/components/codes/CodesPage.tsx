@@ -8,7 +8,7 @@ import { focusRing } from '@/components/admin/classes';
 import { Panel } from '@/components/elections/Panel';
 import { COVER_ICONS, STATUS_ICONS } from '@/components/elections/statusIcon';
 import { LiveDot } from '@/components/motion';
-import { Notice } from '@/components/ui';
+import { Button, Notice } from '@/components/ui';
 import { cx } from '@/components/ui/cx';
 import {
   downloadGeneratedFile,
@@ -19,13 +19,14 @@ import {
 import {
   lineKey,
   type CredentialLine,
+  type CredentialRun,
   type CredentialState,
   type GeneratedFile,
   type RunBody,
 } from '@/lib/api/credentials';
 import type { Election, ElectionStatus } from '@/lib/api/elections';
 import { ApiError, errorText } from '@/lib/api/errors';
-import { pluralForm } from '@/lib/format/electionDates';
+import { clock, longDay, pluralForm } from '@/lib/format/electionDates';
 import { useI18n } from '@/lib/i18n/client';
 import {
   canGenerateAll,
@@ -36,14 +37,18 @@ import {
   mergeFiles,
   outcomeOf,
   percentOf,
+  POLL_MS,
+  pollDelay,
   runBodyOf,
 } from './codeRules';
 import { GroupCard } from './GroupCard';
 import { LostSlipDialog } from './LostSlipDialog';
 import { saveBlob } from './saveFile';
+import { SendDialog } from './SendDialog';
+import { canResend, codeFilesOf, draftFor, emailSummary, type SendDraft } from './sendRules';
 
-/** While a file is queued the page reads the state this often. */
-export const POLL_MS = 1500;
+// The delays are in codeRules; kept exported here for the callers that had them.
+export { POLL_MS };
 
 /** The text colour of the badge on the header band, by status (as on the voters page). */
 const BADGE_TEXT: Record<ElectionStatus, string> = {
@@ -54,6 +59,9 @@ const BADGE_TEXT: Record<ElectionStatus, string> = {
   published: 'text-status-published',
   archived: 'text-ink-soft',
 };
+
+/** A download arrow as one stroke (the icon set has none). */
+const DOWNLOAD_PATH = 'M12 4v12M6 10l6 6 6-6M4 20h16';
 
 const CHIP =
   'inline-flex h-8.5 items-center gap-2 rounded-full border border-glass-line bg-glass pr-3.5 pl-2.5 text-base font-medium';
@@ -96,12 +104,17 @@ export function CodesPage({
   const [starting, setStarting] = useState(false);
   const [downloading, setDownloading] = useState<string | null>(null);
   const [lost, setLost] = useState(false);
+  // The send dialog: closed (`null`) or open on this draft.
+  const [sending, setSending] = useState<SendDraft | null>(null);
+  // The messages the last run of this page queued (`null` when this page started none).
+  const [emails, setEmails] = useState<number | null>(null);
   const [tick, setTick] = useState(0);
   const [lockedAt, setLockedAt] = useState<typeof election | null>(null);
 
   const lockedSeen = lockedAt === election;
   const locked = lockedSeen || codesLocked(election.status);
-  const running = isRunning(state, files);
+  const running = isRunning(files);
+  const delay = pollDelay(state, files);
   const outcome = useMemo(() => outcomeOf(files, watched), [files, watched]);
 
   /** The state and the files, read again. */
@@ -136,6 +149,7 @@ export function CodesPage({
   async function becameLocked() {
     setProblem(errorText(new ApiError(409, 'election_codes_locked'), tIfAny));
     setLost(false);
+    setSending(null);
     setLockedAt(election);
     startTransition(() => router.refresh());
 
@@ -146,9 +160,10 @@ export function CodesPage({
     }
   }
 
-  // While something is being written: read again, one request after the other.
+  // While a file is being written (fast) or a message waits to be sent (slow): read again, one
+  // request after the other.
   useEffect(() => {
-    if (!running) return;
+    if (delay === null) return;
 
     const timer = window.setTimeout(() => {
       refresh().then(
@@ -164,12 +179,20 @@ export function CodesPage({
           setTick((n) => n + 1);
         },
       );
-    }, POLL_MS);
+    }, delay);
 
     return () => window.clearTimeout(timer);
     // `refresh` reads only the election and setters.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [running, tick]);
+  }, [delay, tick]);
+
+  /** A run was accepted: its files are watched, and the page reads the state again. */
+  function started(run: CredentialRun) {
+    setFiles((now) => mergeFiles(now, run.files));
+    setWatched((now) => new Set([...now, ...run.files.map((file) => file.id)]));
+    setEmails(run.emails);
+    void refresh().catch(() => undefined);
+  }
 
   async function run(body: RunBody) {
     if (starting || running) return;
@@ -178,11 +201,7 @@ export function CodesPage({
     setProblem(null);
 
     try {
-      const started = await startCredentialRun(election.id, body);
-
-      setFiles((now) => mergeFiles(now, started.files));
-      setWatched((now) => new Set([...now, ...started.files.map((file) => file.id)]));
-      void refresh().catch(() => undefined);
+      started(await startCredentialRun(election.id, body));
     } catch (caught) {
       const error = caught instanceof ApiError ? caught : null;
 
@@ -223,6 +242,8 @@ export function CodesPage({
 
   const percent = percentOf(state.with_code, state.voters);
   const missing = state.without_code;
+  const emailTotals = emailSummary(state);
+  const codeFiles = locked ? [] : codeFilesOf(files);
 
   return (
     <div data-testid="codes-page" className="flex flex-col gap-4.5">
@@ -299,6 +320,16 @@ export function CodesPage({
             </button>
             <button
               type="button"
+              data-testid="codes-send"
+              disabled={running || starting}
+              onClick={() => setSending(draftFor(false))}
+              className={GLASS}
+            >
+              <Icon name="mail" size={18} />
+              {t('codes.send.open')}
+            </button>
+            <button
+              type="button"
               data-testid="codes-generate-all"
               disabled={!canGenerateAll(state, running) || starting}
               onClick={() => void run({ scope: 'all' })}
@@ -334,7 +365,7 @@ export function CodesPage({
         </Notice>
       ) : outcome ? (
         <Notice
-          tone={outcome.failed > 0 ? 'danger' : 'teal'}
+          tone={outcome.failed > 0 || outcome.codeFileFailed ? 'danger' : 'teal'}
           role="status"
           data-testid="codes-run-result"
         >
@@ -344,11 +375,21 @@ export function CodesPage({
                 count: outcome.voters,
               })}
             </span>
+            {emails !== null && emails > 0 ? (
+              <span data-testid="codes-run-emails">
+                {t(`codes.run.emails.${pluralForm(locale, emails)}`, { count: emails })}
+              </span>
+            ) : null}
             {outcome.failed > 0 ? (
               <span>
                 {t(`codes.run.result.failed.${pluralForm(locale, outcome.failed)}`, {
                   count: outcome.failed,
                 })}
+              </span>
+            ) : null}
+            {outcome.codeFileFailed ? (
+              <span data-testid="codes-run-file-failed">
+                {t('codes.run.result.codeFileFailed')}
               </span>
             ) : null}
           </span>
@@ -398,6 +439,55 @@ export function CodesPage({
                 </dd>
               </div>
             </dl>
+            {emailTotals.any ? (
+              <div className="flex flex-col gap-3" data-testid="codes-email-totals">
+                <dl className="grid grid-cols-2 gap-3 text-center 2xl:text-left">
+                  <div className="flex flex-col-reverse gap-0.5 rounded-md bg-teal-soft p-3">
+                    <dt className="text-sm font-medium text-teal-ink">
+                      {t('codes.totals.emailSent')}
+                    </dt>
+                    <dd
+                      data-testid="codes-total-email-sent"
+                      className="font-display text-[28px] leading-9 font-extrabold text-teal-ink"
+                    >
+                      {emailTotals.sent}
+                    </dd>
+                  </div>
+                  <div className="flex flex-col-reverse gap-0.5 rounded-md bg-warm-softer p-3">
+                    <dt className="text-sm font-medium text-warm-ink">
+                      {t('codes.totals.emailFailed')}
+                    </dt>
+                    <dd
+                      data-testid="codes-total-email-failed"
+                      className="font-display text-[28px] leading-9 font-extrabold text-warm-ink"
+                    >
+                      {emailTotals.failed}
+                    </dd>
+                  </div>
+                </dl>
+                {emailTotals.queued > 0 ? (
+                  <p className="text-sm text-ink-soft" data-testid="codes-total-email-queued">
+                    {t(`codes.totals.emailQueued.${pluralForm(locale, emailTotals.queued)}`, {
+                      count: emailTotals.queued,
+                    })}
+                  </p>
+                ) : null}
+                {canResend(state, running, locked) ? (
+                  <button
+                    type="button"
+                    data-testid="codes-resend-failed"
+                    onClick={() => setSending(draftFor(true))}
+                    className={cx(
+                      'ui-control inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-line-strong bg-surface px-4 text-base font-bold text-primary-hover hover:bg-primary-soft',
+                      focusRing,
+                    )}
+                  >
+                    <Icon name="mail" size={18} />
+                    {t('codes.resendFailed')}
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
             <div
               role="img"
               aria-label={t('codes.totals.progress', {
@@ -457,8 +547,55 @@ export function CodesPage({
               ))}
             </ul>
           )}
+          {codeFiles.length > 0 ? (
+            <section
+              data-testid="codes-files"
+              aria-label={t('codes.files.title')}
+              className="flex flex-col gap-2 rounded-lg border border-line bg-surface-alt p-3"
+            >
+              <h4 className="font-display text-md font-extrabold text-ink">
+                {t('codes.files.title')}
+              </h4>
+              <p className="text-sm text-ink-soft">{t('codes.files.text')}</p>
+              <ul className="flex flex-col gap-2">
+                {codeFiles.map((file, index) => {
+                  const when = new Date(file.created_at);
+
+                  return (
+                    <li key={file.id} className="flex">
+                      <Button
+                        variant="secondary"
+                        loading={downloading === file.id}
+                        onClick={() => void download(file)}
+                        data-testid={`codes-file-${index + 1}`}
+                        className="w-full md:w-auto"
+                      >
+                        <span className="inline-flex min-w-0 items-center gap-2">
+                          <Icon path={DOWNLOAD_PATH} size={18} />
+                          {t(`codes.files.${file.kind === 'codes_xlsx' ? 'excel' : 'csv'}`, {
+                            date: `${longDay(when, locale, election.timezone)} ${clock(when, locale, election.timezone)}`,
+                          })}
+                        </span>
+                      </Button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          ) : null}
         </section>
       </div>
+
+      {!locked && sending ? (
+        <SendDialog
+          election={election.id}
+          state={state}
+          initial={sending}
+          onStarted={started}
+          onLocked={() => void becameLocked()}
+          onClose={() => setSending(null)}
+        />
+      ) : null}
 
       {!locked && lost ? (
         <LostSlipDialog

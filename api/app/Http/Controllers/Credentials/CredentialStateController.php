@@ -18,10 +18,11 @@ class CredentialStateController extends Controller
      *
      * Totals and one line per group (sorted by name, accents and case ignored; the voters with no
      * group last, with a null `id` and `name`): voters, voters with a code, with an email, and
-     * the files ready. `run_in_progress` is true while a file is queued. Any status of the
+     * the files ready, and the emails queued, sent and failed. `run_in_progress` is true while a
+     * file or an email is queued. Any status of the
      * election; once it is closed no file counts as ready. Owner or manager.
      *
-     * @response array{data: array{voters: int, with_code: int, without_code: int, with_email: int, run_in_progress: bool, groups: list<array{group: array{id: string, name: string}|null, voters: int, with_code: int, with_email: int, files_ready: int}>}}
+     * @response array{data: array{voters: int, with_code: int, without_code: int, with_email: int, email_queued: int, email_sent: int, email_failed: int, run_in_progress: bool, groups: list<array{group: array{id: string, name: string}|null, voters: int, with_code: int, with_email: int, email_queued: int, email_sent: int, email_failed: int, files_ready: int}>}}
      */
     public function __invoke(Request $request, Election $election, CredentialState $state): JsonResponse
     {

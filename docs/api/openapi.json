@@ -1919,10 +1919,150 @@
                 }
             }
         },
+        "/v1/elections/{election}/credential-previews": {
+            "post": {
+                "operationId": "credentials.credentialPreview",
+                "description": "What a run would do for a scope (`all`, one `group`, `ungrouped` or `failed_email`), without\ndoing it: voters who would get a code, those with an email address, those with none (left\nfor print, the first 100 named by name) and those who already have a code. The numbers the\nperson confirms before emails are sent; the run checks them again. A draft, scheduled or\nopen election (409 `election_codes_locked`). Owner or manager. Limited to 120 requests per\nhour per user.",
+                "summary": "Preview a run of access codes",
+                "tags": [
+                    "CredentialPreview"
+                ],
+                "parameters": [
+                    {
+                        "name": "election",
+                        "in": "path",
+                        "required": true,
+                        "description": "The election UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PreviewCredentialRunRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "to_generate": {
+                                                    "type": "integer"
+                                                },
+                                                "with_email": {
+                                                    "type": "integer"
+                                                },
+                                                "without_email": {
+                                                    "type": "integer"
+                                                },
+                                                "skipped": {
+                                                    "type": "integer"
+                                                },
+                                                "voters_without_email": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "full_name": {
+                                                                "type": "string"
+                                                            },
+                                                            "group": {
+                                                                "type": [
+                                                                    "object",
+                                                                    "null"
+                                                                ],
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "name": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "id",
+                                                                    "name"
+                                                                ]
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "full_name",
+                                                            "group"
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "to_generate",
+                                                "with_email",
+                                                "without_email",
+                                                "skipped",
+                                                "voters_without_email"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                ""
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
         "/v1/elections/{election}/credential-runs": {
             "post": {
                 "operationId": "credentials.credentialRun",
-                "description": "Gives a code to the voters of the scope (`all`, one `group`, or `ungrouped`) who have none\nand writes their slips, one PDF per group (parts of 1 000 voters at most). The answer comes\nbefore the work: the files are `queued`, and polled with `GET /generated-files/{file}`. A\ndraft, scheduled or open election (409 `election_codes_locked`), one run at a time (409\n`run_in_progress`), something to serve (409 `nothing_to_generate`). Owner or manager.\nLimited to 20 requests per hour per user.",
+                "description": "Gives a code to the voters of the scope (`all`, one `group`, `ungrouped`, or `failed_email`\nfor a new code to the voters whose email failed) who have none and writes their slips, one\nPDF per group (parts of 1 000 voters at most). With `email` the voters served who have an\naddress are emailed their link and code in the background; `confirm_emails` is the count the\nperson saw (409 `email_count_changed` with `error.count`, 409 `nothing_to_email`); with `email` the user's\nown email must be verified (403 `email_not_verified`) and the institution's emails of the last 24\nhours are limited (409 `email_quota_exceeded`, `error.count` is the number left). `file` is\n`xlsx`, `csv` or null. The answer comes before the work: the files are `queued`, and polled\nwith `GET /generated-files/{file}`. A draft, scheduled or open election (409\n`election_codes_locked`), one run at a time (409 `run_in_progress`), something to serve (409\n`nothing_to_generate`). Owner or manager. Limited to 20 requests per hour per user.",
                 "summary": "Start a run of access codes",
                 "tags": [
                     "CredentialRun"
@@ -2044,12 +2184,16 @@
                                                 },
                                                 "skipped": {
                                                     "type": "integer"
+                                                },
+                                                "emails": {
+                                                    "type": "integer"
                                                 }
                                             },
                                             "required": [
                                                 "files",
                                                 "voters",
-                                                "skipped"
+                                                "skipped",
+                                                "emails"
                                             ]
                                         }
                                     },
@@ -2097,7 +2241,7 @@
         "/v1/elections/{election}/credentials": {
             "get": {
                 "operationId": "credentials.credentialState",
-                "description": "Totals and one line per group (sorted by name, accents and case ignored; the voters with no\ngroup last, with a null `id` and `name`): voters, voters with a code, with an email, and\nthe files ready. `run_in_progress` is true while a file is queued. Any status of the\nelection; once it is closed no file counts as ready. Owner or manager.",
+                "description": "Totals and one line per group (sorted by name, accents and case ignored; the voters with no\ngroup last, with a null `id` and `name`): voters, voters with a code, with an email, and\nthe files ready, and the emails queued, sent and failed. `run_in_progress` is true while a\nfile or an email is queued. Any status of the\nelection; once it is closed no file counts as ready. Owner or manager.",
                 "summary": "The state of the access codes of an election",
                 "tags": [
                     "CredentialState"
@@ -2136,6 +2280,15 @@
                                                 "with_email": {
                                                     "type": "integer"
                                                 },
+                                                "email_queued": {
+                                                    "type": "integer"
+                                                },
+                                                "email_sent": {
+                                                    "type": "integer"
+                                                },
+                                                "email_failed": {
+                                                    "type": "integer"
+                                                },
                                                 "run_in_progress": {
                                                     "type": "boolean"
                                                 },
@@ -2171,6 +2324,15 @@
                                                             "with_email": {
                                                                 "type": "integer"
                                                             },
+                                                            "email_queued": {
+                                                                "type": "integer"
+                                                            },
+                                                            "email_sent": {
+                                                                "type": "integer"
+                                                            },
+                                                            "email_failed": {
+                                                                "type": "integer"
+                                                            },
                                                             "files_ready": {
                                                                 "type": "integer"
                                                             }
@@ -2180,6 +2342,9 @@
                                                             "voters",
                                                             "with_code",
                                                             "with_email",
+                                                            "email_queued",
+                                                            "email_sent",
+                                                            "email_failed",
                                                             "files_ready"
                                                         ]
                                                     }
@@ -2190,6 +2355,9 @@
                                                 "with_code",
                                                 "without_code",
                                                 "with_email",
+                                                "email_queued",
+                                                "email_sent",
+                                                "email_failed",
                                                 "run_in_progress",
                                                 "groups"
                                             ]
@@ -3900,7 +4068,7 @@
         "/v1/generated-files/{file}/download": {
             "get": {
                 "operationId": "generatedFile.download",
-                "description": "The PDF, decrypted on the way out, with a fixed name (`coupons-{group}.pdf`), never cached.\n409 `file_not_ready` for a queued or failed file; 404 once the election is closed,\npublished or archived. Owner or manager. Limited to 120 requests per hour per user.",
+                "description": "The PDF of slips (`coupons-{group}.pdf`), or the Excel or CSV file of codes (`codes-{group}.xlsx`,\n`codes-tous.csv`), decrypted on the way out, with a fixed name, never cached.\n409 `file_not_ready` for a queued or failed file; 404 once the election is closed,\npublished or archived. Owner or manager. Limited to 120 requests per hour per user.",
                 "summary": "Download a file",
                 "tags": [
                     "GeneratedFile"
@@ -6930,7 +7098,7 @@
         "/v1/elections/{election}/voters": {
             "get": {
                 "operationId": "voter.index",
-                "description": "24 per page by default, by full name ignoring case, then creation order, in any status of\nthe election. `q` looks for a text in the full name, the identifier and the email; `group`\nis a group's UUID or `none`. Owner or manager.",
+                "description": "24 per page by default, by full name ignoring case, then creation order, in any status of\nthe election. `q` looks for a text in the full name, the identifier and the email; `group`\nis a group's UUID or `none`; `credential` is `issued` or `none`; `email` is the status of\nthe last email (`queued`, `sent`, `failed`, `none`). Owner or manager.",
                 "summary": "List the voters of an election",
                 "tags": [
                     "Voter"
@@ -6981,6 +7149,39 @@
                             "type": [
                                 "string",
                                 "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "credential",
+                        "in": "query",
+                        "description": "Slice 11: the credential and the last email of the voter.",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "enum": [
+                                "issued",
+                                "none",
+                                null
+                            ]
+                        }
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "enum": [
+                                "queued",
+                                "sent",
+                                "failed",
+                                "none",
+                                null
                             ]
                         }
                     }
@@ -7040,6 +7241,21 @@
                                                             "null"
                                                         ]
                                                     },
+                                                    "has_code": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "email_status": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ],
+                                                        "enum": [
+                                                            "queued",
+                                                            "sent",
+                                                            "failed",
+                                                            null
+                                                        ]
+                                                    },
                                                     "created_at": {
                                                         "type": "string"
                                                     },
@@ -7054,6 +7270,8 @@
                                                     "identifier",
                                                     "email",
                                                     "phone",
+                                                    "has_code",
+                                                    "email_status",
                                                     "created_at",
                                                     "updated_at"
                                                 ]
@@ -7179,6 +7397,21 @@
                                                         "null"
                                                     ]
                                                 },
+                                                "has_code": {
+                                                    "type": "boolean"
+                                                },
+                                                "email_status": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "enum": [
+                                                        "queued",
+                                                        "sent",
+                                                        "failed",
+                                                        null
+                                                    ]
+                                                },
                                                 "created_at": {
                                                     "type": "string"
                                                 },
@@ -7193,6 +7426,8 @@
                                                 "identifier",
                                                 "email",
                                                 "phone",
+                                                "has_code",
+                                                "email_status",
                                                 "created_at",
                                                 "updated_at"
                                             ]
@@ -7298,6 +7533,21 @@
                                                         "null"
                                                     ]
                                                 },
+                                                "has_code": {
+                                                    "type": "boolean"
+                                                },
+                                                "email_status": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "enum": [
+                                                        "queued",
+                                                        "sent",
+                                                        "failed",
+                                                        null
+                                                    ]
+                                                },
                                                 "created_at": {
                                                     "type": "string"
                                                 },
@@ -7312,6 +7562,8 @@
                                                 "identifier",
                                                 "email",
                                                 "phone",
+                                                "has_code",
+                                                "email_status",
                                                 "created_at",
                                                 "updated_at"
                                             ]
@@ -7467,7 +7719,7 @@
         "/v1/voters/{voter}/credential": {
             "post": {
                 "operationId": "credentials.voterCredential",
-                "description": "The first code, or a new one that replaces a lost slip (the old one no longer matches any\nvoter, `reissue_count` goes up). The code is in the answer once, with a ready one-slip file\nand the voter; the answer is never cached. A draft, scheduled or open election (409\n`election_codes_locked`); a file that cannot be written gives a 500 and keeps the old code.\nOwner or manager. Limited to 60 requests per hour per user.",
+                "description": "The first code, or a new one that replaces a lost slip (the old one no longer matches any\nvoter, `reissue_count` goes up). The code is in the answer once, with a ready one-slip file\nand the voter; the answer is never cached. A draft, scheduled or open election (409\n`election_codes_locked`); a file that cannot be written gives a 500 and keeps the old code.\nWith `email` true the new code is also emailed to the voter in the background (`email`\n`queued` in the answer; 422 `email: no_address` for a voter with no address, and nothing\nchanges; 403 `email_not_verified`; 409 `email_quota_exceeded`). Owner or manager. Limited to 60 requests per hour per user.",
                 "summary": "Give one voter a code",
                 "tags": [
                     "VoterCredential"
@@ -7483,6 +7735,15 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReissueCredentialRequest"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "201": {
                         "description": "",
@@ -7533,6 +7794,16 @@
                                                 },
                                                 "reissue_count": {
                                                     "type": "integer"
+                                                },
+                                                "email": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "enum": [
+                                                        "queued",
+                                                        null
+                                                    ]
                                                 },
                                                 "file": {
                                                     "type": "object",
@@ -7616,6 +7887,7 @@
                                                 "voter",
                                                 "code",
                                                 "reissue_count",
+                                                "email",
                                                 "file"
                                             ]
                                         }
@@ -7662,6 +7934,9 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
                     }
                 }
             }
@@ -9154,6 +9429,29 @@
                 ],
                 "title": "PasswordRequest"
             },
+            "PreviewCredentialRunRequest": {
+                "type": "object",
+                "description": "docs/api/credentials/POST-elections-{election}-credential-previews.md: the scope and group of a run.",
+                "properties": {
+                    "scope": {
+                        "type": "string",
+                        "enum": [
+                            "all",
+                            "group",
+                            "ungrouped",
+                            "failed_email"
+                        ]
+                    },
+                    "group": {
+                        "type": "string",
+                        "format": "uuid"
+                    }
+                },
+                "required": [
+                    "scope"
+                ],
+                "title": "PreviewCredentialRunRequest"
+            },
             "RegisterRequest": {
                 "type": "object",
                 "properties": {
@@ -9194,6 +9492,19 @@
                     "password"
                 ],
                 "title": "RegisterRequest"
+            },
+            "ReissueCredentialRequest": {
+                "type": "object",
+                "description": "docs/api/credentials/POST-voters-{voter}-credential.md: no body, or `{ \"email\": true }` (slice 11).",
+                "properties": {
+                    "email": {
+                        "type": [
+                            "boolean",
+                            "null"
+                        ]
+                    }
+                },
+                "title": "ReissueCredentialRequest"
             },
             "ReorderBallotsRequest": {
                 "type": "object",
@@ -9294,19 +9605,44 @@
             },
             "StartCredentialRunRequest": {
                 "type": "object",
-                "description": "docs/api/credentials/POST-elections-{election}-credential-runs.md.",
+                "description": "docs/api/credentials/POST-elections-{election}-credential-runs.md, with the channels of slice 11.",
                 "properties": {
                     "scope": {
                         "type": "string",
                         "enum": [
                             "all",
                             "group",
-                            "ungrouped"
+                            "ungrouped",
+                            "failed_email"
                         ]
                     },
                     "group": {
                         "type": "string",
                         "format": "uuid"
+                    },
+                    "email": {
+                        "type": [
+                            "boolean",
+                            "null"
+                        ]
+                    },
+                    "confirm_emails": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "minimum": 0
+                    },
+                    "file": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "enum": [
+                            "xlsx",
+                            "csv",
+                            null
+                        ]
                     }
                 },
                 "required": [

@@ -15,8 +15,9 @@ final class ApiException extends HttpException
      * @param  array<string, string>  $headers
      * @param  string|null  $messageKey  the `errors.<key>` of the message when it is not the code's own
      * @param  list<array<string, mixed>>|null  $items  what the error lists (the checklist's blockers or warnings)
+     * @param  int|null  $count  a number the error reports (`email_count_changed`: the count now true)
      */
-    public function __construct(int $status, public readonly string $errorCode, array $headers = [], public readonly ?string $messageKey = null, public readonly ?array $items = null)
+    public function __construct(int $status, public readonly string $errorCode, array $headers = [], public readonly ?string $messageKey = null, public readonly ?array $items = null, public readonly ?int $count = null)
     {
         parent::__construct($status, $errorCode, null, $headers);
     }

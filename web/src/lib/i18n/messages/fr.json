@@ -404,7 +404,11 @@
     "run_in_progress": "Une génération est déjà en cours pour cette élection. Attendez qu’elle se termine.",
     "nothing_to_generate": "Tous les électeurs concernés ont déjà un code.",
     "file_not_ready": "Ce fichier n’est pas encore prêt ou a échoué.",
-    "voter_has_voted": "Cet électeur a déjà voté : son code ne peut pas être remplacé."
+    "voter_has_voted": "Cet électeur a déjà voté : son code ne peut pas être remplacé.",
+    "email_count_changed": "Le nombre de courriels a changé. Vérifiez les nouveaux nombres, puis confirmez de nouveau.",
+    "nothing_to_email": "Aucun de ces électeurs n’a d’adresse : aucun courriel à envoyer.",
+    "email_not_verified": "Confirmez d’abord votre adresse courriel pour envoyer des codes par courriel. Vous pouvez toujours imprimer les coupons.",
+    "email_quota_exceeded": "La limite de courriels de l’institution pour 24 heures est atteinte ou le serait : envoyez moins de courriels, ou imprimez les coupons."
   },
   "validation": {
     "required": "Ce champ est obligatoire.",
@@ -1344,14 +1348,34 @@
     "filter": {
       "label": "Filtrer par groupe",
       "all": "Tous",
-      "none": "Sans groupe"
+      "none": "Sans groupe",
+      "credential": {
+        "label": "Code d’accès",
+        "all": "Tous les électeurs",
+        "issued": "Avec un code",
+        "none": "Sans code"
+      },
+      "emailStatus": {
+        "label": "Courriel du code",
+        "all": "Tous les états",
+        "queued": "En attente d’envoi",
+        "sent": "Envoyé",
+        "failed": "Échec d’envoi",
+        "none": "Aucun envoi"
+      }
     },
     "card": {
       "noGroup": "Sans groupe",
       "edit": "Modifier l’électeur {name}",
       "delete": "Supprimer l’électeur {name}",
       "email": "Courriel : {value}",
-      "phone": "Téléphone : {value}"
+      "phone": "Téléphone : {value}",
+      "hasCode": "Code d’accès créé",
+      "emailStatus": {
+        "queued": "Courriel en attente d’envoi",
+        "sent": "Courriel envoyé",
+        "failed": "Échec d’envoi du courriel"
+      }
     },
     "empty": {
       "title": "Aucun électeur pour l’instant",
@@ -1757,7 +1781,13 @@
       "voters": "Électeurs",
       "withCode": "Avec un code",
       "withoutCode": "Sans code",
-      "progress": "{count} codes créés sur {total}"
+      "progress": "{count} codes créés sur {total}",
+      "emailSent": "Courriels envoyés",
+      "emailFailed": "Courriels en échec",
+      "emailQueued": {
+        "one": "{count} courriel en attente d’envoi",
+        "other": "{count} courriels en attente d’envoi"
+      }
     },
     "generateAll": "Générer tous les codes manquants",
     "generateAllCount": {
@@ -1787,7 +1817,9 @@
       "download": "Télécharger le coupon (PDF)",
       "downloadFailed": "Le coupon n’a pas pu être téléchargé.",
       "close": "Fermer et effacer le code",
-      "closeLabel": "Fermer"
+      "closeLabel": "Fermer",
+      "email": "Envoyer aussi par courriel",
+      "emailQueued": "Le nouveau code a été mis en file d’envoi par courriel."
     },
     "locked": "Les codes ne peuvent plus être créés ni remplacés : l’élection est terminée. Les fichiers de coupons sont supprimés à la clôture.",
     "run": {
@@ -1800,9 +1832,14 @@
         "failed": {
           "one": "{count} fichier a échoué : ses électeurs n’ont pas de code. Relancez la génération pour ce groupe.",
           "other": "{count} fichiers ont échoué : leurs électeurs n’ont pas de code. Relancez la génération pour ces groupes."
-        }
+        },
+        "codeFileFailed": "Le fichier de distribution n’a pas pu être écrit. Les codes sont créés et les coupons imprimables sont prêts : relancez le fichier avec un nouvel envoi."
       },
-      "failed": "La génération n’a pas pu démarrer."
+      "failed": "La génération n’a pas pu démarrer.",
+      "emails": {
+        "one": "{count} courriel mis en file d’envoi.",
+        "other": "{count} courriels mis en file d’envoi."
+      }
     },
     "group": {
       "noGroup": "Sans groupe",
@@ -1828,7 +1865,19 @@
         "one": "{count} coupon · {date}",
         "other": "{count} coupons · {date}"
       },
-      "downloadFailed": "Le fichier n’a pas pu être téléchargé."
+      "downloadFailed": "Le fichier n’a pas pu être téléchargé.",
+      "emailSent": {
+        "one": "{count} envoyé",
+        "other": "{count} envoyés"
+      },
+      "emailQueued": {
+        "one": "{count} en attente",
+        "other": "{count} en attente"
+      },
+      "emailFailed": {
+        "one": "{count} en échec",
+        "other": "{count} en échec"
+      }
     },
     "empty": {
       "title": "Aucun électeur pour le moment",
@@ -1836,6 +1885,54 @@
       "link": "Voir les électeurs"
     },
     "loadFailed": "L’état des codes n’a pas pu être lu.",
-    "note": "Un code ne peut pas être réaffiché : seule son empreinte est gardée. Un coupon perdu se remplace par un nouveau code, sauf si l’électeur a déjà voté."
+    "note": "Un code ne peut pas être réaffiché : seule son empreinte est gardée. Un coupon perdu se remplace par un nouveau code, sauf si l’électeur a déjà voté.",
+    "send": {
+      "open": "Générer et envoyer",
+      "title": "Générer et envoyer les codes",
+      "text": "Choisissez les électeurs, puis comment ils reçoivent leur code. Rien n’est fait avant votre confirmation.",
+      "closeLabel": "Fermer",
+      "scopeLabel": "Électeurs concernés",
+      "scope": {
+        "all": "Tous les électeurs",
+        "ungrouped": "Les électeurs sans groupe",
+        "failed_email": "Courriels en échec"
+      },
+      "scopeGroup": "Groupe : {name}",
+      "email": "Envoyer le code par courriel",
+      "emailHelp": "Chaque électeur qui a une adresse reçoit son lien personnel et son code.",
+      "file": "Fichier de distribution",
+      "fileNone": "Aucun fichier",
+      "fileXlsx": "Excel (.xlsx)",
+      "fileCsv": "CSV (.csv)",
+      "numbers": "Ce qui sera fait",
+      "countGenerate": "Codes à créer",
+      "countEmail": "Courriels à envoyer",
+      "countNoEmail": "Sans adresse",
+      "countSkipped": "Ont déjà un code",
+      "nothing": "Aucun code à créer pour ces électeurs.",
+      "nobody": "Aucun de ces électeurs n’a d’adresse : aucun courriel ne peut être envoyé.",
+      "noEmailTitle": {
+        "one": "{count} électeur sans adresse, laissé pour l’impression",
+        "other": "{count} électeurs sans adresse, laissés pour l’impression"
+      },
+      "noEmailMore": "et {count} autres",
+      "noEmailPrint": "Leur coupon est dans le fichier PDF de leur groupe.",
+      "readFailed": "Les nombres n’ont pas pu être lus.",
+      "retry": "Réessayer",
+      "changed": "Le nombre de courriels a changé depuis votre lecture. Vérifiez les nouveaux nombres, puis confirmez de nouveau.",
+      "cancel": "Annuler",
+      "confirm": "Générer les codes",
+      "confirmEmail": {
+        "one": "Générer et envoyer {count} courriel",
+        "other": "Générer et envoyer {count} courriels"
+      }
+    },
+    "resendFailed": "Renvoyer les courriels en échec",
+    "files": {
+      "title": "Fichiers de distribution",
+      "text": "Le fichier contient les codes en clair : gardez-le en lieu sûr. Il est supprimé à la clôture.",
+      "excel": "Excel · {date}",
+      "csv": "CSV · {date}"
+    }
   }
 }

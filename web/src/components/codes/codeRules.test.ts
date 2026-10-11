@@ -5,19 +5,32 @@ import {
   canGenerateGroup,
   codesLocked,
   downloadsOf,
+  EMAIL_POLL_MS,
   isRunning,
   lineState,
   mergeFiles,
   missingIn,
   outcomeOf,
   percentOf,
+  POLL_MS,
+  pollDelay,
   runBodyOf,
 } from './codeRules';
 
 const G4 = { id: '10000000-0000-4000-8000-000000000004', name: '4e année' };
 
 function line(over: Partial<CredentialLine> = {}): CredentialLine {
-  return { group: G4, voters: 3, with_code: 0, with_email: 0, files_ready: 0, ...over };
+  return {
+    group: G4,
+    voters: 3,
+    with_code: 0,
+    with_email: 0,
+    email_queued: 0,
+    email_sent: 0,
+    email_failed: 0,
+    files_ready: 0,
+    ...over,
+  };
 }
 
 function state(over: Partial<CredentialState> = {}): CredentialState {
@@ -26,6 +39,9 @@ function state(over: Partial<CredentialState> = {}): CredentialState {
     with_code: 0,
     without_code: 6,
     with_email: 0,
+    email_queued: 0,
+    email_sent: 0,
+    email_failed: 0,
     run_in_progress: false,
     groups: [],
     ...over,
@@ -85,10 +101,24 @@ describe('buttons', () => {
 });
 
 describe('running', () => {
-  it('is on while a file is queued or the server says so', () => {
-    expect(isRunning(state(), [file()])).toBe(false);
-    expect(isRunning(state(), [file({ status: 'queued' })])).toBe(true);
-    expect(isRunning(state({ run_in_progress: true }), [])).toBe(true);
+  it('is on while a file is queued, and not for messages that wait to be sent', () => {
+    expect(isRunning([file()])).toBe(false);
+    expect(isRunning([file({ status: 'queued' })])).toBe(true);
+    expect(isRunning([])).toBe(false);
+  });
+
+  it('reads the state fast for files, slowly for messages, and not at all otherwise', () => {
+    expect(pollDelay(state(), [file({ status: 'queued' })])).toBe(POLL_MS);
+    expect(pollDelay(state({ email_queued: 3 }), [file()])).toBe(EMAIL_POLL_MS);
+    expect(pollDelay(state({ email_queued: 3 }), [file({ status: 'queued' })])).toBe(POLL_MS);
+    expect(pollDelay(state({ run_in_progress: true }), [file()])).toBeNull();
+    expect(EMAIL_POLL_MS).toBeGreaterThan(POLL_MS);
+  });
+
+  it('keeps the generate buttons usable while only messages wait', () => {
+    expect(canGenerateAll(state({ without_code: 2, email_queued: 5 }), isRunning([file()]))).toBe(
+      true,
+    );
   });
 });
 
@@ -158,6 +188,28 @@ describe('outcomeOf', () => {
       failed: 1,
     });
     expect(outcomeOf([a], new Set())).toBeNull();
+  });
+});
+
+describe('outcomeOf with a file of codes', () => {
+  it('counts the voters of the slips only, so the file of codes is not counted twice', () => {
+    const slips = file({ voter_count: 3 });
+    const codes = file({ kind: 'codes_xlsx', group: null, voter_count: 3 });
+    const watched = new Set([slips.id, codes.id]);
+
+    expect(outcomeOf([slips, codes], watched)).toEqual({ voters: 3, failed: 0 });
+  });
+
+  it('reports a failed file of codes on its own, not as a failed slip file', () => {
+    const slips = file({ voter_count: 3 });
+    const codes = file({ kind: 'codes_csv', group: null, status: 'failed' });
+    const watched = new Set([slips.id, codes.id]);
+
+    expect(outcomeOf([slips, codes], watched)).toEqual({
+      voters: 3,
+      failed: 0,
+      codeFileFailed: true,
+    });
   });
 });
 

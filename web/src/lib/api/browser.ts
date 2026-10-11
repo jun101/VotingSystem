@@ -13,9 +13,11 @@ import type {
 } from './elections';
 import type { NewParty, Party, PartyChanges } from './parties';
 import type {
+  CredentialPreview,
   CredentialRun,
   CredentialState,
   GeneratedFile,
+  PreviewBody,
   Reissue,
   RunBody,
 } from './credentials';
@@ -757,6 +759,8 @@ export async function fetchVoters(election: string, filters: VoterFilters): Prom
           per_page: VOTERS_PER_PAGE,
           ...(filters.q === '' ? {} : { q: filters.q }),
           ...(filters.group === '' ? {} : { group: filters.group }),
+          ...(filters.credential === '' ? {} : { credential: filters.credential }),
+          ...(filters.email === '' ? {} : { email: filters.email }),
         },
       },
     }),
@@ -993,12 +997,37 @@ export async function startCredentialRun(election: string, body: RunBody): Promi
 }
 
 /**
+ * `POST /elections/{election}/credential-previews`: what a run would do for a scope. A reading:
+ * nothing is made, nothing is sent.
+ */
+export async function previewCredentialRun(
+  election: string,
+  body: PreviewBody,
+): Promise<CredentialPreview> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/credential-previews', {
+      params: { path: { election } },
+      body,
+    }),
+  );
+
+  return data!.data;
+}
+
+/**
  * `POST /voters/{voter}/credential`: a new code for one voter, shown once, with a one-slip file.
  * The answer is the only place a code is ever sent: the caller shows it and keeps it nowhere.
  */
-export async function reissueCredential(voter: string): Promise<Reissue> {
+export async function reissueCredential(
+  voter: string,
+  options: { email?: boolean } = {},
+): Promise<Reissue> {
   const { data } = await send((api) =>
-    api.POST('/v1/voters/{voter}/credential', { params: { path: { voter } } }),
+    api.POST('/v1/voters/{voter}/credential', {
+      params: { path: { voter } },
+      // The body is sent only when the code is also to be emailed.
+      ...(options.email ? { body: { email: true } } : {}),
+    }),
   );
 
   return data!.data;

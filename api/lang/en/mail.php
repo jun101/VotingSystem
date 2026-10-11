@@ -41,4 +41,20 @@ return [
             'manager' => 'a manager',
         ],
     ],
+
+    'credentials' => [
+        'subject' => 'Your access code to vote',
+        'title' => 'Your access code to vote',
+        'line' => 'Your personal link and code are below.',
+        'preheader' => 'Your code and personal link to vote in the election “:election”.',
+        'intro' => ':name, you are invited to vote in the election “:election” of “:institution”. Use the button below, or enter your code on the voting page.',
+        'code_label' => 'Your access code',
+        'election' => 'Election',
+        'institution' => 'Institution',
+        'period_label' => 'Voting period',
+        'period' => 'From :from to :to (:zone)',
+        'button' => 'Vote now',
+        'validity' => 'You can vote only once, during the period shown.',
+        'ignore' => 'Keep this message to yourself: anyone who has your code can vote in your place. If you did not expect it, ignore it.',
+    ],
 ];

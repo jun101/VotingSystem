@@ -19,3 +19,9 @@ it('adds the part only when there are several', function () {
 it('falls back to a plain word when nothing is left of the name', function () {
     expect(SlipFileName::for('???', 1, 1))->toBe('coupons-groupe.pdf');
 });
+
+it('names a file of codes with the group or tous', function () {
+    expect(SlipFileName::codes('4e Année', 'xlsx'))->toBe('codes-4e-annee.xlsx')
+        ->and(SlipFileName::codes(null, 'csv'))->toBe('codes-tous.csv')
+        ->and(SlipFileName::codes('???', 'csv'))->toBe('codes-groupe.csv');
+});

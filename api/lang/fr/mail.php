@@ -41,4 +41,20 @@ return [
             'manager' => 'gestionnaire',
         ],
     ],
+
+    'credentials' => [
+        'subject' => 'Votre code d’accès pour voter',
+        'title' => 'Votre code d’accès pour voter',
+        'line' => 'Votre lien personnel et votre code sont ci-dessous.',
+        'preheader' => 'Votre code et votre lien personnel pour voter à l’élection « :election ».',
+        'intro' => ':name, vous êtes invité(e) à voter à l’élection « :election » de « :institution ». Utilisez le bouton ci-dessous ou saisissez votre code sur la page de vote.',
+        'code_label' => 'Votre code d’accès',
+        'election' => 'Élection',
+        'institution' => 'Établissement',
+        'period_label' => 'Période de vote',
+        'period' => 'Du :from au :to (:zone)',
+        'button' => 'Voter maintenant',
+        'validity' => 'Vous ne pouvez voter qu’une fois, pendant la période indiquée.',
+        'ignore' => 'Gardez ce message pour vous : toute personne qui a votre code peut voter à votre place. Si vous ne l’attendiez pas, ignorez-le.',
+    ],
 ];

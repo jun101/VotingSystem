@@ -124,6 +124,7 @@ final class Tenancy
         'GET api/v1/generated-files/{file}' => 'Slice10/GeneratedFilesTest.php',
         'GET api/v1/generated-files/{file}/download' => 'Slice10/DownloadFileTest.php',
         'POST api/v1/voters/{voter}/credential' => 'Slice10/ReissueCredentialTest.php',
+        'POST api/v1/elections/{election}/credential-previews' => 'Slice11/CredentialPreviewTest.php',
         'POST api/v1/ballots/{ballot}/candidates' => 'Slice06/CreateCandidateTest.php',
         'PUT api/v1/ballots/{ballot}/candidates/order' => 'Slice06/ReorderCandidatesTest.php',
         'PATCH api/v1/candidates/{candidate}' => 'Slice06/UpdateCandidateTest.php',

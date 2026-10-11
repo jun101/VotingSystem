@@ -1,5 +1,5 @@
 import { expect, type Page } from '@playwright/test';
-import { uniqueEmail } from './mail';
+import { linkIn, uniqueEmail, waitForMails } from './mail';
 
 /*
  * Helpers for the browser tests of the admin area (slice 03 and after).
@@ -26,6 +26,20 @@ export async function registerAndEnter(
   await expect(page).toHaveURL(/\/admin$/);
 
   return { email, institution, name };
+}
+
+/**
+ * Confirms the address of the signed-in person with the link of the verification email (sending codes by email needs
+ * a verified address, slice 11). Goes back to where the person was.
+ */
+export async function verifyEmail(page: Page, email: string): Promise<void> {
+  const [mail] = await waitForMails(email, 1);
+  const link = linkIn(mail!, '/verify-email');
+  if (link === null) throw new Error('No verification link in the email');
+  const back = page.url();
+  await page.goto(link);
+  await expect(page.getByTestId('verify-state')).toHaveAttribute('data-state', 'success', { timeout: 15_000 });
+  await page.goto(back);
 }
 
 /** Opens the user menu of the top bar, then signs out. */

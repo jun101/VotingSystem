@@ -74,3 +74,6 @@ that `email_status`. A voter with no address, or never emailed, counts in none o
 ```
 
 `run_in_progress` is also true while an email of the election is `queued`.
+
+`email_failed` counts only the voters who still have an address (the ones a resend can serve); a voter whose email
+failed because the address was removed shows as `failed` in the voters list but is not counted here.

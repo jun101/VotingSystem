@@ -229,6 +229,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/elections/{election}/credential-previews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Preview a run of access codes
+         * @description What a run would do for a scope (`all`, one `group`, `ungrouped` or `failed_email`), without
+         *     doing it: voters who would get a code, those with an email address, those with none (left
+         *     for print, the first 100 named by name) and those who already have a code. The numbers the
+         *     person confirms before emails are sent; the run checks them again. A draft, scheduled or
+         *     open election (409 `election_codes_locked`). Owner or manager. Limited to 120 requests per
+         *     hour per user.
+         */
+        post: operations["credentials.credentialPreview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/elections/{election}/credential-runs": {
         parameters: {
             query?: never;
@@ -240,12 +265,17 @@ export interface paths {
         put?: never;
         /**
          * Start a run of access codes
-         * @description Gives a code to the voters of the scope (`all`, one `group`, or `ungrouped`) who have none
-         *     and writes their slips, one PDF per group (parts of 1 000 voters at most). The answer comes
-         *     before the work: the files are `queued`, and polled with `GET /generated-files/{file}`. A
-         *     draft, scheduled or open election (409 `election_codes_locked`), one run at a time (409
-         *     `run_in_progress`), something to serve (409 `nothing_to_generate`). Owner or manager.
-         *     Limited to 20 requests per hour per user.
+         * @description Gives a code to the voters of the scope (`all`, one `group`, `ungrouped`, or `failed_email`
+         *     for a new code to the voters whose email failed) who have none and writes their slips, one
+         *     PDF per group (parts of 1 000 voters at most). With `email` the voters served who have an
+         *     address are emailed their link and code in the background; `confirm_emails` is the count the
+         *     person saw (409 `email_count_changed` with `error.count`, 409 `nothing_to_email`); with `email` the user's
+         *     own email must be verified (403 `email_not_verified`) and the institution's emails of the last 24
+         *     hours are limited (409 `email_quota_exceeded`, `error.count` is the number left). `file` is
+         *     `xlsx`, `csv` or null. The answer comes before the work: the files are `queued`, and polled
+         *     with `GET /generated-files/{file}`. A draft, scheduled or open election (409
+         *     `election_codes_locked`), one run at a time (409 `run_in_progress`), something to serve (409
+         *     `nothing_to_generate`). Owner or manager. Limited to 20 requests per hour per user.
          */
         post: operations["credentials.credentialRun"];
         delete?: never;
@@ -265,7 +295,8 @@ export interface paths {
          * The state of the access codes of an election
          * @description Totals and one line per group (sorted by name, accents and case ignored; the voters with no
          *     group last, with a null `id` and `name`): voters, voters with a code, with an email, and
-         *     the files ready. `run_in_progress` is true while a file is queued. Any status of the
+         *     the files ready, and the emails queued, sent and failed. `run_in_progress` is true while a
+         *     file or an email is queued. Any status of the
          *     election; once it is closed no file counts as ready. Owner or manager.
          */
         get: operations["credentials.credentialState"];
@@ -526,7 +557,8 @@ export interface paths {
         };
         /**
          * Download a file
-         * @description The PDF, decrypted on the way out, with a fixed name (`coupons-{group}.pdf`), never cached.
+         * @description The PDF of slips (`coupons-{group}.pdf`), or the Excel or CSV file of codes (`codes-{group}.xlsx`,
+         *     `codes-tous.csv`), decrypted on the way out, with a fixed name, never cached.
          *     409 `file_not_ready` for a queued or failed file; 404 once the election is closed,
          *     published or archived. Owner or manager. Limited to 120 requests per hour per user.
          */
@@ -1201,7 +1233,8 @@ export interface paths {
          * List the voters of an election
          * @description 24 per page by default, by full name ignoring case, then creation order, in any status of
          *     the election. `q` looks for a text in the full name, the identifier and the email; `group`
-         *     is a group's UUID or `none`. Owner or manager.
+         *     is a group's UUID or `none`; `credential` is `issued` or `none`; `email` is the status of
+         *     the last email (`queued`, `sent`, `failed`, `none`). Owner or manager.
          */
         get: operations["voter.index"];
         put?: never;
@@ -1290,7 +1323,9 @@ export interface paths {
          *     voter, `reissue_count` goes up). The code is in the answer once, with a ready one-slip file
          *     and the voter; the answer is never cached. A draft, scheduled or open election (409
          *     `election_codes_locked`); a file that cannot be written gives a 500 and keeps the old code.
-         *     Owner or manager. Limited to 60 requests per hour per user.
+         *     With `email` true the new code is also emailed to the voter in the background (`email`
+         *     `queued` in the answer; 422 `email: no_address` for a voter with no address, and nothing
+         *     changes; 403 `email_not_verified`; 409 `email_quota_exceeded`). Owner or manager. Limited to 60 requests per hour per user.
          */
         post: operations["credentials.voterCredential"];
         delete?: never;
@@ -1597,6 +1632,16 @@ export interface components {
         PasswordRequest: {
             password: string;
         };
+        /**
+         * PreviewCredentialRunRequest
+         * @description docs/api/credentials/POST-elections-{election}-credential-previews.md: the scope and group of a run.
+         */
+        PreviewCredentialRunRequest: {
+            /** @enum {string} */
+            scope: "all" | "group" | "ungrouped" | "failed_email";
+            /** Format: uuid */
+            group?: string;
+        };
         /** RegisterRequest */
         RegisterRequest: {
             institution_name: string;
@@ -1606,6 +1651,13 @@ export interface components {
             password: string;
             /** @enum {string|null} */
             language?: "fr" | "en" | null;
+        };
+        /**
+         * ReissueCredentialRequest
+         * @description docs/api/credentials/POST-voters-{voter}-credential.md: no body, or `{ "email": true }` (slice 11).
+         */
+        ReissueCredentialRequest: {
+            email?: boolean | null;
         };
         /**
          * ReorderBallotsRequest
@@ -1654,13 +1706,17 @@ export interface components {
         };
         /**
          * StartCredentialRunRequest
-         * @description docs/api/credentials/POST-elections-{election}-credential-runs.md.
+         * @description docs/api/credentials/POST-elections-{election}-credential-runs.md, with the channels of slice 11.
          */
         StartCredentialRunRequest: {
             /** @enum {string} */
-            scope: "all" | "group" | "ungrouped";
+            scope: "all" | "group" | "ungrouped" | "failed_email";
             /** Format: uuid */
             group?: string;
+            email?: boolean | null;
+            confirm_emails?: number | null;
+            /** @enum {string|null} */
+            file?: "xlsx" | "csv" | null;
         };
         /**
          * TwoFactorCodeRequest
@@ -2474,6 +2530,65 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
+    "credentials.credentialPreview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The election UUID */
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PreviewCredentialRunRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            to_generate: number;
+                            with_email: number;
+                            without_email: number;
+                            skipped: number;
+                            voters_without_email: {
+                                id: string;
+                                full_name: string;
+                                group: {
+                                    id: string;
+                                    name: string;
+                                } | null;
+                            }[];
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            /** @description An error */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
+                    };
+                };
+            };
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
     "credentials.credentialRun": {
         parameters: {
             query?: never;
@@ -2516,6 +2631,7 @@ export interface operations {
                             }[];
                             voters: number;
                             skipped: number;
+                            emails: number;
                         };
                     };
                 };
@@ -2563,6 +2679,9 @@ export interface operations {
                             with_code: number;
                             without_code: number;
                             with_email: number;
+                            email_queued: number;
+                            email_sent: number;
+                            email_failed: number;
                             run_in_progress: boolean;
                             groups: {
                                 group: {
@@ -2572,6 +2691,9 @@ export interface operations {
                                 voters: number;
                                 with_code: number;
                                 with_email: number;
+                                email_queued: number;
+                                email_sent: number;
+                                email_failed: number;
                                 files_ready: number;
                             }[];
                         };
@@ -4571,6 +4693,9 @@ export interface operations {
                 per_page?: number;
                 q?: string | null;
                 group?: string | null;
+                /** @description Slice 11: the credential and the last email of the voter. */
+                credential?: "issued" | "none" | null;
+                email?: "queued" | "sent" | "failed" | "none" | null;
             };
             header?: never;
             path: {
@@ -4597,6 +4722,9 @@ export interface operations {
                             identifier: string | null;
                             email: string | null;
                             phone: string | null;
+                            has_code: boolean;
+                            /** @enum {string|null} */
+                            email_status: "queued" | "sent" | "failed" | null;
                             created_at: string;
                             updated_at: string;
                         }[];
@@ -4646,6 +4774,9 @@ export interface operations {
                             identifier: string | null;
                             email: string | null;
                             phone: string | null;
+                            has_code: boolean;
+                            /** @enum {string|null} */
+                            email_status: "queued" | "sent" | "failed" | null;
                             created_at: string;
                             updated_at: string;
                         };
@@ -4712,6 +4843,9 @@ export interface operations {
                             identifier: string | null;
                             email: string | null;
                             phone: string | null;
+                            has_code: boolean;
+                            /** @enum {string|null} */
+                            email_status: "queued" | "sent" | "failed" | null;
                             created_at: string;
                             updated_at: string;
                         };
@@ -4783,7 +4917,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ReissueCredentialRequest"];
+            };
+        };
         responses: {
             201: {
                 headers: {
@@ -4803,6 +4941,8 @@ export interface operations {
                             };
                             code: string;
                             reissue_count: number;
+                            /** @enum {string|null} */
+                            email: "queued" | null;
                             file: {
                                 id: string;
                                 kind: string;
@@ -4841,6 +4981,7 @@ export interface operations {
                 };
             };
             404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
         };
     };
     "voterImport.template": {

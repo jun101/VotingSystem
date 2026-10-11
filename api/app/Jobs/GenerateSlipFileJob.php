@@ -3,13 +3,12 @@
 namespace App\Jobs;
 
 use App\Actions\Credentials\GenerateSlipFile;
-use App\Models\GeneratedFile;
+use App\Jobs\Concerns\ChainsToNextFile;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Throwable;
 
 /**
@@ -20,6 +19,7 @@ use Throwable;
  */
 class GenerateSlipFileJob implements ShouldQueue
 {
+    use ChainsToNextFile;
     use Dispatchable;
     use InteractsWithQueue;
     use Queueable;
@@ -56,48 +56,5 @@ class GenerateSlipFileJob implements ShouldQueue
         app(GenerateSlipFile::class)->fail($this->fileUuid, $exception);
 
         $this->queueNext($position);
-    }
-
-    /**
-     * Where this file stands, read before the work: a file removed for want of voters has no row after.
-     *
-     * @return array{election: int, id: int}|null
-     */
-    private function position(): ?array
-    {
-        try {
-            // Queue job: nobody is signed in, so the scope reads no institution; the file's UUID is the key.
-            $file = GeneratedFile::withoutInstitutionScope()->where('uuid', $this->fileUuid)->first();
-        } catch (Throwable) {
-            return null;
-        }
-
-        return $file === null ? null : ['election' => $file->election_id, 'id' => $file->id];
-    }
-
-    /** @param  array{election: int, id: int}|null  $position */
-    private function queueNext(?array $position): void
-    {
-        if ($position === null) {
-            return;
-        }
-
-        try {
-            // Queue job: nobody is signed in; the election is the bound. Unclaimed files only.
-            $next = GeneratedFile::withoutInstitutionScope()
-                ->where('election_id', $position['election'])
-                ->where('status', GeneratedFile::STATUS_QUEUED)
-                ->whereNull('stored_file')
-                ->where('id', '>', $position['id'])
-                ->orderBy('id')
-                ->value('uuid');
-
-            if (is_string($next)) {
-                self::dispatch($next);
-            }
-        } catch (Throwable $e) {
-            // The files left stay `queued` until the next run fails them (15 minutes) or the purge does.
-            Log::info('credentials.file', ['outcome' => 'chain_broken', 'class' => $e::class]);
-        }
     }
 }

@@ -21,10 +21,21 @@ use Illuminate\Support\Carbon;
  * @property string|null $email_status
  * @property Carbon|null $email_sent_at
  * @property string|null $email_error
+ * @property string|null $email_hash
+ * @property int|null $email_file_id
  */
 class Credential extends Model
 {
     use BelongsToInstitution;
+
+    public const EMAIL_QUEUED = 'queued';
+
+    public const EMAIL_SENT = 'sent';
+
+    public const EMAIL_FAILED = 'failed';
+
+    /** The one reason code a message that could not be sent carries: never the transport's text. */
+    public const ERROR_SEND_FAILED = 'send_failed';
 
     public $timestamps = false;
 

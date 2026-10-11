@@ -189,8 +189,9 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('voter-imports-upload', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
         RateLimiter::for('voter-imports', fn (Request $request) => Limit::perHour($times(240))->by($byUser($request)));
 
-        // The access codes (docs/api/credentials/): 20 runs an hour per user, 60 reissues, 120 downloads.
+        // The access codes (docs/api/credentials/): 20 runs an hour per user, 120 previews, 60 reissues, 120 downloads.
         RateLimiter::for('credential-runs', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
+        RateLimiter::for('credential-previews', fn (Request $request) => Limit::perHour($times(120))->by($byUser($request)));
         RateLimiter::for('credential-reissue', fn (Request $request) => Limit::perHour($times(60))->by($byUser($request)));
         RateLimiter::for('file-download', fn (Request $request) => Limit::perHour($times(120))->by($byUser($request)));
 
