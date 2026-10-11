@@ -39,6 +39,11 @@ final class Tenancy
         'POST api/v1/auth/accept-invitation',
         // Slice 04b: finishes a sign-in started with a password; a pending sign-in in the session is its only input.
         'POST api/v1/auth/two-factor-challenge',
+        // Slice 16: the public pages of a published election and of an institution. Nothing identifies the caller; the
+        // election or institution is found by its uuid and answers 404 unless it is published (or has a published one).
+        'GET api/v1/public/elections/{election}/results',
+        'GET api/v1/public/elections/{election}/report',
+        'GET api/v1/public/institutions/{institution}',
         // Slice 12: the voter's own pages. A voter session (a random token in a cookie) is their only credential and it
         // names one voter of one election; the election is found by its uuid and is never listed.
         'GET api/v1/vote/{election}',
@@ -133,6 +138,11 @@ final class Tenancy
         'GET api/v1/elections/{election}/results' => 'Slice15/ResultsTest.php',
         'PUT api/v1/ballots/{ballot}/result-note' => 'Slice15/ResultNoteTest.php',
         'POST api/v1/elections/{election}/second-round' => 'Slice15/SecondRoundTest.php',
+        'POST api/v1/elections/{election}/publish' => 'Slice16/PublishTest.php',
+        'POST api/v1/elections/{election}/unpublish' => 'Slice16/UnpublishTest.php',
+        'POST api/v1/elections/{election}/archive' => 'Slice16/ArchiveTest.php',
+        'POST api/v1/elections/{election}/unarchive' => 'Slice16/ArchiveTest.php',
+        'GET api/v1/elections/{election}/report' => 'Slice16/ReportTest.php',
         'GET api/v1/elections/{election}/credentials' => 'Slice10/CredentialsStateTest.php',
         'POST api/v1/elections/{election}/credential-runs' => 'Slice10/CredentialRunTest.php',
         'GET api/v1/elections/{election}/generated-files' => 'Slice10/GeneratedFilesTest.php',

@@ -330,3 +330,10 @@ Filled slice by slice: each slice adds its endpoints here with a link to their f
 | Results | `GET /elections/{election}/results` | 15 | [results/GET-elections-{election}-results.md](results/GET-elections-{election}-results.md) |
 | Results | `PUT /ballots/{ballot}/result-note` | 15 | [results/PUT-ballots-{ballot}-result-note.md](results/PUT-ballots-{ballot}-result-note.md) |
 | Results | `POST /elections/{election}/second-round` | 15 | [results/POST-elections-{election}-second-round.md](results/POST-elections-{election}-second-round.md) |
+| Publication | `POST /elections/{election}/publish` | 16 | [publication/POST-elections-{election}-publish.md](publication/POST-elections-{election}-publish.md) |
+| Publication | `POST /elections/{election}/unpublish` | 16 | [publication/POST-elections-{election}-unpublish.md](publication/POST-elections-{election}-unpublish.md) |
+| Publication | `POST /elections/{election}/archive`, `/unarchive` | 16 | [publication/POST-elections-{election}-archive.md](publication/POST-elections-{election}-archive.md) |
+| Publication | `GET /elections/{election}/report` | 16 | [publication/GET-elections-{election}-report.md](publication/GET-elections-{election}-report.md) |
+| Public | `GET /public/elections/{election}/results` | 16 | [publication/GET-public-elections-{election}-results.md](publication/GET-public-elections-{election}-results.md) |
+| Public | `GET /public/elections/{election}/report` | 16 | [publication/GET-public-elections-{election}-report.md](publication/GET-public-elections-{election}-report.md) |
+| Public | `GET /public/institutions/{institution}` | 16 | [publication/GET-public-institutions-{institution}.md](publication/GET-public-institutions-{institution}.md) |

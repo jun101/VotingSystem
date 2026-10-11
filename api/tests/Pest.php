@@ -150,3 +150,13 @@ pest()->beforeEach(function () {
     $this->auditPair = Tests\Support\Voting::keypair();
     $this->browser = new Tests\Support\AuthClient($this);
 })->in('Acceptance/Slice15');
+
+// Slice 16: publication, public pages, reports (docs/slices/16-publication.md): the same as slice 12.
+pest()->beforeEach(function () {
+    Tests\Support\Accounts::reset();
+    Tests\Support\Tenancy::installProbeTables();
+    Tests\Support\Team::clearMedia();
+    Tests\Support\Voting::forgetCache();
+    $this->auditPair = Tests\Support\Voting::keypair();
+    $this->browser = new Tests\Support\AuthClient($this);
+})->in('Acceptance/Slice16');
