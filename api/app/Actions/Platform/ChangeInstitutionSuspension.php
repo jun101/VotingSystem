@@ -35,7 +35,7 @@ final class ChangeInstitutionSuspension
             $current->suspension_reason = $reason;
             $current->save();
 
-            AuditLog::record('institution.suspended', $current, ['reason' => $reason]);
+            AuditLog::record('institution.suspended', $current, ['reason' => $reason], platform: true);
 
             $institution->setRawAttributes($current->getAttributes(), true);
         });
@@ -61,7 +61,7 @@ final class ChangeInstitutionSuspension
             $current->suspension_reason = null;
             $current->save();
 
-            AuditLog::record('institution.reactivated', $current, ['reason' => $lifted]);
+            AuditLog::record('institution.reactivated', $current, ['reason' => $lifted], platform: true);
 
             $institution->setRawAttributes($current->getAttributes(), true);
         });

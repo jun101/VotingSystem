@@ -47,6 +47,13 @@ class CreatePlatformAdmin extends Command
         $variable = $this->option('password-from-env');
 
         if (is_string($variable) && $variable !== '') {
+            // Only a variable made for this (never DB_PASSWORD, APP_KEY or any other secret of the server).
+            if (! str_starts_with($variable, 'PLATFORM_ADMIN_')) {
+                $this->error('The variable must be named PLATFORM_ADMIN_….');
+
+                return self::FAILURE;
+            }
+
             // For scripts (make e2e): no question, no confirmation. Read through getenv() and $_SERVER/$_ENV, never printed.
             $value = getenv($variable);
             $value = $value === false ? ($_SERVER[$variable] ?? $_ENV[$variable] ?? '') : $value;

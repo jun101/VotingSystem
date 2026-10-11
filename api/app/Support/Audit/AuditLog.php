@@ -39,8 +39,9 @@ final class AuditLog
      * @param  array<string, mixed>  $details
      * @param  Election|null  $election  the election the entry belongs to; taken from the subject when it is one
      * @param  bool  $system  the scheduler: no user, no address
+     * @param  bool  $platform  an action of the platform admin on an institution: written with no institution, so no owner's log lists it
      */
-    public static function record(string $action, ?Model $subject = null, array $details = [], ?Election $election = null, bool $system = false): void
+    public static function record(string $action, ?Model $subject = null, array $details = [], ?Election $election = null, bool $system = false, bool $platform = false): void
     {
         $actor = $system ? null : Auth::guard()->user();
         $actor = $actor instanceof User ? $actor : null;
@@ -48,9 +49,8 @@ final class AuditLog
         $electionKey = $election?->getKey();
         $institution = $election?->institution_id;
 
-        // The platform's own actions (an institution suspended or reactivated) belong to nobody's log: no institution,
-        // so no owner's list ever finds them; the subject is the institution, named by its uuid.
-        $platform = $subject instanceof Institution;
+        // The platform's own actions (an institution suspended or reactivated, `$platform`) belong to nobody's log: no
+        // institution, so no owner's list ever finds them; the subject is the institution, named by its uuid.
 
         if ($subject !== null && ! $platform) {
             $electionKey ??= match (true) {

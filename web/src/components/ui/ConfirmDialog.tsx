@@ -25,7 +25,8 @@ type ConfirmDialogProps = {
   testIds?: { dialog?: string; confirm?: string; cancel?: string; error?: string };
 };
 
-const FOCUSABLE = 'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled])';
+const FOCUSABLE =
+  'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled])';
 
 /**
  * A confirmation in a native modal `dialog`: the rest of the page is inert, the keyboard focus

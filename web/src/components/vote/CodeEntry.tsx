@@ -62,7 +62,9 @@ export function CodeEntry() {
             text: t(
               phase === 'before'
                 ? 'vote.error.election_not_open_before'
-                : 'vote.error.election_not_open_closed',
+                : phase === 'paused'
+                  ? 'vote.error.election_not_open_paused'
+                  : 'vote.error.election_not_open_closed',
             ),
             onField: false,
           });
@@ -132,6 +134,19 @@ export function CodeEntry() {
 
   if (info.phase === 'before') {
     main = <BeforeMain />;
+  } else if (info.phase === 'paused') {
+    // The institution is suspended by the platform: nothing is closed, voting resumes by itself.
+    main = (
+      <VoteCard
+        tone="activity"
+        icon="warn"
+        title={t('vote.paused.heading')}
+        data-testid="vote-paused"
+      >
+        <p className="text-md text-ink-2">{t('vote.paused.text')}</p>
+        <p className="text-base text-ink-soft">{t('vote.paused.hint')}</p>
+      </VoteCard>
+    );
   } else if (info.phase === 'closed') {
     main = (
       <VoteCard

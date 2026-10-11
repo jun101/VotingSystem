@@ -40,7 +40,9 @@ function phaseOf(body: unknown): VotePhase | null {
   const phase =
     typeof error === 'object' && error !== null ? (error as { phase?: unknown }).phase : null;
 
-  return phase === 'before' || phase === 'open' || phase === 'closed' ? phase : null;
+  return phase === 'before' || phase === 'open' || phase === 'closed' || phase === 'paused'
+    ? phase
+    : null;
 }
 
 async function call<T>(

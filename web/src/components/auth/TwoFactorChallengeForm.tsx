@@ -20,7 +20,7 @@ export function TwoFactorChallengeForm({
   onEnded,
 }: {
   onCancel: () => void;
-  onEnded: (reason: 'expired' | 'suspended') => void;
+  onEnded: (reason: 'expired' | 'suspended', detail: string | null) => void;
 }) {
   const { t } = useI18n();
   const router = useRouter();
@@ -28,6 +28,7 @@ export function TwoFactorChallengeForm({
   const [recovery, setRecovery] = useState(false);
   const [blank, setBlank] = useState(false);
   const field = useRef<HTMLInputElement>(null);
+  const destination = useRef('/admin');
 
   // The step opens on the field to fill, and so does each swap of the field.
   useEffect(() => field.current?.focus(), [recovery]);
@@ -50,10 +51,16 @@ export function TwoFactorChallengeForm({
     setBlank(false);
 
     const done = await run(
-      () => twoFactorChallenge(recovery ? { recovery_code: value } : { code: value }),
+      async () => {
+        const user = await twoFactorChallenge(
+          recovery ? { recovery_code: value } : { code: value },
+        );
+
+        if (user.role === 'platform_admin') destination.current = '/platform';
+      },
       (error) => {
-        if (error.status === 401) onEnded('expired');
-        else if (error.code === 'institution_suspended') onEnded('suspended');
+        if (error.status === 401) onEnded('expired', null);
+        else if (error.code === 'institution_suspended') onEnded('suspended', error.reason);
         else return false;
 
         return true;
@@ -62,7 +69,7 @@ export function TwoFactorChallengeForm({
 
     if (done) {
       // The page is rendered again, so <html lang> takes the language stored for this user.
-      router.push('/admin');
+      router.push(destination.current);
       router.refresh();
     }
   }

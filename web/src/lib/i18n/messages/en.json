@@ -291,7 +291,7 @@
       "register": "Register my institution",
       "notice": "Your password has been changed. You can sign in.",
       "suspended": "This institution is suspended. You have been signed out.",
-      "platformAdmin": "The platform administrators' area is not available yet. You have been signed out."
+      "suspendedReason": "This institution is suspended. Reason given by the platform administrators:"
     },
     "forgot": {
       "title": "Forgot your password",
@@ -527,10 +527,6 @@
       "title": "Not available yet",
       "text": "This page comes with a later step of the product. The rest of the area is ready to use.",
       "back": "Back to the dashboard"
-    },
-    "turnedAway": {
-      "title": "Area not available",
-      "text": "This account has no institution. You have been signed out."
     }
   },
   "errors": {
@@ -597,7 +593,9 @@
     "election_not_closed": "This election is no longer at the closed stage: reload the page to see its current state.",
     "election_not_published": "The results are no longer published: reload the page to see the current state.",
     "election_not_archivable": "This election cannot be archived in its current state.",
-    "election_not_archived": "This election is not archived."
+    "election_not_archived": "This election is not archived.",
+    "already_suspended": "This institution is already suspended. Reload the page.",
+    "not_suspended": "This institution is not suspended. Reload the page."
   },
   "validation": {
     "required": "This field is required.",
@@ -868,6 +866,15 @@
       },
       "rename": {
         "invalid": "A new name is empty, too long (100 characters at most) or does not match a group being loaded."
+      }
+    },
+    "platform": {
+      "suspend": {
+        "reason": {
+          "required": "Give the reason for the suspension.",
+          "min": "The reason must have at least 3 characters.",
+          "max": "The reason is too long (500 characters at most)."
+        }
       }
     }
   },
@@ -2222,7 +2229,8 @@
       "voter_session_expired": "Your session has ended. Enter your code again.",
       "choices_invalid": "One of your choices is no longer valid. Start the vote again.",
       "ballots_mismatch": "The positions that concern you have changed. Start the vote again.",
-      "empty": "Enter your code to continue."
+      "empty": "Enter your code to continue.",
+      "election_not_open_paused": "Voting is paused. It will resume when the institution's suspension is lifted."
     },
     "before": {
       "heading": "Your election is not open yet",
@@ -2338,6 +2346,12 @@
       "home": "Back to the home page",
       "homeText": "You can also start again from the home page.",
       "secure": "No vote has been recorded here."
+    },
+    "paused": {
+      "heading": "Voting is paused",
+      "text": "This institution has been suspended by the platform administrators: voting is paused and will resume when the suspension is lifted. No vote is lost or changed, and the end time does not move.",
+      "hint": "Keep your code and come back later: reload this page to check.",
+      "status": "Paused"
     }
   },
   "turnout": {
@@ -2784,6 +2798,96 @@
       "title": "Owner only",
       "text": "Only an owner of the institution can read the activity log.",
       "back": "Back to the dashboard"
+    }
+  },
+  "platform": {
+    "kicker": "Platform administration",
+    "title": "Institutions",
+    "lede": "The institutions of the platform, with their numbers. You see counts only: never a voter's name, a code or a vote.",
+    "signOut": "Sign out",
+    "filters": "Search and filter",
+    "search": "Search an institution",
+    "list": "Institutions",
+    "filter": {
+      "label": "Status",
+      "all": "All",
+      "active": "Active",
+      "suspended": "Suspended"
+    },
+    "count": {
+      "one": "{count} institution",
+      "other": "{count} institutions"
+    },
+    "status": {
+      "active": "Active",
+      "suspended": "Suspended"
+    },
+    "type": {
+      "school": "School",
+      "university": "University",
+      "association": "Association",
+      "other": "Other"
+    },
+    "counts": {
+      "users": {
+        "one": "user",
+        "other": "users"
+      },
+      "voters": {
+        "one": "voter",
+        "other": "voters"
+      },
+      "elections": {
+        "one": "election",
+        "other": "elections"
+      },
+      "byStatus": "Elections by status",
+      "noElection": "No election yet."
+    },
+    "electionStatus": {
+      "draft": "draft",
+      "scheduled": "scheduled",
+      "open": "open",
+      "closed": "closed",
+      "published": "published",
+      "archived": "archived"
+    },
+    "created": "Created",
+    "createdOn": "Created on {day}",
+    "lastSignIn": "Last sign-in",
+    "lastSignInOn": "Last sign-in on {day}",
+    "neverSignedIn": "No sign-in yet",
+    "reasonTitle": "Reason for the suspension",
+    "suspendedOn": "Suspended on {day}",
+    "suspend": "Suspend",
+    "reactivate": "Reactivate",
+    "cancel": "Cancel",
+    "more": "Show more",
+    "moreCount": "{shown} of {total} shown",
+    "loading": "Loading…",
+    "loadFailed": "The list could not be updated.",
+    "empty": {
+      "title": "No institution",
+      "text": "Institutions appear here as soon as they register."
+    },
+    "emptyFiltered": {
+      "title": "No match",
+      "text": "No institution matches this search. Change the name or the filter."
+    },
+    "suspendDialog": {
+      "title": "Suspend {name}?",
+      "text": "Its users will no longer be able to sign in and its open elections will be paused. The owner is told by email, with the reason.",
+      "reasonLabel": "Reason for the suspension",
+      "reasonHelp": "Between 3 and 500 characters. The owner will see it.",
+      "reasonRequired": "Give the reason for the suspension.",
+      "reasonShort": "The reason must have at least 3 characters.",
+      "reasonLong": "The reason is too long (500 characters at most).",
+      "confirm": "Suspend"
+    },
+    "reactivateDialog": {
+      "title": "Reactivate {name}?",
+      "text": "Its users will be able to sign in again and its paused elections will resume. The owner is told by email.",
+      "confirm": "Reactivate"
     }
   }
 }
