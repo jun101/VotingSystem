@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { Icon } from '@/components/admin/Icon';
 import { focusRing } from '@/components/admin/classes';
-import { PANEL_ASIDE, Panel } from '@/components/elections/Panel';
+import { Panel } from '@/components/elections/Panel';
 import { RevealList } from '@/components/elections/RevealList';
 import { COVER_ICONS, STATUS_ICONS } from '@/components/elections/statusIcon';
 import { LiveDot } from '@/components/motion';
@@ -665,18 +665,20 @@ export function VotersPage({
             id="voters-codes-title"
             testId="codes-card"
             className="flex-[1_1_20rem] 2xl:flex-none"
-            aside={
-              <span className={PANEL_ASIDE}>
-                <Icon name="lock" size={14} />
-              </span>
-            }
           >
-            <p className="flex items-start gap-2 text-base text-ink-soft">
-              <span className="mt-0.5">
-                <Icon name="lock" size={18} />
-              </span>
-              {t('voters.codes.text')}
-            </p>
+            <p className="text-base text-ink-soft">{t('voters.codes.text')}</p>
+            <Link
+              href={`/admin/elections/${election.id}/codes`}
+              data-testid="codes-card-link"
+              className={cx(
+                "ui-control inline-flex min-h-11 w-fit items-center gap-2 rounded-full bg-primary-soft px-4 text-base font-bold text-primary-hover after:absolute after:inset-0 after:content-[''] hover:bg-primary-line",
+                focusRing,
+              )}
+            >
+              <Icon name="qr" size={18} />
+              {t('voters.codes.open')}
+              <Icon name="open" size={16} />
+            </Link>
           </Panel>
         </aside>
       </div>

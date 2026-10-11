@@ -13,6 +13,13 @@ import type {
 } from './elections';
 import type { NewParty, Party, PartyChanges } from './parties';
 import type {
+  CredentialRun,
+  CredentialState,
+  GeneratedFile,
+  Reissue,
+  RunBody,
+} from './credentials';
+import type {
   GroupList,
   NewVoter,
   Voter,
@@ -950,4 +957,99 @@ export async function cancelImport(id: string): Promise<void> {
   await send((api) =>
     api.DELETE('/v1/voter-imports/{import}', { params: { path: { import: id } } }),
   );
+}
+
+/** `GET /elections/{election}/credentials`: the totals and one line per group (A11). */
+export async function fetchCredentials(election: string): Promise<CredentialState> {
+  const { data } = await send((api) =>
+    api.GET('/v1/elections/{election}/credentials', { params: { path: { election } } }),
+  );
+
+  return data!.data;
+}
+
+/** `GET /elections/{election}/generated-files`: the slip files of an election, newest first. */
+export async function fetchGeneratedFiles(election: string): Promise<GeneratedFile[]> {
+  const { data } = await send((api) =>
+    api.GET('/v1/elections/{election}/generated-files', { params: { path: { election } } }),
+  );
+
+  return data!.data;
+}
+
+/**
+ * `POST /elections/{election}/credential-runs`: gives a code to the voters of the scope who have
+ * none. The answer comes before the work: the files are `queued`. The generated schema has no
+ * body for this route, so the body is sent as it is written in the endpoint file.
+ */
+export async function startCredentialRun(election: string, body: RunBody): Promise<CredentialRun> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/credential-runs', {
+      params: { path: { election } },
+      body: body as never,
+    }),
+  );
+
+  return data!.data;
+}
+
+/**
+ * `POST /voters/{voter}/credential`: a new code for one voter, shown once, with a one-slip file.
+ * The answer is the only place a code is ever sent: the caller shows it and keeps it nowhere.
+ */
+export async function reissueCredential(voter: string): Promise<Reissue> {
+  const { data } = await send((api) =>
+    api.POST('/v1/voters/{voter}/credential', { params: { path: { voter } } }),
+  );
+
+  return data!.data;
+}
+
+/** A downloaded file: the bytes and the name the API gave it. */
+export type DownloadedFile = { blob: Blob; name: string };
+
+/** The file name of a `Content-Disposition` header, or the fallback. */
+export function dispositionName(header: string | null, fallback: string): string {
+  const match = header ? /filename="?([^";]+)"?/i.exec(header) : null;
+
+  return match?.[1] ?? fallback;
+}
+
+/**
+ * `GET /generated-files/{file}/download`: the PDF as bytes, with the name the API sends. Read by
+ * hand (not as a plain link) so a refusal (409, 404, 429) is an `ApiError` the page can say in
+ * words, and no JSON error page replaces the screen.
+ */
+export async function downloadGeneratedFile(file: string): Promise<DownloadedFile> {
+  let response: Response;
+
+  try {
+    response = await fetch(
+      `${apiBaseUrl()}/v1/generated-files/${encodeURIComponent(file)}/download`,
+      {
+        credentials: 'same-origin',
+        cache: 'no-store',
+        headers: { Accept: 'application/pdf, application/json', 'Accept-Language': pageLanguage() },
+      },
+    );
+  } catch {
+    throw new ApiError(0, 'network');
+  }
+
+  if (!response.ok) {
+    let answer: unknown = null;
+
+    try {
+      answer = await response.json();
+    } catch {
+      // Not JSON: an `unknown` error.
+    }
+
+    throw parseApiError(response.status, answer, response.headers.get('Retry-After'));
+  }
+
+  return {
+    blob: await response.blob(),
+    name: dispositionName(response.headers.get('Content-Disposition'), 'coupons.pdf'),
+  };
 }

@@ -528,6 +528,7 @@ export function ElectionSummary({ election: given }: { election: Election }) {
               headerTestId="election-card-header-steps"
               ballotsHref={`/admin/elections/${election.id}/ballots`}
               votersHref={`/admin/elections/${election.id}/voters`}
+              codesHref={`/admin/elections/${election.id}/codes`}
             />
           </div>
         </div>

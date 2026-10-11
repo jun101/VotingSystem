@@ -18,8 +18,8 @@ const STEPS = [
 /**
  * The four steps after the draft (ballots, voters, scheduling, codes). On the form they are a
  * reminder, in a list; on the summary page, where `soon` is set, they are a path of four coloured
- * circles joined by dotted lines, each saying it is not available yet (they open in the next
- * slices).
+ * circles joined by dotted lines; a step with an address is a link, the others say they are not
+ * available yet.
  */
 export function NextSteps({
   soon = false,
@@ -27,6 +27,7 @@ export function NextSteps({
   headerTestId,
   ballotsHref,
   votersHref,
+  codesHref,
 }: {
   soon?: boolean;
   title: string;
@@ -35,6 +36,8 @@ export function NextSteps({
   ballotsHref?: string;
   /** The same for the second step (the voters). */
   votersHref?: string;
+  /** The same for the fourth step (the access codes). */
+  codesHref?: string;
 }) {
   const { t } = useI18n();
 
@@ -63,7 +66,13 @@ export function NextSteps({
       >
         {STEPS.map((step, index) => {
           const href =
-            step.key === 'ballots' ? ballotsHref : step.key === 'voters' ? votersHref : undefined;
+            step.key === 'ballots'
+              ? ballotsHref
+              : step.key === 'voters'
+                ? votersHref
+                : step.key === 'codes'
+                  ? codesHref
+                  : undefined;
 
           return soon ? (
             href ? (
