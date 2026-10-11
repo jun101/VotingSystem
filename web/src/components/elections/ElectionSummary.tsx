@@ -368,6 +368,11 @@ export function ElectionSummary({ election: given }: { election: Election }) {
             <button
               type="button"
               disabled={busy || controls.scheduleDisabled}
+              // Firefox gives a button back the state it had before a reload (enabled, once the checklist
+              // had loaded) before React hydrates: `autoComplete` off stops that, and the warning is
+              // silenced for the case where it still happens (the next render sets the right state).
+              {...{ autoComplete: 'off' }}
+              suppressHydrationWarning
               onClick={() => setScheduling(true)}
               data-testid="election-schedule-button"
               className={cx(ACTION, 'border border-surface bg-surface font-bold text-deep')}
