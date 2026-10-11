@@ -27,6 +27,51 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The audit log
+         * @description The entries of the institution, newest first, 50 per page (1 to 100). Filters: `action` (a code, or a
+         *     family prefix ending with a dot), `election`, `user` (a uuid, or `system` for the scheduler), `from` and
+         *     `to` (`YYYY-MM-DD`, UTC, inclusive); one that names nothing gives an empty list. Entries of other
+         *     institutions and of the platform never appear. Owner only. The shared API limit.
+         */
+        get: operations["audit.index"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/audit/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export the audit log
+         * @description An Excel or CSV file of the entries the same filters select, newest first, at most 10 000, written as a
+         *     stream: date (UTC), action code, person, election, subject, details as compact JSON, address. Every text
+         *     cell is guarded against formulas. Owner only. Limited to 20 requests per hour per user.
+         */
+        get: operations["audit.export"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/elections/{election}/ballots": {
         parameters: {
             query?: never;
@@ -2439,6 +2484,105 @@ export interface operations {
                                 type: "school" | "university" | "association" | "other";
                             } | null;
                         };
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "audit.index": {
+        parameters: {
+            query?: {
+                action?: string | null;
+                election?: string | null;
+                user?: string | null;
+                from?: string | null;
+                to?: string | null;
+                page?: number;
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            action: string;
+                            actor: {
+                                id: string | null;
+                                name: string;
+                            };
+                            election: {
+                                id: string;
+                                title: string;
+                            } | null;
+                            subject: {
+                                type: string;
+                                id: string;
+                            } | null;
+                            details: {
+                                [key: string]: unknown;
+                            };
+                            ip_address: string | null;
+                            created_at: string;
+                        }[];
+                        meta: {
+                            page: number;
+                            per_page: number;
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "audit.export": {
+        parameters: {
+            query: {
+                action?: string | null;
+                election?: string | null;
+                user?: string | null;
+                from?: string | null;
+                to?: string | null;
+                format: "xlsx" | "csv";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": 200;
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            /** @description An error */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
                     };
                 };
             };

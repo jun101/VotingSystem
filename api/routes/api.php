@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Audit\AuditController;
 use App\Http\Controllers\Auth\AcceptInvitationController;
 use App\Http\Controllers\Auth\CsrfController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -123,6 +124,12 @@ Route::prefix('v1')->group(function (): void {
             Route::post('/invitations', [InvitationController::class, 'store'])->middleware('throttle:invitations-create');
             Route::delete('/invitations/{invitation}', [InvitationController::class, 'destroy']);
         });
+    });
+
+    // The audit log (slice 17): the owner reads and exports the institution's entries. The file is limited to 20 an hour per user.
+    Route::middleware(['cookie-session', 'auth', 'institution.active', 'owner'])->prefix('audit')->group(function (): void {
+        Route::get('/', [AuditController::class, 'index']);
+        Route::get('/export', [AuditController::class, 'export'])->middleware('throttle:audit-export');
     });
 
     // The institution's home page (slice 14): 120 reads a minute per user, shared with the turnout.

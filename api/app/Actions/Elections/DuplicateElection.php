@@ -6,6 +6,7 @@ use App\Models\Ballot;
 use App\Models\Candidate;
 use App\Models\Election;
 use App\Models\Party;
+use App\Support\Audit\AuditLog;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -69,6 +70,8 @@ final class DuplicateElection
             if ($copyCandidates) {
                 $this->copyCandidates($source, $copy, $ballotIds, $partyIds);
             }
+
+            AuditLog::record('election.duplicated', $copy, ['title' => $copy->title]);
 
             return $copy;
         });

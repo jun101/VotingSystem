@@ -2694,5 +2694,96 @@
       "elected": "Élu(e)s"
     },
     "institutionLabel": "Établissement"
+  },
+  "audit": {
+    "lede": "Qui a fait quoi, quand et depuis quelle adresse. Le journal ne peut ni être modifié ni être effacé.",
+    "list": "Entrées du journal",
+    "count": {
+      "one": "{count} entrée",
+      "other": "{count} entrées"
+    },
+    "filters": {
+      "title": "Filtres",
+      "action": "Type d’action",
+      "actionAll": "Toutes les actions",
+      "election": "Élection",
+      "electionAll": "Toutes les élections",
+      "user": "Personne",
+      "userAll": "Toutes les personnes",
+      "from": "Du",
+      "to": "Au",
+      "clear": "Effacer les filtres"
+    },
+    "families": {
+      "auth": "Connexions",
+      "election": "Élections",
+      "second_round": "Seconds tours",
+      "voters": "Imports d’électeurs",
+      "voter": "Électeurs",
+      "credentials": "Codes d’accès"
+    },
+    "actions": {
+      "auth": {
+        "sign_in": "Connexion"
+      },
+      "election": {
+        "created": "Élection créée",
+        "duplicated": "Élection dupliquée",
+        "updated": "Élection modifiée",
+        "times_changed": "Dates de l’élection modifiées",
+        "scheduled": "Élection planifiée",
+        "unscheduled": "Planification annulée",
+        "opened": "Élection ouverte",
+        "closed": "Élection clôturée",
+        "extended": "Fin de l’élection repoussée",
+        "published": "Résultats publiés",
+        "unpublished": "Publication retirée",
+        "archived": "Élection archivée",
+        "unarchived": "Élection désarchivée",
+        "deleted": "Brouillon supprimé"
+      },
+      "second_round": {
+        "created": "Second tour créé"
+      },
+      "voters": {
+        "imported": "Électeurs importés"
+      },
+      "voter": {
+        "created": "Électeur ajouté",
+        "updated": "Électeur modifié",
+        "deleted": "Électeur supprimé"
+      },
+      "credentials": {
+        "generated": "Codes générés",
+        "reissued": "Code réémis",
+        "downloaded": "Codes téléchargés",
+        "emailed": "Codes envoyés par courriel"
+      }
+    },
+    "system": "Planificateur automatique",
+    "by": "Par {name}",
+    "noElection": "Sans élection",
+    "ip": "Adresse {address}",
+    "time": "{day} à {time}",
+    "utc": "{instant} UTC",
+    "more": "Afficher plus",
+    "moreCount": "{shown} sur {total} affichées",
+    "loading": "Chargement…",
+    "loadFailed": "Le journal n’a pas pu être lu.",
+    "empty": {
+      "title": "Aucune entrée",
+      "text": "Aucune action enregistrée ne correspond à ces filtres."
+    },
+    "export": {
+      "title": "Exporter",
+      "csv": "Exporter en CSV",
+      "xlsx": "Exporter en Excel",
+      "failed": "L’export a échoué."
+    },
+    "notOwner": {
+      "title": "Réservé au propriétaire",
+      "text": "Seul un propriétaire de l’établissement peut lire le journal d’activité.",
+      "back": "Retour au tableau de bord"
+    }
   }
 }

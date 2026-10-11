@@ -7,7 +7,7 @@ The institution's audit log, newest first.
 | Slice | 17 |
 | Requirements | FR-AUD-01, FR-AUD-02, FR-AUD-03 |
 | Caller | Institution **owner** (a manager answers 403 `forbidden`) |
-| Rate limit | The shared API limit |
+| Rate limit | None (like the other list reads) |
 
 ## Request
 
@@ -59,3 +59,11 @@ Query:
 and for an entry whose election was deleted (the title is then in `details.title`). `subject` is `null` when there is
 none. `details` is an object, `{}` when empty. Entries of other institutions, and of the platform, never appear. No
 numeric id, no code, no hash, no vote.
+
+## Notes
+
+- `user=system` matches the entries written by the scheduler only. `election` matches entries by the election that
+  still exists: the entry of a deleted election is found through `action=election.deleted` or the date filters.
+- Registration and the acceptance of an invitation start a session but are not recorded as `auth.sign_in`.
+- `voters.imported` is written when the import is confirmed (`count` the valid rows, `skipped` the others), and also
+  when voters are copied from another election (`details.source` `copy`).

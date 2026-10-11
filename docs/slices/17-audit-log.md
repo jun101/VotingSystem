@@ -44,12 +44,12 @@ export), NFR-SEC-08, NFR-UX-02, NFR-UX-03.
 | `election.published`, `election.unpublished`, `election.archived`, `election.unarchived` | Slice 16 actions | election | `{display}` for published |
 | `election.deleted` | A draft deleted | election (uuid kept) | `{title}` |
 | `second_round.created` | Slice 15 | election (new) | `{from: <uuid>, ballot: <uuid>}` |
-| `voters.imported` | An import is confirmed | election | `{count, skipped}` |
+| `voters.imported` | An import is confirmed, or voters are copied from another election (`POST /elections/{election}/voter-copies`, `details.source` `copy`) | election | `{count, skipped}` |
 | `voter.created`, `voter.updated`, `voter.deleted` | A voter is added, edited, deleted | voter | `{name}` (+ `fields` for updated) |
 | `credentials.generated` | A run is queued | election | `{scope, count}` |
 | `credentials.reissued` | A code is reissued | voter | `{name}` |
 | `credentials.downloaded` | A slips PDF or a codes file is downloaded | generated file | `{kind}` |
-| `credentials.emailed` | An email run is queued | election | `{count}` |
+| `credentials.emailed` | An email run is queued (subject the election), or a reissue sends one email (subject the voter, `count` 1) | election or voter | `{count}` |
 
 ## Endpoints
 

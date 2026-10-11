@@ -8,6 +8,7 @@ use App\Http\Resources\GeneratedFileResource;
 use App\Models\Election;
 use App\Models\GeneratedFile;
 use App\Models\Voter;
+use App\Support\Audit\AuditLog;
 use App\Support\Credentials\SlipFileName;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -121,6 +122,9 @@ class GeneratedFileController extends Controller
             GeneratedFile::KIND_CODES_CSV => [SlipFileName::codes($file->group?->name, 'csv', $file->ungrouped), 'text/csv; charset=UTF-8'],
             default => [SlipFileName::for($file->group?->name, $file->part, $file->parts), 'application/pdf'],
         };
+
+        // The kind of file only: never the content.
+        AuditLog::record('credentials.downloaded', $file, ['kind' => $file->kind], $election);
 
         // The user and file UUIDs and the count: never the content.
         Log::info('credentials.download', [

@@ -9,4 +9,9 @@ return [
         'yes' => 'Yes',
         'no' => 'No',
     ],
+    // The audit log (docs/api/audit/GET-audit-export.md).
+    'audit' => [
+        'sheet' => 'Audit log',
+        'columns' => ['When (UTC)', 'Action', 'Person', 'Election', 'Subject', 'Details', 'IP address'],
+    ],
 ];
