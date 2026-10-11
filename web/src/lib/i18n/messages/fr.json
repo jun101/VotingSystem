@@ -12,12 +12,181 @@
       "online": "En ligne",
       "offline": "Hors ligne",
       "unavailable": "Indisponible",
-      "unknown": "Inconnu"
+      "unknown": "Inconnu",
+      "overallOk": "Système en ligne",
+      "overallDown": "Système partiellement hors ligne",
+      "overallUnknown": "État du système inconnu"
+    },
+    "nav": {
+      "label": "Navigation principale",
+      "home": "Accueil",
+      "how": "Comment ça marche",
+      "security": "Sécurité",
+      "faq": "Questions",
+      "signIn": "Se connecter",
+      "create": "Créer une élection",
+      "menu": "Menu",
+      "close": "Fermer le menu"
     },
     "hero": {
-      "pill": "Élections en ligne",
-      "accent": "Voting",
-      "lede": "Des élections sûres pour les écoles et les institutions, en français et en anglais."
+      "pill": "Élections en ligne pour les écoles",
+      "title": "Votez simplement,",
+      "accent": "en secret.",
+      "lede": "Importez vos électeurs, remettez un code à chacun, et suivez la participation en direct. Le vote reste secret, les résultats sont publiés à la clôture.",
+      "create": "Créer une élection",
+      "how": "Comment ça marche"
+    },
+    "art": {
+      "secret": "Vote à bulletin secret",
+      "phone": "100 % en ligne, sur téléphone",
+      "ballot": "Président(e) du conseil des élèves",
+      "one": "Marie-Claire Pierre",
+      "two": "Jean Baptiste",
+      "three": "Nadège Louis",
+      "blank": "Vote blanc"
+    },
+    "voter": {
+      "title": "Je suis électeur",
+      "text": "Collez le lien de vote reçu sur votre fiche ou par courriel.",
+      "label": "Lien de vote ou adresse de l’élection",
+      "placeholder": "https://…/vote/…",
+      "button": "Voter",
+      "error": "Ce lien n’est pas valide. Collez le lien complet reçu sur votre fiche ou dans votre courriel."
+    },
+    "organiser": {
+      "title": "J’organise une élection",
+      "text": "Créez l’élection, importez les électeurs, imprimez les codes.",
+      "signIn": "Se connecter",
+      "register": "Créer un compte"
+    },
+    "features": {
+      "title": "Ce qui fait la différence",
+      "secret": {
+        "head": "Vote secret",
+        "title": "Personne ne voit votre choix",
+        "text": "Aucun lien entre un électeur et son vote."
+      },
+      "slips": {
+        "head": "Fiches imprimées",
+        "title": "Un code par électeur",
+        "text": "Fiches PDF, courriel ou fichier Excel."
+      },
+      "live": {
+        "head": "Participation en direct",
+        "title": "Qui a voté, pas pour qui",
+        "text": "Suivez la participation par groupe."
+      },
+      "results": {
+        "head": "Résultats publics",
+        "title": "Publiés à la clôture",
+        "text": "Égalités signalées, second tour possible."
+      }
+    },
+    "about": {
+      "eyebrow": "À propos",
+      "title": "Des élections en lesquelles on peut avoir confiance",
+      "lead": "Conçu pour les écoles et les institutions : simple pour l’organisateur, clair pour l’électeur, vérifiable par tous. Français et anglais.",
+      "more": "En savoir plus",
+      "image": "Image : école, salle de classe ou élèves qui votent",
+      "statFigure": "100 %",
+      "statText": "des votes restent secrets"
+    },
+    "offer": {
+      "eyebrow": "Ce que nous offrons",
+      "title": "Tout ce qu’il faut, de l’import aux résultats",
+      "import": {
+        "title": "Import des électeurs",
+        "text": "Excel ou CSV, contrôle ligne par ligne, groupes créés pour vous."
+      },
+      "codes": {
+        "title": "Codes et courriels",
+        "text": "Fiche, courriel ou fichier : choisissez à la génération."
+      },
+      "page": {
+        "title": "Page de vote",
+        "text": "Bulletin avec photos, prêt pour le téléphone, en deux langues."
+      },
+      "results": {
+        "title": "Résultats",
+        "text": "Pourcentages, égalités, second tour en un clic."
+      }
+    },
+    "band": {
+      "title": "Chaque voix compte",
+      "text": "Lancez votre première élection en quelques minutes.",
+      "action": "Commencer",
+      "chip": "Un électeur, un vote"
+    },
+    "steps": {
+      "eyebrow": "Comment ça marche",
+      "title": "Quatre étapes",
+      "import": {
+        "title": "Importer",
+        "text": "Déposez la liste des électeurs."
+      },
+      "codes": {
+        "title": "Remettre les codes",
+        "text": "Imprimez les fiches ou envoyez par courriel."
+      },
+      "vote": {
+        "title": "Voter",
+        "text": "Chacun vote une fois, en secret."
+      },
+      "results": {
+        "title": "Résultats",
+        "text": "Publiés à la clôture du scrutin."
+      }
+    },
+    "trust": {
+      "eyebrow": "Confiance",
+      "title": "Pensé pour être sûr",
+      "secret": {
+        "title": "Secret par conception",
+        "text": "Aucun vote n’est lié à un électeur."
+      },
+      "once": {
+        "title": "Un vote par électeur",
+        "text": "Verrouillé côté serveur."
+      },
+      "languages": {
+        "title": "Français et anglais",
+        "text": "Choisis par l’élection."
+      },
+      "audit": {
+        "title": "Journal d’audit",
+        "text": "Chaque action est tracée."
+      }
+    },
+    "faq": {
+      "account": {
+        "q": "Mes électeurs ont-ils besoin d’un compte ?",
+        "a": "Non. Un code personnel suffit."
+      },
+      "phone": {
+        "q": "Peut-on voter depuis un téléphone ?",
+        "a": "Oui, la page est pensée pour le téléphone."
+      },
+      "tie": {
+        "q": "Que se passe-t-il en cas d’égalité ?",
+        "a": "Elle est signalée ; un second tour est possible."
+      },
+      "results": {
+        "q": "Qui voit les résultats ?",
+        "a": "Personne avant la clôture, puis la page publique."
+      }
+    },
+    "closing": {
+      "title": "Prêt à organiser votre élection ?",
+      "create": "Créer une élection",
+      "signIn": "Se connecter"
+    },
+    "footer": {
+      "tagline": "Élections en ligne, simples et secrètes, pour les écoles et les institutions.",
+      "product": "Produit",
+      "account": "Compte",
+      "contact": "Contact",
+      "email": "contact@exemple.ht",
+      "copy": "© {year} New Voting System"
     }
   },
   "notFound": {

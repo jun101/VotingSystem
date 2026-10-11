@@ -33,6 +33,27 @@
     );
   }
 
+  /* The dark band of the home page. */
+  .bg-band {
+    background-image: linear-gradient(
+      120deg,
+      var(--color-deep) 0%,
+      var(--color-status-published) 60%,
+      var(--color-hero-mid) 100%
+    );
+  }
+
+  /* The place held for a picture that is not there yet (see `ImageSlot`). */
+  .bg-stripes {
+    background-image: repeating-linear-gradient(
+      135deg,
+      var(--color-primary-soft) 0,
+      var(--color-primary-soft) 14px,
+      var(--color-surface-alt) 14px,
+      var(--color-surface-alt) 28px
+    );
+  }
+
   .bg-panel {
     background-image: linear-gradient(180deg, var(--color-panel-from), var(--color-panel-to));
   }

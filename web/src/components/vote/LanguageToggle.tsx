@@ -4,17 +4,18 @@ import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { cx } from '@/components/ui/cx';
 import { useI18n } from '@/lib/i18n/client';
-import { rememberVoteLocale, type Locale } from '@/lib/i18n/locale';
+import { rememberLocale, rememberVoteLocale, type Locale } from '@/lib/i18n/locale';
 
 const FOCUS =
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-light';
 
 /**
  * FR and EN on every voting screen. The choice is a session cookie of this election's pages only (a language, nothing about the voter), forgotten with the voting session;
- * the page is then rendered again by the server in that language. Choices already made stay: they
+ * the page is then rendered again by the server in that language. With `site`, it is the site-wide choice
+ * (the `locale` cookie, a year) of the public home page. Choices already made stay: they
  * live in the page's state, not in the render.
  */
-export function LanguageToggle() {
+export function LanguageToggle({ site = false }: { site?: boolean }) {
   const { locale, t } = useI18n();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -22,7 +23,8 @@ export function LanguageToggle() {
   function choose(next: Locale) {
     if (next === locale) return;
 
-    rememberVoteLocale(next);
+    if (site) rememberLocale(next);
+    else rememberVoteLocale(next);
     startTransition(() => router.refresh());
   }
 
@@ -31,13 +33,13 @@ export function LanguageToggle() {
       locale: 'fr',
       short: t('vote.language.frShort'),
       name: t('vote.language.fr'),
-      testId: 'vote-language-fr',
+      testId: `${site ? 'home' : 'vote'}-language-fr`,
     },
     {
       locale: 'en',
       short: t('vote.language.enShort'),
       name: t('vote.language.en'),
-      testId: 'vote-language-en',
+      testId: `${site ? 'home' : 'vote'}-language-en`,
     },
   ];
 
