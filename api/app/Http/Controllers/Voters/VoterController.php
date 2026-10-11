@@ -15,6 +15,7 @@ use App\Models\VoterGroup;
 use App\Support\Voters\GroupByName;
 use Dedoc\Scramble\Attributes\Response;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\QueryException;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response as HttpResponse;
@@ -200,18 +201,27 @@ class VoterController extends Controller
 
         $this->electionOf($voter)->assertVotersDeletable();
 
-        DB::transaction(function () use ($voter): void {
-            $locked = $this->lockElection($this->electionOf($voter), editable: false);
-            $locked->assertVotersDeletable();
+        try {
+            DB::transaction(function () use ($voter): void {
+                $locked = $this->lockElection($this->electionOf($voter), editable: false);
+                $locked->assertVotersDeletable();
 
-            $row = Voter::query()->whereKey($voter->getKey())->lockForUpdate()->first();
+                $row = Voter::query()->whereKey($voter->getKey())->lockForUpdate()->first();
 
-            if ($row === null) {
-                throw new ApiException(404, 'not_found');
+                if ($row === null) {
+                    throw new ApiException(404, 'not_found');
+                }
+
+                $row->delete();
+            });
+        } catch (QueryException $e) {
+            // A voter who voted is held by the database (1451, `participations` restricts it): a refusal, not a fault.
+            if (($e->errorInfo[1] ?? null) === 1451) {
+                throw new ApiException(409, 'election_voters_locked');
             }
 
-            $row->delete();
-        });
+            throw $e;
+        }
 
         Log::info('voter.delete', ['outcome' => 'deleted']);
 

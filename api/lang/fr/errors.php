@@ -51,4 +51,10 @@ return [
     'election_codes_locked' => 'Les codes ne peuvent plus être générés ni remplacés pour cette élection.',
     'file_not_ready' => 'Ce fichier n’est pas prêt.',
     'voter_has_voted' => 'Cet électeur a déjà voté: son code ne peut pas être remplacé.',
+    'invalid_code' => 'Ce code n’est pas valide. Vérifiez-le et réessayez.',
+    'already_voted' => 'Ce code a déjà servi à voter.',
+    'election_not_open' => 'Cette élection n’est pas ouverte au vote en ce moment.',
+    'voter_session_expired' => 'Votre session est terminée. Saisissez à nouveau votre code.',
+    'choices_invalid' => 'Vos choix ne sont pas valides pour ce scrutin. Vérifiez-les et réessayez.',
+    'ballots_mismatch' => 'Les scrutins envoyés ne sont pas ceux sur lesquels vous pouvez voter. Rechargez la page et réessayez.',
 ];

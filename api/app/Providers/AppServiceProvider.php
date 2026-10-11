@@ -75,6 +75,22 @@ class AppServiceProvider extends ServiceProvider
         $this->configureAuthRateLimiters();
         $this->configureTeamRateLimiters();
         $this->configureElectionRateLimiters();
+        $this->configureVoteRateLimiters();
+    }
+
+    /**
+     * The public reads of the voting routes (docs/api/vote/): per address and election, high
+     * because a class sits behind one address. The wrong-code and submit limits are counted by the
+     * controllers (failures only, per session): see config/votes.php.
+     */
+    private function configureVoteRateLimiters(): void
+    {
+        RateLimiter::for('vote-public', function (Request $request) {
+            $election = $request->route('election');
+
+            return Limit::perMinute(Config::integer('votes.public_per_minute') * Config::integer('auth.rate_limit_factor'))
+                ->by('vote-public:'.(is_string($election) ? $election : '-').':'.hash('sha256', (string) $request->ip()));
+        });
     }
 
     /**

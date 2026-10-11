@@ -48,7 +48,7 @@ The voter's name and group, and the ballots they are eligible for with their can
             "sex": "female",
             "slogan": "Une école qui nous écoute",
             "biography": null,
-            "photo": "/media/5b0e7c1a-3d2f-4e58-9a61-0c7d4b2e8f13-md.webp",
+            "photo": "/media/5b0e7c1a-3d2f-4e58-9a61-0c7d4b2e8f13-480.webp",
             "party": { "name": "Avenir Étudiant", "acronym": "AE", "colour": "#5468D4", "logo": null }
           }
         ]

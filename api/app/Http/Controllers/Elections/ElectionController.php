@@ -25,6 +25,7 @@ use App\Models\Voter;
 use App\Models\VoterImport;
 use App\Support\Media\ImageReEncoder;
 use Dedoc\Scramble\Attributes\Response;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\DB;
@@ -157,33 +158,42 @@ class ElectionController extends Controller
         $imports = [];
         $slips = [];
 
-        DB::transaction(function () use ($election, &$cover, &$photos, &$logos, &$imports, &$slips): void {
-            // The state is read again under the lock: a change that landed meanwhile counts.
-            $locked = Election::query()->whereKey($election->getKey())->lockForUpdate()->first();
+        try {
+            DB::transaction(function () use ($election, &$cover, &$photos, &$logos, &$imports, &$slips): void {
+                // The state is read again under the lock: a change that landed meanwhile counts.
+                $locked = Election::query()->whereKey($election->getKey())->lockForUpdate()->first();
 
-            if ($locked === null) {
-                throw new ApiException(404, 'not_found');
+                if ($locked === null) {
+                    throw new ApiException(404, 'not_found');
+                }
+
+                $locked->assertEditable('election_not_deletable');
+                $cover = $locked->cover_file;
+                // Candidate photos and party logos go with the election (the rows by cascade, the
+                // files after the commit).
+                $photos = Candidate::query()->where('election_id', $locked->id)->whereNotNull('photo_file')->pluck('photo_file')->all();
+                $logos = Party::query()->where('election_id', $locked->id)->whereNotNull('logo_file')->pluck('logo_file')->all();
+                // The uploaded voter files go with it (the import rows by cascade, the files after the commit).
+                $imports = VoterImport::query()->where('election_id', $locked->id)->pluck('stored_file')->all();
+                // The slip files go with it (the rows by cascade, the stored copies after the commit).
+                $slips = GeneratedFile::query()->where('election_id', $locked->id)->whereNotNull('stored_file')->pluck('stored_file')->all();
+                // The voters go before the election: a group with voters is restricted, and the cascade
+                // from the election may reach the groups first.
+                // The ballots' group links go first too: the link restricts the deletion of a group.
+                DB::table('ballot_voter_group')
+                    ->whereIn('ballot_id', Ballot::query()->where('election_id', $locked->id)->select('id'))
+                    ->delete();
+                Voter::query()->where('election_id', $locked->id)->delete();
+                $locked->delete();
+            });
+        } catch (QueryException $e) {
+            // An election that holds votes, or a voter who voted, is held by the database (1451): a refusal, not a fault.
+            if (($e->errorInfo[1] ?? null) === 1451) {
+                throw new ApiException(409, 'election_not_deletable');
             }
 
-            $locked->assertEditable('election_not_deletable');
-            $cover = $locked->cover_file;
-            // Candidate photos and party logos go with the election (the rows by cascade, the
-            // files after the commit).
-            $photos = Candidate::query()->where('election_id', $locked->id)->whereNotNull('photo_file')->pluck('photo_file')->all();
-            $logos = Party::query()->where('election_id', $locked->id)->whereNotNull('logo_file')->pluck('logo_file')->all();
-            // The uploaded voter files go with it (the import rows by cascade, the files after the commit).
-            $imports = VoterImport::query()->where('election_id', $locked->id)->pluck('stored_file')->all();
-            // The slip files go with it (the rows by cascade, the stored copies after the commit).
-            $slips = GeneratedFile::query()->where('election_id', $locked->id)->whereNotNull('stored_file')->pluck('stored_file')->all();
-            // The voters go before the election: a group with voters is restricted, and the cascade
-            // from the election may reach the groups first.
-            // The ballots' group links go first too: the link restricts the deletion of a group.
-            DB::table('ballot_voter_group')
-                ->whereIn('ballot_id', Ballot::query()->where('election_id', $locked->id)->select('id'))
-                ->delete();
-            Voter::query()->where('election_id', $locked->id)->delete();
-            $locked->delete();
-        });
+            throw $e;
+        }
 
         $images->delete($cover, ImageReEncoder::COVER_SIZES);
 
