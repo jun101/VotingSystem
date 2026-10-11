@@ -1986,15 +1986,31 @@
       "empty": "Enter your code to continue."
     },
     "before": {
-      "heading": "Voting opens soon",
-      "text": "Come back at the time shown: the code field will appear here as soon as voting opens.",
-      "opensAt": "Opens: {when}",
+      "heading": "Your election is not open yet",
+      "text": "Everything is ready on our side. The code field will appear here as soon as voting opens, with no need to reload the page.",
       "days": "days",
       "hours": "hours",
       "minutes": "minutes",
       "seconds": "seconds",
       "soon": "Opening is imminent, the page updates by itself.",
-      "countdown": "Opens in {days} d {hours} h {minutes} min {seconds} s"
+      "countdown": "Opens in {days} d {hours} h {minutes} min {seconds} s",
+      "status": "Not open yet",
+      "countdownTitle": "Opens in",
+      "whenTitle": "Voting dates",
+      "zone": "Time in {zone}",
+      "nextTitle": "On voting day",
+      "step1Title": "Find your code",
+      "step1Text": "It is on your slip or in your personal link.",
+      "step2Title": "Enter it here",
+      "step2Text": "The field appears when voting opens.",
+      "step3Title": "Choose",
+      "step3Text": "One candidate per position, or a blank vote if you prefer.",
+      "step4Title": "Confirm",
+      "step4Text": "Review your choices, then confirm: you are done.",
+      "secretTitle": "Your vote will stay secret",
+      "secretText": "No one will be able to link your name to your choices, not even the organiser.",
+      "readyTitle": "Keep your code within reach",
+      "readyText": "Keep your slip or your personal link ready. This page updates by itself: you can leave it open."
     },
     "closed": {
       "heading": "Voting has ended",
@@ -2069,6 +2085,20 @@
       "leave": "You can close this page.",
       "secretTitle": "What happens next?",
       "secretText": "The organisers will publish the results after voting closes."
+    },
+    "unavailable": {
+      "cardTitle": "No vote at this address",
+      "kicker": "Online voting",
+      "title": "This election is not available",
+      "text": "The address you opened does not lead to a vote at the moment.",
+      "whatTitle": "What you can do",
+      "check": "Check the address",
+      "checkText": "Open the link you received again, or copy it in full.",
+      "ask": "Ask the organiser",
+      "askText": "They can confirm the address and the date of the vote.",
+      "home": "Back to the home page",
+      "homeText": "You can also start again from the home page.",
+      "secure": "No vote has been recorded here."
     }
   }
 }

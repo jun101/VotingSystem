@@ -7,7 +7,7 @@ import { Button, Input, Notice } from '@/components/ui';
 import { ApiError, waitText } from '@/lib/api/errors';
 import { openSession, VoteError, type VotePhase } from '@/lib/api/vote';
 import { useI18n } from '@/lib/i18n/client';
-import { Countdown } from './Countdown';
+import { BeforeMain, BeforeRail } from './BeforeOpening';
 import { VoteCard } from './VoteCard';
 import { useVote } from './VoteProvider';
 import { VoteShell } from './VoteShell';
@@ -19,7 +19,7 @@ type Problem = { text: string; onField: boolean };
 export function CodeEntry() {
   const { t, tIfAny, locale } = useI18n();
   const router = useRouter();
-  const { election, info, notice, setPhase, reloadInfo } = useVote();
+  const { election, info, notice, setPhase } = useVote();
   const [code, setCode] = useState('');
   const [problem, setProblem] = useState<Problem | null>(null);
   const [busy, setBusy] = useState(false);
@@ -131,16 +131,7 @@ export function CodeEntry() {
   let main;
 
   if (info.phase === 'before') {
-    main = (
-      <VoteCard tone="getting-started" icon="clock" title={t('vote.before.heading')}>
-        <p className="text-md text-ink-2">{t('vote.before.text')}</p>
-        <Countdown target={info.starts_at} onDue={reloadInfo} />
-        <p className="flex items-center gap-2 text-base font-medium text-ink-soft">
-          <Icon name="calendar" size={18} />
-          {t('vote.before.opensAt', { when: starts })}
-        </p>
-      </VoteCard>
-    );
+    main = <BeforeMain />;
   } else if (info.phase === 'closed') {
     main = (
       <VoteCard
@@ -214,45 +205,49 @@ export function CodeEntry() {
     <VoteShell hero={hero} live testId="vote-page">
       <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
         <div className="min-w-0">{main}</div>
-        <div className="flex min-w-0 flex-col gap-4">
-          <VoteCard tone="latest" icon="calendar" title={t('vote.code.periodTitle')}>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex min-w-0 flex-col gap-1 rounded-md bg-primary-soft p-3">
-                <span className="text-sm font-medium text-ink-2">{t('vote.period.start')}</span>
-                <span className="text-base font-bold text-ink">{starts}</span>
+        {info.phase === 'before' ? (
+          <BeforeRail />
+        ) : (
+          <div className="flex min-w-0 flex-col gap-4">
+            <VoteCard tone="latest" icon="calendar" title={t('vote.code.periodTitle')}>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex min-w-0 flex-col gap-1 rounded-md bg-primary-soft p-3">
+                  <span className="text-sm font-medium text-ink-2">{t('vote.period.start')}</span>
+                  <span className="text-base font-bold text-ink">{starts}</span>
+                </div>
+                <div className="flex min-w-0 flex-col gap-1 rounded-md bg-warm-softer p-3">
+                  <span className="text-sm font-medium text-ink-2">{t('vote.period.end')}</span>
+                  <span className="text-base font-bold text-ink">{ends}</span>
+                </div>
               </div>
-              <div className="flex min-w-0 flex-col gap-1 rounded-md bg-warm-softer p-3">
-                <span className="text-sm font-medium text-ink-2">{t('vote.period.end')}</span>
-                <span className="text-base font-bold text-ink">{ends}</span>
-              </div>
-            </div>
-          </VoteCard>
-          <VoteCard tone="figures" icon="log" title={t('vote.code.secretTitle')}>
-            <p className="text-md text-ink-2">{t('vote.code.secretText')}</p>
-          </VoteCard>
-          <VoteCard tone="activity" icon="list" title={t('vote.code.howTitle')}>
-            <ol className="flex flex-col gap-3">
-              {([1, 2, 3] as const).map((step) => (
-                <li key={step} className="flex items-start gap-3">
-                  <span
-                    aria-hidden="true"
-                    className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary-soft font-display text-base font-extrabold text-primary-hover"
-                  >
-                    {step}
-                  </span>
-                  <span className="flex min-w-0 flex-col">
-                    <span className="font-semibold text-ink">
-                      {t(`vote.code.step${step}Title`)}
+            </VoteCard>
+            <VoteCard tone="figures" icon="log" title={t('vote.code.secretTitle')}>
+              <p className="text-md text-ink-2">{t('vote.code.secretText')}</p>
+            </VoteCard>
+            <VoteCard tone="activity" icon="list" title={t('vote.code.howTitle')}>
+              <ol className="flex flex-col gap-3">
+                {([1, 2, 3] as const).map((step) => (
+                  <li key={step} className="flex items-start gap-3">
+                    <span
+                      aria-hidden="true"
+                      className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary-soft font-display text-base font-extrabold text-primary-hover"
+                    >
+                      {step}
                     </span>
-                    <span className="text-base text-ink-soft">
-                      {t(`vote.code.step${step}Text`)}
+                    <span className="flex min-w-0 flex-col">
+                      <span className="font-semibold text-ink">
+                        {t(`vote.code.step${step}Title`)}
+                      </span>
+                      <span className="text-base text-ink-soft">
+                        {t(`vote.code.step${step}Text`)}
+                      </span>
                     </span>
-                  </span>
-                </li>
-              ))}
-            </ol>
-          </VoteCard>
-        </div>
+                  </li>
+                ))}
+              </ol>
+            </VoteCard>
+          </div>
+        )}
       </div>
     </VoteShell>
   );

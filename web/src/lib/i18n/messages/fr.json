@@ -1986,15 +1986,31 @@
       "empty": "Entrez votre code pour continuer."
     },
     "before": {
-      "heading": "Le vote ouvre bientôt",
-      "text": "Revenez à l’heure indiquée : le champ du code apparaîtra ici dès l’ouverture.",
-      "opensAt": "Ouverture : {when}",
+      "heading": "Votre élection n’est pas encore ouverte",
+      "text": "Tout est prêt de notre côté. Le champ du code apparaîtra ici dès l’ouverture, sans que vous ayez à recharger la page.",
       "days": "jours",
       "hours": "heures",
       "minutes": "minutes",
       "seconds": "secondes",
       "soon": "L’ouverture est imminente, la page se met à jour toute seule.",
-      "countdown": "Ouverture dans {days} j {hours} h {minutes} min {seconds} s"
+      "countdown": "Ouverture dans {days} j {hours} h {minutes} min {seconds} s",
+      "status": "Pas encore ouverte",
+      "countdownTitle": "Ouverture dans",
+      "whenTitle": "Dates du vote",
+      "zone": "Heure de {zone}",
+      "nextTitle": "Le jour du vote",
+      "step1Title": "Retrouvez votre code",
+      "step1Text": "Il figure sur votre fiche ou dans votre lien personnel.",
+      "step2Title": "Entrez-le ici",
+      "step2Text": "Le champ apparaît à l’heure d’ouverture.",
+      "step3Title": "Choisissez",
+      "step3Text": "Un candidat par poste, ou un vote blanc si vous le souhaitez.",
+      "step4Title": "Confirmez",
+      "step4Text": "Relisez vos choix, puis confirmez : c’est fait.",
+      "secretTitle": "Votre vote restera secret",
+      "secretText": "Personne ne pourra relier votre nom à vos choix, pas même l’organisateur.",
+      "readyTitle": "Gardez votre code à portée de main",
+      "readyText": "Gardez votre fiche ou votre lien personnel prêt. Cette page se met à jour toute seule : vous pouvez la laisser ouverte."
     },
     "closed": {
       "heading": "Le vote est terminé",
@@ -2069,6 +2085,20 @@
       "leave": "Vous pouvez fermer cette page.",
       "secretTitle": "Et maintenant ?",
       "secretText": "Les résultats seront publiés par les organisateurs après la fermeture du vote."
+    },
+    "unavailable": {
+      "cardTitle": "Aucun vote à cette adresse",
+      "kicker": "Vote en ligne",
+      "title": "Cette élection n’est pas disponible",
+      "text": "L’adresse que vous avez ouverte ne mène à aucun vote pour le moment.",
+      "whatTitle": "Que faire ?",
+      "check": "Vérifiez l’adresse",
+      "checkText": "Ouvrez de nouveau le lien reçu, ou recopiez-le en entier.",
+      "ask": "Demandez à l’organisateur",
+      "askText": "Il pourra vous confirmer l’adresse et la date du vote.",
+      "home": "Retour à l’accueil",
+      "homeText": "Vous pouvez aussi repartir de la page d’accueil.",
+      "secure": "Aucun vote n’a été enregistré ici."
     }
   }
 }
