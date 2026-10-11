@@ -307,3 +307,7 @@ Filled slice by slice: each slice adds its endpoints here with a link to their f
 | Voter imports | `POST /voter-imports/{import}/confirm` | 08 | [voter-imports/POST-voter-imports-{import}-confirm.md](voter-imports/POST-voter-imports-{import}-confirm.md) |
 | Voter imports | `GET /voter-imports/{import}/errors` | 08 | [voter-imports/GET-voter-imports-{import}-errors.md](voter-imports/GET-voter-imports-{import}-errors.md) |
 | Voter imports | `DELETE /voter-imports/{import}` | 08 | [voter-imports/DELETE-voter-imports-{import}.md](voter-imports/DELETE-voter-imports-{import}.md) |
+| Voters | `POST /elections/{election}/voter-copies` | 09 | [voters/POST-elections-{election}-voter-copies.md](voters/POST-elections-{election}-voter-copies.md) |
+| Elections | `GET /elections/{election}/checklist` | 09 | [elections/GET-elections-{election}-checklist.md](elections/GET-elections-{election}-checklist.md) |
+| Elections | `POST /elections/{election}/schedule` | 09 | [elections/POST-elections-{election}-schedule.md](elections/POST-elections-{election}-schedule.md) |
+| Elections | `POST /elections/{election}/unschedule` | 09 | [elections/POST-elections-{election}-unschedule.md](elections/POST-elections-{election}-unschedule.md) |

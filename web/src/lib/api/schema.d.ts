@@ -336,6 +336,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/elections/{election}/checklist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The checklist of an election
+         * @description What stops the election from being scheduled (`blockers`) and what to look at first
+         *     (`warnings`), in any status. `can_schedule` is true for a draft with no blocker. Owner or
+         *     manager.
+         */
+        get: operations["election.checklist"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/elections/{election}/schedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Schedule an election
+         * @description A draft becomes scheduled: ballots, candidates and parties are locked; voters and groups stay
+         *     editable. 409 `checklist_blocked` with the blockers in `error.items`; 409 `checklist_warnings`
+         *     with the warnings unless `accept_warnings` is true; 409 `election_period_over` when the end is
+         *     not in the future. The checklist is computed again under the row lock. Owner or manager.
+         *     Limited to 120 requests per hour per user.
+         */
+        post: operations["election.schedule"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/elections/{election}/unschedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Unschedule an election
+         * @description A scheduled election goes back to draft, so ballots and candidates can be edited again.
+         *     Voters, groups and the groups of the ballots are not touched. Owner or manager. Limited to
+         *     120 requests per hour per user.
+         */
+        post: operations["election.unschedule"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/auth/forgot-password": {
         parameters: {
             query?: never;
@@ -398,7 +466,7 @@ export interface paths {
         post?: never;
         /**
          * Delete a group
-         * @description A draft or scheduled election only, and only a group with no voter (409 `group_in_use`).
+         * @description A draft or scheduled election only, and only a group with no voter and no ballot (409 `group_in_use`).
          *     Final: there is no trash. Owner or manager. Limited to 120 requests per hour per user.
          */
         delete: operations["group.destroy"];
@@ -424,7 +492,7 @@ export interface paths {
         /**
          * Merge a group into another
          * @description Every voter of the group moves to `into`, another group of the same election, and the
-         *     group is deleted: one transaction. A draft or scheduled election only. Answers the
+         *     group is deleted, and the ballots that covered it cover `into`: one transaction. A draft or scheduled election only. Answers the
          *     receiving group. Owner or manager. Limited to 120 requests per hour per user.
          */
         post: operations["groups.groupMerge"];
@@ -1068,6 +1136,32 @@ export interface paths {
         patch: operations["voter.update"];
         trace?: never;
     };
+    "/v1/elections/{election}/voter-copies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Load the voters of another election
+         * @description Copies the voters of `source`, another election of the institution in any status, into this
+         *     draft or scheduled election, with their groups (found by name or created; `rename` gives a
+         *     group another name). `groups` limits the copy to some groups of the source and
+         *     `include_ungrouped` says whether the voters with no group come too. A voter whose identifier
+         *     or email the election already has is skipped and counted. Credentials, codes and dates are
+         *     never copied. One transaction; a 409 leaves the election as it was. Owner or manager.
+         *     Limited to 20 requests per hour per user.
+         */
+        post: operations["voters.voterCopy"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/elections/{election}/voter-imports/template": {
         parameters: {
             query?: never;
@@ -1239,6 +1333,15 @@ export interface components {
         /** CandidateResource */
         CandidateResource: unknown[];
         /**
+         * CopyVotersRequest
+         * @description docs/api/voters/POST-elections-{election}-voter-copies.md.
+         */
+        CopyVotersRequest: {
+            /** Format: uuid */
+            source: string;
+            include_ungrouped?: boolean | null;
+        };
+        /**
          * CreateBallotRequest
          * @description docs/api/ballots/POST-elections-{election}-ballots.md.
          */
@@ -1247,6 +1350,8 @@ export interface components {
             description?: string | null;
             seats?: number;
             allow_blank?: boolean;
+            scope?: string | null;
+            groups?: string[] | null;
         };
         /**
          * CreateCandidateRequest
@@ -1394,6 +1499,13 @@ export interface components {
             password: string;
         };
         /**
+         * ScheduleElectionRequest
+         * @description docs/api/elections/POST-elections-{election}-schedule.md: an optional `accept_warnings` boolean.
+         */
+        ScheduleElectionRequest: {
+            accept_warnings?: boolean;
+        };
+        /**
          * SecondFactorRequest
          * @description The password and a current second factor (`code` or `recovery_code`), asked to turn
          *     two-factor off and to renew the recovery codes. Only the presence of the second factor is
@@ -1422,6 +1534,8 @@ export interface components {
             description?: string | null;
             seats?: number;
             allow_blank?: boolean;
+            scope?: string | null;
+            groups?: string[] | null;
         };
         /**
          * UpdateCandidateRequest
@@ -1634,6 +1748,15 @@ export interface operations {
                             position: number;
                             seats: number;
                             allow_blank: boolean;
+                            /** @enum {string} */
+                            scope: "general" | "group";
+                            groups: {
+                                id: string;
+                                name: string;
+                                voters_count: number;
+                            }[];
+                            eligible_voters: number;
+                            warnings: string[];
                             candidates_count: number;
                             candidates: {
                                 id: string;
@@ -1698,6 +1821,15 @@ export interface operations {
                             position: number;
                             seats: number;
                             allow_blank: boolean;
+                            /** @enum {string} */
+                            scope: "general" | "group";
+                            groups: {
+                                id: string;
+                                name: string;
+                                voters_count: number;
+                            }[];
+                            eligible_voters: number;
+                            warnings: string[];
                             candidates_count: number;
                             candidates: {
                                 id: string;
@@ -1756,6 +1888,15 @@ export interface operations {
                             position: number;
                             seats: number;
                             allow_blank: boolean;
+                            /** @enum {string} */
+                            scope: "general" | "group";
+                            groups: {
+                                id: string;
+                                name: string;
+                                voters_count: number;
+                            }[];
+                            eligible_voters: number;
+                            warnings: string[];
                             candidates_count: number;
                             candidates: {
                                 id: string;
@@ -1842,6 +1983,15 @@ export interface operations {
                             position: number;
                             seats: number;
                             allow_blank: boolean;
+                            /** @enum {string} */
+                            scope: "general" | "group";
+                            groups: {
+                                id: string;
+                                name: string;
+                                voters_count: number;
+                            }[];
+                            eligible_voters: number;
+                            warnings: string[];
                             candidates_count: number;
                             candidates: {
                                 id: string;
@@ -2504,6 +2654,160 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
+    "election.checklist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The election UUID */
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            /** @enum {string} */
+                            status: "draft" | "scheduled" | "open" | "closed" | "published" | "archived";
+                            can_schedule: boolean;
+                            counts: {
+                                ballots: number;
+                                candidates: number;
+                                voters: number;
+                                groups: number;
+                            };
+                            blockers: {
+                                /** @enum {string} */
+                                code: "no_ballots" | "ballot_without_candidates" | "no_voters";
+                                ballot?: {
+                                    id: string;
+                                    title: string;
+                                };
+                            }[];
+                            warnings: {
+                                /** @enum {string} */
+                                code: "ballot_single_candidate" | "group_ballot_no_voters" | "group_ballot_few_voters" | "voters_without_ballot";
+                                ballot?: {
+                                    id: string;
+                                    title: string;
+                                };
+                                count?: number;
+                            }[];
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "election.schedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The election UUID */
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ScheduleElectionRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            title: string;
+                            description: string | null;
+                            /** @enum {string} */
+                            status: "draft" | "scheduled" | "open" | "closed" | "published" | "archived";
+                            starts_at: string;
+                            ends_at: string;
+                            timezone: string;
+                            /** @enum {string} */
+                            language: "fr" | "en";
+                            /** @enum {string} */
+                            candidate_order: "manual" | "shuffled";
+                            /** @enum {string} */
+                            results_display: "full" | "winners";
+                            cover: {
+                                sm: string;
+                                md: string;
+                            } | null;
+                            ballots_count: number;
+                            voters_count: number;
+                            created_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "election.unschedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The election UUID */
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            title: string;
+                            description: string | null;
+                            /** @enum {string} */
+                            status: "draft" | "scheduled" | "open" | "closed" | "published" | "archived";
+                            starts_at: string;
+                            ends_at: string;
+                            timezone: string;
+                            /** @enum {string} */
+                            language: "fr" | "en";
+                            /** @enum {string} */
+                            candidate_order: "manual" | "shuffled";
+                            /** @enum {string} */
+                            results_display: "full" | "winners";
+                            cover: {
+                                sm: string;
+                                md: string;
+                            } | null;
+                            ballots_count: number;
+                            voters_count: number;
+                            created_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
     "auth.forgotPassword": {
         parameters: {
             query?: never;
@@ -2552,6 +2856,7 @@ export interface operations {
                             id: string;
                             name: string;
                             voters_count: number;
+                            ballots_count: number;
                             created_at: string;
                             updated_at: string;
                         }[];
@@ -2597,6 +2902,7 @@ export interface operations {
                             id: string;
                             name: string;
                             voters_count: number;
+                            ballots_count: number;
                             created_at: string;
                             updated_at: string;
                         };
@@ -2657,6 +2963,7 @@ export interface operations {
                             id: string;
                             name: string;
                             voters_count: number;
+                            ballots_count: number;
                             created_at: string;
                             updated_at: string;
                         };
@@ -2695,6 +3002,7 @@ export interface operations {
                             id: string;
                             name: string;
                             voters_count: number;
+                            ballots_count: number;
                             created_at: string;
                             updated_at: string;
                         };
@@ -4004,6 +4312,56 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "voters.voterCopy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The election UUID */
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CopyVotersRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            copied: number;
+                            skipped: number;
+                            groups_created: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            /** @description An error */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
+                    };
+                };
+            };
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };

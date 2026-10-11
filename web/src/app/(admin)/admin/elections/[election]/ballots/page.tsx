@@ -41,6 +41,8 @@ export default async function BallotsRoute({ params }: { params: Promise<{ elect
         'ballots',
         'parties',
         'candidates',
+        'voters',
+        'groups',
       )}
     >
       <BallotsPage election={election} initial={ballots} initialParties={parties} />

@@ -265,7 +265,8 @@ final class Accounts
 
     /**
      * Inserts a ballot straight into the database (slice 06). Options: `election` (uuid, required), `title`,
-     * `description`, `position`, `seats`, `allow_blank`. The institution is the election's. Returns the uuid.
+     * `description`, `position`, `seats`, `allow_blank`, `groups` (group uuids: the ballot is then a group ballot,
+     * slice 09). The institution is the election's. Returns the uuid.
      */
     public static function plantBallot(array $o): string
     {
@@ -283,12 +284,37 @@ final class Accounts
             'position' => $o['position'] ?? ((int) $db->table('ballots')->where('election_id', $election->id)->max('position') + 1),
             'seats' => $o['seats'] ?? 1,
             'allow_blank' => $o['allow_blank'] ?? true,
-            'scope' => 'general',
+            'scope' => empty($o['groups']) ? 'general' : 'group',
             'created_at' => $now,
             'updated_at' => $now,
         ]);
 
+        foreach ($o['groups'] ?? [] as $group) {
+            $db->table('ballot_voter_group')->insert([
+                'ballot_id' => $db->table('ballots')->where('uuid', $uuid)->value('id'),
+                'voter_group_id' => $db->table('voter_groups')->where('uuid', $group)->value('id'),
+            ]);
+        }
+
         return $uuid;
+    }
+
+    /**
+     * The uuids of the groups a ballot covers (slice 09), sorted.
+     *
+     * @return list<string>
+     */
+    public static function ballotGroups(string $ballot): array
+    {
+        $db = DB::connection(useMigratorConnection());
+        $id = $db->table('ballots')->where('uuid', $ballot)->value('id');
+
+        return $db->table('ballot_voter_group')
+            ->join('voter_groups', 'voter_groups.id', '=', 'ballot_voter_group.voter_group_id')
+            ->where('ballot_voter_group.ballot_id', $id)
+            ->orderBy('voter_groups.uuid')
+            ->pluck('voter_groups.uuid')
+            ->all();
     }
 
     /** One row of `ballots` by uuid, as an array, or null. */

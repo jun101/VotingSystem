@@ -15,7 +15,7 @@ Changes a ballot of a draft election. Every field is optional; only the fields p
 |---|---|---|
 | ballot | UUID | A ballot of the caller's institution whose election is a **draft** |
 
-Body, JSON: `title`, `description`, `seats`, `allow_blank` with the rules of
+Body, JSON: `title`, `description`, `seats`, `allow_blank`, `scope`, `groups` with the rules of
 [POST /elections/{election}/ballots](POST-elections-{election}-ballots.md), none required. `position` is not accepted
 here (see [PUT order](PUT-elections-{election}-ballots-order.md)).
 
@@ -36,6 +36,9 @@ here (see [PUT order](PUT-elections-{election}-ballots-order.md)).
 | 11 | Body is not valid JSON | 400 | `malformed_request` | |
 | 12 | Too many requests | 429 | `too_many_attempts` | |
 | 13 | Another method than PATCH, DELETE | 405 | `method_not_allowed` | |
+| 14 | `scope` `group` with `groups`, or `groups` alone on a group ballot | 200 (the groups are replaced by the ones given) | | |
+| 15 | `scope` `general` | 200 (`groups` becomes empty) | | |
+| 16 | `scope` `group` with no `groups` while the ballot has none, an unknown or foreign group, a bad scope | 422 | `validation_failed` (`groups: required`, `groups: invalid`, `scope: invalid`) | |
 
 ## Responses
 
@@ -49,5 +52,9 @@ The shared error shape of [API conventions](../README.md). Order of the checks: 
 then the state (409).
 
 ## Notes
+
+`groups: []` on its own (no `scope`) is read as "groups not given": the ballot's groups are left as they are. To empty
+the groups, make the ballot general (`scope: "general"`). `scope: "group"` with `groups: []`, or on a ballot that has no
+groups, is 422 `groups: required`.
 
 `position`, `id`, `election`, `candidates_count` in the body are ignored.

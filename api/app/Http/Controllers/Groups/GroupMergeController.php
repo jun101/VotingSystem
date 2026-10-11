@@ -21,10 +21,10 @@ class GroupMergeController extends Controller
      * Merge a group into another.
      *
      * Every voter of the group moves to `into`, another group of the same election, and the
-     * group is deleted: one transaction. A draft or scheduled election only. Answers the
+     * group is deleted, and the ballots that covered it cover `into`: one transaction. A draft or scheduled election only. Answers the
      * receiving group. Owner or manager. Limited to 120 requests per hour per user.
      */
-    #[Response(status: 200, type: 'array{data: array{id: string, name: string, voters_count: int, created_at: string, updated_at: string}}')]
+    #[Response(status: 200, type: 'array{data: array{id: string, name: string, voters_count: int, ballots_count: int, created_at: string, updated_at: string}}')]
     public function __invoke(MergeGroupsRequest $request, VoterGroup $group): GroupResource
     {
 
@@ -65,6 +65,18 @@ class GroupMergeController extends Controller
             }
 
             Voter::query()->where('voter_group_id', $source->id)->update(['voter_group_id' => $receiver->id]);
+
+            // The ballots that covered the merged group cover the receiving one, once. The election
+            // may be scheduled: the ballots are not edited, they follow the groups.
+            $already = DB::table('ballot_voter_group')->where('voter_group_id', $receiver->id)->pluck('ballot_id')->all();
+            DB::table('ballot_voter_group')
+                ->where('voter_group_id', $source->id)
+                ->whereIn('ballot_id', $already)
+                ->delete();
+            DB::table('ballot_voter_group')
+                ->where('voter_group_id', $source->id)
+                ->update(['voter_group_id' => $receiver->id]);
+
             $source->delete();
 
             return $receiver;

@@ -384,18 +384,22 @@
     "cannot_reset_self": "For your own account, use the “My account” page.",
     "too_many_attempts_wait_one": "Too many attempts. Try again in 1 minute.",
     "too_many_attempts_wait_many": "Too many attempts. Try again in {minutes} minutes.",
-    "election_not_editable": "This election is no longer a draft: it can no longer be changed or deleted.",
+    "election_not_editable": "This election is no longer a draft: it cannot be changed or deleted. If it is scheduled, unschedule it first.",
     "ballot_limit_reached": "An election cannot have more than 50 positions.",
     "party_limit_reached": "An election cannot have more than 30 parties.",
     "candidate_limit_reached": "A position cannot have more than 50 candidates.",
     "election_voters_locked": "The voters and groups of this election can no longer be changed.",
     "voter_limit_reached": "An election cannot have more than 10,000 voters.",
     "group_limit_reached": "An election cannot have more than 100 groups.",
-    "group_in_use": "This group still has voters. Move them or merge the group.",
+    "group_in_use": "This group still has voters or is used by a ballot. Move the voters, change the ballot or merge the group.",
     "import_in_progress": "An import is already under way for this election. Wait for it to finish, or cancel it.",
     "import_not_checked": "This file is no longer at the check step. Reload the page.",
     "nothing_to_import": "No row is ready to import.",
-    "no_error_file": "There is no rejected row to download."
+    "no_error_file": "There is no rejected row to download.",
+    "checklist_blocked": "The election is not ready: blocking points remain. Reload the page.",
+    "checklist_warnings": "Warnings remain: read them and confirm to schedule anyway.",
+    "election_period_over": "The end of the election has passed: change the dates before scheduling.",
+    "election_not_scheduled": "This election is not scheduled. Reload the page."
   },
   "validation": {
     "required": "This field is required.",
@@ -548,6 +552,13 @@
         "integer": "Enter a whole number of seats.",
         "min": "There must be at least 1 seat.",
         "max": "A position has 20 seats at most."
+      },
+      "groups": {
+        "required": "Choose at least one group.",
+        "invalid": "One of the groups no longer exists. Reload the page."
+      },
+      "scope": {
+        "invalid": "Choose who can vote for this position."
       }
     },
     "party": {
@@ -636,6 +647,20 @@
         "uuid": "Choose a group from the list.",
         "same": "Choose a group other than this one.",
         "invalid": "This group no longer exists. Reload the page."
+      }
+    },
+    "copy": {
+      "source": {
+        "required": "Choose the source election.",
+        "uuid": "Choose an election from the list.",
+        "same": "Choose an election other than this one.",
+        "invalid": "This election no longer exists. Reload the page."
+      },
+      "groups": {
+        "invalid": "One of the chosen groups no longer exists. Choose the election again."
+      },
+      "rename": {
+        "invalid": "A new name is empty, too long (100 characters at most) or does not match a group being loaded."
       }
     }
   },
@@ -1021,6 +1046,56 @@
       "zone": "Time zone: {zone}",
       "cancel": "Cancel",
       "apply": "Apply the dates"
+    },
+    "checklist": {
+      "title": "Before scheduling",
+      "loading": "Checking…",
+      "failed": "The checklist could not be loaded.",
+      "retry": "Try again",
+      "ok": "Everything is ready: you can schedule the election.",
+      "blockers": "To fix before scheduling",
+      "warnings": "To look at",
+      "blockersCount": {
+        "one": "{count} blocking point",
+        "other": "{count} blocking points"
+      },
+      "warningsCount": {
+        "one": "{count} warning",
+        "other": "{count} warnings"
+      },
+      "items": {
+        "no_ballots": "The election has no position.",
+        "ballot_without_candidates": "The position “{title}” has no candidate.",
+        "no_voters": "The election has no voter.",
+        "ballot_single_candidate": "The position “{title}” has only one candidate.",
+        "group_ballot_no_voters": "The position “{title}” covers no voter.",
+        "group_ballot_few_voters": "The position “{title}” covers only {voters}.",
+        "voters_without_ballot": {
+          "one": "{count} voter cannot vote for any position.",
+          "other": "{count} voters cannot vote for any position."
+        },
+        "unknown": "One point still needs a look."
+      },
+      "schedule": {
+        "button": "Schedule the election",
+        "title": "Schedule this election?",
+        "text": "Positions, candidates and parties will be locked. Voters and groups stay editable, and you can go back to a draft.",
+        "warnings": "Some warnings remain:",
+        "accept": "I understand these warnings and want to schedule anyway.",
+        "confirm": "Schedule",
+        "cancel": "Cancel"
+      },
+      "unschedule": {
+        "button": "Back to draft",
+        "title": "Go back to a draft?",
+        "text": "The election will no longer be scheduled and its positions can be changed again. Voters and groups do not change.",
+        "confirm": "Back to draft",
+        "cancel": "Cancel"
+      },
+      "voters": {
+        "one": "{count} voter",
+        "other": "{count} voters"
+      }
     }
   },
   "ballots": {
@@ -1058,7 +1133,10 @@
       "addCandidate": "Add a candidate",
       "addCandidateTo": "Add a candidate to the position {title}",
       "candidatesLabel": "Candidates of the position {title}",
-      "oneCandidate": "Only one candidate: add another so voters have a choice."
+      "oneCandidate": "Only one candidate: add another so voters have a choice.",
+      "groups": "Groups: {names}",
+      "noVoters": "No voter can vote for this position yet: its groups have no voter.",
+      "fewVoters": "Few voters for this position: {voters} (fewer than {limit})."
     },
     "form": {
       "titleNew": "New position",
@@ -1071,7 +1149,15 @@
       "save": "Save",
       "add": "Add the position",
       "cancel": "Cancel",
-      "error": "The position could not be saved."
+      "error": "The position could not be saved.",
+      "scope": "Who can vote for this position",
+      "scopeGeneral": "Every voter of the election",
+      "scopeGroup": "Only some groups",
+      "groups": "Groups of voters",
+      "groupsHelp": "Choose the groups whose voters vote for this position.",
+      "groupsLoading": "Loading the groups…",
+      "groupsFailed": "The groups could not be loaded. Close the form and try again.",
+      "groupsNone": "This election has no group yet. Create groups on the voters page first."
     },
     "delete": {
       "title": "Delete this position?",
@@ -1095,6 +1181,10 @@
       "one": "{title}: only one candidate",
       "add": "Add a candidate",
       "addTo": "Add a candidate to the position {title}"
+    },
+    "scope": {
+      "general": "Every voter: {voters}",
+      "group": "Chosen groups only: {voters}"
     }
   },
   "parties": {
@@ -1302,6 +1392,46 @@
       "confirm": "Delete",
       "cancel": "Cancel"
     },
+    "copy": {
+      "open": "Load from another election",
+      "title": "Load voters",
+      "text": "Copies the voters of another election of the institution, with their groups. Codes are not copied.",
+      "source": "Source election",
+      "choose": "Choose an election",
+      "sourcesLoading": "Reading the elections…",
+      "sourcesNone": "The institution has no other election.",
+      "sourcesFailed": "The elections could not be read. Close and try again in a moment.",
+      "groupsLoading": "Reading the groups…",
+      "groupsFailed": "The groups of this election could not be read. Choose it again.",
+      "scope": "Voters to load",
+      "all": "Every voter, those with no group included",
+      "some": "Only some groups",
+      "noGroups": "This election has no group.",
+      "ungrouped": "Voters with no group",
+      "rename": "New name for “{name}”",
+      "renameHelp": "Leave empty to keep the name.",
+      "submit": {
+        "one": "Load {count} voter",
+        "other": "Load {count} voters"
+      },
+      "submitPlain": "Load the voters",
+      "cancel": "Cancel",
+      "close": "Close",
+      "error": "The voters could not be loaded.",
+      "resultTitle": "The voters are loaded.",
+      "copied": {
+        "one": "{count} voter loaded",
+        "other": "{count} voters loaded"
+      },
+      "skipped": {
+        "one": "{count} voter skipped (identifier or email already there)",
+        "other": "{count} voters skipped (identifier or email already there)"
+      },
+      "created": {
+        "one": "{count} group created",
+        "other": "{count} groups created"
+      }
+    },
     "rail": {
       "label": "Groups and codes"
     },
@@ -1319,12 +1449,13 @@
       "other": "{count} groups"
     },
     "empty": "No group yet: create one here, or write its name in a voter’s form.",
-    "note": "A group is deleted only when it has no voter.",
+    "note": "A group is deleted only when it has no voter and no position uses it.",
     "row": {
       "filter": "Show the voters of the group {name}",
       "rename": "Rename the group {name}",
       "merge": "Merge the group {name}",
-      "delete": "Delete the group {name}"
+      "delete": "Delete the group {name}",
+      "ballots": "Used by {ballots}"
     },
     "form": {
       "titleNew": "New group",
@@ -1343,7 +1474,8 @@
       "choose": "Choose a group",
       "missing": "Choose the group that receives the voters.",
       "confirm": "Merge",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "ballots": "These positions cover this group and will cover the receiving group instead: {titles}."
     },
     "delete": {
       "title": "Delete this group?",

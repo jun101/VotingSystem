@@ -207,6 +207,44 @@
                                                     "allow_blank": {
                                                         "type": "boolean"
                                                     },
+                                                    "scope": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "general",
+                                                            "group"
+                                                        ]
+                                                    },
+                                                    "groups": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "string"
+                                                                },
+                                                                "name": {
+                                                                    "type": "string"
+                                                                },
+                                                                "voters_count": {
+                                                                    "type": "integer"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "id",
+                                                                "name",
+                                                                "voters_count"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "eligible_voters": {
+                                                        "type": "integer"
+                                                    },
+                                                    "warnings": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
                                                     "candidates_count": {
                                                         "type": "integer"
                                                     },
@@ -306,6 +344,10 @@
                                                     "position",
                                                     "seats",
                                                     "allow_blank",
+                                                    "scope",
+                                                    "groups",
+                                                    "eligible_voters",
+                                                    "warnings",
                                                     "candidates_count",
                                                     "candidates",
                                                     "created_at",
@@ -412,6 +454,44 @@
                                                 "allow_blank": {
                                                     "type": "boolean"
                                                 },
+                                                "scope": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "general",
+                                                        "group"
+                                                    ]
+                                                },
+                                                "groups": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            },
+                                                            "voters_count": {
+                                                                "type": "integer"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "name",
+                                                            "voters_count"
+                                                        ]
+                                                    }
+                                                },
+                                                "eligible_voters": {
+                                                    "type": "integer"
+                                                },
+                                                "warnings": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                },
                                                 "candidates_count": {
                                                     "type": "integer"
                                                 },
@@ -511,6 +591,10 @@
                                                 "position",
                                                 "seats",
                                                 "allow_blank",
+                                                "scope",
+                                                "groups",
+                                                "eligible_voters",
+                                                "warnings",
                                                 "candidates_count",
                                                 "candidates",
                                                 "created_at",
@@ -599,6 +683,44 @@
                                                     },
                                                     "allow_blank": {
                                                         "type": "boolean"
+                                                    },
+                                                    "scope": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "general",
+                                                            "group"
+                                                        ]
+                                                    },
+                                                    "groups": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "string"
+                                                                },
+                                                                "name": {
+                                                                    "type": "string"
+                                                                },
+                                                                "voters_count": {
+                                                                    "type": "integer"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "id",
+                                                                "name",
+                                                                "voters_count"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "eligible_voters": {
+                                                        "type": "integer"
+                                                    },
+                                                    "warnings": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
                                                     },
                                                     "candidates_count": {
                                                         "type": "integer"
@@ -699,6 +821,10 @@
                                                     "position",
                                                     "seats",
                                                     "allow_blank",
+                                                    "scope",
+                                                    "groups",
+                                                    "eligible_voters",
+                                                    "warnings",
                                                     "candidates_count",
                                                     "candidates",
                                                     "created_at",
@@ -806,6 +932,44 @@
                                                 "allow_blank": {
                                                     "type": "boolean"
                                                 },
+                                                "scope": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "general",
+                                                        "group"
+                                                    ]
+                                                },
+                                                "groups": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            },
+                                                            "voters_count": {
+                                                                "type": "integer"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "name",
+                                                            "voters_count"
+                                                        ]
+                                                    }
+                                                },
+                                                "eligible_voters": {
+                                                    "type": "integer"
+                                                },
+                                                "warnings": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                },
                                                 "candidates_count": {
                                                     "type": "integer"
                                                 },
@@ -905,6 +1069,10 @@
                                                 "position",
                                                 "seats",
                                                 "allow_blank",
+                                                "scope",
+                                                "groups",
+                                                "eligible_voters",
+                                                "warnings",
                                                 "candidates_count",
                                                 "candidates",
                                                 "created_at",
@@ -2652,6 +2820,473 @@
                 }
             }
         },
+        "/v1/elections/{election}/checklist": {
+            "get": {
+                "operationId": "election.checklist",
+                "description": "What stops the election from being scheduled (`blockers`) and what to look at first\n(`warnings`), in any status. `can_schedule` is true for a draft with no blocker. Owner or\nmanager.",
+                "summary": "The checklist of an election",
+                "tags": [
+                    "Election"
+                ],
+                "parameters": [
+                    {
+                        "name": "election",
+                        "in": "path",
+                        "required": true,
+                        "description": "The election UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "draft",
+                                                        "scheduled",
+                                                        "open",
+                                                        "closed",
+                                                        "published",
+                                                        "archived"
+                                                    ]
+                                                },
+                                                "can_schedule": {
+                                                    "type": "boolean"
+                                                },
+                                                "counts": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "ballots": {
+                                                            "type": "integer"
+                                                        },
+                                                        "candidates": {
+                                                            "type": "integer"
+                                                        },
+                                                        "voters": {
+                                                            "type": "integer"
+                                                        },
+                                                        "groups": {
+                                                            "type": "integer"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "ballots",
+                                                        "candidates",
+                                                        "voters",
+                                                        "groups"
+                                                    ]
+                                                },
+                                                "blockers": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "code": {
+                                                                "type": "string",
+                                                                "enum": [
+                                                                    "no_ballots",
+                                                                    "ballot_without_candidates",
+                                                                    "no_voters"
+                                                                ]
+                                                            },
+                                                            "ballot": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "title": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "id",
+                                                                    "title"
+                                                                ]
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "code"
+                                                        ]
+                                                    }
+                                                },
+                                                "warnings": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "code": {
+                                                                "type": "string",
+                                                                "enum": [
+                                                                    "ballot_single_candidate",
+                                                                    "group_ballot_no_voters",
+                                                                    "group_ballot_few_voters",
+                                                                    "voters_without_ballot"
+                                                                ]
+                                                            },
+                                                            "ballot": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "title": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "id",
+                                                                    "title"
+                                                                ]
+                                                            },
+                                                            "count": {
+                                                                "type": "integer"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "code"
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "status",
+                                                "can_schedule",
+                                                "counts",
+                                                "blockers",
+                                                "warnings"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/v1/elections/{election}/schedule": {
+            "post": {
+                "operationId": "election.schedule",
+                "description": "A draft becomes scheduled: ballots, candidates and parties are locked; voters and groups stay\neditable. 409 `checklist_blocked` with the blockers in `error.items`; 409 `checklist_warnings`\nwith the warnings unless `accept_warnings` is true; 409 `election_period_over` when the end is\nnot in the future. The checklist is computed again under the row lock. Owner or manager.\nLimited to 120 requests per hour per user.",
+                "summary": "Schedule an election",
+                "tags": [
+                    "Election"
+                ],
+                "parameters": [
+                    {
+                        "name": "election",
+                        "in": "path",
+                        "required": true,
+                        "description": "The election UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ScheduleElectionRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "title": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "draft",
+                                                        "scheduled",
+                                                        "open",
+                                                        "closed",
+                                                        "published",
+                                                        "archived"
+                                                    ]
+                                                },
+                                                "starts_at": {
+                                                    "type": "string"
+                                                },
+                                                "ends_at": {
+                                                    "type": "string"
+                                                },
+                                                "timezone": {
+                                                    "type": "string"
+                                                },
+                                                "language": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "fr",
+                                                        "en"
+                                                    ]
+                                                },
+                                                "candidate_order": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "manual",
+                                                        "shuffled"
+                                                    ]
+                                                },
+                                                "results_display": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "full",
+                                                        "winners"
+                                                    ]
+                                                },
+                                                "cover": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "sm": {
+                                                            "type": "string"
+                                                        },
+                                                        "md": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "sm",
+                                                        "md"
+                                                    ]
+                                                },
+                                                "ballots_count": {
+                                                    "type": "integer"
+                                                },
+                                                "voters_count": {
+                                                    "type": "integer"
+                                                },
+                                                "created_at": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "title",
+                                                "description",
+                                                "status",
+                                                "starts_at",
+                                                "ends_at",
+                                                "timezone",
+                                                "language",
+                                                "candidate_order",
+                                                "results_display",
+                                                "cover",
+                                                "ballots_count",
+                                                "voters_count",
+                                                "created_at"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/v1/elections/{election}/unschedule": {
+            "post": {
+                "operationId": "election.unschedule",
+                "description": "A scheduled election goes back to draft, so ballots and candidates can be edited again.\nVoters, groups and the groups of the ballots are not touched. Owner or manager. Limited to\n120 requests per hour per user.",
+                "summary": "Unschedule an election",
+                "tags": [
+                    "Election"
+                ],
+                "parameters": [
+                    {
+                        "name": "election",
+                        "in": "path",
+                        "required": true,
+                        "description": "The election UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "title": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "draft",
+                                                        "scheduled",
+                                                        "open",
+                                                        "closed",
+                                                        "published",
+                                                        "archived"
+                                                    ]
+                                                },
+                                                "starts_at": {
+                                                    "type": "string"
+                                                },
+                                                "ends_at": {
+                                                    "type": "string"
+                                                },
+                                                "timezone": {
+                                                    "type": "string"
+                                                },
+                                                "language": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "fr",
+                                                        "en"
+                                                    ]
+                                                },
+                                                "candidate_order": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "manual",
+                                                        "shuffled"
+                                                    ]
+                                                },
+                                                "results_display": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "full",
+                                                        "winners"
+                                                    ]
+                                                },
+                                                "cover": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "sm": {
+                                                            "type": "string"
+                                                        },
+                                                        "md": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "sm",
+                                                        "md"
+                                                    ]
+                                                },
+                                                "ballots_count": {
+                                                    "type": "integer"
+                                                },
+                                                "voters_count": {
+                                                    "type": "integer"
+                                                },
+                                                "created_at": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "title",
+                                                "description",
+                                                "status",
+                                                "starts_at",
+                                                "ends_at",
+                                                "timezone",
+                                                "language",
+                                                "candidate_order",
+                                                "results_display",
+                                                "cover",
+                                                "ballots_count",
+                                                "voters_count",
+                                                "created_at"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/v1/auth/forgot-password": {
             "post": {
                 "operationId": "auth.forgotPassword",
@@ -2740,6 +3375,9 @@
                                                     "voters_count": {
                                                         "type": "integer"
                                                     },
+                                                    "ballots_count": {
+                                                        "type": "integer"
+                                                    },
                                                     "created_at": {
                                                         "type": "string"
                                                     },
@@ -2751,6 +3389,7 @@
                                                     "id",
                                                     "name",
                                                     "voters_count",
+                                                    "ballots_count",
                                                     "created_at",
                                                     "updated_at"
                                                 ]
@@ -2851,6 +3490,9 @@
                                                 "voters_count": {
                                                     "type": "integer"
                                                 },
+                                                "ballots_count": {
+                                                    "type": "integer"
+                                                },
                                                 "created_at": {
                                                     "type": "string"
                                                 },
@@ -2862,6 +3504,7 @@
                                                 "id",
                                                 "name",
                                                 "voters_count",
+                                                "ballots_count",
                                                 "created_at",
                                                 "updated_at"
                                             ]
@@ -2935,6 +3578,9 @@
                                                 "voters_count": {
                                                     "type": "integer"
                                                 },
+                                                "ballots_count": {
+                                                    "type": "integer"
+                                                },
                                                 "created_at": {
                                                     "type": "string"
                                                 },
@@ -2946,6 +3592,7 @@
                                                 "id",
                                                 "name",
                                                 "voters_count",
+                                                "ballots_count",
                                                 "created_at",
                                                 "updated_at"
                                             ]
@@ -2971,7 +3618,7 @@
             },
             "delete": {
                 "operationId": "group.destroy",
-                "description": "A draft or scheduled election only, and only a group with no voter (409 `group_in_use`).\nFinal: there is no trash. Owner or manager. Limited to 120 requests per hour per user.",
+                "description": "A draft or scheduled election only, and only a group with no voter and no ballot (409 `group_in_use`).\nFinal: there is no trash. Owner or manager. Limited to 120 requests per hour per user.",
                 "summary": "Delete a group",
                 "tags": [
                     "Group"
@@ -3003,7 +3650,7 @@
         "/v1/groups/{group}/merge": {
             "post": {
                 "operationId": "groups.groupMerge",
-                "description": "Every voter of the group moves to `into`, another group of the same election, and the\ngroup is deleted: one transaction. A draft or scheduled election only. Answers the\nreceiving group. Owner or manager. Limited to 120 requests per hour per user.",
+                "description": "Every voter of the group moves to `into`, another group of the same election, and the\ngroup is deleted, and the ballots that covered it cover `into`: one transaction. A draft or scheduled election only. Answers the\nreceiving group. Owner or manager. Limited to 120 requests per hour per user.",
                 "summary": "Merge a group into another",
                 "tags": [
                     "GroupMerge"
@@ -3049,6 +3696,9 @@
                                                 "voters_count": {
                                                     "type": "integer"
                                                 },
+                                                "ballots_count": {
+                                                    "type": "integer"
+                                                },
                                                 "created_at": {
                                                     "type": "string"
                                                 },
@@ -3060,6 +3710,7 @@
                                                 "id",
                                                 "name",
                                                 "voters_count",
+                                                "ballots_count",
                                                 "created_at",
                                                 "updated_at"
                                             ]
@@ -6072,6 +6723,104 @@
                 }
             }
         },
+        "/v1/elections/{election}/voter-copies": {
+            "post": {
+                "operationId": "voters.voterCopy",
+                "description": "Copies the voters of `source`, another election of the institution in any status, into this\ndraft or scheduled election, with their groups (found by name or created; `rename` gives a\ngroup another name). `groups` limits the copy to some groups of the source and\n`include_ungrouped` says whether the voters with no group come too. A voter whose identifier\nor email the election already has is skipped and counted. Credentials, codes and dates are\nnever copied. One transaction; a 409 leaves the election as it was. Owner or manager.\nLimited to 20 requests per hour per user.",
+                "summary": "Load the voters of another election",
+                "tags": [
+                    "VoterCopy"
+                ],
+                "parameters": [
+                    {
+                        "name": "election",
+                        "in": "path",
+                        "required": true,
+                        "description": "The election UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CopyVotersRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "copied": {
+                                                    "type": "integer"
+                                                },
+                                                "skipped": {
+                                                    "type": "integer"
+                                                },
+                                                "groups_created": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "required": [
+                                                "copied",
+                                                "skipped",
+                                                "groups_created"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                ""
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
         "/v1/elections/{election}/voter-imports/template": {
             "get": {
                 "operationId": "voterImport.template",
@@ -7221,6 +7970,26 @@
                 "items": {},
                 "title": "CandidateResource"
             },
+            "CopyVotersRequest": {
+                "type": "object",
+                "description": "docs/api/voters/POST-elections-{election}-voter-copies.md.",
+                "properties": {
+                    "source": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "include_ungrouped": {
+                        "type": [
+                            "boolean",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "source"
+                ],
+                "title": "CopyVotersRequest"
+            },
             "CreateBallotRequest": {
                 "type": "object",
                 "description": "docs/api/ballots/POST-elections-{election}-ballots.md.",
@@ -7243,6 +8012,21 @@
                     },
                     "allow_blank": {
                         "type": "boolean"
+                    },
+                    "scope": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "groups": {
+                        "type": [
+                            "array",
+                            "null"
+                        ],
+                        "items": {
+                            "type": "string"
+                        }
                     }
                 },
                 "required": [
@@ -7645,6 +8429,16 @@
                 ],
                 "title": "ResetTwoFactorRequest"
             },
+            "ScheduleElectionRequest": {
+                "type": "object",
+                "description": "docs/api/elections/POST-elections-{election}-schedule.md: an optional `accept_warnings` boolean.",
+                "properties": {
+                    "accept_warnings": {
+                        "type": "boolean"
+                    }
+                },
+                "title": "ScheduleElectionRequest"
+            },
             "SecondFactorRequest": {
                 "type": "object",
                 "description": "The password and a current second factor (`code` or `recovery_code`), asked to turn\ntwo-factor off and to renew the recovery codes. Only the presence of the second factor is\njudged here: anything that is not a right value (a short code, a list, a long text) is answered\n`invalid` by the action, and counted.",
@@ -7697,6 +8491,21 @@
                     },
                     "allow_blank": {
                         "type": "boolean"
+                    },
+                    "scope": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "groups": {
+                        "type": [
+                            "array",
+                            "null"
+                        ],
+                        "items": {
+                            "type": "string"
+                        }
                     }
                 },
                 "title": "UpdateBallotRequest"

@@ -203,7 +203,7 @@ it('ignores fields a request must not set: position, institution, election, id [
 
     $response = $this->browser->post(createUrl($election), [
         'title' => 'Seul', 'position' => 9, 'id' => '7c9e6679-7425-40de-944b-e07fc1f90ae7',
-        'institution' => $t['b']['owner']['institution'], 'institution_id' => 2, 'election_id' => 1, 'scope' => 'group',
+        'institution' => $t['b']['owner']['institution'], 'institution_id' => 2, 'election_id' => 1, 'result_note' => 'Une note',
     ])->assertCreated();
 
     $row = Accounts::ballotRow($response->json('data.id'));

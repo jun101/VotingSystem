@@ -4,13 +4,21 @@ import { ApiError, parseApiError } from './errors';
 import { XSRF_COOKIE } from './session';
 import type { Ballot, BallotChanges, NewBallot } from './ballots';
 import type { Candidate, CandidateChanges, NewCandidate } from './candidates';
-import type { Election, ElectionChanges, ElectionFilters, NewElection } from './elections';
+import type {
+  Checklist,
+  Election,
+  ElectionChanges,
+  ElectionFilters,
+  NewElection,
+} from './elections';
 import type { NewParty, Party, PartyChanges } from './parties';
 import type {
   GroupList,
   NewVoter,
   Voter,
   VoterChanges,
+  VoterCopyBody,
+  VoterCopyResult,
   VoterFilters,
   VoterGroup,
   VoterList,
@@ -417,6 +425,36 @@ export async function duplicateElection(id: string): Promise<Election> {
   return data!.data;
 }
 
+/** `GET /elections/{election}/checklist`: the blockers and warnings of an election. */
+export async function fetchChecklist(id: string): Promise<Checklist> {
+  const { data } = await send((api) =>
+    api.GET('/v1/elections/{election}/checklist', { params: { path: { election: id } } }),
+  );
+
+  return data!.data;
+}
+
+/** `POST /elections/{election}/schedule`: a draft becomes scheduled. */
+export async function scheduleElection(id: string, acceptWarnings: boolean): Promise<Election> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/schedule', {
+      params: { path: { election: id } },
+      body: { accept_warnings: acceptWarnings },
+    }),
+  );
+
+  return data!.data;
+}
+
+/** `POST /elections/{election}/unschedule`: a scheduled election goes back to draft. */
+export async function unscheduleElection(id: string): Promise<Election> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/unschedule', { params: { path: { election: id } } }),
+  );
+
+  return data!.data;
+}
+
 /** `DELETE /elections/{election}/cover`: removes the cover of a draft. */
 export async function removeElectionCover(id: string): Promise<void> {
   await send((api) =>
@@ -724,6 +762,18 @@ export async function fetchVoters(election: string, filters: VoterFilters): Prom
 export async function createVoter(election: string, body: NewVoter): Promise<Voter> {
   const { data } = await send((api) =>
     api.POST('/v1/elections/{election}/voters', { params: { path: { election } }, body }),
+  );
+
+  return data!.data;
+}
+
+/** `POST /elections/{election}/voter-copies`: loads voters from another election. */
+export async function copyVoters(election: string, body: VoterCopyBody): Promise<VoterCopyResult> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/voter-copies', {
+      params: { path: { election } },
+      body,
+    }),
   );
 
   return data!.data;

@@ -23,6 +23,8 @@ Body, JSON:
 | description | string, null | Optional. At most 1000 characters after trimming; blank is stored as `null` |
 | seats | integer | Optional. 1 to 20. Default 1 |
 | allow_blank | boolean | Optional. Default `true` |
+| scope | string | Optional. `general` (default: every voter of the election) or `group` (only the voters of the chosen groups) |
+| groups | list of UUID | Required when `scope` is `group`: 1 to 100 groups of **this election**. Ignored (and stored as none) when `scope` is `general` or absent. A repeated UUID counts once |
 
 ```json
 { "title": "Secrétaire", "seats": 1, "allow_blank": true }
@@ -46,6 +48,8 @@ Body, JSON:
 | 12 | Body is not valid JSON | 400 | `malformed_request` | |
 | 13 | Too many requests | 429 | `too_many_attempts` | |
 | 14 | Another method than GET, HEAD, POST | 405 | `method_not_allowed` | |
+| 15 | `scope` `group` with the groups of this election | 201 (`scope` `group`, `groups` as given) | | |
+| 16 | `scope` is something else; `scope` `group` with no group; a group that is not a UUID, unknown, another election's or another institution's (one answer for each) | 422 | `validation_failed` (`scope: invalid`, `groups: required`, `groups: invalid`) | |
 
 ## Responses
 
@@ -78,4 +82,4 @@ then the state (409; scenario 7 before 6).
 
 ## Notes
 
-A ballot's scope is `general` in this slice; slice 09 adds the group scope and the endpoint to choose the groups.
+The scope and its groups are written together with the ballot (slice 09). A group ballot keeps its groups when a group is merged into another (see [POST merge](../groups/POST-groups-{group}-merge.md)); a group a ballot uses cannot be deleted.

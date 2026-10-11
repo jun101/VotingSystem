@@ -23,6 +23,9 @@ final class GroupResource extends ApiResource
             'voters_count' => is_numeric($group->getAttribute('voters_count'))
                 ? (int) $group->getAttribute('voters_count')
                 : $group->voters()->count(),
+            'ballots_count' => is_numeric($group->getAttribute('ballots_count'))
+                ? (int) $group->getAttribute('ballots_count')
+                : $group->ballots()->count(),
             'created_at' => $group->created_at?->utc()->format('Y-m-d\TH:i:s\Z'),
             'updated_at' => $group->updated_at?->utc()->format('Y-m-d\TH:i:s\Z'),
         ];

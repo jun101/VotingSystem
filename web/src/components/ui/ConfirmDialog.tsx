@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useId, useRef, type KeyboardEvent, type ReactNode } from 'react';
-import { Button } from './Button';
+import { Button, type ButtonVariant } from './Button';
 
 type ConfirmDialogProps = {
   title: string;
@@ -11,6 +11,10 @@ type ConfirmDialogProps = {
   cancelLabel: string;
   /** The call is running: the buttons wait. */
   busy?: boolean;
+  /** The confirm button cannot be pressed yet (a tick the person must give first). */
+  confirmDisabled?: boolean;
+  /** The look of the confirm button: `danger` (the default) for a destructive action. */
+  confirmVariant?: ButtonVariant;
   /** Why the action did not happen; shown inside the dialog, which stays open. */
   error?: string | null;
   /** The id of the element that describes the dialog; the whole body when not given (a body that holds a form should name its sentence). */
@@ -36,6 +40,8 @@ export function ConfirmDialog({
   confirmLabel,
   cancelLabel,
   busy = false,
+  confirmDisabled = false,
+  confirmVariant = 'danger',
   error = null,
   describedBy,
   onConfirm,
@@ -129,7 +135,13 @@ export function ConfirmDialog({
           >
             {cancelLabel}
           </Button>
-          <Button variant="danger" loading={busy} onClick={onConfirm} data-testid={testIds.confirm}>
+          <Button
+            variant={confirmVariant}
+            loading={busy}
+            disabled={confirmDisabled}
+            onClick={onConfirm}
+            data-testid={testIds.confirm}
+          >
             {confirmLabel}
           </Button>
         </div>
