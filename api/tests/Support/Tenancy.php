@@ -125,6 +125,8 @@ final class Tenancy
         'GET api/v1/elections/{election}/checklist' => 'Slice09/ChecklistTest.php',
         'POST api/v1/elections/{election}/schedule' => 'Slice09/ScheduleTest.php',
         'POST api/v1/elections/{election}/unschedule' => 'Slice09/UnscheduleTest.php',
+        'POST api/v1/elections/{election}/close' => 'Slice13/CloseElectionTest.php',
+        'POST api/v1/elections/{election}/extend' => 'Slice13/ExtendElectionTest.php',
         'GET api/v1/elections/{election}/credentials' => 'Slice10/CredentialsStateTest.php',
         'POST api/v1/elections/{election}/credential-runs' => 'Slice10/CredentialRunTest.php',
         'GET api/v1/elections/{election}/generated-files' => 'Slice10/GeneratedFilesTest.php',

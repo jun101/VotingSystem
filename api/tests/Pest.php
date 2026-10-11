@@ -110,3 +110,13 @@ pest()->beforeEach(function () {
     $this->auditPair = Tests\Support\Voting::keypair();
     $this->browser = new Tests\Support\AuthClient($this);
 })->in('Acceptance/Slice12');
+
+// Slice 13: closing early, extending, the unschedule guard (docs/slices/13-opening-and-closing.md): the same as slice 12.
+pest()->beforeEach(function () {
+    Tests\Support\Accounts::reset();
+    Tests\Support\Tenancy::installProbeTables();
+    Tests\Support\Team::clearMedia();
+    Tests\Support\Voting::forgetCache();
+    $this->auditPair = Tests\Support\Voting::keypair();
+    $this->browser = new Tests\Support\AuthClient($this);
+})->in('Acceptance/Slice13');
