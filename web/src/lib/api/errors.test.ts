@@ -115,6 +115,29 @@ describe('parseApiError', () => {
     expect(error.retryAfter).toBe(42);
   });
 
+  it('reads the items of a refused scheduling and drops what is not an item', () => {
+    const error = parseApiError(
+      409,
+      {
+        error: {
+          code: 'checklist_warnings',
+          items: [
+            { code: 'ballot_single_candidate', ballot: { id: 'b', title: 'Président' } },
+            { code: 'voters_without_ballot', count: 5 },
+            { nope: true },
+            'x',
+          ],
+        },
+      },
+      null,
+    );
+
+    expect(error.items).toEqual([
+      { code: 'ballot_single_candidate', ballot: { id: 'b', title: 'Président' } },
+      { code: 'voters_without_ballot', count: 5 },
+    ]);
+  });
+
   it('turns anything unreadable into an unknown error', () => {
     for (const body of [undefined, null, 'oops', [], { error: 'x' }, { error: { fields: 3 } }]) {
       const error = parseApiError(502, body, 'soon');

@@ -62,8 +62,25 @@ describe('bodyOf', () => {
       description: null,
       seats: 3,
       allow_blank: false,
+      scope: 'general',
     });
     expect(bodyOf(draft({ description: ' Un par classe ' })).description).toBe('Un par classe');
+  });
+});
+
+describe('the scope', () => {
+  it('wants at least one group for a group position, and none for a general one', () => {
+    expect(validateBallot(draft({ scope: 'group', groups: [] })).groups).toBe('required');
+    expect(validateBallot(draft({ scope: 'group', groups: ['a'] })).groups).toBeUndefined();
+    expect(validateBallot(draft({ scope: 'general', groups: [] })).groups).toBeUndefined();
+  });
+
+  it('sends the groups with the group scope only', () => {
+    expect(bodyOf(draft({ scope: 'group', groups: ['a', 'b'] }))).toMatchObject({
+      scope: 'group',
+      groups: ['a', 'b'],
+    });
+    expect(bodyOf(draft({ scope: 'general', groups: ['a'] }))).not.toHaveProperty('groups');
   });
 });
 
@@ -72,5 +89,6 @@ describe('apiFieldErrors', () => {
     expect(
       apiFieldErrors({ title: ['required', 'max'], seats: ['max'], allow_blank: ['boolean'] }),
     ).toEqual({ title: 'required', seats: 'max' });
+    expect(apiFieldErrors({ groups: ['required'] })).toEqual({ groups: 'required' });
   });
 });

@@ -66,6 +66,7 @@ const groups: GroupList = {
     {
       ...GROUP,
       voters_count: 1,
+      ballots_count: 0,
       created_at: '2026-10-10T14:00:00Z',
       updated_at: '2026-10-10T14:00:00Z',
     },

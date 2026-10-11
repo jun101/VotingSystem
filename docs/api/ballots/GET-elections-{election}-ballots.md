@@ -46,6 +46,10 @@ Order: `position` ascending, then creation order.
       "position": 1,
       "seats": 1,
       "allow_blank": true,
+      "scope": "group",
+      "groups": [{ "id": "4a1f8c52-6d0e-4b79-8f1a-3c9d2e7b5a60", "name": "4e année", "voters_count": 62 }],
+      "eligible_voters": 62,
+      "warnings": [],
       "candidates_count": 0,
       "candidates": [],
       "created_at": "2026-10-10T14:02:11Z",
@@ -65,5 +69,8 @@ The shared error shape of [API conventions](../README.md). Scenario 4 gives the 
 
 ## Notes
 
-- Slice 09 adds `scope` and `groups` to every item.
+- Slice 09 adds to every item: `scope` (`general` or `group`), `groups` (`{id, name, voters_count}`, empty for a general
+  ballot), `eligible_voters` (a general ballot: every voter of the election; a group ballot: the voters of its groups,
+  FR-BAL-05) and `warnings`: `[]`, or `["no_voters"]` (a group ballot with no eligible voter) or `["few_voters"]`
+  (a group ballot with 1 to 4 eligible voters, FR-BAL-06). A warning never blocks anything.
 - `result_note` of the schema is not output here: it is read by the results slices.

@@ -68,6 +68,10 @@ function ballot(title: string, position: number, extra: Partial<Ballot> = {}): B
     position,
     seats: 1,
     allow_blank: true,
+    scope: 'general',
+    groups: [],
+    eligible_voters: 0,
+    warnings: [],
     candidates_count: 0,
     candidates: [],
     created_at: '2026-10-10T14:00:00Z',
@@ -209,6 +213,7 @@ describe('BallotsPage', () => {
       description: null,
       seats: 2,
       allow_blank: true,
+      scope: 'general',
     });
     await waitFor(() => expect(titles()).toEqual(['Délégués']));
     expect(screen.queryByTestId('ballot-form')).not.toBeInTheDocument();
@@ -238,7 +243,47 @@ describe('BallotsPage', () => {
     expect(screen.queryByTestId('ballots-add')).not.toBeInTheDocument();
     expect(screen.queryByTestId('ballot-up-2')).not.toBeInTheDocument();
     expect(screen.queryByTestId('ballot-edit-1')).not.toBeInTheDocument();
-    expect(screen.getByTestId('ballots-locked')).toBeInTheDocument();
+    expect(screen.getByTestId('ballots-locked-notice')).toBeInTheDocument();
+  });
+
+  it('shows the notice and no write control for a scheduled election, with candidates and parties', () => {
+    const withCandidates = [
+      ballot('A', 1, { candidates_count: 1, candidates: [candidate('a', 1, 'p')] }),
+      ballot('B', 2),
+    ];
+
+    renderIn(
+      'fr',
+      <BallotsPage
+        election={{ ...election, status: 'scheduled' }}
+        initial={withCandidates}
+        initialParties={[party('Parti')]}
+      />,
+    );
+
+    expect(screen.getByTestId('ballots-locked-notice')).toBeInTheDocument();
+    expect(screen.getByTestId('ballots-hero')).toHaveAttribute('data-status', 'scheduled');
+
+    for (const id of [
+      'ballots-add',
+      'parties-add',
+      'ballot-new-tile',
+      'party-new',
+      'ballot-edit-1',
+      'ballot-delete-1',
+      'ballot-up-2',
+      'ballot-down-1',
+      'ballot-grip-1',
+      'candidate-add-1',
+      'candidate-edit-1-1',
+      'candidate-delete-1-1',
+      'candidate-up-1-1',
+      'candidate-grip-1-1',
+      'party-edit-1',
+      'party-delete-1',
+    ]) {
+      expect(screen.queryByTestId(id), id).not.toBeInTheDocument();
+    }
   });
 });
 

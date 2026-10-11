@@ -60,6 +60,7 @@ export default async function VotersRoute({
         'elections',
         'voters',
         'groups',
+        'ballots',
       )}
     >
       <VotersPage

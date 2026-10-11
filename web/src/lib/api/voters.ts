@@ -28,6 +28,22 @@ export type NewVoter = components['schemas']['CreateVoterRequest'];
 /** The body of `PATCH /voters/{voter}`: every field optional. */
 export type VoterChanges = components['schemas']['UpdateVoterRequest'];
 
+/**
+ * The body of `POST /elections/{election}/voter-copies`. The generated schema lists the fields
+ * the validator names by rule; `groups` and `rename` are judged by hand on the server.
+ */
+export type VoterCopyBody = components['schemas']['CopyVotersRequest'] & {
+  groups?: string[] | null;
+  rename?: Record<string, string>;
+};
+
+/** What a copy did: the voters written, the voters skipped and the groups created. */
+export type VoterCopyResult = {
+  copied: number;
+  skipped: number;
+  groups_created: number;
+};
+
 /** 24 voters a page. */
 export const VOTERS_PER_PAGE = 24;
 

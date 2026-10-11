@@ -14,6 +14,7 @@ import { useI18n } from '@/lib/i18n/client';
 export function MergeGroupDialog({
   group,
   others,
+  ballots,
   onMerged,
   onLocked,
   onCancel,
@@ -21,6 +22,11 @@ export function MergeGroupDialog({
   group: Pick<VoterGroup, 'id' | 'name'>;
   /** The other groups of the election: the choices. */
   others: Pick<VoterGroup, 'id' | 'name'>[];
+  /**
+   * The titles of the positions that cover the group and follow the merge; null while they are
+   * read (the group says how many there are).
+   */
+  ballots: { titles: string[] | null; count: number };
   onMerged: () => void;
   onLocked: () => void;
   onCancel: () => void;
@@ -75,6 +81,16 @@ export function MergeGroupDialog({
     >
       <div className="flex flex-col gap-4">
         <p id={sentence}>{t('groups.merge.text', { name: group.name })}</p>
+        {ballots.count > 0 ? (
+          <p
+            data-testid="group-merge-ballots"
+            className="rounded-lg bg-surface-alt px-3 py-2.5 text-base text-ink-2"
+          >
+            {t('groups.merge.ballots', {
+              titles: ballots.titles ? ballots.titles.join(', ') : '…',
+            })}
+          </p>
+        ) : null}
         <Select
           label={t('groups.merge.into')}
           value={into}

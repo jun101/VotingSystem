@@ -6,6 +6,7 @@ use App\Models\Concerns\BelongsToInstitution;
 use App\Models\Concerns\HasUuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
@@ -35,6 +36,14 @@ class VoterGroup extends Model
         return mb_strtolower(trim($name));
     }
 
+    /** The voter count a `withCount('voters')` query put on the model (0 when it was not asked for). */
+    public function votersCounted(): int
+    {
+        $counted = $this->getAttribute('voters_count');
+
+        return is_numeric($counted) ? (int) $counted : 0;
+    }
+
     /** Setting the name sets its comparison key. */
     public function setNameAttribute(string $value): void
     {
@@ -54,5 +63,15 @@ class VoterGroup extends Model
     public function voters(): HasMany
     {
         return $this->hasMany(Voter::class);
+    }
+
+    /**
+     * The group ballots that cover this group (slice 09).
+     *
+     * @return BelongsToMany<Ballot, $this>
+     */
+    public function ballots(): BelongsToMany
+    {
+        return $this->belongsToMany(Ballot::class, 'ballot_voter_group');
     }
 }

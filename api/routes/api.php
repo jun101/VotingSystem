@@ -28,6 +28,7 @@ use App\Http\Controllers\Users\InvitationController;
 use App\Http\Controllers\Users\UserController;
 use App\Http\Controllers\VoterImports\VoterImportController;
 use App\Http\Controllers\Voters\VoterController;
+use App\Http\Controllers\Voters\VoterCopyController;
 use Illuminate\Support\Facades\Route;
 
 // The `/api` prefix is added by the framework; every route lives under `/api/v1`.
@@ -91,6 +92,9 @@ Route::prefix('v1')->group(function (): void {
         Route::patch('/{election}', [ElectionController::class, 'update'])->middleware('throttle:elections-edit');
         Route::delete('/{election}', [ElectionController::class, 'destroy'])->middleware('throttle:elections-write');
         Route::post('/{election}/duplicate', [ElectionController::class, 'duplicate'])->middleware('throttle:elections-write');
+        Route::get('/{election}/checklist', [ElectionController::class, 'checklist']);
+        Route::post('/{election}/schedule', [ElectionController::class, 'schedule'])->middleware('throttle:election-schedule');
+        Route::post('/{election}/unschedule', [ElectionController::class, 'unschedule'])->middleware('throttle:election-schedule');
         Route::put('/{election}/cover', [CoverController::class, 'update'])->middleware('throttle:election-cover');
         Route::delete('/{election}/cover', [CoverController::class, 'destroy']);
 
@@ -110,6 +114,9 @@ Route::prefix('v1')->group(function (): void {
         Route::post('/{election}/voters', [VoterController::class, 'store'])->middleware('throttle:voters-write');
         Route::get('/{election}/groups', [GroupController::class, 'index']);
         Route::post('/{election}/groups', [GroupController::class, 'store'])->middleware('throttle:groups-write');
+
+        // Voters loaded from another election (slice 09b).
+        Route::post('/{election}/voter-copies', VoterCopyController::class)->middleware('throttle:voter-copies');
 
         // The voter import of an election (slice 08a): the template and the upload.
         Route::get('/{election}/voter-imports/template', [VoterImportController::class, 'template'])->middleware('throttle:voter-imports');

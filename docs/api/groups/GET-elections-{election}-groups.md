@@ -49,12 +49,14 @@ Each group:
   "id": "4a1f8c52-6d0e-4b79-8f1a-3c9d2e7b5a60",
   "name": "4e année",
   "voters_count": 62,
+  "ballots_count": 1,
   "created_at": "2026-10-10T14:02:11Z",
   "updated_at": "2026-10-10T14:02:11Z"
 }
 ```
 
-`id` is the group's UUID. `voters_count` is the number of voters of the election in the group.
+`id` is the group's UUID. `voters_count` is the number of voters of the election in the group; `ballots_count` is the
+number of the election's group ballots that cover it (slice 09).
 
 ### 404, 401, 403, 405
 

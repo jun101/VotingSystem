@@ -2,16 +2,20 @@
 
 namespace App\Http\Controllers\Elections;
 
+use App\Actions\Elections\ComputeChecklist;
 use App\Actions\Elections\DuplicateElection;
 use App\Actions\Elections\ListElections;
+use App\Enums\ElectionStatus;
 use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Elections\CreateElectionRequest;
 use App\Http\Requests\Elections\DuplicateElectionRequest;
 use App\Http\Requests\Elections\ListElectionsRequest;
+use App\Http\Requests\Elections\ScheduleElectionRequest;
 use App\Http\Requests\Elections\UpdateElectionRequest;
 use App\Http\Resources\ElectionResource;
 use App\Http\Resources\PageOf;
+use App\Models\Ballot;
 use App\Models\Candidate;
 use App\Models\Election;
 use App\Models\Party;
@@ -169,6 +173,10 @@ class ElectionController extends Controller
             $imports = VoterImport::query()->where('election_id', $locked->id)->pluck('stored_file')->all();
             // The voters go before the election: a group with voters is restricted, and the cascade
             // from the election may reach the groups first.
+            // The ballots' group links go first too: the link restricts the deletion of a group.
+            DB::table('ballot_voter_group')
+                ->whereIn('ballot_id', Ballot::query()->where('election_id', $locked->id)->select('id'))
+                ->delete();
             Voter::query()->where('election_id', $locked->id)->delete();
             $locked->delete();
         });
@@ -209,6 +217,109 @@ class ElectionController extends Controller
         Log::info('election.duplicate', ['outcome' => 'created']);
 
         return (new ElectionResource($copy))->response()->setStatusCode(201);
+    }
+
+    /**
+     * The checklist of an election.
+     *
+     * What stops the election from being scheduled (`blockers`) and what to look at first
+     * (`warnings`), in any status. `can_schedule` is true for a draft with no blocker. Owner or
+     * manager.
+     *
+     * @response array{data: array{status: 'draft'|'scheduled'|'open'|'closed'|'published'|'archived', can_schedule: bool, counts: array{ballots: int, candidates: int, voters: int, groups: int}, blockers: list<array{code: 'no_ballots'|'ballot_without_candidates'|'no_voters', ballot?: array{id: string, title: string}}>, warnings: list<array{code: 'ballot_single_candidate'|'group_ballot_no_voters'|'group_ballot_few_voters'|'voters_without_ballot', ballot?: array{id: string, title: string}, count?: int}>}}
+     */
+    public function checklist(Election $election, ComputeChecklist $checklist): JsonResponse
+    {
+        $this->allow('view', $election);
+
+        return response()->json(['data' => $checklist($election)]);
+    }
+
+    /**
+     * Schedule an election.
+     *
+     * A draft becomes scheduled: ballots, candidates and parties are locked; voters and groups stay
+     * editable. 409 `checklist_blocked` with the blockers in `error.items`; 409 `checklist_warnings`
+     * with the warnings unless `accept_warnings` is true; 409 `election_period_over` when the end is
+     * not in the future. The checklist is computed again under the row lock. Owner or manager.
+     * Limited to 120 requests per hour per user.
+     *
+     * @response array{data: array{id: string, title: string, description: string|null, status: 'draft'|'scheduled'|'open'|'closed'|'published'|'archived', starts_at: string, ends_at: string, timezone: string, language: 'fr'|'en', candidate_order: 'manual'|'shuffled', results_display: 'full'|'winners', cover: array{sm: string, md: string}|null, ballots_count: int, voters_count: int, created_at: string}}
+     */
+    public function schedule(ScheduleElectionRequest $request, Election $election, ComputeChecklist $checklist): ElectionResource
+    {
+        $this->allow('update', $election);
+
+        $accept = $request->acceptsWarnings();
+
+        $saved = DB::transaction(function () use ($election, $accept, $checklist): Election {
+            // The row is read again under the lock: a change that landed meanwhile counts.
+            $locked = Election::query()->whereKey($election->getKey())->lockForUpdate()->first();
+
+            if ($locked === null) {
+                throw new ApiException(404, 'not_found');
+            }
+
+            $locked->assertEditable();
+
+            if (! $locked->ends_at->isFuture()) {
+                throw new ApiException(409, 'election_period_over');
+            }
+
+            $list = $checklist($locked);
+
+            if ($list['blockers'] !== []) {
+                throw new ApiException(409, 'checklist_blocked', items: $list['blockers']);
+            }
+
+            if ($list['warnings'] !== [] && ! $accept) {
+                throw new ApiException(409, 'checklist_warnings', items: $list['warnings']);
+            }
+
+            $locked->status = ElectionStatus::Scheduled;
+            $locked->save();
+
+            return $locked;
+        });
+
+        Log::info('election.schedule', ['outcome' => 'scheduled']);
+
+        return new ElectionResource($saved);
+    }
+
+    /**
+     * Unschedule an election.
+     *
+     * A scheduled election goes back to draft, so ballots and candidates can be edited again.
+     * Voters, groups and the groups of the ballots are not touched. Owner or manager. Limited to
+     * 120 requests per hour per user.
+     *
+     * @response array{data: array{id: string, title: string, description: string|null, status: 'draft'|'scheduled'|'open'|'closed'|'published'|'archived', starts_at: string, ends_at: string, timezone: string, language: 'fr'|'en', candidate_order: 'manual'|'shuffled', results_display: 'full'|'winners', cover: array{sm: string, md: string}|null, ballots_count: int, voters_count: int, created_at: string}}
+     */
+    public function unschedule(Election $election): ElectionResource
+    {
+        $this->allow('update', $election);
+
+        $saved = DB::transaction(function () use ($election): Election {
+            $locked = Election::query()->whereKey($election->getKey())->lockForUpdate()->first();
+
+            if ($locked === null) {
+                throw new ApiException(404, 'not_found');
+            }
+
+            if ($locked->status !== ElectionStatus::Scheduled) {
+                throw new ApiException(409, 'election_not_scheduled');
+            }
+
+            $locked->status = ElectionStatus::Draft;
+            $locked->save();
+
+            return $locked;
+        });
+
+        Log::info('election.unschedule', ['outcome' => 'unscheduled']);
+
+        return new ElectionResource($saved);
     }
 
     /**
