@@ -38,11 +38,10 @@ class VoteSubmitController extends Controller
         $limit = 'vote-submit:'.VoterSessions::fingerprint($context->session->token);
         $max = Config::integer('votes.submit_per_minute');
 
-        if (RateLimiter::tooManyAttempts($limit, $max)) {
+        // The increment itself decides, so parallel requests cannot all read a count under the limit.
+        if (RateLimiter::increment($limit, 60) > $max) {
             throw new ApiException(429, 'too_many_attempts', ['Retry-After' => (string) max(1, RateLimiter::availableIn($limit))]);
         }
-
-        RateLimiter::hit($limit, 60);
 
         /** @var array{ballots: list<array{ballot: string, candidates: list<string>}>} $body */
         $body = $request->validate([

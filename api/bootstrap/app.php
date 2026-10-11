@@ -71,8 +71,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // token is its own cookie, read and written by the controllers (`SameSite=Strict`, path
         // `/api/v1/vote`); a POST must declare a JSON body (RequireJsonBody).
         $middleware->group('voter', [
-            RejectMalformedJson::class,
             RequireJsonBody::class,
+            RejectMalformedJson::class,
         ]);
         $middleware->alias([
             'institution.active' => EnsureInstitutionActive::class,
