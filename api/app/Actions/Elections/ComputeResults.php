@@ -59,6 +59,14 @@ final class ComputeResults
 
         $out = [];
 
+        // The second rounds already created: ballot key => the new election's uuid. Read without the tenant scope,
+        // but only for ballots this election's own (scoped) query returned.
+        $rounds = DB::table('ballots')
+            ->join('elections', 'elections.id', '=', 'ballots.election_id')
+            ->whereIn('ballots.source_ballot_id', $ballots->pluck('id')->all())
+            ->pluck('elections.uuid', 'ballots.source_ballot_id')
+            ->all();
+
         foreach ($ballots as $ballot) {
             $scoped = $ballot->scope === BallotScope::Group;
             $groupIds = [];
@@ -130,6 +138,7 @@ final class ComputeResults
                 'tie' => $tie,
                 'check' => ['recorded' => $papers, 'expected' => $participated, 'ok' => $papers === $participated],
                 'note' => $ballot->result_note,
+                'second_round' => isset($rounds[$ballot->id]) && is_string($rounds[$ballot->id]) ? $rounds[$ballot->id] : null,
             ];
         }
 

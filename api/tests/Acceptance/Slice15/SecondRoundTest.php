@@ -77,6 +77,16 @@ it('creates a draft election holding only the tied ballot with the tied candidat
         ->and(Accounts::voterRows($new['id']))->toHaveCount(5);
 });
 
+it('shows the second round on the ballot of the first election\'s results [FR-RES-09] (scenario 1)', function () {
+    [$t, $election, $tied, $clear] = roundSignedIn($this);
+    $new = $this->browser->post(roundUrl($election), ['ballot' => $tied])->assertCreated()->json('data.id');
+
+    $ballots = $this->browser->get("/api/v1/elections/{$election}/results")->assertOk()->json('data.ballots');
+    $by = array_column($ballots, 'second_round', 'id');
+
+    expect($by[$tied])->toBe($new)->and($by[$clear])->toBeNull();
+});
+
 it('copies no code, no vote and no participation and leaves the first election untouched [FR-SEC-01] (scenario 1)', function () {
     [$t, $election, $tied] = roundSignedIn($this);
     foreach (Accounts::voterRows($election) as $voter) {

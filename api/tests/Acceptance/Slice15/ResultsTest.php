@@ -61,8 +61,8 @@ it('counts the papers per candidate with percentages of the papers cast, blank i
     $b = $data['ballots'][0];
 
     expect($data['election'])->toBe(['id' => $election, 'title' => 'Conseil', 'status' => 'closed'])
-        ->and(array_keys($b))->toBe(['id', 'title', 'seats', 'scope', 'groups', 'eligible', 'voted', 'cast', 'blank', 'candidates', 'winners', 'tie', 'check', 'note'])
-        ->and($b)->toMatchArray(['id' => $ballot, 'title' => 'Président(e)', 'seats' => 1, 'scope' => 'general', 'groups' => [], 'eligible' => 11, 'voted' => 11, 'cast' => 11, 'blank' => 2, 'tie' => null, 'note' => null])
+        ->and(array_keys($b))->toBe(['id', 'title', 'seats', 'scope', 'groups', 'eligible', 'voted', 'cast', 'blank', 'candidates', 'winners', 'tie', 'check', 'note', 'second_round'])
+        ->and($b)->toMatchArray(['id' => $ballot, 'title' => 'Président(e)', 'seats' => 1, 'scope' => 'general', 'groups' => [], 'eligible' => 11, 'voted' => 11, 'cast' => 11, 'blank' => 2, 'tie' => null, 'note' => null, 'second_round' => null])
         ->and(array_keys($b['candidates'][0]))->toBe(['id', 'first_name', 'last_name', 'party', 'votes', 'percentage'])
         ->and(array_map(fn ($x) => [$x['id'], $x['votes'], $x['percentage']], $b['candidates']))->toBe([[$c['A'], 5, 45.5], [$c['B'], 3, 27.3], [$c['C'], 1, 9.1]])
         ->and($b['candidates'][0]['party'])->toBe('Avenir Étudiant')

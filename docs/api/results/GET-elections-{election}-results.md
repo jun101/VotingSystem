@@ -56,7 +56,8 @@ The results of a closed election, per ballot.
         "winners": ["c2b8e0a4-9d6f-4c3b-a1e7-5f0d3b6a8c91"],
         "tie": null,
         "check": { "recorded": 287, "expected": 287, "ok": true },
-        "note": null
+        "note": null,
+        "second_round": null
       }
     ]
   }
@@ -64,7 +65,7 @@ The results of a closed election, per ballot.
 ```
 
 `groups` is a list of `{ "id", "name" }`, empty for a general ballot. `party` is the party's name or `null`. `candidates` are ordered by votes descending, then by the election's order. `tie` is `null` or `{ "candidates": [ids],
-"seats_left": n }`. `percentage` is `votes` over `cast`, one decimal. A general ballot is never split by group.
+"seats_left": n }`. `second_round` is the UUID of the draft election created from this ballot by [POST second-round](POST-elections-{election}-second-round.md), else `null`. `percentage` is `votes` over `cast`, one decimal. A general ballot is never split by group.
 
 ## Notes
 
