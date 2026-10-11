@@ -36,7 +36,7 @@ another election never matches. The answer for an unknown code takes the same pa
 | 2 | The code in lower case, without the hyphen, with spaces | 201 (the same voter) | | |
 | 3 | Unknown code, a code of another election or institution, a malformed one, or a code that was replaced by a reissue | 401 | `invalid_code` (one answer for all) | |
 | 4 | The voter has already voted | 409 | `already_voted` | |
-| 5 | Election not open now (before the start, after the end, not `open`) | 409, `phase` `before` or `closed` in `error.phase` | `election_not_open` | |
+| 5 | Election not open now (before the start, after the end, not `open`) | 409, `phase` `before`, `closed` or `paused` (institution suspended) in `error.phase` | `election_not_open` | |
 | 6 | `code` missing or not a string | 422 | `validation_failed` (`code: required`) | |
 | 7 | The election is a draft, unknown, or not a UUID | 404 | `not_found` | |
 | 8 | A second valid code on a browser that has a session | 201 (the old session is replaced) | | |

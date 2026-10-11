@@ -339,3 +339,7 @@ Filled slice by slice: each slice adds its endpoints here with a link to their f
 | Public | `GET /public/institutions/{institution}` | 16 | [publication/GET-public-institutions-{institution}.md](publication/GET-public-institutions-{institution}.md) |
 | Audit | `GET /audit` | 17 | [audit/GET-audit.md](audit/GET-audit.md) |
 | Audit | `GET /audit/export` | 17 | [audit/GET-audit-export.md](audit/GET-audit-export.md) |
+| Platform | `GET /platform/institutions` | 18 | [platform/GET-platform-institutions.md](platform/GET-platform-institutions.md) |
+| Platform | `POST /platform/institutions/{institution}/suspend` | 18 | [platform/POST-platform-institutions-{institution}-suspend.md](platform/POST-platform-institutions-{institution}-suspend.md) |
+| Platform | `POST /platform/institutions/{institution}/reactivate` | 18 | [platform/POST-platform-institutions-{institution}-reactivate.md](platform/POST-platform-institutions-{institution}-reactivate.md) |
+| Platform | `php artisan platform:create-admin` (command) | 18 | [platform/COMMAND-platform-create-admin.md](platform/COMMAND-platform-create-admin.md) |

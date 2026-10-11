@@ -77,6 +77,16 @@ final class Tenancy
     ];
 
     /**
+     * Slice 18: routes of the platform admin only. They sit behind `auth` and the platform middleware (an institution
+     * user answers 403) and show counts of institutions, never a tenant's records; the endpoint's own tests check that.
+     */
+    public const PLATFORM_ROUTES = [
+        'GET api/v1/platform/institutions',
+        'POST api/v1/platform/institutions/{institution}/suspend',
+        'POST api/v1/platform/institutions/{institution}/reactivate',
+    ];
+
+    /**
      * Routes that bind or list tenant records: `METHOD uri` => the test file (under
      * `api/tests/Acceptance/`) that checks them against a user of another institution.
      * Slice 05 and after add their routes here. The file must exist and must name the uri.
@@ -338,7 +348,7 @@ final class Tenancy
      */
     public static function uncoveredRoutes(iterable $routes): array
     {
-        $known = array_merge(self::PUBLIC_ROUTES, self::OWN_USER_ROUTES, array_keys(self::TENANT_ROUTES));
+        $known = array_merge(self::PUBLIC_ROUTES, self::OWN_USER_ROUTES, self::PLATFORM_ROUTES, array_keys(self::TENANT_ROUTES));
         $missing = [];
 
         foreach ($routes as $route) {

@@ -49,6 +49,17 @@ NFR-UX-02, NFR-UX-03.
 - **18b, web:** A16 `/platform` (cards per institution, search, filter, suspend dialog with the reason, reactivate
   dialog), the sign-in refusal screen showing the reason, replace the "not yet available" message at sign-in.
 
+## Behaviour changed in existing contracts (written 2026-10-12)
+
+- `VotePhase`: a suspended institution's `scheduled` or `open` election is `paused` (was `closed`); closed, published and
+  archived ones stay `closed`. `GET /vote/{election}` and `POST /vote/{election}/session` (`error.phase`) carry it; the
+  vote submit answers 409 `election_not_open`. The test of slice 12 VoteInfoTest scenario 5 was changed with it.
+- `elections:advance` skips elections of a suspended institution (no opening, no closing). After reactivation its
+  next run applies the usual rules.
+- `POST /auth/login` and the two-factor challenge give `error.reason` with `institution_suspended`.
+- `Tests\Support\Tenancy::PLATFORM_ROUTES`: a fifth list (routes for the platform admin only; `auth` + the platform
+  middleware, no `institution.active` needed), counted by the coverage tests.
+
 ## Not in this slice
 
 Platform statistics beyond counts, billing, impersonation (never), the operator's vote-audit command (19).
