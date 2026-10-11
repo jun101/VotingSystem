@@ -51,3 +51,16 @@ it('creates nothing when the email already belongs to a user, removed or not [FR
     expect(Accounts::userRow('taken@example.test')['role'])->toBe('owner')
         ->and(Accounts::userRow('gone@example.test')['role'])->toBe('owner');
 });
+
+it('reads the password from an environment variable with --password-from-env, and refuses an unset or short one [FR-ADM-01] (options)', function () {
+    putenv('PLATFORM_ADMIN_PASSWORD=a long enough password');
+    $this->artisan('platform:create-admin', ['email' => 'env@platform.test', '--password-from-env' => 'PLATFORM_ADMIN_PASSWORD'])->assertExitCode(0);
+    putenv('PLATFORM_ADMIN_PASSWORD=short');
+    $this->artisan('platform:create-admin', ['email' => 'short@platform.test', '--password-from-env' => 'PLATFORM_ADMIN_PASSWORD'])->assertExitCode(1);
+    putenv('PLATFORM_ADMIN_PASSWORD');
+    $this->artisan('platform:create-admin', ['email' => 'unset@platform.test', '--password-from-env' => 'PLATFORM_ADMIN_PASSWORD'])->assertExitCode(1);
+
+    expect(Accounts::userRow('env@platform.test')['role'])->toBe('platform_admin')
+        ->and(Accounts::userRow('short@platform.test'))->toBeNull()
+        ->and(Accounts::userRow('unset@platform.test'))->toBeNull();
+});

@@ -60,6 +60,22 @@ NFR-UX-02, NFR-UX-03.
 - `Tests\Support\Tenancy::PLATFORM_ROUTES`: a fifth list (routes for the platform admin only; `auth` + the platform
   middleware, no `institution.active` needed), counted by the coverage tests.
 
+## Test ids (browser tests `web/e2e/slice18/platform.spec.ts`)
+
+| Element | Test id |
+|---|---|
+| Page | `platform-page`, `platform-empty` |
+| Cards (n from 1, newest first) | `platform-institution-{n}`, `platform-name-{n}`, `platform-status-{n}` (`data-status` `active` or `suspended`), `platform-counts-{n}`, `platform-suspend-{n}`, `platform-reactivate-{n}` |
+| Filters | `platform-search` (live search by name), `platform-filter-status` (select: all, active, suspended) |
+| Dialogs | `suspend-reason` (required; the confirm does nothing and the dialog stays while it is empty), `suspend-confirm`, `suspend-cancel`, `reactivate-confirm`, `platform-error` |
+| Sign-in refusal | `login-suspended` (the notice), `login-suspended-reason` (the text of the reason only) |
+
+Routes: `/platform` for the platform admin only (an owner or manager is redirected to `/admin`, a signed-out visitor to
+`/login`); a platform admin who signs in lands on `/platform`, and any `/admin` page sends them there.
+`make e2e` creates the browser tests' admin with `platform:create-admin e2e-admin@platform.test
+--password-from-env=PLATFORM_ADMIN_PASSWORD` (new option of the command, the password read from that environment
+variable instead of asked; documented in the command's file).
+
 ## Not in this slice
 
 Platform statistics beyond counts, billing, impersonation (never), the operator's vote-audit command (19).

@@ -1,4 +1,4 @@
-# php artisan platform:create-admin {email}
+# php artisan platform:create-admin {email} [--password-from-env=NAME]
 
 The only way to create a platform admin (there is no sign-up for it). Run by the operator on the server.
 
@@ -16,6 +16,9 @@ The only way to create a platform admin (there is no sign-up for it). Run by the
 | 2 | The two passwords differ, or the password is shorter than 12 characters | Nothing created; exit code 1 | |
 | 3 | The email is invalid | Nothing created; exit code 1 | |
 | 4 | The email already belongs to a user (any role, removed or not) | Nothing created; exit code 1 | |
+
+`--password-from-env=NAME` reads the password from that environment variable instead of asking (for scripts such as
+`make e2e`; it is not asked to be confirmed; the same minimum length applies; an unset or empty variable gives exit code 1).
 
 The new admin signs in at the same page as everyone and is sent to `/platform`. The command writes no audit entry
 (it is run by the operator, outside the application) and prints the new user's uuid.
