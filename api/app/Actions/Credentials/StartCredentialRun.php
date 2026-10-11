@@ -13,6 +13,7 @@ use App\Models\VoterGroup;
 use App\Support\Credentials\EmailQuota;
 use App\Support\Credentials\PartSplitter;
 use App\Support\Credentials\RowCount;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -252,7 +253,7 @@ final class StartCredentialRun
 
     /**
      * The scope `failed_email`, by group id (key 0 for no group): the voters whose last email
-     * failed and who have an address. Every one of them is served and emailed; none is skipped.
+     * failed and who have an address and have not voted. Every one of them is served and emailed; none is skipped.
      *
      * @return array<int, array{total: int, coded: int, emailable: int}>
      */
@@ -266,6 +267,10 @@ final class StartCredentialRun
             })
             ->where('credentials.email_status', Credential::EMAIL_FAILED)
             ->whereNotNull('voters.email')
+            ->whereNotExists(function (QueryBuilder $voted): void {
+                // Someone who has voted is not given a new code: the old one has been used.
+                $voted->select(DB::raw('1'))->from('participations')->whereColumn('participations.voter_id', 'voters.id');
+            })
             ->selectRaw('voters.voter_group_id as group_key, count(*) as total')
             ->groupBy('voters.voter_group_id')
             ->get();

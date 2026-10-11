@@ -51,4 +51,10 @@ return [
     'election_codes_locked' => 'Codes can no longer be generated or reissued for this election.',
     'file_not_ready' => 'This file is not ready.',
     'voter_has_voted' => 'This voter has already voted: the code cannot be replaced.',
+    'invalid_code' => 'This code is not valid. Check it and try again.',
+    'already_voted' => 'This code has already been used to vote.',
+    'election_not_open' => 'This election is not open for voting now.',
+    'voter_session_expired' => 'Your session has ended. Enter your code again.',
+    'choices_invalid' => 'Your choices are not valid for this ballot. Check them and try again.',
+    'ballots_mismatch' => 'The ballots sent are not those you may vote on. Reload the page and try again.',
 ];

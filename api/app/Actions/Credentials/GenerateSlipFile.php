@@ -222,7 +222,11 @@ final class GenerateSlipFile
             // The scope `failed_email`: the voters whose last email failed, who still have an address.
             $query->join('credentials', 'credentials.voter_id', '=', 'voters.id')
                 ->where('credentials.email_status', Credential::EMAIL_FAILED)
-                ->whereNotNull('voters.email');
+                ->whereNotNull('voters.email')
+                // Someone who voted since the run began keeps the code they used.
+                ->whereNotExists(function (Builder $voted): void {
+                    $voted->select(DB::raw('1'))->from('participations')->whereColumn('participations.voter_id', 'voters.id');
+                });
         } else {
             $query->whereNotExists(function (Builder $credentials): void {
                 $credentials->select(DB::raw('1'))->from('credentials')->whereColumn('credentials.voter_id', 'voters.id');

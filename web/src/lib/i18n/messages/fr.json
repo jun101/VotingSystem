@@ -1934,5 +1934,141 @@
       "excel": "Excel · {date}",
       "csv": "CSV · {date}"
     }
+  },
+  "vote": {
+    "language": {
+      "label": "Langue",
+      "fr": "Français",
+      "en": "English",
+      "frShort": "FR",
+      "enShort": "EN"
+    },
+    "shell": {
+      "secret": "Vote secret",
+      "step": "Étape {n} sur {total}"
+    },
+    "period": {
+      "start": "Ouverture",
+      "end": "Fermeture",
+      "dayAt": "{day} à {time}"
+    },
+    "code": {
+      "kicker": "Vote en ligne",
+      "heading": "Entrez votre code",
+      "lede": "Votre code personnel figure sur votre fiche. Il compte dix caractères.",
+      "label": "Votre code de vote",
+      "help": "Majuscules ou minuscules, avec ou sans tiret.",
+      "submit": "Continuer",
+      "howTitle": "Comment ça marche",
+      "step1Title": "Votre code",
+      "step1Text": "Entrez le code de votre fiche.",
+      "step2Title": "Votre identité",
+      "step2Text": "Vérifiez que c’est bien vous.",
+      "step3Title": "Votre vote",
+      "step3Text": "Choisissez sur chaque poste, relisez, puis confirmez.",
+      "secretTitle": "Votre vote reste secret",
+      "secretText": "Personne ne peut relier votre nom à vos choix. Le vote ne peut être confirmé qu’une seule fois.",
+      "periodTitle": "Période du vote",
+      "notice": {
+        "expired": "Votre session a pris fin. Entrez de nouveau votre code pour continuer.",
+        "ended": "Session terminée. L’électeur suivant peut entrer son code.",
+        "alreadyVoted": "Ce code a déjà servi : le vote est enregistré et ne peut plus être changé."
+      }
+    },
+    "error": {
+      "invalid_code": "Ce code n’est pas valide. Vérifiez-le sur votre fiche, ou demandez-en un nouveau.",
+      "already_voted": "Ce code a déjà servi : le vote est enregistré et ne peut plus être changé.",
+      "election_not_open_before": "Le vote n’est pas encore ouvert.",
+      "election_not_open_closed": "Le vote est terminé.",
+      "voter_session_expired": "Votre session a pris fin. Entrez de nouveau votre code.",
+      "choices_invalid": "Un de vos choix n’est plus valable. Reprenez le vote depuis le début.",
+      "ballots_mismatch": "Les postes qui vous concernent ont changé. Reprenez le vote depuis le début.",
+      "empty": "Entrez votre code pour continuer."
+    },
+    "before": {
+      "heading": "Le vote ouvre bientôt",
+      "text": "Revenez à l’heure indiquée : le champ du code apparaîtra ici dès l’ouverture.",
+      "opensAt": "Ouverture : {when}",
+      "days": "jours",
+      "hours": "heures",
+      "minutes": "minutes",
+      "seconds": "secondes",
+      "soon": "L’ouverture est imminente, la page se met à jour toute seule.",
+      "countdown": "Ouverture dans {days} j {hours} h {minutes} min {seconds} s"
+    },
+    "closed": {
+      "heading": "Le vote est terminé",
+      "text": "Cette élection est fermée : il n’est plus possible de voter.",
+      "results": "Voir les résultats"
+    },
+    "identity": {
+      "kicker": "Est-ce bien vous ?",
+      "noGroup": "Aucun groupe",
+      "group": "Groupe : {group}",
+      "ballotsTitle": "Vos postes",
+      "count": {
+        "one": "Vous votez pour {count} poste.",
+        "other": "Vous votez pour {count} postes."
+      },
+      "seats": {
+        "one": "{count} siège",
+        "other": "{count} sièges"
+      },
+      "forGroups": "Réservé à : {groups}",
+      "forAll": "Tous les électeurs",
+      "yes": "Oui, c’est moi",
+      "no": "Ce n’est pas moi",
+      "noneTitle": "Aucun poste ne vous concerne",
+      "noneText": "Vous n’avez rien à voter dans cette élection. Voyez avec les organisateurs.",
+      "loading": "Vérification de votre session…",
+      "hint": "Si ce n’est pas vous, ne continuez pas : rendez la place à la personne concernée."
+    },
+    "ballot": {
+      "progress": "Poste {n} sur {total}",
+      "stepLabel": "Étape {n} sur {total}",
+      "seatsOne": "Choisissez 1 candidat.",
+      "seatsMany": "Choisissez jusqu’à {seats} candidats.",
+      "chosenCount": "{count} choisi sur {seats}",
+      "full": "Vous avez choisi le maximum. Retirez un choix pour en changer.",
+      "pick": "Touchez une photo pour choisir.",
+      "legend": "Candidats au poste de {title}",
+      "blank": "Vote blanc",
+      "blankHint": "Je ne choisis aucun candidat",
+      "independent": "Indépendant",
+      "chosen": "Choisi",
+      "back": "Retour",
+      "next": "Suivant",
+      "review": "Vérifier mon vote",
+      "reminderNone": "Aucun choix pour l’instant",
+      "reminderBlank": "Votre choix : vote blanc",
+      "reminderOne": "Votre choix : {name}",
+      "reminderMany": "{count} candidats choisis",
+      "loading": "Chargement des candidats…",
+      "quote": "« {text} »",
+      "cardTitle": "Les candidats"
+    },
+    "review": {
+      "kicker": "Dernière étape",
+      "heading": "Relisez votre vote",
+      "lede": "Vérifiez chaque choix. Après confirmation, il ne pourra plus être changé.",
+      "edit": "Modifier",
+      "blank": "Vote blanc",
+      "confirm": "Confirmer mon vote",
+      "sending": "Envoi en cours…",
+      "back": "Retour",
+      "restart": "Reprendre depuis le début",
+      "warning": "Votre vote est secret et définitif.",
+      "ballotOf": "Poste {n} : {title}"
+    },
+    "done": {
+      "heading": "Votre vote est enregistré",
+      "text": "Merci d’avoir voté. Votre choix est secret et ne peut plus être changé.",
+      "timeLabel": "Enregistré le",
+      "countdown": "Retour à la saisie du code dans {seconds} s",
+      "next": "Électeur suivant",
+      "leave": "Vous pouvez fermer cette page.",
+      "secretTitle": "Et maintenant ?",
+      "secretText": "Les résultats seront publiés par les organisateurs après la fermeture du vote."
+    }
   }
 }

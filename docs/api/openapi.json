@@ -3136,6 +3136,28 @@
                     "204": {
                         "description": "No content"
                     },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                ""
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
                     },
@@ -7095,6 +7117,652 @@
                 "security": []
             }
         },
+        "/v1/vote/{election}/ballots": {
+            "get": {
+                "operationId": "vote.ballots",
+                "description": "Only the ballots the voter is eligible for (the general ones and those of their group), each\nwith its candidates, party, photo and slogan, in the election's order; a `shuffled` order is\nfixed for the session. The voter has no id here: the session names them. 401\n`voter_session_expired` without a live session of this election; 409 `already_voted` for a\nsession that voted or a voter who has a participation; 409 `election_not_open` when the election is not open now.",
+                "summary": "The voter's name and group, and the ballots they may fill",
+                "tags": [
+                    "VoteBallots"
+                ],
+                "parameters": [
+                    {
+                        "name": "election",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "voter": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "full_name": {
+                                                            "type": "string"
+                                                        },
+                                                        "group": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "full_name",
+                                                        "group"
+                                                    ]
+                                                },
+                                                "expires_at": {
+                                                    "type": "string"
+                                                },
+                                                "ballots": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "title": {
+                                                                "type": "string"
+                                                            },
+                                                            "description": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            "scope": {
+                                                                "type": "string",
+                                                                "enum": [
+                                                                    "general",
+                                                                    "group"
+                                                                ]
+                                                            },
+                                                            "group_names": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "seats": {
+                                                                "type": "integer"
+                                                            },
+                                                            "allow_blank": {
+                                                                "type": "boolean"
+                                                            },
+                                                            "candidates": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "id": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "first_name": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "last_name": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "sex": {
+                                                                            "type": "string",
+                                                                            "enum": [
+                                                                                "female",
+                                                                                "male",
+                                                                                "other"
+                                                                            ]
+                                                                        },
+                                                                        "slogan": {
+                                                                            "type": [
+                                                                                "string",
+                                                                                "null"
+                                                                            ]
+                                                                        },
+                                                                        "biography": {
+                                                                            "type": [
+                                                                                "string",
+                                                                                "null"
+                                                                            ]
+                                                                        },
+                                                                        "photo": {
+                                                                            "type": [
+                                                                                "string",
+                                                                                "null"
+                                                                            ]
+                                                                        },
+                                                                        "party": {
+                                                                            "type": [
+                                                                                "object",
+                                                                                "null"
+                                                                            ],
+                                                                            "properties": {
+                                                                                "name": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "acronym": {
+                                                                                    "type": [
+                                                                                        "string",
+                                                                                        "null"
+                                                                                    ]
+                                                                                },
+                                                                                "colour": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "logo": {
+                                                                                    "type": [
+                                                                                        "string",
+                                                                                        "null"
+                                                                                    ]
+                                                                                }
+                                                                            },
+                                                                            "required": [
+                                                                                "name",
+                                                                                "acronym",
+                                                                                "colour",
+                                                                                "logo"
+                                                                            ]
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "id",
+                                                                        "first_name",
+                                                                        "last_name",
+                                                                        "sex",
+                                                                        "slogan",
+                                                                        "biography",
+                                                                        "photo",
+                                                                        "party"
+                                                                    ]
+                                                                }
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "title",
+                                                            "description",
+                                                            "scope",
+                                                            "group_names",
+                                                            "seats",
+                                                            "allow_blank",
+                                                            "candidates"
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "voter",
+                                                "expires_at",
+                                                "ballots"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                ""
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/vote/{election}": {
+            "get": {
+                "operationId": "vote.info",
+                "description": "The election, its period and whether it can be voted in now (`phase`: `before`, `open` or\n`closed`, from the status and the server's clock, never the device's). `results` is the\npath of the public results page once the election is published. A draft, an unknown election\nand a value that is not a UUID all answer 404. No session; no count; no ballot. Limited per\naddress and election.",
+                "summary": "What a voter may know before entering a code",
+                "tags": [
+                    "VoteInfo"
+                ],
+                "parameters": [
+                    {
+                        "name": "election",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "title": {
+                                                    "type": "string"
+                                                },
+                                                "institution": {
+                                                    "type": "string"
+                                                },
+                                                "starts_at": {
+                                                    "type": "string"
+                                                },
+                                                "ends_at": {
+                                                    "type": "string"
+                                                },
+                                                "timezone": {
+                                                    "type": "string"
+                                                },
+                                                "language": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "fr",
+                                                        "en"
+                                                    ]
+                                                },
+                                                "phase": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "before",
+                                                        "open",
+                                                        "closed"
+                                                    ]
+                                                },
+                                                "results": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "title",
+                                                "institution",
+                                                "starts_at",
+                                                "ends_at",
+                                                "timezone",
+                                                "language",
+                                                "phase",
+                                                "results"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/vote/{election}/session": {
+            "post": {
+                "operationId": "vote.session.store",
+                "description": "The code (any case, with or without the hyphen, spaces ignored) is hashed with the credential\nkey and looked up in this election only; an unknown, wrong, another election's, malformed or\nreplaced code answers the same 401 `invalid_code`, after the same work. A valid code opens a\nsession: a random token in the `vote_session` cookie (HttpOnly, SameSite=Strict, path\n`/api/v1/vote`), kept at most 15 minutes; a session the browser already had is replaced.\nOnly wrong codes are counted: 30 in 10 minutes per address (an IPv6 client by its /64) and election, 300 in an hour per\nelection, 429 with `Retry-After` (a locked-out address is refused even with a valid code).\n409 `already_voted`, then 409 `election_not_open` with its `phase`.",
+                "summary": "Enter a code and open a voter session",
+                "tags": [
+                    "VoteSession"
+                ],
+                "parameters": [
+                    {
+                        "name": "election",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "code": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "code"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "expires_at": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "expires_at"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                ""
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                ""
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                ""
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "vote.session.destroy",
+                "description": "\"Not me\", \"next voter\" or leaving: the session is forgotten and the cookie cleared. No\nsession, an expired one or another election's session is nothing to end, and answers the\nsame 204. A vote or a participation never changes.",
+                "summary": "End the voter session",
+                "tags": [
+                    "VoteSession"
+                ],
+                "parameters": [
+                    {
+                        "name": "election",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    }
+                }
+            }
+        },
+        "/v1/vote/{election}/submit": {
+            "post": {
+                "operationId": "vote.submit",
+                "description": "Every ballot the voter is eligible for, together, once, in one transaction with the voter's\nrow locked: the election is open (status and server time), there is no participation yet, the\nballots are exactly the eligible ones (422 `ballots_mismatch`) and each ballot's choices\nbreak no rule (422 `choices_invalid`); then the participation, one paper per ballot, its\nchoices and its sealed audit record are written, or nothing is. The same submission sent\nagain in the same session answers 200 with the same time and writes nothing. The choices are\nnever returned and never logged. 10 requests per minute per session.",
+                "summary": "Record the vote",
+                "tags": [
+                    "VoteSubmit"
+                ],
+                "parameters": [
+                    {
+                        "name": "election",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "ballots": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "ballot": {
+                                                    "type": "string",
+                                                    "format": "uuid"
+                                                },
+                                                "candidates": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "format": "uuid"
+                                                    },
+                                                    "maxItems": 50
+                                                }
+                                            },
+                                            "required": [
+                                                "ballot",
+                                                "candidates"
+                                            ]
+                                        },
+                                        "minItems": 1,
+                                        "maxItems": 50
+                                    }
+                                },
+                                "required": [
+                                    "ballots"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "voted_at": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "voted_at"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "voted_at": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "voted_at"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                ""
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
         "/v1/elections/{election}/voters": {
             "get": {
                 "operationId": "voter.index",
@@ -7608,6 +8276,28 @@
                 "responses": {
                     "204": {
                         "description": "No content"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                ""
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
                     },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"

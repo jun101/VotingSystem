@@ -10,6 +10,7 @@ use App\Models\GeneratedFile;
 use App\Models\Institution;
 use App\Models\User;
 use App\Models\Voter;
+use App\Models\Voting\Participation;
 use App\Support\Credentials\AccessCode;
 use App\Support\Credentials\EmailQuota;
 use App\Support\Credentials\Slip;
@@ -131,7 +132,11 @@ final class ReissueCredential
             throw new ApiException(404, 'not_found');
         }
 
-        // Slice 12 refuses here (409 `voter_has_voted`) once `participations` exists.
+        // A voter who has voted keeps the code that voted: nothing changes (FR-CRED-03). Read under the
+        // election's lock, which a vote also takes (shared) before it writes its participation.
+        if (Participation::query()->where('election_id', $election->id)->where('voter_id', $current->id)->exists()) {
+            throw new ApiException(409, 'voter_has_voted');
+        }
 
         // Read under the lock: an address removed since the page was drawn is seen here.
         if ($email && $current->email === null) {

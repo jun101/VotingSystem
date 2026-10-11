@@ -6,6 +6,7 @@ use App\Http\Middleware\EnsureInstitutionActive;
 use App\Http\Middleware\EnsureOwner;
 use App\Http\Middleware\RefuseOptions;
 use App\Http\Middleware\RejectMalformedJson;
+use App\Http\Middleware\RequireJsonBody;
 use App\Http\Middleware\ResetAuthState;
 use App\Http\Middleware\ThrottleWithoutCounters;
 use App\Http\Middleware\VerifyCsrfToken;
@@ -25,7 +26,9 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Routing\Middleware\ThrottleRequestsWithRedis;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -63,6 +66,13 @@ return Application::configure(basePath: dirname(__DIR__))
             StartSession::class,
             VerifyCsrfToken::class,
             AuthenticateSession::class,
+        ]);
+        // The voter's pages (slice 12): no session, no CSRF token and no cookie encryption. The voter's
+        // token is its own cookie, read and written by the controllers (`SameSite=Strict`, path
+        // `/api/v1/vote`); a POST must declare a JSON body (RequireJsonBody).
+        $middleware->group('voter', [
+            RequireJsonBody::class,
+            RejectMalformedJson::class,
         ]);
         $middleware->alias([
             'institution.active' => EnsureInstitutionActive::class,
@@ -105,6 +115,25 @@ return Application::configure(basePath: dirname(__DIR__))
         // This application serves the API only: every answer is JSON, whatever the path
         // and the Accept header (docs/api/README.md section 1).
         $exceptions->shouldRenderJsonWhen(fn () => true);
+
+        // The voting routes (slice 12) log a fault by its route name, status and exception class only:
+        // never the exception's message (a query's text can quote a value), its trace, the request
+        // body, a code, a choice or a voter. Returning false ends the default report.
+        $exceptions->reportable(function (Throwable $e): ?bool {
+            $request = request();
+
+            if (! $request->is('api/v1/vote/*')) {
+                return null;
+            }
+
+            Log::warning('vote.request_failed', [
+                'route' => $request->route()?->getName() ?? 'vote',
+                'status' => $e instanceof HttpExceptionInterface ? $e->getStatusCode() : 500,
+                'class' => $e::class,
+            ]);
+
+            return false;
+        });
 
         $exceptions->render(fn (Throwable $e, Request $request) => app(ApiErrorRenderer::class)($e, $request));
     })->create();

@@ -12,6 +12,7 @@ use Illuminate\Support\Carbon;
 /**
  * A person standing on a ballot (docs/design/database.md section 2.2).
  *
+ * @property int $id
  * @property int $election_id
  * @property int $ballot_id
  * @property int|null $party_id

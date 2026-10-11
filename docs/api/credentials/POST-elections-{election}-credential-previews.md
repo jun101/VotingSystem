@@ -50,7 +50,7 @@ rules (`scope` `all`, `group`, `ungrouped` or `failed_email`).
 }
 ```
 
-`to_generate` is the number of voters who would get a code (no code yet, or a failed email for `failed_email`),
+`to_generate` is the number of voters who would get a code (no code yet, or a failed email and no vote yet for `failed_email`),
 `with_email` those among them with an address, `without_email` the others (they are left for print), `skipped` the
 voters of the scope who already have a code. `group` is `null` for a voter with no group.
 

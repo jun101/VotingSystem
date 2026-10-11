@@ -8,7 +8,9 @@ use App\Models\Voter;
 use App\Models\VoterGroup;
 use App\Support\Credentials\RowCount;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Query\JoinClause;
+use Illuminate\Support\Facades\DB;
 
 /**
  * What a run would do for a scope, without doing it: how many voters would get a code, how many
@@ -69,7 +71,7 @@ final class PreviewCredentialRun
     }
 
     /**
-     * The scope `failed_email`: the voters whose last email failed and who have an address.
+     * The scope `failed_email`: the voters whose last email failed, who have an address and have not voted.
      *
      * @return array{to_generate: int, with_email: int, without_email: int, skipped: int, voters_without_email: list<array{id: string, full_name: string, group: array{id: string, name: string}|null}>}
      */
@@ -83,6 +85,10 @@ final class PreviewCredentialRun
             })
             ->where('credentials.email_status', Credential::EMAIL_FAILED)
             ->whereNotNull('voters.email')
+            ->whereNotExists(function (QueryBuilder $voted): void {
+                // Someone who has voted is not given a new code: the old one has been used.
+                $voted->select(DB::raw('1'))->from('participations')->whereColumn('participations.voter_id', 'voters.id');
+            })
             ->count();
 
         return ['to_generate' => $count, 'with_email' => $count, 'without_email' => 0, 'skipped' => 0, 'voters_without_email' => []];

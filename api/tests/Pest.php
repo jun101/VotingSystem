@@ -100,3 +100,13 @@ pest()->beforeEach(function () {
     $this->credentialsRoot = Tests\Support\Codes::useTempDisk();
     $this->browser = new Tests\Support\AuthClient($this);
 })->in('Acceptance/Slice11');
+
+// Slice 12: voting (docs/slices/12-voting-flow.md): a clean cache for sessions and limits, the test's audit key pair.
+pest()->beforeEach(function () {
+    Tests\Support\Accounts::reset();
+    Tests\Support\Tenancy::installProbeTables();
+    Tests\Support\Team::clearMedia();
+    Tests\Support\Voting::forgetCache();
+    $this->auditPair = Tests\Support\Voting::keypair();
+    $this->browser = new Tests\Support\AuthClient($this);
+})->in('Acceptance/Slice12');
