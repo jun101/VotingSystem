@@ -314,6 +314,21 @@ export function ElectionSummary({ election: given }: { election: Election }) {
               {t('elections.summary.turnout')}
             </Link>
           ) : null}
+          {election.status === 'closed' ||
+          election.status === 'published' ||
+          election.status === 'archived' ? (
+            <Link
+              href={`/admin/elections/${election.id}/results`}
+              data-testid="election-results-link"
+              className={cx(
+                ACTION,
+                'border border-accent bg-accent font-bold text-deep shadow-button',
+              )}
+            >
+              <Icon name="check" size={20} />
+              {t('elections.summary.results')}
+            </Link>
+          ) : null}
           <button
             type="button"
             disabled={busy}

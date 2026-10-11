@@ -4939,6 +4939,7 @@ export interface operations {
                                     ok: boolean;
                                 };
                                 note: string | null;
+                                second_round: string | null;
                             }[];
                         };
                     };

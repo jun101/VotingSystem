@@ -22,7 +22,7 @@ class ResultsController extends Controller
      * 409 `results_not_available` otherwise. Counted from the votes and their choices only; the
      * audit table is never read. Owner or manager.
      *
-     * @response array{data: array{election: array{id: string, title: string, status: 'closed'|'published'|'archived'}, ballots: list<array{id: string, title: string, seats: int, scope: 'general'|'group', groups: list<array{id: string, name: string}>, eligible: int, voted: int, cast: int, blank: int, candidates: list<array{id: string, first_name: string, last_name: string, party: string|null, votes: int, percentage: float}>, winners: list<string>, tie: array{candidates: list<string>, seats_left: int}|null, check: array{recorded: int, expected: int, ok: bool}, note: string|null}>}}
+     * @response array{data: array{election: array{id: string, title: string, status: 'closed'|'published'|'archived'}, ballots: list<array{id: string, title: string, seats: int, scope: 'general'|'group', groups: list<array{id: string, name: string}>, eligible: int, voted: int, cast: int, blank: int, candidates: list<array{id: string, first_name: string, last_name: string, party: string|null, votes: int, percentage: float}>, winners: list<string>, tie: array{candidates: list<string>, seats_left: int}|null, check: array{recorded: int, expected: int, ok: bool}, note: string|null, second_round: string|null}>}}
      */
     public function __invoke(Election $election, ComputeResults $results): JsonResponse
     {

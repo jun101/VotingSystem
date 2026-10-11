@@ -9,6 +9,7 @@ import type { GroupList, VoterFilters, VoterList } from './voters';
 import { VOTERS_PER_PAGE } from './voters';
 import type { Election, ElectionFilters, ElectionList } from './elections';
 import { SESSION_COOKIE } from './session';
+import type { Results } from './results';
 import type { Dashboard, Turnout } from './turnout';
 import type {
   CurrentUser,
@@ -318,6 +319,28 @@ export async function fetchElectionTurnout(id: string): Promise<Turnout | null> 
     if (!response.ok || !data) return null;
 
     return data.data;
+  });
+}
+
+/**
+ * The results of an election (slice 15). `'unavailable'` when the election is not closed yet
+ * (409), `'missing'` on a 404, null when the API does not answer.
+ */
+export async function fetchElectionResults(
+  id: string,
+): Promise<Results | 'unavailable' | 'missing' | null> {
+  return authorizedGet(async (headers) => {
+    const { data, response } = await createApiClient().GET('/v1/elections/{election}/results', {
+      headers,
+      params: { path: { election: id } },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(4000),
+    });
+
+    if (response.status === 404) return 'missing';
+    if (response.status === 409) return 'unavailable';
+
+    return response.ok && data ? data.data : null;
   });
 }
 

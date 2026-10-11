@@ -7172,6 +7172,12 @@
                                                                     "string",
                                                                     "null"
                                                                 ]
+                                                            },
+                                                            "second_round": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
                                                             }
                                                         },
                                                         "required": [
@@ -7188,7 +7194,8 @@
                                                             "winners",
                                                             "tie",
                                                             "check",
-                                                            "note"
+                                                            "note",
+                                                            "second_round"
                                                         ]
                                                     }
                                                 }
