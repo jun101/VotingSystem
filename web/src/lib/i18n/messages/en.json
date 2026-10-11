@@ -911,7 +911,7 @@
       "label": "Institution’s public address",
       "copy": "Copy the address",
       "copied": "Address copied.",
-      "soon": "This page will be available soon."
+      "open": "Open the public page"
     },
     "users": {
       "title": "Users",
@@ -1174,7 +1174,8 @@
         "text": "printed slips by group"
       },
       "footer": "Everything stays editable while the election is a draft.",
-      "separator": ": "
+      "separator": ": ",
+      "done": "Done"
     },
     "open": {
       "title": "Voting in progress",
@@ -1232,9 +1233,8 @@
       "facts": {
         "positions": "Positions",
         "voters": "Voters",
-        "ballots": "Ballots"
+        "ballots": "Voted"
       },
-      "factsSoon": "Available with the next steps",
       "turnout": "See the turnout"
     },
     "rail": {

@@ -150,12 +150,16 @@ export function VoterCard({
         data-testid={`voter-voted-${n}`}
         data-voted={voter.has_voted ? 'yes' : 'no'}
         className={cx(
-          'inline-flex h-7 shrink-0 items-center gap-1.5 rounded-full px-2.5 text-xs font-bold',
+          // On a phone only the icon is shown (the text stays for screen readers): the card has to hold the
+          // avatar, the name, this flag and two round buttons in 320 px.
+          'inline-flex h-7 shrink-0 items-center gap-1.5 rounded-full px-2.5 text-xs font-bold max-[479px]:size-7 max-[479px]:justify-center max-[479px]:px-0',
           voter.has_voted ? 'bg-status-open-soft text-status-open' : 'bg-canvas text-ink-soft',
         )}
       >
         <Icon name={voter.has_voted ? 'check' : 'clock'} size={14} />
-        {t(voter.has_voted ? 'voters.card.voted' : 'voters.card.notVoted')}
+        <span className="max-[479px]:sr-only">
+          {t(voter.has_voted ? 'voters.card.voted' : 'voters.card.notVoted')}
+        </span>
       </span>
       {canEdit ? (
         <button

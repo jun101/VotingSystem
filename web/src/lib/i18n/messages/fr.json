@@ -911,7 +911,7 @@
       "label": "Adresse publique de l’établissement",
       "copy": "Copier l’adresse",
       "copied": "Adresse copiée.",
-      "soon": "Cette page sera disponible bientôt."
+      "open": "Ouvrir la page publique"
     },
     "users": {
       "title": "Utilisateurs",
@@ -1174,7 +1174,8 @@
         "text": "coupons imprimés par groupe"
       },
       "footer": "Tout reste modifiable tant que l’élection est un brouillon.",
-      "separator": " : "
+      "separator": " : ",
+      "done": "Fait"
     },
     "open": {
       "title": "Vote en cours",
@@ -1232,9 +1233,8 @@
       "facts": {
         "positions": "Postes",
         "voters": "Électeurs",
-        "ballots": "Bulletins"
+        "ballots": "Ont voté"
       },
-      "factsSoon": "Disponible avec les prochaines étapes",
       "turnout": "Voir la participation"
     },
     "rail": {

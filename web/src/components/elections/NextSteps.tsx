@@ -27,7 +27,9 @@ export function NextSteps({
   headerTestId,
   ballotsHref,
   votersHref,
+  scheduleHref,
   codesHref,
+  done = [],
 }: {
   soon?: boolean;
   title: string;
@@ -36,8 +38,12 @@ export function NextSteps({
   ballotsHref?: string;
   /** The same for the second step (the voters). */
   votersHref?: string;
+  /** The same for the third step (scheduling): where the checklist and its action are. */
+  scheduleHref?: string;
   /** The same for the fourth step (the access codes). */
   codesHref?: string;
+  /** The steps already done (`ballots`, `voters`, `schedule`, `codes`): they say so and count. */
+  done?: readonly string[];
 }) {
   const { t } = useI18n();
 
@@ -52,7 +58,7 @@ export function NextSteps({
       aside={
         soon ? (
           <span className={PANEL_ASIDE}>
-            {t('elections.summary.stepsCount', { done: 0, total: STEPS.length })}
+            {t('elections.summary.stepsCount', { done: done.length, total: STEPS.length })}
           </span>
         ) : null
       }
@@ -70,9 +76,12 @@ export function NextSteps({
               ? ballotsHref
               : step.key === 'voters'
                 ? votersHref
-                : step.key === 'codes'
-                  ? codesHref
-                  : undefined;
+                : step.key === 'schedule'
+                  ? scheduleHref
+                  : step.key === 'codes'
+                    ? codesHref
+                    : undefined;
+          const finished = done.includes(step.key);
 
           return soon ? (
             href ? (
@@ -104,17 +113,24 @@ export function NextSteps({
                   <span className="max-w-64 text-base text-ink-soft">
                     {t(`elections.next.${step.key}.text`)}
                   </span>
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-soft px-3 py-1 text-xs font-bold text-primary-hover group-hover:bg-primary-line">
-                    {t('elections.card.open')}
-                    <Icon name="open" size={14} />
-                  </span>
+                  {finished ? (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-soft px-3 py-1 text-xs font-bold text-teal-ink">
+                      <Icon name="check" size={14} />
+                      {t('elections.next.done')}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-soft px-3 py-1 text-xs font-bold text-primary-hover group-hover:bg-primary-line">
+                      {t('elections.card.open')}
+                      <Icon name="open" size={14} />
+                    </span>
+                  )}
                 </Link>
               </li>
             ) : (
               <li
                 key={step.key}
                 data-testid={`election-step-${index + 1}`}
-                data-state="soon"
+                data-state={finished ? 'done' : 'soon'}
                 className="path-step flex flex-col items-center gap-2 px-3.5 text-center"
               >
                 <span
@@ -132,7 +148,11 @@ export function NextSteps({
                 <span className="max-w-64 text-base text-ink-soft">
                   {t(`elections.next.${step.key}.text`)}
                 </span>
-                <Pill tone="neutral">{t('elections.summary.soon')}</Pill>
+                {finished ? (
+                  <Pill tone="teal">{t('elections.next.done')}</Pill>
+                ) : (
+                  <Pill tone="neutral">{t('elections.summary.soon')}</Pill>
+                )}
               </li>
             )
           ) : (
