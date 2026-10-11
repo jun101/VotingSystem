@@ -30,6 +30,8 @@ use Illuminate\Support\Carbon;
  * @property CandidateOrder $candidate_order
  * @property ResultsDisplay $results_display
  * @property Carbon|null $closed_at
+ * @property Carbon|null $published_at
+ * @property Carbon|null $archived_at
  * @property Carbon|null $created_at
  */
 class Election extends Model

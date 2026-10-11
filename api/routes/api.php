@@ -29,6 +29,11 @@ use App\Http\Controllers\Institution\InstitutionController;
 use App\Http\Controllers\Institution\LogoController;
 use App\Http\Controllers\Parties\PartyController;
 use App\Http\Controllers\Parties\PartyLogoController;
+use App\Http\Controllers\Publication\PublicationController;
+use App\Http\Controllers\Publication\PublicInstitutionController;
+use App\Http\Controllers\Publication\PublicReportController;
+use App\Http\Controllers\Publication\PublicResultsController;
+use App\Http\Controllers\Publication\ReportController;
 use App\Http\Controllers\Results\ResultNoteController;
 use App\Http\Controllers\Results\ResultsController;
 use App\Http\Controllers\Results\SecondRoundController;
@@ -89,6 +94,16 @@ Route::prefix('v1')->group(function (): void {
         Route::delete('/session', [VoteSessionController::class, 'destroy'])->middleware('throttle:vote-public')->name('vote.session.destroy');
         Route::get('/ballots', VoteBallotsController::class)->middleware('throttle:vote-public')->name('vote.ballots');
         Route::post('/submit', VoteSubmitController::class)->middleware('throttle:vote-public')->name('vote.submit');
+    });
+
+    // The public pages (slice 16): no sign-in, no session and no cookie. The election or the institution is
+    // found by its uuid and answers 404 unless it is published (or has a published election); the tenant scope
+    // is off there, with a comment at each query. Limited per address (and election), without the
+    // `X-RateLimit-*` counters: every 404 of these routes is the same answer, headers included.
+    Route::prefix('public')->group(function (): void {
+        Route::get('/elections/{election}/results', PublicResultsController::class)->middleware('throttle.quiet:public-results');
+        Route::get('/elections/{election}/report', PublicReportController::class)->middleware('throttle.quiet:public-report');
+        Route::get('/institutions/{institution}', PublicInstitutionController::class)->middleware('throttle.quiet:public-institution');
     });
 
     // The institution, its logo, its users and invitations (slice 04). Every route needs a
@@ -164,6 +179,13 @@ Route::prefix('v1')->group(function (): void {
         // The results of a closed election, the second round of a tied ballot (slice 15).
         Route::get('/{election}/results', ResultsController::class);
         Route::post('/{election}/second-round', SecondRoundController::class)->middleware('throttle:second-round');
+
+        // Publication (slice 16): publish, unpublish, archive and unarchive share one limiter; the report is a PDF.
+        Route::post('/{election}/publish', [PublicationController::class, 'publish'])->middleware('throttle:publication');
+        Route::post('/{election}/unpublish', [PublicationController::class, 'unpublish'])->middleware('throttle:publication');
+        Route::post('/{election}/archive', [PublicationController::class, 'archive'])->middleware('throttle:publication');
+        Route::post('/{election}/unarchive', [PublicationController::class, 'unarchive'])->middleware('throttle:publication');
+        Route::get('/{election}/report', ReportController::class)->middleware('throttle:report');
 
         // The voter import of an election (slice 08a): the template and the upload.
         Route::get('/{election}/voter-imports/template', [VoterImportController::class, 'template'])->middleware('throttle:voter-imports');

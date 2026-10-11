@@ -93,7 +93,7 @@ final class ApiErrorRenderer
         }
 
         if ($e instanceof ApiException) {
-            return $this->error($request, $e->getStatusCode(), $e->errorCode, headers: $e->getHeaders(), messageKey: $e->messageKey, items: $e->items, count: $e->count, phase: $e->phase);
+            return $this->error($request, $e->getStatusCode(), $e->errorCode, headers: $e->getHeaders(), messageKey: $e->messageKey, items: $e->items, count: $e->count, phase: $e->phase, ballots: $e->ballots);
         }
 
         if ($e instanceof TokenMismatchException) {
@@ -115,8 +115,9 @@ final class ApiErrorRenderer
      * @param  array<string, list<string>>|null  $fields
      * @param  array<array-key, mixed>  $headers
      * @param  list<array<string, mixed>>|null  $items
+     * @param  list<string>|null  $ballots
      */
-    private function error(Request $request, int $status, string $code, ?array $fields = null, array $headers = [], ?string $messageKey = null, ?array $items = null, ?int $count = null, ?string $phase = null): JsonResponse
+    private function error(Request $request, int $status, string $code, ?array $fields = null, array $headers = [], ?string $messageKey = null, ?array $items = null, ?int $count = null, ?string $phase = null, ?array $ballots = null): JsonResponse
     {
         $error = ['code' => $code, 'message' => __('errors.'.($messageKey ?? $code))];
 
@@ -134,6 +135,10 @@ final class ApiErrorRenderer
 
         if ($phase !== null) {
             $error['phase'] = $phase;
+        }
+
+        if ($ballots !== null) {
+            $error['ballots'] = $ballots;
         }
 
         if ($status === 500 || $status === 503) {

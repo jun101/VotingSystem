@@ -63,7 +63,7 @@ it('answers 429 above 30 requests a minute from one address and 405 for another 
     $anonymous = (new AuthClient($this))->fromAddress('10.31.31.31');
     $anonymous->other('POST', publicReportUrl($e['election']))->assertStatus(405);
 
-    foreach (range(1, 29) as $i) {
+    foreach (range(1, 30) as $i) {
         $anonymous->get(publicReportUrl($e['election']))->assertOk();
     }
 

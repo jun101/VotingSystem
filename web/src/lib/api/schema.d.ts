@@ -995,6 +995,164 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/public/institutions/{institution}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The public profile of an institution
+         * @description No sign-in, no cookie. Its name, type, logo, description and city, and its `published` elections (at most
+         *     50, newest publication first). No address, phone, email, user, voter or count. An unknown institution, a
+         *     value that is not a UUID and a suspended institution answer the same 404. Limited to 120 requests per
+         *     minute per address. `Cache-Control: no-cache`.
+         */
+        get: operations["publication.publicInstitution"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/elections/{election}/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The results report of a published election
+         * @description A PDF for anyone, following the election's `results_display`: a `winners` election's report has no counts
+         *     and no bulletin check line. Any status but `published`, an unknown election, a value that is not a UUID and
+         *     a suspended institution answer the same 404. Generated on request. Limited to 30 requests per minute per
+         *     address and election.
+         */
+        get: operations["publication.publicReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/elections/{election}/results": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The public results of a published election
+         * @description No sign-in, no cookie. Only a `published` election of an institution that is not suspended; any other
+         *     status, an unknown election and a value that is not a UUID answer the same 404. With the `full` display:
+         *     votes and percentages per candidate and the blank votes; with `winners`: the turnout, the winners and the
+         *     tied candidates only. Never the bulletin check, a voter or a numeric key. Limited to 120 requests per
+         *     minute per address and election. `Cache-Control: no-cache`.
+         */
+        get: operations["publication.publicResults"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/elections/{election}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Publish the results
+         * @description Makes the results of a closed election public. `results_display` (`full` or `winners`) replaces the
+         *     election's setting when given. The row is locked, the status read again under the lock and the bulletin
+         *     check computed in the same transaction: 409 `results_check_failed` (`error.ballots`) when a ballot's
+         *     papers differ from its voters, 409 `election_not_closed` for any other status. A tie does not block it.
+         *     Owner or manager. Limited to 20 requests per hour per user, shared with unpublish, archive and unarchive.
+         */
+        post: operations["publication.publish"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/elections/{election}/unpublish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Unpublish the results
+         * @description A published election goes back to closed and `published_at` is cleared; the public pages answer 404 at
+         *     once. 409 `election_not_published` for any other status. Owner or manager. Limited as publish.
+         */
+        post: operations["publication.unpublish"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/elections/{election}/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Archive an election
+         * @description A closed or published election becomes archived (read-only, hidden from the default list) and `archived_at`
+         *     is set; an archived election is not public. 409 `election_not_archivable` for any other status. Owner or
+         *     manager. Limited as publish.
+         */
+        post: operations["publication.archive"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/elections/{election}/unarchive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Unarchive an election
+         * @description An archived election goes back to closed; `archived_at` and `published_at` are cleared (it is published
+         *     again on purpose). 409 `election_not_archived` for any other status. Owner or manager. Limited as publish.
+         */
+        post: operations["publication.unarchive"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/auth/register": {
         parameters: {
             query?: never;
@@ -1011,6 +1169,28 @@ export interface paths {
          *     per IP address.
          */
         post: operations["auth.register"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/elections/{election}/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The results report
+         * @description The official results of a closed, published or archived election as a US Letter PDF, always with the full
+         *     counts and the bulletin check, in the election's language (409 `results_not_available` for any earlier
+         *     status). Generated on request, never stored. Owner or manager. Limited to 20 requests per hour per user.
+         */
+        get: operations["publication.report"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1957,6 +2137,15 @@ export interface components {
             scope: "all" | "group" | "ungrouped" | "failed_email";
             /** Format: uuid */
             group?: string;
+        };
+        /**
+         * PublishElectionRequest
+         * @description docs/api/publication/POST-elections-{election}-publish.md: the optional display choice. A plain `in` rule on
+         *     purpose: the shared renderer answers it as `results_display: invalid`.
+         */
+        PublishElectionRequest: {
+            /** @enum {string|null} */
+            results_display?: "full" | "winners" | null;
         };
         /** RegisterRequest */
         RegisterRequest: {
@@ -4748,6 +4937,362 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
+    "publication.publicInstitution": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institution: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    "Cache-Control"?: "no-cache";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            name: string;
+                            /** @enum {string} */
+                            type: "school" | "university" | "association" | "other";
+                            logo: {
+                                sm: string;
+                                md: string;
+                                lg: string;
+                            } | null;
+                            description: string | null;
+                            city: string | null;
+                            elections: {
+                                id: string;
+                                title: string;
+                                published_at: string | null;
+                                starts_at: string;
+                                ends_at: string;
+                                timezone: string;
+                                /** @enum {string} */
+                                language: "fr" | "en";
+                            }[];
+                        };
+                    };
+                };
+            };
+            /** @description An error */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "publication.publicReport": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The PDF report, as an attachment. */
+            200: {
+                headers: {
+                    "Content-Disposition"?: "attachment; filename=\"report-results.pdf\"" | "attachment; filename=\"report-resultats.pdf\"" | "attachment; filename=\"rapport-results.pdf\"" | "attachment; filename=\"rapport-resultats.pdf\"";
+                    "Cache-Control"?: "no-store";
+                    "X-Content-Type-Options"?: "nosniff";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                    "application/json": string;
+                };
+            };
+        };
+    };
+    "publication.publicResults": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    "Cache-Control"?: "no-cache";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            title: string;
+                            /** @enum {string} */
+                            language: "fr" | "en";
+                            timezone: string;
+                            starts_at: string;
+                            ends_at: string;
+                            published_at: string | null;
+                            /** @enum {string} */
+                            display: "full" | "winners";
+                            institution: {
+                                id: string;
+                                name: string;
+                                logo: {
+                                    sm: string;
+                                    md: string;
+                                    lg: string;
+                                } | null;
+                            };
+                            turnout: {
+                                eligible: number;
+                                voted: number;
+                                percentage: number;
+                            };
+                            ballots: {
+                                id: string;
+                                title: string;
+                                seats: number;
+                                groups: string[];
+                                cast?: number;
+                                blank?: number;
+                                candidates: {
+                                    id: string;
+                                    first_name: string;
+                                    last_name: string;
+                                    party: string | null;
+                                    photo: string | null;
+                                    votes?: number;
+                                    percentage?: number;
+                                }[];
+                                winners: string[];
+                                tie: {
+                                    candidates: string[];
+                                    seats_left: number;
+                                } | null;
+                                note: string | null;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+    };
+    "publication.publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The election UUID */
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PublishElectionRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            title: string;
+                            description: string | null;
+                            /** @enum {string} */
+                            status: "draft" | "scheduled" | "open" | "closed" | "published" | "archived";
+                            starts_at: string;
+                            ends_at: string;
+                            timezone: string;
+                            /** @enum {string} */
+                            language: "fr" | "en";
+                            /** @enum {string} */
+                            candidate_order: "manual" | "shuffled";
+                            /** @enum {string} */
+                            results_display: "full" | "winners";
+                            cover: {
+                                sm: string;
+                                md: string;
+                            } | null;
+                            ballots_count: number;
+                            voters_count: number;
+                            created_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "publication.unpublish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The election UUID */
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            title: string;
+                            description: string | null;
+                            /** @enum {string} */
+                            status: "draft" | "scheduled" | "open" | "closed" | "published" | "archived";
+                            starts_at: string;
+                            ends_at: string;
+                            timezone: string;
+                            /** @enum {string} */
+                            language: "fr" | "en";
+                            /** @enum {string} */
+                            candidate_order: "manual" | "shuffled";
+                            /** @enum {string} */
+                            results_display: "full" | "winners";
+                            cover: {
+                                sm: string;
+                                md: string;
+                            } | null;
+                            ballots_count: number;
+                            voters_count: number;
+                            created_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "publication.archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The election UUID */
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            title: string;
+                            description: string | null;
+                            /** @enum {string} */
+                            status: "draft" | "scheduled" | "open" | "closed" | "published" | "archived";
+                            starts_at: string;
+                            ends_at: string;
+                            timezone: string;
+                            /** @enum {string} */
+                            language: "fr" | "en";
+                            /** @enum {string} */
+                            candidate_order: "manual" | "shuffled";
+                            /** @enum {string} */
+                            results_display: "full" | "winners";
+                            cover: {
+                                sm: string;
+                                md: string;
+                            } | null;
+                            ballots_count: number;
+                            voters_count: number;
+                            created_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "publication.unarchive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The election UUID */
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            title: string;
+                            description: string | null;
+                            /** @enum {string} */
+                            status: "draft" | "scheduled" | "open" | "closed" | "published" | "archived";
+                            starts_at: string;
+                            ends_at: string;
+                            timezone: string;
+                            /** @enum {string} */
+                            language: "fr" | "en";
+                            /** @enum {string} */
+                            candidate_order: "manual" | "shuffled";
+                            /** @enum {string} */
+                            results_display: "full" | "winners";
+                            cover: {
+                                sm: string;
+                                md: string;
+                            } | null;
+                            ballots_count: number;
+                            voters_count: number;
+                            created_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
     "auth.register": {
         parameters: {
             query?: never;
@@ -4788,6 +5333,65 @@ export interface operations {
                 };
             };
             422: components["responses"]["ValidationException"];
+        };
+    };
+    "publication.report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The election UUID */
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The PDF report, as an attachment. */
+            200: {
+                headers: {
+                    "Content-Disposition"?: "attachment; filename=\"report-results.pdf\"" | "attachment; filename=\"report-resultats.pdf\"" | "attachment; filename=\"rapport-results.pdf\"" | "attachment; filename=\"rapport-resultats.pdf\"";
+                    "Cache-Control"?: "no-store";
+                    "X-Content-Type-Options"?: "nosniff";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                    "application/json": string;
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            /** @description An error */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
+                    };
+                };
+            };
+            404: components["responses"]["ModelNotFoundException"];
+            /** @description An error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
+                    };
+                };
+            };
         };
     };
     "auth.resendVerification": {

@@ -65,7 +65,7 @@ it('answers 429 above 120 requests a minute from one address and 405 for another
     $anonymous = (new AuthClient($this))->fromAddress('10.32.32.32');
     $anonymous->other('POST', publicInstitutionUrl($t['a']['owner']['institution']))->assertStatus(405);
 
-    foreach (range(1, 119) as $i) {
+    foreach (range(1, 120) as $i) {
         $anonymous->get(publicInstitutionUrl($t['a']['owner']['institution']))->assertOk();
     }
 

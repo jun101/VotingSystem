@@ -135,7 +135,7 @@ it('answers 429 above 120 requests a minute from one address for an election, an
     $anonymous = (new AuthClient($this))->fromAddress('10.30.30.30');
     $anonymous->other('POST', publicResultsUrl($e['election']))->assertStatus(405)->assertJsonPath('error.code', 'method_not_allowed');
 
-    foreach (range(1, 119) as $i) {
+    foreach (range(1, 120) as $i) {
         $anonymous->get(publicResultsUrl($e['election']))->assertOk();
     }
     $anonymous->get(publicResultsUrl($e['election']))->assertStatus(429)->assertJsonPath('error.code', 'too_many_attempts');

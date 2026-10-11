@@ -18,6 +18,10 @@ final class Results
      */
     public static function paper(string $ballot, array $candidates = [], int $times = 1): void
     {
+        if ($times < 1) {
+            return;
+        }
+
         $db = DB::connection(useMigratorConnection());
         $row = $db->table('ballots')->where('uuid', $ballot)->first();
         $ids = $candidates === [] ? [] : $db->table('candidates')->whereIn('uuid', $candidates)->pluck('id', 'uuid')->all();

@@ -25,37 +25,67 @@ final class ComputeResults
 {
     /**
      * @param  Ballot|null  $only  one ballot of the election, for the second round
+     * @param  bool  $unscoped  for the public pages (nobody is signed in): the tenant scope is off; the election itself was found by its uuid and published, and every query below is limited to it
      * @return list<array{id: string, title: string, seats: int, scope: string, groups: list<array{id: string, name: string}>, eligible: int, voted: int, cast: int, blank: int, candidates: list<array{id: string, first_name: string, last_name: string, party: string|null, votes: int, percentage: float}>, winners: list<string>, tie: array{candidates: list<string>, seats_left: int}|null, check: array{recorded: int, expected: int, ok: bool}, note: string|null}>
      */
-    public function __invoke(Election $election, ?Ballot $only = null): array
+    public function __invoke(Election $election, ?Ballot $only = null, bool $unscoped = false): array
     {
         $electionId = $election->id;
 
-        $ballots = Ballot::query()
+        // Off only for the public pages, where no institution user is signed in and the scope would match
+        // nothing: the election was found by its uuid and its status, and the query is limited to it.
+        $ballotQuery = $unscoped ? Ballot::withoutInstitutionScope() : Ballot::query();
+
+        $ballots = $ballotQuery
             ->where('election_id', $electionId)
             ->when($only !== null, fn ($query) => $query->whereKey($only?->getKey()))
             ->orderBy('position')
             ->orderBy('id')
-            ->with(['groups' => fn ($groups) => $groups->orderBy('name_key')->orderBy('voter_groups.id')])
             ->get();
 
         if ($ballots->isEmpty()) {
             return [];
         }
 
-        $candidates = Candidate::query()
+        // The group ballots' groups, by name then creation order: read through the pivot table, limited to the
+        // ballots of this election, so the same query serves the signed-in user and the public pages.
+        $groupRows = [];
+
+        foreach (DB::table('ballot_voter_group')
+            ->join('voter_groups', 'voter_groups.id', '=', 'ballot_voter_group.voter_group_id')
+            ->whereIn('ballot_voter_group.ballot_id', $ballots->pluck('id')->all())
+            ->orderBy('voter_groups.name_key')
+            ->orderBy('voter_groups.id')
+            ->get(['ballot_voter_group.ballot_id as ballot', 'voter_groups.id as group', 'voter_groups.uuid as uuid', 'voter_groups.name as name']) as $row) {
+            $groupRows[self::int($row->ballot)][] = ['key' => self::int($row->group), 'uuid' => is_string($row->uuid) ? $row->uuid : '', 'name' => is_string($row->name) ? $row->name : ''];
+        }
+
+        // As above for the candidates of the election.
+        $candidateQuery = $unscoped ? Candidate::withoutInstitutionScope() : Candidate::query();
+
+        $candidates = $candidateQuery
             ->where('election_id', $electionId)
             ->orderBy('ballot_id')
             ->orderBy('position')
             ->orderBy('id')
-            ->with('party:id,name')
-            ->get()
-            ->groupBy('ballot_id');
+            ->get();
+
+        // The names of the parties the candidates stand for, whoever is asking.
+        $partyNames = [];
+        $partyKeys = $candidates->pluck('party_id')->filter()->unique()->values()->all();
+
+        if ($partyKeys !== []) {
+            foreach (DB::table('parties')->where('election_id', $electionId)->whereIn('id', $partyKeys)->get(['id', 'name']) as $row) {
+                $partyNames[self::int($row->id)] = is_string($row->name) ? $row->name : null;
+            }
+        }
+
+        $candidates = $candidates->groupBy('ballot_id');
 
         $cast = $this->cast($electionId);
         $blank = $this->blank($electionId);
         $votes = $this->votesPerCandidate($electionId);
-        [$voters, $voted] = $this->votersPerGroup($electionId);
+        [$voters, $voted] = $this->votersPerGroup($electionId, $unscoped);
 
         $out = [];
 
@@ -72,9 +102,9 @@ final class ComputeResults
             $groupIds = [];
             $named = [];
 
-            foreach ($ballot->groups as $group) {
-                $groupIds[] = $group->id;
-                $named[] = ['id' => $group->uuid, 'name' => $group->name];
+            foreach ($groupRows[$ballot->id] ?? [] as $group) {
+                $groupIds[] = $group['key'];
+                $named[] = ['id' => $group['uuid'], 'name' => $group['name']];
             }
 
             $eligible = 0;
@@ -100,7 +130,7 @@ final class ComputeResults
                     'uuid' => $candidate->uuid,
                     'first_name' => $candidate->first_name,
                     'last_name' => $candidate->last_name,
-                    'party' => $candidate->party?->name,
+                    'party' => $candidate->party_id === null ? null : ($partyNames[(int) $candidate->party_id] ?? null),
                     'votes' => $votes[$candidate->id] ?? 0,
                 ];
             }
@@ -261,12 +291,13 @@ final class ComputeResults
      *
      * @return array{0: array<int, int>, 1: array<int, int>}
      */
-    private function votersPerGroup(int $electionId): array
+    private function votersPerGroup(int $electionId, bool $unscoped): array
     {
         $voters = [];
         $voted = [];
 
-        $rows = Voter::query()
+        // Off only for the public pages, as above: the voters counted are those of the one election.
+        $rows = ($unscoped ? Voter::withoutInstitutionScope() : Voter::query())
             ->where('voters.election_id', $electionId)
             ->leftJoin('participations', 'participations.voter_id', '=', 'voters.id')
             ->groupBy('voters.voter_group_id')

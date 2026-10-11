@@ -62,4 +62,9 @@ return [
     'results_not_available' => 'The results of this election are not available until it is closed.',
     'ballot_not_tied' => 'This ballot has no tie: no second round is possible.',
     'second_round_exists' => 'A second round already exists for this ballot.',
+    'results_check_failed' => 'The results cannot be published: the ballot check fails for at least one position.',
+    'election_not_closed' => 'Only a closed election can be published.',
+    'election_not_published' => 'This election is not published.',
+    'election_not_archivable' => 'Only a closed or published election can be archived.',
+    'election_not_archived' => 'This election is not archived.',
 ];

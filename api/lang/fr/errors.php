@@ -62,4 +62,9 @@ return [
     'results_not_available' => 'Les résultats de cette élection ne sont pas disponibles tant qu’elle n’est pas terminée.',
     'ballot_not_tied' => 'Ce poste n’a pas d’égalité : aucun second tour n’est possible.',
     'second_round_exists' => 'Un second tour existe déjà pour ce poste.',
+    'results_check_failed' => 'Les résultats ne peuvent pas être publiés : le contrôle des bulletins échoue pour au moins un poste.',
+    'election_not_closed' => 'Seule une élection terminée peut être publiée.',
+    'election_not_published' => 'Cette élection n’est pas publiée.',
+    'election_not_archivable' => 'Seule une élection terminée ou publiée peut être archivée.',
+    'election_not_archived' => 'Cette élection n’est pas archivée.',
 ];
