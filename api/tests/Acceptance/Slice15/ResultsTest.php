@@ -23,7 +23,7 @@ function resultsUrl(string $uuid): string
 function resultsSignedIn($test, string $status = 'closed'): array
 {
     $t = Team::two();
-    $election = Accounts::plantElection(['institution' => $t['a']['owner']['institution'], 'status' => $status, 'title' => 'Conseil']);
+    $election = Accounts::plantElection(['institution' => $t['a']['owner']['institution'], 'status' => $status, 'title' => 'Conseil', 'closed_at' => '2026-10-16 15:00:00']);
     Team::signIn($test, $t['a']['owner']);
 
     return [$t, $election];
@@ -60,7 +60,7 @@ it('counts the papers per candidate with percentages of the papers cast, blank i
     $data = resultsOf($this, $election);
     $b = $data['ballots'][0];
 
-    expect($data['election'])->toBe(['id' => $election, 'title' => 'Conseil', 'status' => 'closed'])
+    expect($data['election'])->toBe(['id' => $election, 'title' => 'Conseil', 'status' => 'closed', 'closed_at' => '2026-10-16T15:00:00Z'])
         ->and(array_keys($b))->toBe(['id', 'title', 'seats', 'scope', 'groups', 'eligible', 'voted', 'cast', 'blank', 'candidates', 'winners', 'tie', 'check', 'note', 'second_round'])
         ->and($b)->toMatchArray(['id' => $ballot, 'title' => 'Président(e)', 'seats' => 1, 'scope' => 'general', 'groups' => [], 'eligible' => 11, 'voted' => 11, 'cast' => 11, 'blank' => 2, 'tie' => null, 'note' => null, 'second_round' => null])
         ->and(array_keys($b['candidates'][0]))->toBe(['id', 'first_name', 'last_name', 'party', 'votes', 'percentage'])

@@ -7025,12 +7025,19 @@
                                                                 "published",
                                                                 "archived"
                                                             ]
+                                                        },
+                                                        "closed_at": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
                                                         }
                                                     },
                                                     "required": [
                                                         "id",
                                                         "title",
-                                                        "status"
+                                                        "status",
+                                                        "closed_at"
                                                     ]
                                                 },
                                                 "ballots": {

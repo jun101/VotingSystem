@@ -41,7 +41,12 @@ export default async function ResultsRoute({ params }: { params: Promise<{ elect
         'results',
       )}
     >
-      <ResultsPage election={election} results={ballots} turnout={turnout} />
+      <ResultsPage
+        election={election}
+        results={ballots}
+        closedAt={results === 'unavailable' ? null : results.election.closed_at}
+        turnout={turnout}
+      />
     </I18nProvider>
   );
 }

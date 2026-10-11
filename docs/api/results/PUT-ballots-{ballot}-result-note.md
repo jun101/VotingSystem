@@ -16,7 +16,7 @@ Sets or clears the public note shown with a ballot's result.
 | ballot | UUID | A ballot of the caller's institution whose election is `closed`, `published` or `archived` |
 
 Body, JSON: `{ "note": "text or null" }`. `note` is trimmed, 1 to 1 000 characters, control characters other than line
-breaks removed; `null` or an empty string clears it.
+breaks removed (a carriage return counts as a line break; the C1 controls, the bidirectional controls U+202A to U+202E and U+2066 to U+2069, the zero-width characters U+200B to U+200F and U+2060, U+2028, U+2029 and U+FEFF are removed too, because the note is shown on a public page); `null` or an empty string clears it.
 
 ## Scenarios
 
@@ -34,3 +34,5 @@ breaks removed; `null` or an empty string clears it.
 ### 200
 
 `{ "data": { "id": "<ballot uuid>", "note": "…" } }`
+
+The body replaces the note: a body without `note` clears it like `null`.

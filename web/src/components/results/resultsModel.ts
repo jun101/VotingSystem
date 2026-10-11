@@ -32,7 +32,7 @@ export function noteChanged(draft: string, saved: string | null): boolean {
 
 /** The note is longer than the server accepts. */
 export function noteTooLong(text: string): boolean {
-  return noteLength(text) > NOTE_MAX;
+  return noteLength(normalizeNote(text)) > NOTE_MAX;
 }
 
 export function fullName(candidate: Pick<ResultCandidate, 'first_name' | 'last_name'>): string {
@@ -64,4 +64,16 @@ export function canCreateSecondRound(ballot: ResultBallot): boolean {
 /** Turnout of a ballot as a share of its voters, between 0 and 1. */
 export function ballotTurnout(ballot: Pick<ResultBallot, 'eligible' | 'voted'>): number {
   return barShare(ballot.voted, ballot.eligible);
+}
+
+/**
+ * A percentage with one decimal as the server gives it: a part short of the whole never shows 100
+ * (9 999 of 10 000 is 99.9), and nothing is shown for an empty whole.
+ */
+export function percentOf(part: number, whole: number): number {
+  if (whole <= 0) return 0;
+
+  const rounded = Math.round((part / whole) * 1000) / 10;
+
+  return part < whole && rounded >= 100 ? 99.9 : rounded;
 }

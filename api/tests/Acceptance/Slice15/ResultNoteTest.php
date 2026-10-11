@@ -45,6 +45,14 @@ it('trims the note and removes control characters but keeps line breaks [FR-RES-
     expect($response->json('data.note'))->toBe("Ligne un\nLigne deux fin");
 });
 
+it('removes C1 controls, bidirectional controls and zero-width characters, and turns a lone carriage return into a line break [FR-RES-03] (scenario 1)', function () {
+    [$t, $election, $ballot] = noteSignedIn($this);
+
+    $response = $this->browser->put(noteUrl($ballot), ['note' => "Gagnant : \u{202E}eirreip\u{202C}\u{200B} \u{0085}fin\rsuite\u{2028}ok\u{FEFF}"])->assertOk();
+
+    expect($response->json('data.note'))->toBe("Gagnant : eirreip fin\nsuiteok");
+});
+
 it('clears the note with null or an empty string [FR-RES-03] (scenario 2)', function (mixed $value) {
     [$t, $election, $ballot] = noteSignedIn($this);
     $this->browser->put(noteUrl($ballot), ['note' => 'À effacer'])->assertOk();

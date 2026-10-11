@@ -4905,6 +4905,7 @@ export interface operations {
                                 title: string;
                                 /** @enum {string} */
                                 status: "closed" | "published" | "archived";
+                                closed_at: string | null;
                             };
                             ballots: {
                                 id: string;

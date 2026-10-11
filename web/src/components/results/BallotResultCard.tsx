@@ -25,6 +25,7 @@ import {
   noteChanged,
   noteLength,
   noteTooLong,
+  percentOf,
   normalizeNote,
   tiedNames,
 } from './resultsModel';
@@ -125,7 +126,7 @@ export function BallotResultCard({
           {t('results.ballot.turnout', {
             voted: ballot.voted,
             eligible: ballot.eligible,
-            percent: percentText(Math.round(ballotTurnout(ballot) * 1000) / 10, locale),
+            percent: percentText(percentOf(ballot.voted, ballot.eligible), locale),
           })}
         </li>
       </ul>
@@ -221,10 +222,7 @@ export function BallotResultCard({
         <span className="ml-auto">
           {t(`results.blank.line.${pluralForm(locale, ballot.blank)}`, {
             count: ballot.blank,
-            percent: percentText(
-              Math.round(barShare(ballot.blank, ballot.cast) * 1000) / 10,
-              locale,
-            ),
+            percent: percentText(percentOf(ballot.blank, ballot.cast), locale),
           })}
         </span>
       </div>

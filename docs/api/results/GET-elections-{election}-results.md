@@ -38,7 +38,7 @@ The results of a closed election, per ballot.
 ```json
 {
   "data": {
-    "election": { "id": "9f2c1d3e-6a40-4b8a-8c11-2d5e7f0a9b34", "title": "Conseil des élèves 2026", "status": "closed" },
+    "election": { "id": "9f2c1d3e-6a40-4b8a-8c11-2d5e7f0a9b34", "title": "Conseil des élèves 2026", "status": "closed", "closed_at": "2026-10-16T15:00:00Z" },
     "ballots": [
       {
         "id": "7a1c0b5e-2d4f-4e11-8d3a-0b9c6e4f1a22",
@@ -75,3 +75,5 @@ setting applies to the public page in slice 16, not here.
 A candidate with no vote never wins and is never part of a tie: a ballot nobody voted for has empty `winners` and `tie`
 `null`. With fewer voted-for candidates than seats, `winners` holds the voted-for ones. `cast` counts the vote papers of the
 ballot (blank included); `voted` counts the voters eligible for the ballot who have a participation.
+
+`election.closed_at` is the moment the election was closed (an early close is before its end), UTC.

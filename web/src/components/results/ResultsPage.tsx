@@ -43,15 +43,19 @@ const BACK =
 export function ResultsPage({
   election,
   results,
+  closedAt,
   turnout,
 }: {
   election: Election;
   results: ResultBallot[] | null;
+  /** When the election was closed (an early close is before its end), else null. */
+  closedAt: string | null;
   turnout: Turnout | null;
 }) {
   const { t, locale } = useI18n();
   const [ballots, setBallots] = useState<ResultBallot[] | null>(results);
   const [asking, setAsking] = useState<ResultBallot | null>(null);
+  const [stale, setStale] = useState(false);
 
   if (ballots === null) {
     return (
@@ -104,7 +108,7 @@ export function ResultsPage({
 
   const list: ResultBallot[] = ballots;
   const ties = list.filter((ballot) => ballot.tie !== null).length;
-  const end = new Date(election.ends_at);
+  const end = new Date(closedAt ?? election.ends_at);
   const zone = election.timezone;
 
   /** The API is read again: a second round created elsewhere shows as created here. */
@@ -113,8 +117,10 @@ export function ResultsPage({
 
     try {
       setBallots((await fetchResults(election.id)).ballots);
+      setStale(false);
     } catch {
-      // The page keeps what it shows; the dialog is closed.
+      // The page keeps what it shows; the dialog is closed and the person is told.
+      setStale(true);
     }
   }
 
@@ -129,6 +135,11 @@ export function ResultsPage({
 
   return (
     <div data-testid="results-page" className="flex flex-col gap-4.5">
+      {stale ? (
+        <p role="alert" data-testid="results-stale" className="text-base font-medium text-danger">
+          {t('results.refreshError')}
+        </p>
+      ) : null}
       <Link href={`/admin/elections/${election.id}`} data-testid="results-back" className={BACK}>
         <Icon name="left" size={18} />
         {t('results.back')}

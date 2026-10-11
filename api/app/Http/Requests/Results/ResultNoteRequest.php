@@ -18,8 +18,11 @@ class ResultNoteRequest extends FormRequest
         $value = $this->input('note');
 
         if (is_string($value)) {
-            // Control characters go (a line break and a carriage return stay as line breaks), then the ends are trimmed.
-            $clean = preg_replace('/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F]/u', '', str_replace("\r\n", "\n", $value));
+            // A carriage return becomes a line break; every control character, the bidirectional controls and the
+            // zero-width characters go (a note is shown on a public page, where they could reverse or hide text);
+            // then the ends are trimmed.
+            $text = str_replace(["\r\n", "\r"], "\n", $value);
+            $clean = preg_replace('/(?!\n)\p{Cc}|[\x{200B}-\x{200F}\x{2028}-\x{202E}\x{2060}-\x{2069}\x{FEFF}]/u', '', $text);
             $clean = trim($clean ?? '');
             $this->merge(['note' => $clean === '' ? null : $clean]);
         }

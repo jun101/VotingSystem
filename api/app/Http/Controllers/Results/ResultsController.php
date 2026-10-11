@@ -22,7 +22,7 @@ class ResultsController extends Controller
      * 409 `results_not_available` otherwise. Counted from the votes and their choices only; the
      * audit table is never read. Owner or manager.
      *
-     * @response array{data: array{election: array{id: string, title: string, status: 'closed'|'published'|'archived'}, ballots: list<array{id: string, title: string, seats: int, scope: 'general'|'group', groups: list<array{id: string, name: string}>, eligible: int, voted: int, cast: int, blank: int, candidates: list<array{id: string, first_name: string, last_name: string, party: string|null, votes: int, percentage: float}>, winners: list<string>, tie: array{candidates: list<string>, seats_left: int}|null, check: array{recorded: int, expected: int, ok: bool}, note: string|null, second_round: string|null}>}}
+     * @response array{data: array{election: array{id: string, title: string, status: 'closed'|'published'|'archived', closed_at: string|null}, ballots: list<array{id: string, title: string, seats: int, scope: 'general'|'group', groups: list<array{id: string, name: string}>, eligible: int, voted: int, cast: int, blank: int, candidates: list<array{id: string, first_name: string, last_name: string, party: string|null, votes: int, percentage: float}>, winners: list<string>, tie: array{candidates: list<string>, seats_left: int}|null, check: array{recorded: int, expected: int, ok: bool}, note: string|null, second_round: string|null}>}}
      */
     public function __invoke(Election $election, ComputeResults $results): JsonResponse
     {
@@ -36,7 +36,7 @@ class ResultsController extends Controller
 
         return response()->json([
             'data' => [
-                'election' => ['id' => $election->uuid, 'title' => $election->title, 'status' => $election->status->value],
+                'election' => ['id' => $election->uuid, 'title' => $election->title, 'status' => $election->status->value, 'closed_at' => $election->closed_at?->utc()->format('Y-m-d\TH:i:s\Z')],
                 'ballots' => $results($election),
             ],
         ], 200, [], JSON_PRESERVE_ZERO_FRACTION);
