@@ -89,6 +89,12 @@ NFR-SEC-05, NFR-UX-02, NFR-UX-03. Not here: email and the export file (slice 11)
 - The `SlipWriter` binding switches to the TCPDF writer; `PlainSlipWriter` is deleted with its unit test replaced by the
   TCPDF one.
 
+**Done in 10b (2026-10-11).** `tecnickcom/tcpdf` 7.0 is a facade over `tc-lib-pdf`; its font definitions are not installed by
+composer, so the four Helvetica core definitions are committed in `api/resources/pdf-fonts/core/` (Adobe AFM metrics,
+licence included) and the writer points `K_PATH_FONTS` there. Measured in the `queue` container, 1 000 slips with long
+names: write 11 to 12 s, peak memory 105 MB, PDF 3.7 MB (6.6 MB encrypted): under the caps, the cap per file stays 1 000.
+The engine writes the page boxes with decimals; the writer rewrites them to the same byte length (`0 0 612 792`).
+
 ## Tests (written before the code, the coder never edits them)
 
 - API: `api/tests/Acceptance/Slice10/` — `CredentialsStateTest`, `CredentialRunTest`, `CodeRulesTest`,

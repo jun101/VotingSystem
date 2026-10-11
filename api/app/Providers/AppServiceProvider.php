@@ -20,8 +20,8 @@ use App\Policies\PartyPolicy;
 use App\Policies\VoterGroupPolicy;
 use App\Policies\VoterImportPolicy;
 use App\Policies\VoterPolicy;
-use App\Support\Credentials\PlainSlipWriter;
 use App\Support\Credentials\SlipWriter;
+use App\Support\Credentials\TcpdfSlipWriter;
 use Dedoc\Scramble\Scramble;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Foundation\Application;
@@ -37,7 +37,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         // The slip layout (slice 10): run 10b swaps this binding for the TCPDF writer.
-        $this->app->bind(SlipWriter::class, PlainSlipWriter::class);
+        $this->app->bind(SlipWriter::class, TcpdfSlipWriter::class);
 
         // The OpenAPI file is exported by `make generate`; no documentation page is served.
         // Scramble is a development package: without it (an install made with
