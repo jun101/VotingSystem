@@ -118,8 +118,9 @@ test.describe('the shell after sign-up [FR-NAV-02, FR-NAV-03]', () => {
       await page.goto(path);
       const html = await page.content();
       const hrefs = await page.locator('[href]').evaluateAll((nodes) => nodes.map((n) => n.getAttribute('href') ?? ''));
+      // `data-nimg` is Next's own marker on an optimised image (1 or fill): not an identifier.
       const data = await page.locator('*').evaluateAll((nodes) =>
-        nodes.flatMap((n) => Array.from(n.attributes).filter((a) => a.name.startsWith('data-') && a.name !== 'data-testid' && a.name !== 'data-count').map((a) => a.value)),
+        nodes.flatMap((n) => Array.from(n.attributes).filter((a) => a.name.startsWith('data-') && a.name !== 'data-testid' && a.name !== 'data-count' && a.name !== 'data-nimg').map((a) => a.value)),
       );
 
       for (const value of [...hrefs, page.url()]) {
