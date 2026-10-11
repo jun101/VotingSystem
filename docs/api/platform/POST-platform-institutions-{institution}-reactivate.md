@@ -30,7 +30,7 @@ No body.
 | 7 | More than 60 requests in the hour | 429 | `too_many_attempts` | |
 | 8 | Another method | 405 | `method_not_allowed` | |
 
-Order of the checks: as for suspend.
+Order of the checks: as for suspend (401, 403, 404, 429, 409).
 
 ## Responses
 

@@ -37,7 +37,7 @@ Suspends an institution, with a reason.
 | 8 | More than 60 requests in the hour | 429 | `too_many_attempts` | |
 | 9 | Another method; body not valid JSON | 405, 400 | `method_not_allowed`, `malformed_request` | |
 
-Order of the checks: session (401), role (403), rate limit (429), institution (404), body (422), state (409).
+Order of the checks: session (401), role (403), institution (404), rate limit (429), body (422), state (409).
 
 ## Responses
 

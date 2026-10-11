@@ -20,7 +20,7 @@ class VoteInfoController extends Controller
      * and a value that is not a UUID all answer 404. No session; no count; no ballot. Limited per
      * address and election.
      */
-    #[Response(status: 200, type: "array{data: array{id: string, title: string, institution: string, starts_at: string, ends_at: string, timezone: string, language: 'fr'|'en', phase: 'before'|'open'|'closed', results: string|null}}")]
+    #[Response(status: 200, type: "array{data: array{id: string, title: string, institution: string, starts_at: string, ends_at: string, timezone: string, language: 'fr'|'en', phase: 'before'|'open'|'closed'|'paused', results: string|null}}")]
     public function __invoke(string $election, VotingElections $elections): JsonResponse
     {
         $found = $elections->find($election);

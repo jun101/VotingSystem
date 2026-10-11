@@ -5,6 +5,7 @@ namespace App\Support\Audit;
 use App\Models\AuditEntry;
 use App\Models\Election;
 use App\Models\GeneratedFile;
+use App\Models\Institution;
 use App\Models\User;
 use App\Models\Voter;
 use Illuminate\Database\Eloquent\Model;
@@ -29,6 +30,7 @@ final class AuditLog
         Voter::class => 'voter',
         GeneratedFile::class => 'generated_file',
         User::class => 'user',
+        Institution::class => 'institution',
     ];
 
     /**
@@ -46,7 +48,11 @@ final class AuditLog
         $electionKey = $election?->getKey();
         $institution = $election?->institution_id;
 
-        if ($subject !== null) {
+        // The platform's own actions (an institution suspended or reactivated) belong to nobody's log: no institution,
+        // so no owner's list ever finds them; the subject is the institution, named by its uuid.
+        $platform = $subject instanceof Institution;
+
+        if ($subject !== null && ! $platform) {
             $electionKey ??= match (true) {
                 $subject instanceof Election => $subject->exists ? $subject->getKey() : null,
                 $subject instanceof Voter, $subject instanceof GeneratedFile => $subject->election_id,
@@ -55,7 +61,11 @@ final class AuditLog
             $institution ??= $subject->getAttribute('institution_id');
         }
 
-        $institution ??= $actor?->institution_id;
+        if ($platform) {
+            $institution = null;
+        } else {
+            $institution ??= $actor?->institution_id;
+        }
 
         $entry = new AuditEntry;
         $entry->institution_id = is_numeric($institution) ? (int) $institution : null;

@@ -1040,6 +1040,71 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/platform/institutions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The institutions of the platform
+         * @description Platform admin only. Newest created first, 20 per page (1 to 100), filtered by part of the name (`q`) and by
+         *     `status` (`active` or `suspended`). Counts only: users, voters and elections by status, and the latest
+         *     sign-in. Never a name or email of a user or a voter, a code, a candidate, a title or a vote.
+         */
+        get: operations["platformInstitution.index"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/platform/institutions/{institution}/suspend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Suspend an institution
+         * @description Platform admin only; the reason (3 to 500 characters, control characters removed) is shown to the owners at
+         *     sign-in and emailed to them. Open elections are paused; nothing is deleted. 409 `already_suspended`. Limited
+         *     to 60 requests an hour per admin, shared with the reactivation.
+         */
+        post: operations["platformInstitution.suspend"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/platform/institutions/{institution}/reactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reactivate an institution
+         * @description Platform admin only. Clears the suspension and its reason; its owners are emailed (without the reason).
+         *     409 `not_suspended`. Limited to 60 requests an hour per admin, shared with the suspension.
+         */
+        post: operations["platformInstitution.reactivate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/public/institutions/{institution}": {
         parameters: {
             query?: never;
@@ -5081,6 +5146,167 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
+    "platformInstitution.index": {
+        parameters: {
+            query?: {
+                q?: string | null;
+                status?: "active" | "suspended" | null;
+                page?: number;
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            name: string;
+                            /** @enum {string} */
+                            type: "school" | "university" | "association" | "other";
+                            /** @enum {string} */
+                            status: "active" | "suspended";
+                            suspended_at: string | null;
+                            suspension_reason: string | null;
+                            created_at: string | null;
+                            last_sign_in_at: string | null;
+                            counts: {
+                                users: number;
+                                voters: number;
+                                elections: {
+                                    draft: number;
+                                    scheduled: number;
+                                    open: number;
+                                    closed: number;
+                                    published: number;
+                                    archived: number;
+                                };
+                            };
+                        }[];
+                        meta: {
+                            page: number;
+                            per_page: number;
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "platformInstitution.suspend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The institution UUID */
+                institution: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    reason?: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            name: string;
+                            /** @enum {string} */
+                            type: "school" | "university" | "association" | "other";
+                            /** @enum {string} */
+                            status: "active" | "suspended";
+                            suspended_at: string | null;
+                            suspension_reason: string | null;
+                            created_at: string | null;
+                            last_sign_in_at: string | null;
+                            counts: {
+                                users: number;
+                                voters: number;
+                                elections: {
+                                    draft: number;
+                                    scheduled: number;
+                                    open: number;
+                                    closed: number;
+                                    published: number;
+                                    archived: number;
+                                };
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "platformInstitution.reactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The institution UUID */
+                institution: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            name: string;
+                            /** @enum {string} */
+                            type: "school" | "university" | "association" | "other";
+                            /** @enum {string} */
+                            status: "active" | "suspended";
+                            suspended_at: string | null;
+                            suspension_reason: string | null;
+                            created_at: string | null;
+                            last_sign_in_at: string | null;
+                            counts: {
+                                users: number;
+                                voters: number;
+                                elections: {
+                                    draft: number;
+                                    scheduled: number;
+                                    open: number;
+                                    closed: number;
+                                    published: number;
+                                    archived: number;
+                                };
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
     "publication.publicInstitution": {
         parameters: {
             query?: never;
@@ -6336,7 +6562,7 @@ export interface operations {
                             /** @enum {string} */
                             language: "fr" | "en";
                             /** @enum {string} */
-                            phase: "before" | "open" | "closed";
+                            phase: "before" | "open" | "closed" | "paused";
                             results: string | null;
                         };
                     };

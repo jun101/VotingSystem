@@ -15,7 +15,7 @@ require_once __DIR__.'/SuspendInstitutionTest.php';
 it('refuses a vote while suspended and takes it again after reactivation [FR-INST-06, FR-VOTE-02]', function () {
     $e = Voting::election();
     $voter = Voting::browser($this);
-    Voting::enter($voter, $e['election'], $e['codes']['Wideline'])->assertOk();
+    Voting::enter($voter, $e['election'], $e['codes']['Wideline'])->assertStatus(201);
     $admin = new AuthClient($this);
     $admin->login(platformAdmin()['email'], Accounts::PASSWORD)->assertOk();
 
@@ -28,7 +28,7 @@ it('refuses a vote while suspended and takes it again after reactivation [FR-INS
     $admin->post(reactivateUrl($e['institution']))->assertOk();
 
     $again = Voting::browser($this);
-    Voting::enter($again, $e['election'], $e['codes']['Paul'])->assertOk();
+    Voting::enter($again, $e['election'], $e['codes']['Paul'])->assertStatus(201);
     $again->post("/api/v1/vote/{$e['election']}/submit", Voting::body($e), [], false)->assertStatus(201);
 });
 
@@ -68,7 +68,7 @@ it('does not open or close the elections of a suspended institution, and does af
 it('keeps the voting data of the institution as it was [FR-INST-06]', function () {
     $e = Voting::election();
     $voter = Voting::browser($this);
-    Voting::enter($voter, $e['election'], $e['codes']['Wideline'])->assertOk();
+    Voting::enter($voter, $e['election'], $e['codes']['Paul'])->assertStatus(201);
     $voter->post("/api/v1/vote/{$e['election']}/submit", Voting::body($e), [], false)->assertStatus(201);
     $counts = Voting::counts($e['election']);
     $admin = new AuthClient($this);

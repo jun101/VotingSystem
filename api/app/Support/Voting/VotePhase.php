@@ -20,17 +20,25 @@ final class VotePhase
 
     public const CLOSED = 'closed';
 
+    /** The institution is suspended and the election was scheduled or open: nothing is voted, nothing is closed. */
+    public const PAUSED = 'paused';
+
     /**
-     * @param  bool  $suspended  the institution is suspended: nothing can be voted
-     * @return 'before'|'open'|'closed'
+     * @param  bool  $suspended  the institution is suspended: nothing can be voted; a scheduled or open election is `paused`
+     * @return 'before'|'open'|'closed'|'paused'
      */
     public static function of(ElectionStatus $status, DateTimeInterface $startsAt, DateTimeInterface $endsAt, DateTimeInterface $now, bool $suspended = false): string
     {
-        if ($suspended) {
+        if (in_array($status, [ElectionStatus::Closed, ElectionStatus::Published, ElectionStatus::Archived], true)) {
             return self::CLOSED;
         }
 
-        if (in_array($status, [ElectionStatus::Closed, ElectionStatus::Published, ElectionStatus::Archived], true)) {
+        // Paused, not closed: the end time does not move and the election resumes on reactivation.
+        if ($suspended && in_array($status, [ElectionStatus::Scheduled, ElectionStatus::Open], true)) {
+            return self::PAUSED;
+        }
+
+        if ($suspended) {
             return self::CLOSED;
         }
 

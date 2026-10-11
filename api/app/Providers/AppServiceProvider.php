@@ -259,5 +259,8 @@ class AppServiceProvider extends ServiceProvider
         // The results (docs/api/results/): the note 60 an hour, the second round 20 an hour, per user.
         RateLimiter::for('result-note', fn (Request $request) => Limit::perHour($times(60))->by($byUser($request)));
         RateLimiter::for('second-round', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
+
+        // The platform admin's writes (docs/api/platform/): suspend and reactivate share 60 an hour per admin.
+        RateLimiter::for('platform-write', fn (Request $request) => Limit::perHour($times(60))->by('platform-write:'.$byUser($request)));
     }
 }
