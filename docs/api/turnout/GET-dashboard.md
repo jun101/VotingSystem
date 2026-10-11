@@ -8,7 +8,7 @@ doing.
 | Slice | 14 |
 | Requirements | FR-NAV-01, FR-RES-01 |
 | Caller | Institution user: owner or manager |
-| Rate limit | The shared API limit |
+| Rate limit | 120 requests per minute per user, shared with the turnout |
 
 ## Scenarios
 

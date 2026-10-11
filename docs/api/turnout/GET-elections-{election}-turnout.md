@@ -7,7 +7,7 @@ How many voters have voted, in total, by group and over time. Never what they vo
 | Slice | 14 |
 | Requirements | FR-RES-01, FR-SEC-03, FR-SEC-04 |
 | Caller | Institution user: owner or manager |
-| Rate limit | The shared API limit |
+| Rate limit | 120 requests per minute per user, shared with the dashboard |
 
 ## Request
 

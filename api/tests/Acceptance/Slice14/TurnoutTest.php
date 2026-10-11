@@ -196,3 +196,13 @@ it('lets a manager read it too [FR-RES-01] (scenario 1)', function () {
 
     $this->browser->get(turnoutUrl($election))->assertOk();
 });
+
+it('answers 429 above 120 reads a minute from one user, turnout and dashboard counted together [NFR-SEC-05] (scenario 8)', function () {
+    [$t, $election] = turnoutSignedIn($this);
+    foreach (range(1, 60) as $i) {
+        $this->browser->get(turnoutUrl($election))->assertOk();
+        $this->browser->get('/api/v1/dashboard')->assertOk();
+    }
+
+    $this->browser->get(turnoutUrl($election))->assertStatus(429)->assertJsonPath('error.code', 'too_many_attempts');
+});
