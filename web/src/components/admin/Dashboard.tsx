@@ -108,8 +108,9 @@ export function Dashboard({
   const [stamp, setStamp] = useState<number | null>(null);
   const moment = useMemo(() => (stamp === null ? new Date(now) : new Date(stamp)), [now, stamp]);
 
-  // While an election is open the live numbers are read again every 15 seconds; a failed read
-  // keeps what is shown.
+  // The live numbers are read again every 15 seconds while an election is open or about to start
+  // (a scheduled one whose start passes shows up as open), and again when the first read failed.
+  // A failed read keeps what is shown.
   usePolling(
     () => {
       void fetchDashboard().then(
@@ -120,7 +121,7 @@ export function Dashboard({
         () => undefined,
       );
     },
-    live !== null && live.open.length > 0,
+    live === null || live.open.length > 0 || live.upcoming.length > 0,
   );
   const zone = institution?.timezone ?? DEFAULT_TIME_ZONE;
 
@@ -190,6 +191,11 @@ export function Dashboard({
   const todoCount = live ? todoItems.length : todo.length;
   const latest = latestOf(elections);
   const remaining = start.total - start.done;
+
+  /** The time zone of an election (its own), else the institution's. */
+  function ownZone(id: string): string {
+    return elections.find((one) => one.id === id)?.timezone ?? zone;
+  }
 
   function when(row: (typeof todo)[number]): string {
     if (row.inDays <= 0) return t('admin.dashboard.todo.today');
@@ -694,8 +700,8 @@ export function Dashboard({
                   tone="scheduled"
                   title={item.title}
                   detail={t('admin.dashboard.live.upcoming.starts', {
-                    day: longDay(new Date(item.starts_at), locale, zone),
-                    time: clock(new Date(item.starts_at), locale, zone),
+                    day: longDay(new Date(item.starts_at), locale, ownZone(item.id)),
+                    time: clock(new Date(item.starts_at), locale, ownZone(item.id)),
                   })}
                 />
               ))}

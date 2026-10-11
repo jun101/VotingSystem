@@ -46,11 +46,26 @@ final class ComputeTurnout
         return [
             'eligible' => $eligible,
             'voted' => $voted,
-            'percentage' => $eligible === 0 ? 0.0 : round($voted / $eligible * 100, 1),
+            'percentage' => self::percentage($voted, $eligible),
             'by_group' => $this->byGroup($electionId),
             'bucket' => $bucket,
             'over_time' => $voted === 0 ? [] : $this->overTime($election, $bucket, $now),
         ];
+    }
+
+    /**
+     * One decimal, and never 100.0 unless everybody has voted (299 of 300 is 99.6, and 99.99 of a
+     * huge list is 99.9, not a full turnout).
+     */
+    public static function percentage(int $voted, int $eligible): float
+    {
+        if ($eligible <= 0) {
+            return 0.0;
+        }
+
+        $value = round($voted / $eligible * 100, 1);
+
+        return $voted < $eligible && $value >= 100.0 ? 99.9 : $value;
     }
 
     /**
@@ -135,6 +150,7 @@ final class ComputeTurnout
 
         // From the opening, or the first vote if it came earlier; to the current bucket, or the end's
         // (the moment the election was closed, when that was earlier), or the last vote if it came later.
+        // The end instant is exclusive: the last bucket is the one holding the second before it.
         $end = $election->ends_at->getTimestamp();
 
         if (in_array($election->status, [ElectionStatus::Closed, ElectionStatus::Published, ElectionStatus::Archived], true)) {
@@ -145,7 +161,7 @@ final class ComputeTurnout
         }
 
         $first = min($this->floor($election->starts_at->getTimestamp(), $bucket, $zone), min(array_keys($counts)));
-        $last = max($this->floor($end, $bucket, $zone), max(array_keys($counts)));
+        $last = max($this->floor($end - 1, $bucket, $zone), max(array_keys($counts)), $first);
 
         $series = [];
         $total = 0;
@@ -156,6 +172,16 @@ final class ComputeTurnout
             $total += $voted;
             $series[] = ['at' => gmdate('Y-m-d\TH:i:s\Z', $at), 'voted' => $voted, 'total' => $total];
             $at = $this->next($at, $bucket, $zone);
+        }
+
+        // The cap cut the series: the votes of the buckets left out are folded into the last one, so its
+        // running total is still the number of votes.
+        $remaining = array_sum($counts) - $total;
+
+        if ($remaining > 0 && $series !== []) {
+            $index = count($series) - 1;
+            $series[$index]['voted'] += $remaining;
+            $series[$index]['total'] += $remaining;
         }
 
         return $series;

@@ -107,8 +107,8 @@ Route::prefix('v1')->group(function (): void {
         });
     });
 
-    // The institution's home page (slice 14): the shared API limit only.
-    Route::get('/dashboard', DashboardController::class)->middleware(['cookie-session', 'auth', 'institution.active']);
+    // The institution's home page (slice 14): 120 reads a minute per user, shared with the turnout.
+    Route::get('/dashboard', DashboardController::class)->middleware(['cookie-session', 'auth', 'institution.active', 'throttle:turnout-read']);
 
     // The elections of the institution (slice 05). Owners and managers both pass, so there is no
     // role middleware; the record is bound (another institution's is a 404), then the rate limit
@@ -146,7 +146,7 @@ Route::prefix('v1')->group(function (): void {
         Route::post('/{election}/groups', [GroupController::class, 'store'])->middleware('throttle:groups-write');
 
         // Turnout and the voters file (slice 14). The file is limited to 20 an hour per user.
-        Route::get('/{election}/turnout', TurnoutController::class);
+        Route::get('/{election}/turnout', TurnoutController::class)->middleware('throttle:turnout-read');
         Route::get('/{election}/voters/export', VoterExportController::class)->middleware('throttle:voters-export');
 
         // Voters loaded from another election (slice 09b).

@@ -17,7 +17,7 @@ import type { Election, ElectionStatus } from '@/lib/api/elections';
 import { ApiError, errorText } from '@/lib/api/errors';
 import type { Turnout, TurnoutBucket } from '@/lib/api/turnout';
 import type { GroupList, VoterList } from '@/lib/api/voters';
-import { clock, longDay } from '@/lib/format/electionDates';
+import { clock, longDay, pluralForm } from '@/lib/format/electionDates';
 import { useI18n } from '@/lib/i18n/client';
 import { usePolling } from '@/lib/usePolling';
 import { TurnoutChart } from './TurnoutChart';
@@ -111,7 +111,10 @@ export function TurnoutPage({
   groups: GroupList;
 }) {
   const { t, tIfAny, locale } = useI18n();
-  const live = election.status === 'open';
+  // Polling stops at the end instant too, not only on the status the page was made with: the status
+  // changes on the server a little after the end, and the page is not reloaded.
+  const [over, setOver] = useState(false);
+  const live = election.status === 'open' && !over;
 
   const [turnout, setTurnout] = useState<Turnout>(initialTurnout);
   const [list, setList] = useState<VoterList>(initialVoters);
@@ -126,6 +129,8 @@ export function TurnoutPage({
   const current = useRef<ListFilters>(filters);
   const bucketRef = useRef<TurnoutBucket | undefined>(undefined);
   const ticket = useRef(0);
+  // The newest read of the numbers: a bucket chosen while a poll is in flight must not be undone by it.
+  const numbersTicket = useRef(0);
   const alive = useRef(true);
 
   useEffect(() => {
@@ -186,6 +191,7 @@ export function TurnoutPage({
   async function refresh() {
     const wanted = current.current;
     const mine = ++ticket.current;
+    const numbersMine = ++numbersTicket.current;
 
     try {
       const [numbers, voters] = await Promise.all([
@@ -193,11 +199,11 @@ export function TurnoutPage({
         fetchVoters(election.id, listQuery(wanted)),
       ]);
 
-      if (mine !== ticket.current || !alive.current) return;
+      if (!alive.current) return;
+      if (numbersMine === numbersTicket.current) setTurnout(numbers);
+      if (mine !== ticket.current) return;
 
       const last = pageCount(voters.total);
-
-      setTurnout(numbers);
 
       if (wanted.page > last) {
         setFilters({ ...wanted, page: last });
@@ -214,6 +220,34 @@ export function TurnoutPage({
   }
 
   usePolling(() => void refresh(), live);
+
+  // At the end instant: stop polling, change the chip, and read once more for the final numbers.
+  useEffect(() => {
+    if (election.status !== 'open') return;
+
+    const endsAt = new Date(election.ends_at).getTime();
+    let timer = 0;
+
+    const arm = () => {
+      const wait = endsAt - Date.now();
+
+      if (wait <= 0) {
+        setOver(true);
+        void refresh();
+
+        return;
+      }
+
+      // A timer holds at most about 24 days: longer waits are cut and armed again.
+      timer = window.setTimeout(arm, Math.min(wait, 2_000_000_000));
+    };
+
+    arm();
+
+    return () => window.clearTimeout(timer);
+    // `refresh` only reads refs and the render's election.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [election.status, election.ends_at]);
 
   // A change of filters (a group, a page, the search) reads the list.
   useEffect(() => {
@@ -247,16 +281,18 @@ export function TurnoutPage({
     if (bucket === turnout.bucket) return;
 
     bucketRef.current = bucket;
+    // A poll already in flight is now stale: it asked for the old bucket.
+    const mine = ++numbersTicket.current;
 
     try {
       const numbers = await fetchTurnout(election.id, bucket);
 
-      if (alive.current) {
+      if (alive.current && mine === numbersTicket.current) {
         setTurnout(numbers);
         setProblem(null);
       }
     } catch (caught) {
-      if (alive.current) failed(caught);
+      if (alive.current && mine === numbersTicket.current) failed(caught);
     }
   }
 
@@ -285,7 +321,9 @@ export function TurnoutPage({
     } catch (caught) {
       const error = caught instanceof ApiError ? caught : new ApiError(0, 'unknown');
 
-      setExportProblem(`${t('turnout.nonvoters.exportFailed')} ${errorText(error, tIfAny)}`);
+      if (alive.current) {
+        setExportProblem(`${t('turnout.nonvoters.exportFailed')} ${errorText(error, tIfAny)}`);
+      }
     }
 
     if (alive.current) setExporting(null);
@@ -294,8 +332,6 @@ export function TurnoutPage({
   const lines = useMemo(() => groupLines(turnout.by_group), [turnout.by_group]);
   const left = Math.max(0, turnout.eligible - turnout.voted);
   const none = turnout.eligible === 0;
-  const rounded = Math.round(turnout.percentage);
-  const smallShare = turnout.percentage > 0 && turnout.percentage < 1;
   const filtering = filters.q !== '' || filters.group !== '';
   const pages = pageCount(list.total);
   const from = (list.page - 1) * 24 + 1;
@@ -305,7 +341,9 @@ export function TurnoutPage({
   const state = election.status;
   const statusNote =
     state === 'open'
-      ? null
+      ? over
+        ? t('turnout.final')
+        : null
       : state === 'draft' || state === 'scheduled'
         ? t('turnout.notStarted')
         : t('turnout.final');
@@ -393,19 +431,15 @@ export function TurnoutPage({
                   data-testid="turnout-percentage"
                   className="font-display text-[64px] leading-none font-extrabold md:text-[76px]"
                 >
-                  {smallShare ? (
-                    t('turnout.headline.percent', {
-                      percent: percentText(turnout.percentage, locale),
-                    })
-                  ) : (
-                    <>
-                      <CountUp value={rounded} locale={locale} duration={900} />
-                      {locale === 'fr' ? ' %' : '%'}
-                    </>
-                  )}
+                  {t('turnout.headline.percent', {
+                    percent: percentText(turnout.percentage, locale),
+                  })}
                 </b>
                 <span className="text-lg">
-                  {t('turnout.headline.of', { voted: turnout.voted, eligible: turnout.eligible })}
+                  {t(`turnout.headline.of.${pluralForm(locale, turnout.eligible)}`, {
+                    voted: turnout.voted,
+                    eligible: turnout.eligible,
+                  })}
                 </span>
               </div>
               <div className="relative z-10">

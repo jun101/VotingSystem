@@ -2344,7 +2344,10 @@
     "headline": {
       "label": "Taux de participation",
       "percent": "{percent} %",
-      "of": "{voted} sur {eligible} électeurs ont voté"
+      "of": {
+        "one": "{voted} sur {eligible} électeur a voté",
+        "other": "{voted} sur {eligible} électeurs ont voté"
+      }
     },
     "eligible": "Électeurs inscrits",
     "voted": "Ont voté",
@@ -2359,7 +2362,10 @@
       "hour": "Heure",
       "day": "Jour",
       "empty": "Personne n’a encore voté. La courbe apparaîtra avec le premier vote.",
-      "label": "Courbe de participation, par {unit} : {total} électeurs ont voté en tout, dont {last} sur la dernière période ({at}).",
+      "label": {
+        "one": "Courbe de participation, par {unit} : {total} électeur a voté en tout, dont {last} sur la dernière période ({at}).",
+        "other": "Courbe de participation, par {unit} : {total} électeurs ont voté en tout, dont {last} sur la dernière période ({at})."
+      },
       "labelEmpty": "Courbe de participation : personne n’a encore voté.",
       "unit": {
         "hour": "heure",

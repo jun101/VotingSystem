@@ -23,6 +23,6 @@ final class FormulaGuard
      */
     public static function guardPhone(string $text): string
     {
-        return preg_match('/^\+\d[\d ().\-]*$/', $text) === 1 ? $text : self::guard($text);
+        return preg_match('/^\+\d[\d ().\-]*$/D', $text) === 1 ? $text : self::guard($text);
     }
 }

@@ -10,8 +10,10 @@ use App\Models\Voter;
 use App\Support\Exports\VotersFileWriter;
 use App\Support\Voters\VoterFilters;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Throwable;
 
 class VoterExportController extends Controller
 {
@@ -63,21 +65,36 @@ class VoterExportController extends Controller
         $withVoted = $voted === 'all';
 
         $body = function () use ($query, $writer, $csv, $language, $withVoted): void {
-            // One row at a time: nothing is kept.
-            $rows = $query->toBase()->cursor();
+            try {
+                // One row at a time: nothing is kept.
+                $rows = $query->toBase()->cursor();
 
-            if ($csv) {
-                $handle = fopen('php://output', 'w');
+                if ($csv) {
+                    $handle = fopen('php://output', 'w');
 
-                if ($handle !== false) {
-                    $writer->csv($rows, $language, $withVoted, $handle);
-                    fclose($handle);
+                    if ($handle === false) {
+                        throw new \RuntimeException('The output stream cannot be opened.');
+                    }
+
+                    try {
+                        $writer->csv($rows, $language, $withVoted, $handle);
+                    } finally {
+                        fclose($handle);
+                    }
+
+                    return;
                 }
 
-                return;
-            }
+                $writer->xlsx($rows, $language, $withVoted);
+            } catch (Throwable $e) {
+                // The headers are gone: a clean end would hand over a truncated file as if it were whole.
+                // Outcome only (no name, no row). The exception goes on after the cleanup above (the Excel
+                // folder is removed by the writer), so the chunked body is not terminated and the client
+                // sees a failed download, never a short file.
+                Log::error('voters.export.failed', ['exception' => $e::class, 'format' => $csv ? 'csv' : 'xlsx']);
 
-            $writer->xlsx($rows, $language, $withVoted);
+                throw $e;
+            }
         };
 
         return response()->stream($body, 200, [

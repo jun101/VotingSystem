@@ -59,6 +59,8 @@ nobody is eligible). Groups are ordered by name, accents and case ignored; the l
 
 ## Notes
 
+The end of an election is exclusive: the last bucket is the one containing the second before it. A series holds at most 5 000 buckets; when that cuts it, the votes of the buckets left out are added to the last bucket, so its `total` is always `voted`. `percentage` is never 100.0 unless everybody has voted (a rounded 100.0 shows 99.9).
+
 Computed from `participations` (`voted_at`) and the voters; it never reads `votes`, `vote_choices` or `vote_audit`,
 and shows no per-ballot count.
 

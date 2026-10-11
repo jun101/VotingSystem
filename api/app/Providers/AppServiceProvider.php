@@ -214,6 +214,9 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('credential-reissue', fn (Request $request) => Limit::perHour($times(60))->by($byUser($request)));
         RateLimiter::for('file-download', fn (Request $request) => Limit::perHour($times(120))->by($byUser($request)));
 
+        // The turnout and the dashboard (docs/api/turnout/): 120 reads a minute per user, one shared counter.
+        RateLimiter::for('turnout-read', fn (Request $request) => Limit::perMinute($times(120))->by($byUser($request)));
+
         // The voters file (docs/api/turnout/GET-elections-{election}-voters-export.md): 20 an hour per user.
         RateLimiter::for('voters-export', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
 

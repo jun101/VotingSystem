@@ -54,7 +54,7 @@ describe('gettingStarted', () => {
 });
 
 describe('figuresOf', () => {
-  it('counts voters of the elections that are not archived, and never a vote', () => {
+  it('counts the voters of all the elections it is given, and never a vote', () => {
     const figures = figuresOf(
       [
         election({ id: 'a', voters_count: 10 }),
@@ -64,7 +64,7 @@ describe('figuresOf', () => {
       counts(2, 1),
     );
 
-    expect(figures).toEqual({ elections: 2, voters: 15, ballots: 0 });
+    expect(figures).toEqual({ elections: 2, voters: 114, ballots: 0 });
   });
 });
 

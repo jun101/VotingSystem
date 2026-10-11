@@ -53,9 +53,8 @@ export type Figures = {
 export function figuresOf(elections: readonly Election[], counts: ElectionCounts): Figures {
   return {
     elections: counts.all,
-    voters: elections
-      .filter((election) => election.status !== 'archived')
-      .reduce((sum, election) => sum + election.voters_count, 0),
+    // All the voters of the institution's elections, as the API's `voters` counts them.
+    voters: elections.reduce((sum, election) => sum + election.voters_count, 0),
     ballots: 0,
   };
 }

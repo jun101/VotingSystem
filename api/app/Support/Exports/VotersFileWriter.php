@@ -7,6 +7,7 @@ use OpenSpout\Common\Entity\Cell;
 use OpenSpout\Common\Entity\Cell\StringCell;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Writer\XLSX\Entity\SheetView;
+use OpenSpout\Writer\XLSX\Options;
 use OpenSpout\Writer\XLSX\Writer;
 
 /**
@@ -26,7 +27,27 @@ final class VotersFileWriter
      */
     public function xlsx(iterable $rows, string $language, bool $withVoted): void
     {
-        $writer = new Writer;
+        // The workbook parts are staged on disk before they are zipped: in a folder of its own that only this
+        // process can read, removed whatever happens (an error, a client that leaves).
+        $folder = storage_path('app/private/export-'.bin2hex(random_bytes(8)));
+        $previous = ignore_user_abort(true);
+
+        try {
+            if (! mkdir($folder, 0700, true) && ! is_dir($folder)) {
+                throw new \RuntimeException('The export working folder cannot be created.');
+            }
+
+            $this->writeXlsx($rows, $language, $withVoted, $folder);
+        } finally {
+            $this->removeFolder($folder);
+            ignore_user_abort((bool) $previous);
+        }
+    }
+
+    /** @param  iterable<object>  $rows */
+    private function writeXlsx(iterable $rows, string $language, bool $withVoted, string $folder): void
+    {
+        $writer = new Writer(new Options(tempFolder: $folder));
         // Not `openToBrowser`: it sends its own headers, and the response has set them.
         $writer->openToFile('php://output');
         $sheet = $writer->getCurrentSheet();
@@ -52,6 +73,28 @@ final class VotersFileWriter
         }
 
         $writer->close();
+    }
+
+    private function removeFolder(string $folder): void
+    {
+        if (! is_dir($folder)) {
+            return;
+        }
+
+        $items = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($folder, \FilesystemIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::CHILD_FIRST,
+        );
+
+        foreach ($items as $item) {
+            if (! $item instanceof \SplFileInfo) {
+                continue;
+            }
+
+            $item->isDir() && ! $item->isLink() ? @rmdir($item->getPathname()) : @unlink($item->getPathname());
+        }
+
+        @rmdir($folder);
     }
 
     /**

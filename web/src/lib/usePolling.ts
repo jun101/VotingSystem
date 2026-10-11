@@ -26,22 +26,32 @@ export function usePolling(
     if (!active) return;
 
     let last = Date.now();
+    let timer = 0;
 
     const run = () => {
       last = Date.now();
       latest.current();
     };
 
-    const timer = window.setInterval(() => {
-      if (document.visibilityState === 'hidden') return;
+    const start = () => {
+      window.clearInterval(timer);
+      timer = window.setInterval(() => {
+        if (document.visibilityState === 'hidden') return;
 
-      run();
-    }, interval);
-
-    const onVisible = () => {
-      if (document.visibilityState === 'visible' && Date.now() - last >= interval) run();
+        run();
+      }, interval);
     };
 
+    // Back on the tab after a read was due: one read now, and the interval counts again from here,
+    // so a second read does not follow within seconds.
+    const onVisible = () => {
+      if (document.visibilityState === 'visible' && Date.now() - last >= interval) {
+        run();
+        start();
+      }
+    };
+
+    start();
     document.addEventListener('visibilitychange', onVisible);
 
     return () => {

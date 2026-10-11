@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react';
 import type { TurnoutBucket, TurnoutPoint } from '@/lib/api/turnout';
+import { pluralForm } from '@/lib/format/electionDates';
 import { useI18n } from '@/lib/i18n/client';
 import { bucketLabel, chartShape, labelIndexes } from './turnoutModel';
 
@@ -27,7 +28,7 @@ export function TurnoutChart({
   const last = points[points.length - 1];
   const unit = t(`turnout.chart.unit.${bucket}`);
   const label = last
-    ? t('turnout.chart.label', {
+    ? t(`turnout.chart.label.${pluralForm(locale, last.total)}`, {
         unit,
         total: last.total,
         last: last.voted,

@@ -42,18 +42,30 @@ final class ComputeDashboard
         }
 
         // The status is not trusted alone: an election past its end is not open, whatever the scheduler did.
-        /** @var list<Election> $open */
-        $open = Election::query()
+        // It is not listed, and it is counted as closed, so `counts.open` and the list agree.
+        /** @var list<Election> $statusOpen */
+        $statusOpen = Election::query()
             ->where('status', ElectionStatus::Open->value)
             ->orderByDesc('created_at')
             ->orderByDesc('id')
             ->get(['id', 'uuid', 'title', 'status', 'starts_at', 'ends_at'])
-            ->filter(fn (Election $election): bool => VotePhase::of($election->status, $election->starts_at, $election->ends_at, $now) === VotePhase::OPEN)
-            ->values()
             ->all();
 
+        $open = [];
+        foreach ($statusOpen as $election) {
+            $phase = VotePhase::of($election->status, $election->starts_at, $election->ends_at, $now);
+
+            if ($phase === VotePhase::OPEN) {
+                $open[] = $election;
+            } elseif ($phase === VotePhase::CLOSED) {
+                $counts[ElectionStatus::Open->value]--;
+                $counts[ElectionStatus::Closed->value]++;
+            }
+        }
+
+        // The turnout is computed for the listed ones only.
         $listed = array_slice($open, 0, self::LIMIT);
-        $turnout = $this->turnout(array_map(fn (Election $election): int => $election->id, $open));
+        $turnout = $this->turnout(array_map(fn (Election $election): int => $election->id, $listed));
 
         $openCards = [];
         $notVoted = [];
@@ -66,7 +78,7 @@ final class ComputeDashboard
                 'ends_at' => $iso($election->ends_at),
                 'eligible' => $line['eligible'],
                 'voted' => $line['voted'],
-                'percentage' => $line['eligible'] === 0 ? 0.0 : round($line['voted'] / $line['eligible'] * 100, 1),
+                'percentage' => ComputeTurnout::percentage($line['voted'], $line['eligible']),
             ];
 
             if ($line['eligible'] - $line['voted'] > 0) {

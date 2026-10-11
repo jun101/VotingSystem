@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Turnout;
 
 use App\Actions\Elections\ComputeDashboard;
-use App\Enums\Role;
 use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Models\Election;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class DashboardController extends Controller
 {
@@ -25,9 +25,7 @@ class DashboardController extends Controller
      */
     public function __invoke(Request $request, ComputeDashboard $dashboard): JsonResponse
     {
-        $user = $request->user();
-
-        if (! $user instanceof User || $user->institution_id === null || ! in_array($user->role, [Role::Owner, Role::Manager], true)) {
+        if (! Gate::forUser($request->user())->allows('viewAny', Election::class)) {
             throw new ApiException(403, 'forbidden');
         }
 

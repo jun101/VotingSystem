@@ -45,6 +45,6 @@ election), plus `A voté` / `Has voted` (`Oui` / `Non`, `Yes` / `No`) when `vote
 
 ## Notes
 
-At most 10 000 rows (the voter limit). Written in a stream, nothing kept on disk.
+At most 10 000 rows (the voter limit). Written in a stream. The Excel file is staged briefly in a private temporary folder, removed afterwards (also on an error); a CSV is never kept. If reading or writing fails once the file has begun, the response is cut off rather than ended cleanly, so a client never takes a short file for a whole one.
 
 A phone number that begins with `+` followed by digits, spaces, dots, dashes or parentheses is an international number and stays as it is; any other text that begins with `=`, `+`, `-` or `@` is guarded.

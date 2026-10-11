@@ -2344,7 +2344,10 @@
     "headline": {
       "label": "Turnout rate",
       "percent": "{percent}%",
-      "of": "{voted} of {eligible} voters have voted"
+      "of": {
+        "one": "{voted} of {eligible} voter has voted",
+        "other": "{voted} of {eligible} voters have voted"
+      }
     },
     "eligible": "Registered voters",
     "voted": "Have voted",
@@ -2359,7 +2362,10 @@
       "hour": "Hour",
       "day": "Day",
       "empty": "Nobody has voted yet. The curve will appear with the first vote.",
-      "label": "Turnout curve, by {unit}: {total} voters have voted in all, {last} in the latest period ({at}).",
+      "label": {
+        "one": "Turnout curve, by {unit}: {total} voter has voted in all, {last} in the latest period ({at}).",
+        "other": "Turnout curve, by {unit}: {total} voters have voted in all, {last} in the latest period ({at})."
+      },
       "labelEmpty": "Turnout curve: nobody has voted yet.",
       "unit": {
         "hour": "hour",
