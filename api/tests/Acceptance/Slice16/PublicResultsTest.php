@@ -141,3 +141,31 @@ it('answers 429 above 120 requests a minute from one address for an election, an
     $anonymous->get(publicResultsUrl($e['election']))->assertStatus(429)->assertJsonPath('error.code', 'too_many_attempts');
     (new AuthClient($this))->fromAddress('10.30.30.31')->get(publicResultsUrl($e['election']))->assertOk();
 });
+
+it('lists the elected of a winners display in the ballot\'s order, not by votes, so the ranking is not given away [FR-RES-08] (scenario 2)', function () {
+    $t = Team::two();
+    $election = Accounts::plantElection(['institution' => $t['a']['owner']['institution'], 'status' => 'published', 'results_display' => 'winners', 'published_at' => '2026-10-17 14:00:00']);
+    $ballot = Accounts::plantBallot(['election' => $election, 'title' => 'Trois postes', 'seats' => 3]);
+    $c = [];
+    foreach (['W', 'X', 'Y', 'Z'] as $letter) {
+        $c[$letter] = Accounts::plantCandidate(['ballot' => $ballot, 'last_name' => "Nom {$letter}"]);
+    }
+    Tests\Support\Results::voters($election, 14);
+    Tests\Support\Results::paper($ballot, [$c['W'], $c['Z']], 3);
+    Tests\Support\Results::paper($ballot, [$c['Y'], $c['Z']], 5);
+    Tests\Support\Results::paper($ballot, [$c['Y'], $c['X']], 4);
+    Tests\Support\Results::paper($ballot, [$c['Y']], 2);
+
+    $b = (new AuthClient($this))->get(publicResultsUrl($election))->assertOk()->json('data.ballots.0');
+
+    // Votes: Y 11, Z 8, X 4, W 3. The three elected are Y, Z, X; they are listed by position: X, Y, Z.
+    expect($b['winners'])->toBe([$c['X'], $c['Y'], $c['Z']])
+        ->and(array_column($b['candidates'], 'id'))->toBe([$c['X'], $c['Y'], $c['Z']]);
+});
+
+it('does not give a results link to the voters of a suspended institution, since the public page answers 404 [FR-INST-06] (scenario 5)', function () {
+    [$t, $e] = publishedElection();
+    Accounts::suspend($t['a']['owner']['institution']);
+
+    (new AuthClient($this))->get("/api/v1/vote/{$e['election']}")->assertOk()->assertJsonPath('data.results', null);
+});
