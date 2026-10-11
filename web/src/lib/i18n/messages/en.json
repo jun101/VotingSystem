@@ -1934,5 +1934,141 @@
       "excel": "Excel · {date}",
       "csv": "CSV · {date}"
     }
+  },
+  "vote": {
+    "language": {
+      "label": "Language",
+      "fr": "Français",
+      "en": "English",
+      "frShort": "FR",
+      "enShort": "EN"
+    },
+    "shell": {
+      "secret": "Secret ballot",
+      "step": "Step {n} of {total}"
+    },
+    "period": {
+      "start": "Opens",
+      "end": "Closes",
+      "dayAt": "{day} at {time}"
+    },
+    "code": {
+      "kicker": "Online voting",
+      "heading": "Enter your code",
+      "lede": "Your personal code is on your slip. It has ten characters.",
+      "label": "Your voting code",
+      "help": "Upper or lower case, with or without the hyphen.",
+      "submit": "Continue",
+      "howTitle": "How it works",
+      "step1Title": "Your code",
+      "step1Text": "Enter the code from your slip.",
+      "step2Title": "Your identity",
+      "step2Text": "Check that it is really you.",
+      "step3Title": "Your vote",
+      "step3Text": "Choose on each position, review, then confirm.",
+      "secretTitle": "Your vote stays secret",
+      "secretText": "No one can link your name to your choices. A vote can be confirmed only once.",
+      "periodTitle": "Voting period",
+      "notice": {
+        "expired": "Your session has ended. Enter your code again to continue.",
+        "ended": "Session ended. The next voter can enter their code.",
+        "alreadyVoted": "This code has already been used: the vote is recorded and cannot be changed."
+      }
+    },
+    "error": {
+      "invalid_code": "This code is not valid. Check it on your slip, or ask for a new one.",
+      "already_voted": "This code has already been used: the vote is recorded and cannot be changed.",
+      "election_not_open_before": "Voting is not open yet.",
+      "election_not_open_closed": "Voting has ended.",
+      "voter_session_expired": "Your session has ended. Enter your code again.",
+      "choices_invalid": "One of your choices is no longer valid. Start the vote again.",
+      "ballots_mismatch": "The positions that concern you have changed. Start the vote again.",
+      "empty": "Enter your code to continue."
+    },
+    "before": {
+      "heading": "Voting opens soon",
+      "text": "Come back at the time shown: the code field will appear here as soon as voting opens.",
+      "opensAt": "Opens: {when}",
+      "days": "days",
+      "hours": "hours",
+      "minutes": "minutes",
+      "seconds": "seconds",
+      "soon": "Opening is imminent, the page updates by itself.",
+      "countdown": "Opens in {days} d {hours} h {minutes} min {seconds} s"
+    },
+    "closed": {
+      "heading": "Voting has ended",
+      "text": "This election is closed: it is no longer possible to vote.",
+      "results": "See the results"
+    },
+    "identity": {
+      "kicker": "Is this you?",
+      "noGroup": "No group",
+      "group": "Group: {group}",
+      "ballotsTitle": "Your positions",
+      "count": {
+        "one": "You vote on {count} position.",
+        "other": "You vote on {count} positions."
+      },
+      "seats": {
+        "one": "{count} seat",
+        "other": "{count} seats"
+      },
+      "forGroups": "For: {groups}",
+      "forAll": "All voters",
+      "yes": "Yes, this is me",
+      "no": "This is not me",
+      "noneTitle": "No position concerns you",
+      "noneText": "You have nothing to vote on in this election. Please ask the organisers.",
+      "loading": "Checking your session…",
+      "hint": "If this is not you, do not continue: give the place back to the right person."
+    },
+    "ballot": {
+      "progress": "Position {n} of {total}",
+      "stepLabel": "Step {n} of {total}",
+      "seatsOne": "Choose 1 candidate.",
+      "seatsMany": "Choose up to {seats} candidates.",
+      "chosenCount": "{count} chosen of {seats}",
+      "full": "You have chosen the maximum. Remove a choice to change it.",
+      "pick": "Touch a photo to choose.",
+      "legend": "Candidates for {title}",
+      "blank": "Blank vote",
+      "blankHint": "I choose no candidate",
+      "independent": "Independent",
+      "chosen": "Chosen",
+      "back": "Back",
+      "next": "Next",
+      "review": "Review my vote",
+      "reminderNone": "No choice yet",
+      "reminderBlank": "Your choice: blank vote",
+      "reminderOne": "Your choice: {name}",
+      "reminderMany": "{count} candidates chosen",
+      "loading": "Loading the candidates…",
+      "quote": "“{text}”",
+      "cardTitle": "The candidates"
+    },
+    "review": {
+      "kicker": "Last step",
+      "heading": "Review your vote",
+      "lede": "Check each choice. Once confirmed, it cannot be changed.",
+      "edit": "Change",
+      "blank": "Blank vote",
+      "confirm": "Confirm my vote",
+      "sending": "Sending…",
+      "back": "Back",
+      "restart": "Start again from the beginning",
+      "warning": "Your vote is secret and final.",
+      "ballotOf": "Position {n}: {title}"
+    },
+    "done": {
+      "heading": "Your vote is recorded",
+      "text": "Thank you for voting. Your choice is secret and can no longer be changed.",
+      "timeLabel": "Recorded on",
+      "countdown": "Back to code entry in {seconds} s",
+      "next": "Next voter",
+      "leave": "You can close this page.",
+      "secretTitle": "What happens next?",
+      "secretText": "The organisers will publish the results after voting closes."
+    }
   }
 }

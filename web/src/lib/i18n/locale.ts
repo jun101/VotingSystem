@@ -35,3 +35,8 @@ export function resolveLocale(input: {
 
   return isLocale(match?.language) ? match.language : DEFAULT_LOCALE;
 }
+
+/** Remembers the language the visitor chose on a public page (a year); the server reads it on the next render. */
+export function rememberLocale(locale: Locale): void {
+  document.cookie = `${LOCALE_COOKIE}=${locale}; path=/; max-age=31536000; samesite=lax`;
+}
