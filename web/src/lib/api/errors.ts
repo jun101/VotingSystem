@@ -15,6 +15,8 @@ export class ApiError extends Error {
     readonly retryAfter: number | null = null,
     /** The checklist items of a `checklist_blocked` or `checklist_warnings` (`error.items`). */
     readonly items: ErrorItem[] = [],
+    /** The UUIDs of the ballots a `results_check_failed` names (`error.ballots`). */
+    readonly ballots: string[] = [],
   ) {
     super(code);
     this.name = 'ApiError';
@@ -63,6 +65,9 @@ export function parseApiError(status: number, body: unknown, retryAfter: string 
     typeof error.reference === 'string' ? error.reference : null,
     Number.isFinite(seconds) ? seconds : null,
     items,
+    Array.isArray(error.ballots)
+      ? error.ballots.filter((ballot): ballot is string => typeof ballot === 'string')
+      : [],
   );
 }
 

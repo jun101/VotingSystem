@@ -77,6 +77,7 @@ class AppServiceProvider extends ServiceProvider
         $this->configureTeamRateLimiters();
         $this->configureElectionRateLimiters();
         $this->configureVoteRateLimiters();
+        $this->configurePublicationRateLimiters();
     }
 
     /**
@@ -92,6 +93,32 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(Config::integer('votes.public_per_minute') * Config::integer('auth.rate_limit_factor'))
                 ->by('vote-public:'.(is_string($election) ? strtolower($election) : '-').':'.ClientAddress::bucket((string) $request->ip()));
         });
+    }
+
+    /**
+     * Publication (docs/api/publication/): publish, unpublish, archive and unarchive share 20 an hour per user,
+     * and so does the admin report; the public pages are counted per address (and election): 120 a minute for
+     * the results and the institution page, 30 a minute for the report.
+     */
+    private function configurePublicationRateLimiters(): void
+    {
+        $times = static fn (int $limit): int => $limit * Config::integer('auth.rate_limit_factor');
+        $byUser = static function (Request $request): string {
+            $user = $request->user();
+
+            return $user instanceof User ? 'user:'.$user->uuid : 'ip:'.(string) $request->ip();
+        };
+        $byElection = static function (Request $request, string $name): string {
+            $election = $request->route('election');
+
+            return $name.':'.(is_string($election) ? strtolower($election) : '-').':'.ClientAddress::bucket((string) $request->ip());
+        };
+
+        RateLimiter::for('publication', fn (Request $request) => Limit::perHour($times(20))->by('publication:'.$byUser($request)));
+        RateLimiter::for('report', fn (Request $request) => Limit::perHour($times(20))->by('report:'.$byUser($request)));
+        RateLimiter::for('public-results', fn (Request $request) => Limit::perMinute($times(120))->by($byElection($request, 'public-results')));
+        RateLimiter::for('public-report', fn (Request $request) => Limit::perMinute($times(30))->by($byElection($request, 'public-report')));
+        RateLimiter::for('public-institution', fn (Request $request) => Limit::perMinute($times(120))->by('public-institution:'.ClientAddress::bucket((string) $request->ip())));
     }
 
     /**

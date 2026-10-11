@@ -182,6 +182,8 @@ services:
     environment:
       # Server-side calls reach the API through the internal network.
       API_INTERNAL_URL: http://api:8000
+      # The public address of the site: the base of the share links and of the preview image's address.
+      SITE_URL: ${SITE_URL:-http://localhost:8080}
       SESSION_COOKIE: ${SESSION_COOKIE:-new_voting_system_session}
     depends_on:
       api:

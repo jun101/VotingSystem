@@ -77,3 +77,11 @@ export function percentOf(part: number, whole: number): number {
 
   return part < whole && rounded >= 100 ? 99.9 : rounded;
 }
+
+/** A ballot's public result is a person's choice when fewer than this many voters can vote on it. */
+export const SMALL_GROUP = 3;
+
+/** The ballots with fewer than 3 eligible voters: publishing them shows what one or two people chose. */
+export function smallBallots(ballots: readonly ResultBallot[]): ResultBallot[] {
+  return ballots.filter((ballot) => ballot.eligible < SMALL_GROUP);
+}

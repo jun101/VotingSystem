@@ -490,6 +490,48 @@ export async function extendElection(id: string, endsAt: string): Promise<Electi
   return data!.data;
 }
 
+/**
+ * `POST /elections/{election}/publish`: a closed election's results become public. `display` is
+ * what the public page shows (`full` counts or only `winners` and turnout).
+ */
+export async function publishElection(id: string, display: 'full' | 'winners'): Promise<Election> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/publish', {
+      params: { path: { election: id } },
+      body: { results_display: display },
+    }),
+  );
+
+  return data!.data;
+}
+
+/** `POST /elections/{election}/unpublish`: back to closed, nothing public at once. */
+export async function unpublishElection(id: string): Promise<Election> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/unpublish', { params: { path: { election: id } } }),
+  );
+
+  return data!.data;
+}
+
+/** `POST /elections/{election}/archive`: a closed or published election is archived (and not public). */
+export async function archiveElection(id: string): Promise<Election> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/archive', { params: { path: { election: id } } }),
+  );
+
+  return data!.data;
+}
+
+/** `POST /elections/{election}/unarchive`: an archived election goes back to closed. */
+export async function unarchiveElection(id: string): Promise<Election> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/unarchive', { params: { path: { election: id } } }),
+  );
+
+  return data!.data;
+}
+
 /** `DELETE /elections/{election}/cover`: removes the cover of a draft. */
 export async function removeElectionCover(id: string): Promise<void> {
   await send((api) =>
@@ -1214,5 +1256,40 @@ export async function downloadVoterExport(
       response.headers.get('Content-Disposition'),
       query.format === 'csv' ? 'electeurs.csv' : 'electeurs.xlsx',
     ),
+  };
+}
+
+/**
+ * `GET /elections/{election}/report`: the results report as a PDF, with the name the API gives it.
+ * Read by hand so a refusal (409, 429) is an `ApiError` the page can say in words.
+ */
+export async function downloadElectionReport(election: string): Promise<DownloadedFile> {
+  let response: Response;
+
+  try {
+    response = await fetch(`${apiBaseUrl()}/v1/elections/${encodeURIComponent(election)}/report`, {
+      credentials: 'same-origin',
+      cache: 'no-store',
+      headers: { Accept: 'application/pdf, application/json', 'Accept-Language': pageLanguage() },
+    });
+  } catch {
+    throw new ApiError(0, 'network');
+  }
+
+  if (!response.ok) {
+    let answer: unknown = null;
+
+    try {
+      answer = await response.json();
+    } catch {
+      // Not JSON: an `unknown` error.
+    }
+
+    throw parseApiError(response.status, answer, response.headers.get('Retry-After'));
+  }
+
+  return {
+    blob: await response.blob(),
+    name: dispositionName(response.headers.get('Content-Disposition'), 'report.pdf'),
   };
 }

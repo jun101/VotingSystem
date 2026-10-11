@@ -16,6 +16,7 @@ import { clock, longDay, pluralForm } from '@/lib/format/electionDates';
 import { useI18n } from '@/lib/i18n/client';
 import { percentText } from '@/components/turnout/turnoutModel';
 import { BallotResultCard } from './BallotResultCard';
+import { PublicationCard } from './PublicationCard';
 import { SecondRoundDialog } from './SecondRoundDialog';
 import { tiedNames } from './resultsModel';
 
@@ -56,6 +57,8 @@ export function ResultsPage({
   const [ballots, setBallots] = useState<ResultBallot[] | null>(results);
   const [asking, setAsking] = useState<ResultBallot | null>(null);
   const [stale, setStale] = useState(false);
+  // The election as the publication card changes it (published, unpublished, archived).
+  const [current, setCurrent] = useState<Election>(election);
 
   if (ballots === null) {
     return (
@@ -147,22 +150,22 @@ export function ResultsPage({
 
       <section
         data-testid="results-hero"
-        data-status={election.status}
+        data-status={current.status}
         aria-labelledby="results-title"
         className="election-hero cover-sweep relative flex min-h-32 flex-wrap items-end gap-x-6 gap-y-4 rounded-xl px-4 py-5 text-surface shadow-2 md:px-7.5 [@media(max-height:820px)]:min-h-24 [@media(max-height:820px)]:py-3.5"
       >
         <span aria-hidden="true" className="absolute -top-6 right-7 -rotate-10 text-glass">
-          <Icon name={COVER_ICONS[election.status]} size={210} />
+          <Icon name={COVER_ICONS[current.status]} size={210} />
         </span>
         <div className="relative z-10 min-w-0 flex-[1_1_22rem]">
           <span
             className={cx(
               'inline-flex min-h-7 items-center gap-2 rounded-full bg-surface/95 px-3.5 py-1 text-sm font-bold',
-              BADGE_TEXT[election.status],
+              BADGE_TEXT[current.status],
             )}
           >
-            <Icon name={STATUS_ICONS[election.status]} size={16} />
-            <span data-status={election.status}>{t(`elections.status.${election.status}`)}</span>
+            <Icon name={STATUS_ICONS[current.status]} size={16} />
+            <span data-status={current.status}>{t(`elections.status.${current.status}`)}</span>
           </span>
           <h2
             id="results-title"
@@ -198,11 +201,11 @@ export function ResultsPage({
         </div>
       </section>
 
-      <div className="flex flex-col gap-4.5 2xl:flex-row 2xl:items-start">
+      <div className="grid grid-cols-1 gap-4.5 min-[900px]:grid-cols-2 2xl:grid-cols-[minmax(0,1fr)_340px] 2xl:items-start">
         <section
           data-testid="results-zone"
           aria-label={t('results.zone')}
-          className="min-w-0 flex-1 rounded-2xl border border-line bg-surface p-2.5 shadow-1 md:p-3 2xl:p-5"
+          className="min-w-0 rounded-2xl border border-line bg-surface p-2.5 shadow-1 md:p-3 min-[900px]:col-span-2 2xl:col-span-1 2xl:p-5"
         >
           {list.length > 0 ? (
             <Reveal
@@ -228,17 +231,30 @@ export function ResultsPage({
           )}
         </section>
 
+        {/* Below 1600 px the cards are cells of the page grid (publication first, above the
+            zone); from 1600 px they are the right rail. */}
         <aside
           aria-label={t('results.rail.label')}
-          className="flex w-full flex-wrap items-start gap-4.5 2xl:sticky 2xl:top-20 2xl:w-[340px] 2xl:shrink-0 2xl:flex-col 2xl:flex-nowrap 2xl:items-stretch"
+          className="contents 2xl:sticky 2xl:top-20 2xl:row-start-1 2xl:flex 2xl:flex-col 2xl:gap-4.5"
         >
+          {current.status === 'closed' ||
+          current.status === 'published' ||
+          current.status === 'archived' ? (
+            <PublicationCard
+              election={current}
+              ballots={list}
+              onChanged={setCurrent}
+              onStale={() => window.location.reload()}
+              className="order-first min-[900px]:col-span-2 2xl:order-none 2xl:col-span-1"
+            />
+          ) : null}
           <Panel
             tone="calendar"
             icon="flag"
             title={t('results.rail.election')}
             id="results-election-title"
             testId="results-election-card"
-            className="flex-[1_1_20rem] 2xl:flex-none"
+            className="2xl:col-span-1"
           >
             <p className="font-display text-lg font-extrabold break-words text-ink">
               {election.title}
@@ -267,7 +283,7 @@ export function ResultsPage({
             title={t('results.rail.legend')}
             id="results-legend-title"
             testId="results-legend-card"
-            className="flex-[1_1_20rem] 2xl:flex-none"
+            className="2xl:col-span-1"
           >
             <ul className="flex flex-col gap-2.5 text-base text-ink">
               {(
