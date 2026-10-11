@@ -102,6 +102,10 @@ state (409; scenario 10 before 9, 9 before 8).
 
 ## Notes
 
+A file is one job. A part takes the voters of its group who still have no code when it runs, in name order, so
+if an earlier part failed the next one holds the voters that follow at that moment. A file whose voters were all
+served meanwhile is removed. A `queued` file older than 15 minutes is failed when a run starts.
+
 Request: the election row is locked, the files are created `queued`, the job is dispatched after the commit. Job: each
 file in its own transaction with the election row locked first; the codes of the file's voters and the PDF are written
 together, so a code that no file shows is never kept. A voter who got a code between the request and the job (another

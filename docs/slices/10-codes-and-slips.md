@@ -95,6 +95,18 @@ licence included) and the writer points `K_PATH_FONTS` there. Measured in the `q
 names: write 11 to 12 s, peak memory 105 MB, PDF 3.7 MB (6.6 MB encrypted): under the caps, the cap per file stays 1 000.
 The engine writes the page boxes with decimals; the writer rewrites them to the same byte length (`0 0 612 792`).
 
+## Review round (2026-10-11)
+
+Decisions taken from the two reviewers (Jun asleep, recorded here): one job per file, chained, with a timeout that
+fits 1 000 slips; a `queued` file older than 15 minutes is failed when a run starts (the daily purge keeps its one
+hour rule); the election row is locked only to write the codes and to mark the file ready, the PDF is built outside
+the lock and a failed file removes the codes it wrote; deleting a draft election deletes its stored files; a file
+whose voters were all served meanwhile is removed, not kept `ready`; a part takes the voters still without a code, so
+if part 1 fails part 2 holds the next voters by name at that moment (accepted); `expires_at` is the election's
+current end; A11 lists every ready file of a group, newest first (`codes-group-{key}-file-{n}`, the first one is
+also `codes-group-{key}-download`); `StartCredentialRunRequest` declares `scope` and `group` in `rules()` so the
+generated contract has the body.
+
 ## Tests (written before the code, the coder never edits them)
 
 - API: `api/tests/Acceptance/Slice10/` — `CredentialsStateTest`, `CredentialRunTest`, `CodeRulesTest`,
