@@ -5,6 +5,7 @@ namespace App\Actions\Credentials;
 use App\Models\Credential;
 use App\Models\Election;
 use App\Support\Credentials\AccessCode;
+use Closure;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Carbon;
 use RuntimeException;
@@ -19,6 +20,17 @@ final class WriteCredential
     /** Draws before giving up (a collision is a one-in-ten-trillion event for 10 000 voters). */
     private const ATTEMPTS = 5;
 
+    /** @var Closure(): string */
+    private readonly Closure $generator;
+
+    /**
+     * @param  (Closure(): string)|null  $generator  how a code is drawn; the random generator when null (a test passes its own)
+     */
+    public function __construct(?Closure $generator = null)
+    {
+        $this->generator = $generator ?? AccessCode::generate(...);
+    }
+
     /**
      * @param  Credential|null  $existing  the voter's current row, locked by the caller
      */
@@ -27,7 +39,7 @@ final class WriteCredential
         $reissues = $existing === null ? 0 : $existing->reissue_count + 1;
 
         for ($attempt = 0; $attempt < self::ATTEMPTS; $attempt++) {
-            $code = AccessCode::generate();
+            $code = ($this->generator)();
             $hash = AccessCode::hash($code);
 
             $row = $existing ?? new Credential;

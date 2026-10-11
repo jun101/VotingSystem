@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { cache } from 'react';
 import { createApiClient } from './client';
 import type { Ballot } from './ballots';
+import type { CredentialState, GeneratedFile } from './credentials';
 import type { Party } from './parties';
 import type { VoterImport } from './voterImports';
 import type { GroupList, VoterFilters, VoterList } from './voters';
@@ -264,6 +265,37 @@ export async function fetchVoterImport(id: string): Promise<VoterImport | 'missi
     });
 
     if (response.status === 404) return 'missing';
+
+    return response.ok && data ? data.data : null;
+  });
+}
+
+/** The state of the access codes of an election of the institution, or null when the API does not give it. */
+export async function fetchElectionCredentials(id: string): Promise<CredentialState | null> {
+  return authorizedGet(async (headers) => {
+    const { data, response } = await createApiClient().GET('/v1/elections/{election}/credentials', {
+      headers,
+      params: { path: { election: id } },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(4000),
+    });
+
+    return response.ok && data ? data.data : null;
+  });
+}
+
+/** The slip files of an election of the institution, or null when the API does not give them. */
+export async function fetchElectionFiles(id: string): Promise<GeneratedFile[] | null> {
+  return authorizedGet(async (headers) => {
+    const { data, response } = await createApiClient().GET(
+      '/v1/elections/{election}/generated-files',
+      {
+        headers,
+        params: { path: { election: id } },
+        cache: 'no-store',
+        signal: AbortSignal.timeout(4000),
+      },
+    );
 
     return response.ok && data ? data.data : null;
   });

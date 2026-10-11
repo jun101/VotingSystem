@@ -1938,6 +1938,16 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StartCredentialRunRequest"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "202": {
                         "description": "",
@@ -9281,6 +9291,28 @@
                     "password"
                 ],
                 "title": "SecondFactorRequest"
+            },
+            "StartCredentialRunRequest": {
+                "type": "object",
+                "description": "docs/api/credentials/POST-elections-{election}-credential-runs.md.",
+                "properties": {
+                    "scope": {
+                        "type": "string",
+                        "enum": [
+                            "all",
+                            "group",
+                            "ungrouped"
+                        ]
+                    },
+                    "group": {
+                        "type": "string",
+                        "format": "uuid"
+                    }
+                },
+                "required": [
+                    "scope"
+                ],
+                "title": "StartCredentialRunRequest"
             },
             "TwoFactorCodeRequest": {
                 "type": "object",

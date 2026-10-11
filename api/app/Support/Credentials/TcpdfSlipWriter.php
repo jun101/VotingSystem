@@ -3,6 +3,7 @@
 namespace App\Support\Credentials;
 
 use Illuminate\Support\Facades\Lang;
+use RuntimeException;
 use TCPDF;
 
 /**
@@ -44,7 +45,13 @@ final class TcpdfSlipWriter implements SlipWriter
         // (metrics only, no font program) are kept in the repository, so nothing is built or
         // downloaded on the server. A constant is fixed for the process and holds no request data.
         if (! defined('K_PATH_FONTS')) {
-            define('K_PATH_FONTS', (string) realpath(resource_path('pdf-fonts')).'/');
+            $fonts = realpath(resource_path('pdf-fonts'));
+
+            if ($fonts === false) {
+                throw new RuntimeException('The PDF font folder is missing.');
+            }
+
+            define('K_PATH_FONTS', $fonts.'/');
         }
 
         $pdf = new TCPDF('P', 'pt', [self::PAGE_WIDTH, self::PAGE_HEIGHT], true, 'UTF-8', false);

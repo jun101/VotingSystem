@@ -42,7 +42,7 @@ class GeneratedFileController extends Controller
 
         $files = GeneratedFile::query()
             ->where('election_id', $election->id)
-            ->with('group')
+            ->with(['group', 'election'])
             ->get()
             ->sortBy(fn (GeneratedFile $file): array => [
                 -($file->created_at?->getTimestamp() ?? 0),
@@ -70,7 +70,7 @@ class GeneratedFileController extends Controller
     {
         $this->allow($request, $file);
 
-        $file->load('group');
+        $file->load(['group', 'election']);
 
         return new GeneratedFileResource($file);
     }

@@ -399,7 +399,12 @@
     "checklist_blocked": "The election is not ready: blocking points remain. Reload the page.",
     "checklist_warnings": "Warnings remain: read them and confirm to schedule anyway.",
     "election_period_over": "The end of the election has passed: change the dates before scheduling.",
-    "election_not_scheduled": "This election is not scheduled. Reload the page."
+    "election_not_scheduled": "This election is not scheduled. Reload the page.",
+    "election_codes_locked": "Codes can no longer be created or replaced: the election is over.",
+    "run_in_progress": "A generation is already under way for this election. Wait for it to finish.",
+    "nothing_to_generate": "Every voter concerned already has a code.",
+    "file_not_ready": "This file is not ready yet, or it failed.",
+    "voter_has_voted": "This voter has already voted: the code cannot be replaced."
   },
   "validation": {
     "required": "This field is required.",
@@ -964,7 +969,7 @@
       },
       "codes": {
         "title": "Access codes",
-        "text": "slips, email or file"
+        "text": "printed slips by group"
       },
       "footer": "Everything stays editable while the election is a draft.",
       "separator": ": "
@@ -1436,8 +1441,9 @@
       "label": "Groups and codes"
     },
     "codes": {
-      "title": "Voting codes",
-      "text": "Codes are created in the next step, once the voters are ready."
+      "title": "Access codes",
+      "text": "Create the codes and download the slips of each group, or replace a lost slip.",
+      "open": "Open the codes"
     },
     "import": "Import a file"
   },
@@ -1737,5 +1743,99 @@
         }
       }
     }
+  },
+  "codes": {
+    "back": "Back to the election",
+    "title": "Access codes",
+    "badgeDraft": "Draft · access codes",
+    "zone": {
+      "label": "State of the codes",
+      "groups": "By group"
+    },
+    "totals": {
+      "label": "Totals",
+      "voters": "Voters",
+      "withCode": "With a code",
+      "withoutCode": "Without a code",
+      "progress": "{count} codes created out of {total}"
+    },
+    "generateAll": "Generate every missing code",
+    "generateAllCount": {
+      "one": "Generate the missing slip",
+      "other": "Generate the {count} missing slips"
+    },
+    "lost": {
+      "open": "Lost slip: new code",
+      "title": "Lost slip",
+      "text": "Look the voter up by name. A new code is created and shown only once; the old slip, if there is one, stops working.",
+      "search": "Voter name",
+      "searching": "Searching…",
+      "typeName": "Type at least one letter of the name.",
+      "noMatch": "No voter matches.",
+      "more": "Only the first results are shown: be more precise.",
+      "failed": "The search failed. Try again.",
+      "results": "Voters found",
+      "noGroup": "No group",
+      "chosen": "Chosen voter: {name}",
+      "confirm": "Create a new code",
+      "cancel": "Cancel",
+      "resultTitle": "New code for {name}",
+      "codeLabel": "Access code",
+      "once": "This code is shown only once. Print or download the slip before closing.",
+      "replaced": "This voter’s old slip no longer works.",
+      "first": "This is this voter’s first code.",
+      "download": "Download the slip (PDF)",
+      "downloadFailed": "The slip could not be downloaded.",
+      "close": "Close and erase the code",
+      "closeLabel": "Close"
+    },
+    "locked": "Codes can no longer be created or replaced: the election is over. Slip files are deleted when it closes.",
+    "run": {
+      "status": "Generating. Files appear as soon as they are ready; you can stay on this page.",
+      "result": {
+        "done": {
+          "one": "{count} voter received a code.",
+          "other": "{count} voters received a code."
+        },
+        "failed": {
+          "one": "{count} file failed: its voters have no code. Run the generation again for that group.",
+          "other": "{count} files failed: their voters have no code. Run the generation again for those groups."
+        }
+      },
+      "failed": "The generation could not start."
+    },
+    "group": {
+      "noGroup": "No group",
+      "voters": {
+        "one": "{count} voter",
+        "other": "{count} voters"
+      },
+      "withCode": "with a code out of {total}",
+      "state": {
+        "none": "No code",
+        "partial": "Incomplete",
+        "done": "Ready",
+        "empty": "No voter"
+      },
+      "generate": {
+        "one": "Generate {count} slip",
+        "other": "Generate {count} slips"
+      },
+      "complete": "Every code is created",
+      "download": "Download the PDF",
+      "part": "Part {part} of {parts}",
+      "fileOf": {
+        "one": "{count} slip · {date}",
+        "other": "{count} slips · {date}"
+      },
+      "downloadFailed": "The file could not be downloaded."
+    },
+    "empty": {
+      "title": "No voter yet",
+      "text": "Add or import voters before creating their codes.",
+      "link": "See the voters"
+    },
+    "loadFailed": "The state of the codes could not be read.",
+    "note": "A code cannot be shown again: only its fingerprint is kept. A lost slip is replaced by a new code, unless the voter has already voted."
   }
 }

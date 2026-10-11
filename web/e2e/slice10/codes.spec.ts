@@ -99,6 +99,24 @@ test.describe('generating and downloading', () => {
   });
 });
 
+test.describe('several files for one group', () => {
+  test('keeps every ready file of the group reachable, newest first [FR-CRED-05]', async ({ page }) => {
+    const { election, g4 } = await openCodes(page);
+    await page.getByTestId(`codes-group-${g4}-generate`).click();
+    await expect(page.getByTestId(`codes-group-${g4}-download`)).toBeVisible({ timeout: 30_000 });
+    await createVoter(page, election.id, 'Nouvel Élève', { group: '4e année' });
+    await page.reload();
+
+    await page.getByTestId(`codes-group-${g4}-generate`).click();
+
+    await expect(page.getByTestId(`codes-group-${g4}-file-2`)).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId(`codes-group-${g4}-file-1`)).toContainText('1');
+    await expect(page.getByTestId(`codes-group-${g4}-file-2`)).toContainText('3');
+    const [download] = await Promise.all([page.waitForEvent('download'), page.getByTestId(`codes-group-${g4}-file-2`).click()]);
+    expect(readFileSync((await download.path())!).subarray(0, 5).toString()).toBe('%PDF-');
+  });
+});
+
 test.describe('a lost slip', () => {
   test('gives a new code once, with a one-slip PDF, and replaces the old one [FR-CRED-03]', async ({ page }) => {
     const { election, g4 } = await openCodes(page);

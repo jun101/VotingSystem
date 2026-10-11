@@ -399,7 +399,12 @@
     "checklist_blocked": "L’élection n’est pas prête : des points bloquants restent. Rechargez la page.",
     "checklist_warnings": "Des avertissements restent : lisez-les et confirmez pour planifier quand même.",
     "election_period_over": "La fin de l’élection est passée : changez les dates avant de planifier.",
-    "election_not_scheduled": "Cette élection n’est pas planifiée. Rechargez la page."
+    "election_not_scheduled": "Cette élection n’est pas planifiée. Rechargez la page.",
+    "election_codes_locked": "Les codes ne peuvent plus être créés ni remplacés : l’élection est terminée.",
+    "run_in_progress": "Une génération est déjà en cours pour cette élection. Attendez qu’elle se termine.",
+    "nothing_to_generate": "Tous les électeurs concernés ont déjà un code.",
+    "file_not_ready": "Ce fichier n’est pas encore prêt ou a échoué.",
+    "voter_has_voted": "Cet électeur a déjà voté : son code ne peut pas être remplacé."
   },
   "validation": {
     "required": "Ce champ est obligatoire.",
@@ -964,7 +969,7 @@
       },
       "codes": {
         "title": "Codes d’accès",
-        "text": "coupons, courriel ou fichier"
+        "text": "coupons imprimés par groupe"
       },
       "footer": "Tout reste modifiable tant que l’élection est un brouillon.",
       "separator": " : "
@@ -1436,8 +1441,9 @@
       "label": "Groupes et codes"
     },
     "codes": {
-      "title": "Codes de vote",
-      "text": "Les codes se créent à l’étape suivante, une fois les électeurs prêts."
+      "title": "Codes d’accès",
+      "text": "Créez les codes et téléchargez les coupons de chaque groupe, ou remplacez un coupon perdu.",
+      "open": "Ouvrir les codes"
     },
     "import": "Importer un fichier"
   },
@@ -1737,5 +1743,99 @@
         }
       }
     }
+  },
+  "codes": {
+    "back": "Retour à l’élection",
+    "title": "Codes d’accès",
+    "badgeDraft": "Brouillon · codes d’accès",
+    "zone": {
+      "label": "État des codes",
+      "groups": "Par groupe"
+    },
+    "totals": {
+      "label": "Totaux",
+      "voters": "Électeurs",
+      "withCode": "Avec un code",
+      "withoutCode": "Sans code",
+      "progress": "{count} codes créés sur {total}"
+    },
+    "generateAll": "Générer tous les codes manquants",
+    "generateAllCount": {
+      "one": "Générer le coupon manquant",
+      "other": "Générer les {count} coupons manquants"
+    },
+    "lost": {
+      "open": "Coupon perdu : nouveau code",
+      "title": "Coupon perdu",
+      "text": "Cherchez l’électeur par son nom. Un nouveau code est créé et affiché une seule fois ; l’ancien coupon, s’il existe, cesse de fonctionner.",
+      "search": "Nom de l’électeur",
+      "searching": "Recherche…",
+      "typeName": "Tapez au moins une lettre du nom.",
+      "noMatch": "Aucun électeur ne correspond.",
+      "more": "Seuls les premiers résultats sont montrés : précisez le nom.",
+      "failed": "La recherche a échoué. Réessayez.",
+      "results": "Électeurs trouvés",
+      "noGroup": "Sans groupe",
+      "chosen": "Électeur choisi : {name}",
+      "confirm": "Créer un nouveau code",
+      "cancel": "Annuler",
+      "resultTitle": "Nouveau code de {name}",
+      "codeLabel": "Code d’accès",
+      "once": "Ce code n’est affiché qu’une seule fois. Imprimez ou téléchargez le coupon avant de fermer.",
+      "replaced": "L’ancien coupon de cet électeur ne fonctionne plus.",
+      "first": "C’est le premier code de cet électeur.",
+      "download": "Télécharger le coupon (PDF)",
+      "downloadFailed": "Le coupon n’a pas pu être téléchargé.",
+      "close": "Fermer et effacer le code",
+      "closeLabel": "Fermer"
+    },
+    "locked": "Les codes ne peuvent plus être créés ni remplacés : l’élection est terminée. Les fichiers de coupons sont supprimés à la clôture.",
+    "run": {
+      "status": "Génération en cours. Les fichiers apparaissent dès qu’ils sont prêts ; vous pouvez rester sur cette page.",
+      "result": {
+        "done": {
+          "one": "{count} électeur a reçu son code.",
+          "other": "{count} électeurs ont reçu leur code."
+        },
+        "failed": {
+          "one": "{count} fichier a échoué : ses électeurs n’ont pas de code. Relancez la génération pour ce groupe.",
+          "other": "{count} fichiers ont échoué : leurs électeurs n’ont pas de code. Relancez la génération pour ces groupes."
+        }
+      },
+      "failed": "La génération n’a pas pu démarrer."
+    },
+    "group": {
+      "noGroup": "Sans groupe",
+      "voters": {
+        "one": "{count} électeur",
+        "other": "{count} électeurs"
+      },
+      "withCode": "avec un code sur {total}",
+      "state": {
+        "none": "Sans code",
+        "partial": "Incomplet",
+        "done": "Prêt",
+        "empty": "Aucun électeur"
+      },
+      "generate": {
+        "one": "Générer {count} coupon",
+        "other": "Générer {count} coupons"
+      },
+      "complete": "Tous les codes sont créés",
+      "download": "Télécharger le PDF",
+      "part": "Partie {part} sur {parts}",
+      "fileOf": {
+        "one": "{count} coupon · {date}",
+        "other": "{count} coupons · {date}"
+      },
+      "downloadFailed": "Le fichier n’a pas pu être téléchargé."
+    },
+    "empty": {
+      "title": "Aucun électeur pour le moment",
+      "text": "Ajoutez ou importez des électeurs avant de créer leurs codes.",
+      "link": "Voir les électeurs"
+    },
+    "loadFailed": "L’état des codes n’a pas pu être lu.",
+    "note": "Un code ne peut pas être réaffiché : seule son empreinte est gardée. Un coupon perdu se remplace par un nouveau code, sauf si l’électeur a déjà voté."
   }
 }
