@@ -1,6 +1,6 @@
 # New Voting System — Front-end design
 
-Version 1.5 · 2026-10-10 (parties and candidates are registered in a modal; ballots page and candidate record, adaptive layout and phone rules; theme Material periwinkle from 1.3) · goes with [SPEC.md](../SPEC.md) 1.3,
+Version 1.6 · 2026-10-11 (light home page, item 13; parties and candidates are registered in a modal; ballots page and candidate record, adaptive layout and phone rules; theme Material periwinkle from 1.3) · goes with [SPEC.md](../SPEC.md) 1.3,
 [architecture.md](architecture.md) and the approved mockups in [mockups/](mockups/).
 
 Stack: Next.js (App Router), TypeScript in strict mode, Tailwind CSS.
@@ -349,6 +349,17 @@ at 1280 and at 1920.
     screen: the body scrolls, the header stays. Saving closes it and the page behind updates in place; "save and add
     another" keeps it open with the form cleared and the focus on the first field. There is no separate route for a party
     or a candidate: the old record route of the candidate screen (A07) is this modal.
+
+13. **The home page is light and has almost no cards** (Jun, 2026-10-11, adapted from a landing page he supplied;
+    mockup [material-home-light.html](mockups/material-home-light.html), which replaces
+    [material-home.html](mockups/material-home.html)). A white sticky header (the language switch is drawn light there);
+    a light hero (soft drifting glows, the accent word in the hero gradient as text, an outline second button, three
+    short assurances as plain icons) beside **one live ballot**: touching a candidate drops a trial ballot in the box
+    and nothing is sent. Under it **one white panel with two halves**, the voter's door and the organiser's door.
+    Then open layouts: the four steps as a dashed path, the reasons as a split with an open list, a gradient band of
+    four true figures separated by lines (never a claim we cannot back: no customer counts, no certification, no
+    testimonial), the questions as a native accordion, a plain closing line, and the dark footer with the system state.
+    The two exceptions to rules 4 and 5 are deliberate: on this band figures are not in tiles.
 
 ### Motion
 

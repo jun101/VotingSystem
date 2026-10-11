@@ -6,8 +6,8 @@ import { HomeMenu } from './HomeMenu';
 import { linkStyles } from './links';
 
 /**
- * The top line, over the hero: the product, the section links, the language, and the two ways in.
- * Below `md` the links and the two buttons move into a menu.
+ * The top line, white and fixed to the top while the page scrolls: the product, the section links,
+ * the language, and the two ways in. Below `md` the links and the two buttons move into a menu.
  */
 export function HomeNav({ t }: { t: Translate }) {
   const items = [
@@ -20,11 +20,11 @@ export function HomeNav({ t }: { t: Translate }) {
   const create = { href: '/register', label: t('home.nav.create') };
 
   return (
-    <header className="absolute inset-x-0 top-0 z-20">
+    <header className="sticky top-0 z-20 border-b border-line-soft bg-surface/85 backdrop-blur-md">
       <div className="mx-auto flex h-19 w-full max-w-6xl items-center gap-3 px-4 md:gap-6">
         <Link
           href="/"
-          className="flex w-fit shrink-0 items-center gap-2.5 rounded-sm font-display text-lg font-extrabold text-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-light"
+          className="flex w-fit shrink-0 items-center gap-2.5 rounded-sm font-display text-lg font-extrabold text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           <LogoMark size={36} />
           <span className="max-sm:sr-only">{t('app.name')}</span>
@@ -35,7 +35,7 @@ export function HomeNav({ t }: { t: Translate }) {
             <a
               key={item.href}
               href={item.href}
-              className="rounded-sm text-base font-semibold text-surface hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-light"
+              className="rounded-sm text-base font-semibold text-ink-soft hover:text-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
               {item.label}
             </a>
@@ -49,14 +49,14 @@ export function HomeNav({ t }: { t: Translate }) {
         <Link
           href={signIn.href}
           data-testid="home-nav-signin"
-          className={`${linkStyles.glass} max-md:hidden`}
+          className={`${linkStyles.text} max-md:hidden`}
         >
           {signIn.label}
         </Link>
         <Link
           href={create.href}
           data-testid="home-nav-create"
-          className={`${linkStyles.white} max-lg:hidden`}
+          className={`${linkStyles.primary} max-lg:hidden`}
         >
           {create.label}
         </Link>

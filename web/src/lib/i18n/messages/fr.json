@@ -34,16 +34,27 @@
       "accent": "en secret.",
       "lede": "Importez vos électeurs, remettez un code à chacun, et suivez la participation en direct. Le vote reste secret, les résultats sont publiés à la clôture.",
       "create": "Créer une élection",
-      "how": "Comment ça marche"
+      "how": "Comment ça marche",
+      "assure": {
+        "secret": "Bulletin secret",
+        "once": "Un vote par électeur",
+        "phone": "Sur téléphone"
+      }
     },
     "art": {
-      "secret": "Vote à bulletin secret",
-      "phone": "100 % en ligne, sur téléphone",
+      "label": "Démonstration",
       "ballot": "Président(e) du conseil des élèves",
       "one": "Marie-Claire Pierre",
+      "oneRole": "Candidate, 3e année",
       "two": "Jean Baptiste",
-      "three": "Nadège Louis",
-      "blank": "Vote blanc"
+      "twoRole": "Candidat, 4e année",
+      "blank": "Vote blanc",
+      "blankRole": "Aucun candidat",
+      "vote": "Voter",
+      "slot": "Touchez un candidat pour voter",
+      "slotDone": "Bulletin déposé dans l’urne",
+      "idle": "Aucun vote réel : c’est un essai.",
+      "voted": "Essai : « {name} », bulletin déposé."
     },
     "voter": {
       "title": "Je suis électeur",
@@ -59,67 +70,49 @@
       "signIn": "Se connecter",
       "register": "Créer un compte"
     },
-    "features": {
-      "title": "Ce qui fait la différence",
+    "why": {
+      "eyebrow": "Pourquoi nous",
+      "title": "Des élections en lesquelles on peut avoir confiance",
+      "lead": "Conçu pour les écoles et les institutions : simple pour l’organisateur, clair pour l’électeur, vérifiable par tous.",
       "secret": {
-        "head": "Vote secret",
         "title": "Personne ne voit votre choix",
         "text": "Aucun lien entre un électeur et son vote."
       },
       "slips": {
-        "head": "Fiches imprimées",
         "title": "Un code par électeur",
         "text": "Fiches PDF, courriel ou fichier Excel."
       },
       "live": {
-        "head": "Participation en direct",
         "title": "Qui a voté, pas pour qui",
         "text": "Suivez la participation par groupe."
       },
       "results": {
-        "head": "Résultats publics",
         "title": "Publiés à la clôture",
         "text": "Égalités signalées, second tour possible."
       }
     },
-    "about": {
-      "eyebrow": "À propos",
-      "title": "Des élections en lesquelles on peut avoir confiance",
-      "lead": "Conçu pour les écoles et les institutions : simple pour l’organisateur, clair pour l’électeur, vérifiable par tous. Français et anglais.",
-      "more": "En savoir plus",
-      "image": "Image : école, salle de classe ou élèves qui votent",
-      "statFigure": "100 %",
-      "statText": "des votes restent secrets"
-    },
-    "offer": {
-      "eyebrow": "Ce que nous offrons",
-      "title": "Tout ce qu’il faut, de l’import aux résultats",
-      "import": {
-        "title": "Import des électeurs",
-        "text": "Excel ou CSV, contrôle ligne par ligne, groupes créés pour vous."
+    "figures": {
+      "title": "En bref",
+      "one": {
+        "value": "1",
+        "label": "code par électeur, un seul vote"
       },
-      "codes": {
-        "title": "Codes et courriels",
-        "text": "Fiche, courriel ou fichier : choisissez à la génération."
+      "zero": {
+        "value": "0",
+        "label": "vote lié à un électeur"
       },
-      "page": {
-        "title": "Page de vote",
-        "text": "Bulletin avec photos, prêt pour le téléphone, en deux langues."
+      "two": {
+        "value": "2",
+        "label": "langues : français et anglais"
       },
-      "results": {
-        "title": "Résultats",
-        "text": "Pourcentages, égalités, second tour en un clic."
+      "full": {
+        "value": "100 %",
+        "label": "en ligne, sur téléphone"
       }
-    },
-    "band": {
-      "title": "Chaque voix compte",
-      "text": "Lancez votre première élection en quelques minutes.",
-      "action": "Commencer",
-      "chip": "Un électeur, un vote"
     },
     "steps": {
       "eyebrow": "Comment ça marche",
-      "title": "Quatre étapes",
+      "title": "Quatre étapes, du fichier aux résultats",
       "import": {
         "title": "Importer",
         "text": "Déposez la liste des électeurs."
@@ -137,27 +130,10 @@
         "text": "Publiés à la clôture du scrutin."
       }
     },
-    "trust": {
-      "eyebrow": "Confiance",
-      "title": "Pensé pour être sûr",
-      "secret": {
-        "title": "Secret par conception",
-        "text": "Aucun vote n’est lié à un électeur."
-      },
-      "once": {
-        "title": "Un vote par électeur",
-        "text": "Verrouillé côté serveur."
-      },
-      "languages": {
-        "title": "Français et anglais",
-        "text": "Choisis par l’élection."
-      },
-      "audit": {
-        "title": "Journal d’audit",
-        "text": "Chaque action est tracée."
-      }
-    },
     "faq": {
+      "eyebrow": "Questions",
+      "title": "Vous vous demandez peut-être",
+      "lead": "Une autre question ? Écrivez-nous.",
       "account": {
         "q": "Mes électeurs ont-ils besoin d’un compte ?",
         "a": "Non. Un code personnel suffit."

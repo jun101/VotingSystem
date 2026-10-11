@@ -8,11 +8,13 @@ import { rememberLocale, rememberVoteLocale, type Locale } from '@/lib/i18n/loca
 
 const FOCUS =
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-light';
+const FOCUS_LIGHT =
+  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary';
 
 /**
  * FR and EN on every voting screen. The choice is a session cookie of this election's pages only (a language, nothing about the voter), forgotten with the voting session;
  * the page is then rendered again by the server in that language. With `site`, it is the site-wide choice
- * (the `locale` cookie, a year) of the public home page. Choices already made stay: they
+ * (the `locale` cookie, a year) of the public home page, which sits on a light header: the site switch is drawn light. Choices already made stay: they
  * live in the page's state, not in the render.
  */
 export function LanguageToggle({ site = false }: { site?: boolean }) {
@@ -48,7 +50,10 @@ export function LanguageToggle({ site = false }: { site?: boolean }) {
       role="group"
       aria-label={t('vote.language.label')}
       aria-busy={pending ? 'true' : undefined}
-      className="inline-flex shrink-0 rounded-full border border-glass-line bg-glass p-1"
+      className={cx(
+        'inline-flex shrink-0 rounded-full border p-1',
+        site ? 'border-primary-line bg-primary-soft' : 'border-glass-line bg-glass',
+      )}
     >
       {options.map((option) => (
         <button
@@ -61,8 +66,14 @@ export function LanguageToggle({ site = false }: { site?: boolean }) {
           onClick={() => choose(option.locale)}
           className={cx(
             'ui-control min-h-9 min-w-11 rounded-full px-3 text-base font-bold',
-            FOCUS,
-            locale === option.locale ? 'bg-surface text-deep' : 'text-surface hover:bg-glass-line',
+            site ? FOCUS_LIGHT : FOCUS,
+            locale === option.locale
+              ? site
+                ? 'bg-primary text-surface'
+                : 'bg-surface text-deep'
+              : site
+                ? 'text-primary-hover hover:bg-surface'
+                : 'text-surface hover:bg-glass-line',
           )}
         >
           {option.short}

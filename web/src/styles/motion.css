@@ -674,6 +674,20 @@
     animation: drift-b 22s ease-in-out infinite;
   }
 
+  /* The headline's accent word on a light page: the hero gradient, as text. */
+  .hero-word {
+    color: var(--color-hero-mid);
+    background-image: linear-gradient(
+      135deg,
+      var(--color-hero-from) 0%,
+      var(--color-hero-mid) 50%,
+      var(--color-hero-to) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
   .accent-word {
     color: var(--color-accent-light);
     background-image: linear-gradient(

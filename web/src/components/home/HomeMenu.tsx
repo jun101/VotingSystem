@@ -56,7 +56,7 @@ export function HomeMenu({
         aria-controls="home-menu-panel"
         aria-label={open ? closeLabel : openLabel}
         onClick={() => setOpen((value) => !value)}
-        className="ui-control flex size-11 items-center justify-center rounded-full border border-glass-line bg-glass text-surface hover:bg-glass-line focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-light"
+        className="ui-control flex size-11 items-center justify-center rounded-full border border-line bg-surface text-ink hover:bg-primary-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       >
         <Icon name={open ? 'close' : 'list'} size={22} />
       </button>
@@ -77,7 +77,7 @@ export function HomeMenu({
             </a>
           ))}
           <div className="mt-2 flex flex-col gap-2 border-t border-line-soft pt-3">
-            <Link href={signIn.href} className={linkStyles.soft}>
+            <Link href={signIn.href} className={linkStyles.outline}>
               {signIn.label}
             </Link>
             <Link href={create.href} className={linkStyles.primary}>
