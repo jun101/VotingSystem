@@ -296,6 +296,24 @@ export function ElectionSummary({ election: given }: { election: Election }) {
               {t('elections.summary.edit')}
             </Link>
           ) : null}
+          {election.status === 'open' ||
+          election.status === 'closed' ||
+          election.status === 'published' ||
+          election.status === 'archived' ? (
+            <Link
+              href={`/admin/elections/${election.id}/turnout`}
+              data-testid="election-turnout-link"
+              className={cx(
+                ACTION,
+                election.status === 'open'
+                  ? 'border border-accent bg-accent font-bold text-deep shadow-button'
+                  : 'border border-glass-line bg-glass text-surface hover:bg-glass-line',
+              )}
+            >
+              <Icon name="chart" size={20} />
+              {t('elections.summary.turnout')}
+            </Link>
+          ) : null}
           <button
             type="button"
             disabled={busy}

@@ -20,6 +20,8 @@ final class VoterResource extends ApiResource
         $group = $voter->group;
         // The status of the voter's code only: the code and its hash never leave the server.
         $credential = $voter->credential;
+        // Whether and when the voter voted, never what (FR-VOT-07). The list loads it with the voters.
+        $votedAt = $voter->participation?->voted_at;
 
         return [
             'full_name' => $voter->full_name,
@@ -29,6 +31,8 @@ final class VoterResource extends ApiResource
             'phone' => $voter->phone,
             'has_code' => $credential !== null,
             'email_status' => $credential?->email_status,
+            'has_voted' => $votedAt !== null,
+            'voted_at' => $votedAt?->utc()->format('Y-m-d\TH:i:s\Z'),
             'created_at' => $voter->created_at?->utc()->format('Y-m-d\TH:i:s\Z'),
             'updated_at' => $voter->updated_at?->utc()->format('Y-m-d\TH:i:s\Z'),
         ];

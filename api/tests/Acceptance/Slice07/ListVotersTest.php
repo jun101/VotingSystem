@@ -35,7 +35,7 @@ it('lists the voters by full name with the documented fields [FR-VOT-01] (scenar
     expect(array_column($response->json('data'), 'id'))->toBe([$a, $b])
         ->and($response->json('data.0'))->toMatchArray(['id' => $a, 'full_name' => 'adrien Joseph', 'group' => null, 'identifier' => null, 'email' => null, 'phone' => null])
         ->and($response->json('data.1'))->toMatchArray(['id' => $b, 'group' => ['id' => $group, 'name' => '4e année'], 'identifier' => 'E-2107', 'email' => 'n@example.ht', 'phone' => '+509 3712 4455'])
-        ->and(array_keys($response->json('data.1')))->toEqualCanonicalizing(['id', 'full_name', 'group', 'identifier', 'email', 'phone', 'has_code', 'email_status', 'created_at', 'updated_at'])
+        ->and(array_keys($response->json('data.1')))->toEqualCanonicalizing(['id', 'full_name', 'group', 'identifier', 'email', 'phone', 'has_code', 'email_status', 'has_voted', 'voted_at', 'created_at', 'updated_at'])
         ->and($response->json('meta'))->toBe(['page' => 1, 'per_page' => 24, 'total' => 2]);
 });
 

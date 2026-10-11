@@ -4,7 +4,7 @@
  * (the API would answer 422 to a `group` that is neither a UUID nor `none`).
  */
 
-import type { CredentialFilter, EmailFilter, VoterFilters } from '@/lib/api/voters';
+import type { CredentialFilter, EmailFilter, VoterFilters, VotedFilter } from '@/lib/api/voters';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -19,6 +19,9 @@ export const NO_FILTERS: VoterFilters = { page: 1, q: '', group: '', credential:
 export const CREDENTIAL_FILTERS: readonly CredentialFilter[] = ['', 'issued', 'none'];
 export const EMAIL_FILTERS: readonly EmailFilter[] = ['', 'queued', 'sent', 'failed', 'none'];
 
+/** The values the has-voted filter takes. */
+export const VOTED_FILTERS: readonly VotedFilter[] = ['', 'yes', 'no'];
+
 type Params = Record<string, string | string[] | undefined>;
 
 function first(value: string | string[] | undefined): string {
@@ -29,6 +32,7 @@ function first(value: string | string[] | undefined): string {
 export function filtersOf(params: Params): VoterFilters {
   const page = Number.parseInt(first(params.page), 10);
   const group = first(params.group).trim();
+  const voted = VOTED_FILTERS.find((one) => one === first(params.voted).trim()) ?? '';
 
   return {
     page: Number.isInteger(page) && page >= 1 ? Math.min(page, PAGE_MAX) : 1,
@@ -36,6 +40,7 @@ export function filtersOf(params: Params): VoterFilters {
     group: group === 'none' || UUID.test(group) ? group.toLowerCase() : '',
     credential: CREDENTIAL_FILTERS.find((one) => one === first(params.credential).trim()) ?? '',
     email: EMAIL_FILTERS.find((one) => one === first(params.email).trim()) ?? '',
+    ...(voted === '' ? {} : { voted }),
   };
 }
 
@@ -48,6 +53,7 @@ export function queryOf(filters: VoterFilters): string {
   if (filters.group !== '') query.set('group', filters.group);
   if (filters.credential !== '') query.set('credential', filters.credential);
   if (filters.email !== '') query.set('email', filters.email);
+  if (filters.voted) query.set('voted', filters.voted);
 
   const text = query.toString();
 
@@ -60,6 +66,7 @@ export function sameFilters(a: VoterFilters, b: VoterFilters): boolean {
     a.q === b.q &&
     a.group === b.group &&
     a.credential === b.credential &&
-    a.email === b.email
+    a.email === b.email &&
+    (a.voted ?? '') === (b.voted ?? '')
   );
 }

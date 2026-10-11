@@ -29,6 +29,8 @@ use App\Http\Controllers\Institution\InstitutionController;
 use App\Http\Controllers\Institution\LogoController;
 use App\Http\Controllers\Parties\PartyController;
 use App\Http\Controllers\Parties\PartyLogoController;
+use App\Http\Controllers\Turnout\DashboardController;
+use App\Http\Controllers\Turnout\TurnoutController;
 use App\Http\Controllers\Users\InvitationController;
 use App\Http\Controllers\Users\UserController;
 use App\Http\Controllers\Vote\VoteBallotsController;
@@ -38,6 +40,7 @@ use App\Http\Controllers\Vote\VoteSubmitController;
 use App\Http\Controllers\VoterImports\VoterImportController;
 use App\Http\Controllers\Voters\VoterController;
 use App\Http\Controllers\Voters\VoterCopyController;
+use App\Http\Controllers\Voters\VoterExportController;
 use Illuminate\Support\Facades\Route;
 
 // The `/api` prefix is added by the framework; every route lives under `/api/v1`.
@@ -104,6 +107,9 @@ Route::prefix('v1')->group(function (): void {
         });
     });
 
+    // The institution's home page (slice 14): 120 reads a minute per user, shared with the turnout.
+    Route::get('/dashboard', DashboardController::class)->middleware(['cookie-session', 'auth', 'institution.active', 'throttle:turnout-read']);
+
     // The elections of the institution (slice 05). Owners and managers both pass, so there is no
     // role middleware; the record is bound (another institution's is a 404), then the rate limit
     // is counted.
@@ -138,6 +144,10 @@ Route::prefix('v1')->group(function (): void {
         Route::post('/{election}/voters', [VoterController::class, 'store'])->middleware('throttle:voters-write');
         Route::get('/{election}/groups', [GroupController::class, 'index']);
         Route::post('/{election}/groups', [GroupController::class, 'store'])->middleware('throttle:groups-write');
+
+        // Turnout and the voters file (slice 14). The file is limited to 20 an hour per user.
+        Route::get('/{election}/turnout', TurnoutController::class)->middleware('throttle:turnout-read');
+        Route::get('/{election}/voters/export', VoterExportController::class)->middleware('throttle:voters-export');
 
         // Voters loaded from another election (slice 09b).
         Route::post('/{election}/voter-copies', VoterCopyController::class)->middleware('throttle:voter-copies');

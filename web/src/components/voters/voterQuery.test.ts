@@ -89,3 +89,14 @@ describe('sameFilters', () => {
     expect(sameFilters(filters({ email: 'sent' }), filters({ email: 'failed' }))).toBe(false);
   });
 });
+
+describe('the has-voted filter', () => {
+  it('is read from the address, written back, and dropped when invalid', () => {
+    expect(filtersOf({ voted: 'no' }).voted).toBe('no');
+    expect(filtersOf({ voted: 'yes' }).voted).toBe('yes');
+    expect(filtersOf({ voted: 'maybe' }).voted).toBeUndefined();
+    expect(queryOf({ ...NO_FILTERS, voted: 'yes' })).toBe('?voted=yes');
+    expect(sameFilters(NO_FILTERS, { ...NO_FILTERS, voted: '' })).toBe(true);
+    expect(sameFilters(NO_FILTERS, { ...NO_FILTERS, voted: 'no' })).toBe(false);
+  });
+});

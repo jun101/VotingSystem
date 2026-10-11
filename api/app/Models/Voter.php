@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\BelongsToInstitution;
 use App\Models\Concerns\HasUuid;
+use App\Models\Voting\Participation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -45,6 +46,17 @@ class Voter extends Model
     public function group(): BelongsTo
     {
         return $this->belongsTo(VoterGroup::class, 'voter_group_id');
+    }
+
+    /**
+     * "This voter has voted" (slice 14): the participation, never the vote. Read for the flag and the
+     * time only; a ballot is not reachable from here.
+     *
+     * @return HasOne<Participation, $this>
+     */
+    public function participation(): HasOne
+    {
+        return $this->hasOne(Participation::class, 'voter_id');
     }
 
     /**

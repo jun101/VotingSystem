@@ -16,4 +16,13 @@ final class FormulaGuard
     {
         return $text !== '' && in_array($text[0], self::TRIGGERS, true) ? "'".$text : $text;
     }
+
+    /**
+     * A phone number: as `guard`, except that an international number (`+509 3712 4455`) is left as it
+     * is. It holds digits, spaces and `( ) . -` only, so no spreadsheet can read a function in it.
+     */
+    public static function guardPhone(string $text): string
+    {
+        return preg_match('/^\+\d[\d ().\-]*$/D', $text) === 1 ? $text : self::guard($text);
+    }
 }

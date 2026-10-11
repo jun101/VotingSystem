@@ -7,7 +7,7 @@ How many voters have voted, in total, by group and over time. Never what they vo
 | Slice | 14 |
 | Requirements | FR-RES-01, FR-SEC-03, FR-SEC-04 |
 | Caller | Institution user: owner or manager |
-| Rate limit | The shared API limit |
+| Rate limit | 120 requests per minute per user, shared with the dashboard |
 
 ## Request
 
@@ -53,11 +53,17 @@ No body. Query: `bucket` (optional, `hour` or `day`; default by the election's l
 }
 ```
 
-`over_time` buckets start at the election's opening hour (or day, in the election's time zone) and run to now or to
-the end; empty buckets are listed with `voted` 0. `percentage` is `voted` over `eligible` with one decimal (0 when
+`over_time` is empty while nobody has voted. Otherwise its buckets start at the election's opening hour (or day, in the election's time zone: `at` is the UTC instant the bucket begins) and run to the current bucket, or to the
+bucket of the end for an election that is over; empty buckets are listed with `voted` 0. `percentage` is `voted` over `eligible` with one decimal (0 when
 nobody is eligible). Groups are ordered by name, accents and case ignored; the line with no group is last.
 
 ## Notes
 
+The end of an election is exclusive: the last bucket is the one containing the second before it. A series holds at most 5 000 buckets; when that cuts it, the votes of the buckets left out are added to the last bucket, so its `total` is always `voted`. `percentage` is never 100.0 unless everybody has voted (a rounded 100.0 shows 99.9).
+
 Computed from `participations` (`voted_at`) and the voters; it never reads `votes`, `vote_choices` or `vote_audit`,
 and shows no per-ballot count.
+
+The line with no group appears only when at least one voter has no group. Groups with no voter are listed with 0.
+An open election's series runs to the current bucket, never past the end; a closed, published or archived one runs to
+its end or its closing, whichever is earlier.

@@ -488,6 +488,39 @@
         "twoFactorOn": "Activée pour votre compte",
         "twoFactorOff": "Pas encore activée pour votre compte",
         "invite": "Inviter un collègue"
+      },
+      "live": {
+        "left": "Il reste {time}",
+        "leftDays": "{days} j {hours} h",
+        "leftHours": "{hours} h {minutes} min",
+        "leftMinutes": "{minutes} min",
+        "over": "Le vote est terminé, la clôture est en cours",
+        "turnout": "Participation",
+        "percent": "{percent} %",
+        "votedOf": "{voted} / {eligible} ont voté",
+        "viewTurnout": "Voir la participation",
+        "viewElection": "Ouvrir l’élection",
+        "more": "Voir toutes les élections ouvertes ({count})",
+        "todoKinds": {
+          "voters_not_voted": {
+            "one": "{count} électeur n’a pas encore voté",
+            "other": "{count} électeurs n’ont pas encore voté"
+          },
+          "draft_blockers": {
+            "one": "{count} point à régler avant de programmer",
+            "other": "{count} points à régler avant de programmer"
+          },
+          "codes_missing": {
+            "one": "{count} électeur sans code d’accès",
+            "other": "{count} électeurs sans code d’accès"
+          }
+        },
+        "counts": "Par statut",
+        "upcoming": {
+          "title": "À venir",
+          "empty": "Aucune élection programmée.",
+          "starts": "Début le {day} à {time}"
+        }
       }
     },
     "comingSoon": {
@@ -1193,7 +1226,8 @@
         "voters": "Électeurs",
         "ballots": "Bulletins"
       },
-      "factsSoon": "Disponible avec les prochaines étapes"
+      "factsSoon": "Disponible avec les prochaines étapes",
+      "turnout": "Voir la participation"
     },
     "rail": {
       "label": "Calendrier et tâches",
@@ -1551,6 +1585,12 @@
         "sent": "Envoyé",
         "failed": "Échec d’envoi",
         "none": "Aucun envoi"
+      },
+      "voted": {
+        "label": "Participation",
+        "all": "Tous les électeurs",
+        "yes": "Ont voté",
+        "no": "N’ont pas voté"
       }
     },
     "card": {
@@ -1564,7 +1604,9 @@
         "queued": "Courriel en attente d’envoi",
         "sent": "Courriel envoyé",
         "failed": "Échec d’envoi du courriel"
-      }
+      },
+      "voted": "A voté",
+      "notVoted": "N’a pas voté"
     },
     "empty": {
       "title": "Aucun électeur pour l’instant",
@@ -2289,5 +2331,86 @@
       "homeText": "Vous pouvez aussi repartir de la page d’accueil.",
       "secure": "Aucun vote n’a été enregistré ici."
     }
+  },
+  "turnout": {
+    "title": "Participation",
+    "back": "Retour à l’élection",
+    "zone": "Participation à l’élection",
+    "live": "Mis à jour automatiquement toutes les 15 secondes",
+    "notStarted": "Le vote n’a pas encore commencé : personne n’a pu voter.",
+    "final": "Le vote est terminé : ces chiffres sont définitifs.",
+    "secrecy": "Les voix restent cachées jusqu’à la clôture, pour tout le monde.",
+    "loadFailed": "Les chiffres n’ont pas pu être actualisés.",
+    "headline": {
+      "label": "Taux de participation",
+      "percent": "{percent} %",
+      "of": {
+        "one": "{voted} sur {eligible} électeur a voté",
+        "other": "{voted} sur {eligible} électeurs ont voté"
+      }
+    },
+    "eligible": "Électeurs inscrits",
+    "voted": "Ont voté",
+    "left": "Restent à voter",
+    "end": {
+      "title": "Clôture",
+      "line": "Le {day} à {time}"
+    },
+    "chart": {
+      "title": "Votes au fil du temps",
+      "bucketLabel": "Regrouper par",
+      "hour": "Heure",
+      "day": "Jour",
+      "empty": "Personne n’a encore voté. La courbe apparaîtra avec le premier vote.",
+      "label": {
+        "one": "Courbe de participation, par {unit} : {total} électeur a voté en tout, dont {last} sur la dernière période ({at}).",
+        "other": "Courbe de participation, par {unit} : {total} électeurs ont voté en tout, dont {last} sur la dernière période ({at})."
+      },
+      "labelEmpty": "Courbe de participation : personne n’a encore voté.",
+      "unit": {
+        "hour": "heure",
+        "day": "jour"
+      },
+      "legendTotal": "Total cumulé",
+      "legendBucket": "Votes par {unit}"
+    },
+    "groups": {
+      "title": "Par groupe",
+      "hint": "Cliquez sur un groupe pour voir qui n’a pas voté.",
+      "none": "Sans groupe",
+      "line": "{voted} / {voters}",
+      "percent": "{percent} %",
+      "empty": "Aucun groupe : les électeurs ne sont pas répartis.",
+      "filter": "Voir qui n’a pas voté : {name}"
+    },
+    "nonvoters": {
+      "title": "Qui n’a pas voté",
+      "count": "{count} à relancer",
+      "search": "Rechercher un électeur",
+      "group": "Groupe",
+      "groupAll": "Tous les groupes",
+      "groupNone": "Sans groupe",
+      "export": "Exporter la liste",
+      "exportFailed": "L’export n’a pas pu être fait.",
+      "allVoted": "Tout le monde a voté",
+      "allVotedText": "Aucun électeur n’est à relancer.",
+      "noMatch": "Aucun électeur ne correspond à ces filtres.",
+      "reset": "Effacer les filtres",
+      "none": "Aucun électeur n’est inscrit à cette élection.",
+      "noGroup": "Sans groupe",
+      "list": "Électeurs qui n’ont pas voté",
+      "pager": "Pages de la liste",
+      "prev": "Page précédente",
+      "next": "Page suivante",
+      "range": "{from} à {to} sur {total}",
+      "exportXlsx": "Exporter en Excel",
+      "exportCsv": "Exporter en CSV"
+    },
+    "empty": {
+      "title": "Aucun électeur pour le moment",
+      "text": "Ajoutez des électeurs pour suivre la participation.",
+      "action": "Gérer les électeurs"
+    },
+    "voters": "Voir les électeurs"
   }
 }

@@ -8,7 +8,7 @@ doing.
 | Slice | 14 |
 | Requirements | FR-NAV-01, FR-RES-01 |
 | Caller | Institution user: owner or manager |
-| Rate limit | The shared API limit |
+| Rate limit | 120 requests per minute per user, shared with the turnout |
 
 ## Scenarios
 
@@ -42,7 +42,10 @@ doing.
 }
 ```
 
-`open` lists open elections (the time check applies: an election past its end is not listed as open), newest first, at
+`voters` is the number of voters of all the institution's elections. `counts` always holds the six statuses; an election whose status is still `open` but whose end has passed is counted under `closed`, so `counts.open` agrees with the `open` list (not capped by the limit of 10). `open` lists open elections (the time check applies: an election past its end is not listed as open), newest first, at
 most 10. `todo`: `voters_not_voted` for each open election with voters who have not voted; `draft_blockers` for each
 draft with checklist blockers (the count of blockers); `codes_missing` for each scheduled or open election with voters
 without a code. No vote count of any ballot.
+
+`upcoming` lists at most 10 scheduled elections, soonest first. `todo` is built from the open elections listed, the first
+10 scheduled ones and the first 10 drafts.

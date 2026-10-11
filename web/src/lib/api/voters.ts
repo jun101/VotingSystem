@@ -25,9 +25,12 @@ export type CredentialFilter = '' | 'issued' | 'none';
 /** The email filter: `''` all, or the status of the last email (`none`: never emailed). */
 export type EmailFilter = '' | 'queued' | 'sent' | 'failed' | 'none';
 
+/** The has-voted filter (slice 14): `''` all, `yes` who has voted, `no` who has not. */
+export type VotedFilter = '' | 'yes' | 'no';
+
 /**
  * What the list is asked for: the page, the search text, the group (`''` all, `none`, or a UUID),
- * the credential status and the email status.
+ * the credential status, the email status and, optionally, whether the voter has voted.
  */
 export type VoterFilters = {
   page: number;
@@ -35,6 +38,7 @@ export type VoterFilters = {
   group: string;
   credential: CredentialFilter;
   email: EmailFilter;
+  voted?: VotedFilter;
 };
 
 /** The body of `POST /elections/{election}/voters`. */

@@ -41,8 +41,10 @@ The voters of an election as an Excel or CSV file, for example the ones who have
 `Content-Type` the Excel or CSV type, `Content-Disposition: attachment; filename="electeurs-{slug}.xlsx|csv"` (the slug
 of the election's title), `Cache-Control: no-store`, `X-Content-Type-Options: nosniff`. Columns `Nom complet`,
 `Groupe`, `Identifiant`, `Courriel`, `Téléphone` (`Full name`, `Group`, `Identifier`, `Email`, `Phone` for an English
-election), plus `A voté` / `Has voted` (yes or no) when `voted` is `all`. **No code, no hash, no link, no time of vote.**
+election), plus `A voté` / `Has voted` (`Oui` / `Non`, `Yes` / `No`) when `voted` is `all`. Rows are sorted by group name then full name (accents and case ignored), the voters without a group last. A text that could run as a formula gets a single quote in front (`FormulaGuard`), in Excel and in CSV. **No code, no hash, no link, no time of vote.**
 
 ## Notes
 
-At most 10 000 rows (the voter limit). Written in a stream, nothing kept on disk.
+At most 10 000 rows (the voter limit). Written in a stream. The Excel file is staged briefly in a private temporary folder, removed afterwards (also on an error); a CSV is never kept. If reading or writing fails once the file has begun, the response is cut off rather than ended cleanly, so a client never takes a short file for a whole one.
+
+A phone number that begins with `+` followed by digits, spaces, dots, dashes or parentheses is an international number and stays as it is; any other text that begins with `=`, `+`, `-` or `@` is guarded.
