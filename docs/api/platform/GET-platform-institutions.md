@@ -7,7 +7,7 @@ The institutions of the platform, with counts only (screen A16).
 | Slice | 18 |
 | Requirements | FR-ADM-01, FR-ADM-02, FR-SEC-03, NFR-SEC-08 |
 | Caller | **Platform admin** (an institution user answers 403 `forbidden`) |
-| Rate limit | The shared API limit |
+| Rate limit | None (an admin's reads are few; the two POST routes are limited) |
 
 ## Request
 

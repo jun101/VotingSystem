@@ -17,7 +17,8 @@ The only way to create a platform admin (there is no sign-up for it). Run by the
 | 3 | The email is invalid | Nothing created; exit code 1 | |
 | 4 | The email already belongs to a user (any role, removed or not) | Nothing created; exit code 1 | |
 
-`--password-from-env=NAME` reads the password from that environment variable instead of asking (for scripts such as
+`--password-from-env=NAME` reads the password from that environment variable instead of asking (`NAME` must start with
+`PLATFORM_ADMIN_`, so a server secret such as `DB_PASSWORD` can never become an admin's password; another name gives exit code 1) (for scripts such as
 `make e2e`; it is not asked to be confirmed; the same minimum length applies; an unset or empty variable gives exit code 1).
 
 The new admin signs in at the same page as everyone and is sent to `/platform`. The command writes no audit entry
