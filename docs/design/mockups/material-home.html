@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Accueil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;family=Archivo:wght@700;800&amp;display=swap" rel="stylesheet">
+<style>
+:root{--grad-a:#C944B6;--grad-b:#A66EDC;--grad-c:#7A92EE;--panel:#7488F0;--panel-deep:#5F73E6;--primary:#5468D4;--primary-hover:#4458C2;--ink:#14162B;--muted:#5A5F7A;--line:#D5D9EC;--surface:#FFFFFF;--canvas:#F1F2FB;--tint:#EEF0FB;--teal:#0F8F7A;--teal-bg:#E1F5EE;--amber:#B7791F;--amber-bg:#FFF4DC;--rose:#C2386B;--rose-bg:#FDE8F0;--night:#1B1E45}
+*{box-sizing:border-box}
+body{margin:0;font-family:Roboto,system-ui,sans-serif;color:var(--ink);background:var(--canvas)}
+h1,h2,h3{font-family:Archivo,sans-serif;margin:0;letter-spacing:-.2px}
+a{color:var(--primary);text-decoration:none;font-weight:500}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+.nav{position:absolute;top:0;left:0;right:0;z-index:5}
+.nav .wrap{display:flex;align-items:center;gap:28px;height:76px}
+.logo{display:flex;align-items:center;gap:10px;color:#fff;font:800 18px Archivo,sans-serif}
+.logo i{width:36px;height:36px;border-radius:11px;background:#fff;display:grid;place-items:center}
+.links{display:flex;gap:22px;margin-left:12px}
+.links a{color:#fff;opacity:.92;font-size:14px}
+.sp{flex:1}
+.lang{display:flex;background:rgba(255,255,255,.2);border-radius:20px;padding:3px}
+.lang b{font:500 12px Roboto;padding:5px 10px;border-radius:16px;color:#fff}
+.lang b.on{background:#fff;color:var(--primary)}
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:28px;height:44px;padding:0 22px;font:500 15px Roboto;border:0;cursor:pointer}
+.btn.p{background:var(--primary);color:#fff;box-shadow:0 8px 20px -6px rgba(84,104,212,.7)}
+.btn.w{background:#fff;color:var(--primary)}
+.btn.g{background:rgba(255,255,255,.18);color:#fff}
+.btn.o{background:var(--tint);color:var(--primary)}
+.hero{position:relative;background:linear-gradient(135deg,var(--grad-a),var(--grad-b) 48%,var(--grad-c));color:#fff;padding:132px 0 150px;overflow:hidden}
+.hero .wrap{display:grid;grid-template-columns:1.05fr 1fr;gap:36px;align-items:center}
+.pill{display:inline-flex;gap:8px;align-items:center;background:rgba(255,255,255,.2);border-radius:20px;padding:6px 14px;font-size:13px;font-weight:500}
+.pill u{width:8px;height:8px;border-radius:50%;background:#7CF0C8;animation:pulse 1.6s infinite}
+@keyframes pulse{50%{transform:scale(1.5);opacity:.5}}
+.hero h1{font-size:54px;line-height:1.05;margin:18px 0 16px;font-weight:800}
+.hero h1 em{font-style:normal;color:#FFD58A}
+.hero p{font-size:18px;line-height:1.5;opacity:.95;max-width:520px;margin:0 0 26px}
+.art{position:relative;height:380px}
+.ballot{position:absolute;right:20px;top:10px;width:380px;background:#fff;color:var(--ink);border-radius:26px;padding:18px;box-shadow:0 30px 60px -20px rgba(20,22,43,.55);transform:rotate(2.5deg);animation:floaty 7s ease-in-out infinite}
+@keyframes floaty{50%{transform:rotate(2.5deg) translateY(-10px)}}
+.ballot .hd{background:linear-gradient(120deg,var(--grad-a),var(--panel-deep));color:#fff;border-radius:16px;padding:12px 14px;font:700 15px Archivo}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.tile{border-radius:16px;background:var(--tint);padding:8px;text-align:center;font-size:13px;font-weight:500;position:relative}
+.tile .ph{height:84px;border-radius:12px;margin-bottom:6px}
+.tile.sel{outline:3px solid var(--primary)}
+.tile.sel::after{content:"";position:absolute;right:8px;top:8px;width:24px;height:24px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 3px #fff}
+.chip{position:absolute;background:#fff;color:var(--ink);border-radius:16px;padding:10px 14px;font:500 13px Roboto;box-shadow:0 14px 28px -10px rgba(20,22,43,.5);display:flex;gap:8px;align-items:center}
+.chip i{width:22px;height:22px;border-radius:50%;display:inline-block}
+.c1{left:0;top:60px;animation:floaty2 6s ease-in-out infinite}
+.c2{left:40px;bottom:20px;animation:floaty2 8s ease-in-out infinite reverse}
+@keyframes floaty2{50%{transform:translateY(-12px)}}
+.doors{margin-top:-96px;position:relative;z-index:3}
+.doors .wrap{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.door{background:#fff;border-radius:24px;padding:26px;box-shadow:0 24px 48px -18px rgba(20,22,43,.4);display:flex;gap:18px}
+.door .ic{flex:none;width:64px;height:64px;border-radius:20px;display:grid;place-items:center}
+.door h2{font-size:22px;margin-bottom:6px}
+.door p{margin:0 0 14px;color:var(--muted);font-size:15px;line-height:1.45}
+.field{display:flex;gap:10px}
+.field input{flex:1;min-width:0;height:44px;border:0;border-bottom:2px solid var(--line);font:400 15px Roboto;background:transparent;outline:none}
+.sec{padding:72px 0 0}
+.eyebrow{color:var(--primary);font:700 12px Roboto;letter-spacing:1.4px;text-transform:uppercase}
+.sec h2{font-size:34px;margin:8px 0 10px}
+.sec .lead{color:var(--muted);font-size:17px;max-width:620px;line-height:1.5}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:26px}
+.card{background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 2px 4px rgba(20,22,43,.08),0 12px 24px -12px rgba(20,22,43,.2)}
+.card .top{height:64px;display:flex;align-items:center;padding:0 18px;gap:12px;color:#fff;font:700 15px Archivo}
+.card .top i{width:34px;height:34px;border-radius:12px;background:rgba(255,255,255,.25);display:grid;place-items:center}
+.card .bd{padding:16px 18px 20px;font-size:14.5px;color:var(--muted);line-height:1.5}
+.card .bd b{display:block;color:var(--ink);font-size:16px;margin-bottom:4px}
+.h1g{background:linear-gradient(120deg,#C944B6,#8B5CF0)}.h2g{background:linear-gradient(120deg,#0F8F7A,#35B6A0)}.h3g{background:linear-gradient(120deg,#5468D4,#7A92EE)}.h4g{background:linear-gradient(120deg,#E0762B,#F2A650)}
+.about{display:grid;grid-template-columns:1.1fr 1fr;gap:28px;align-items:center;margin-top:0}
+.imgslot{border-radius:26px;min-height:300px;background:repeating-linear-gradient(135deg,#DDE1FA,#DDE1FA 14px,#E8EAFB 14px,#E8EAFB 28px);display:grid;place-items:center;color:var(--muted);font-weight:500;position:relative}
+.stat{position:absolute;left:18px;bottom:18px;background:#fff;border-radius:16px;padding:12px 18px;box-shadow:0 14px 28px -10px rgba(20,22,43,.4)}
+.stat b{font:800 28px Archivo;color:var(--primary);display:block}
+.band{margin-top:72px;background:linear-gradient(120deg,var(--night),#3A2E7A 60%,#5F3FA8);color:#fff;border-radius:30px;padding:46px;display:grid;grid-template-columns:1.3fr 1fr;gap:20px;align-items:center;overflow:hidden;position:relative}
+.band h2{font-size:34px;margin:0 0 8px}
+.band p{opacity:.85;margin:0 0 18px;font-size:17px}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:26px;position:relative}
+.step{background:#fff;border-radius:20px;padding:20px;box-shadow:0 12px 24px -14px rgba(20,22,43,.3)}
+.step .n{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:#fff;font:800 18px Archivo;margin-bottom:12px}
+.step b{display:block;font-size:17px;margin-bottom:4px}
+.step span{color:var(--muted);font-size:14.5px;line-height:1.45}
+.trust{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:26px}
+.tr{background:#fff;border-radius:20px;padding:20px;display:flex;gap:14px;align-items:flex-start}
+.tr i{flex:none;width:44px;height:44px;border-radius:14px}
+.tr b{display:block;font-size:16px}
+.tr span{color:var(--muted);font-size:14px;line-height:1.4}
+.faq{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:26px}
+.q{background:#fff;border-radius:18px;padding:18px 20px}
+.q b{display:block;margin-bottom:6px}
+.q span{color:var(--muted);font-size:14.5px;line-height:1.5}
+.close{margin:72px 0 0;background:linear-gradient(120deg,var(--grad-a),var(--grad-b) 50%,var(--grad-c));border-radius:30px;padding:48px;text-align:center;color:#fff}
+.close h2{font-size:34px;margin:0 0 16px}
+footer{margin-top:72px;background:var(--night);color:#fff;padding:44px 0 28px}
+footer .wrap{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:28px}
+footer a{display:block;color:#C9CDF5;font-size:14px;margin:7px 0;font-weight:400}
+footer h3{font-size:14px;margin-bottom:8px}
+.status{display:inline-flex;gap:8px;align-items:center;background:rgba(255,255,255,.1);border-radius:20px;padding:6px 12px;font-size:12.5px;margin-top:12px}
+.status u{width:8px;height:8px;border-radius:50%;background:#7CF0C8}
+.copy{max-width:1180px;margin:26px auto 0;padding:18px 28px 0;border-top:1px solid rgba(255,255,255,.12);color:#9AA0D4;font-size:13px}
+@media(max-width:900px){.hero .wrap,.doors .wrap,.about,.band,footer .wrap{grid-template-columns:1fr}.grid4,.steps,.trust{grid-template-columns:1fr 1fr}.faq{grid-template-columns:1fr}.links{display:none}.art{height:330px}.hero h1{font-size:40px}.ballot{width:320px;right:0}}
+@media(max-width:520px){.grid4,.steps,.trust{grid-template-columns:1fr}.door{flex-direction:column}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <div class="logo"><i><svg width="20" height="20" viewBox="0 0 48 48"><path d="M13 25l7 7 15-17" fill="none" stroke="#5F73E6" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg></i>New Voting System</div>
+  <nav class="links"><a>Accueil</a><a>Comment ça marche</a><a>Sécurité</a><a>Questions</a></nav>
+  <span class="sp"></span>
+  <div class="lang"><b class="on">FR</b><b>EN</b></div>
+  <a class="btn g">Se connecter</a><a class="btn w">Créer une élection</a>
+</div></header>
+
+<section class="hero"><div class="wrap">
+  <div>
+    <span class="pill"><u></u>Élections en ligne pour les écoles</span>
+    <h1>Votez simplement,<br><em>en secret.</em></h1>
+    <p>Importez vos électeurs, remettez un code à chacun, et suivez la participation en direct. Le vote reste secret, les résultats sont publiés à la clôture.</p>
+    <a class="btn w">Créer une élection</a> <a class="btn g">Comment ça marche</a>
+  </div>
+  <div class="art">
+    <div class="chip c1"><i style="background:var(--teal)"></i>Vote à bulletin secret</div>
+    <div class="ballot">
+      <div class="hd">Président(e) du conseil des élèves</div>
+      <div class="tiles">
+        <div class="tile sel"><div class="ph" style="background:linear-gradient(135deg,#C9D2FA,#8FA2F0)"></div>Marie-Claire Pierre</div>
+        <div class="tile"><div class="ph" style="background:linear-gradient(135deg,#F7D3E6,#E58DB8)"></div>Jean Baptiste</div>
+        <div class="tile"><div class="ph" style="background:linear-gradient(135deg,#CFEFE6,#7DD3BC)"></div>Nadège Louis</div>
+        <div class="tile"><div class="ph" style="background:linear-gradient(135deg,#FFE7BF,#F2B25A)"></div>Vote blanc</div>
+      </div>
+    </div>
+    <div class="chip c2"><i style="background:var(--amber)"></i>100 % en ligne, sur téléphone</div>
+  </div>
+</div></section>
+
+<section class="doors"><div class="wrap">
+  <div class="door">
+    <div class="ic" style="background:var(--tint)"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#5468D4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="9" width="16" height="11" rx="2"/><path d="M8 9V6a4 4 0 0 1 8 0v3"/></svg></div>
+    <div style="flex:1;min-width:0"><h2>Je suis électeur</h2><p>Collez le lien de vote reçu sur votre fiche ou par courriel.</p>
+      <div class="field"><input placeholder="Lien de vote ou adresse de l’élection"><a class="btn p">Voter</a></div></div>
+  </div>
+  <div class="door">
+    <div class="ic" style="background:var(--teal-bg)"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#0F8F7A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg></div>
+    <div style="flex:1;min-width:0"><h2>J’organise une élection</h2><p>Créez l’élection, importez les électeurs, imprimez les codes.</p>
+      <a class="btn p">Se connecter</a> <a class="btn o">Créer un compte</a></div>
+  </div>
+</div></section>
+
+<section class="sec"><div class="wrap">
+  <div class="grid4" style="margin-top:0">
+    <div class="card"><div class="top h1g"><i>&#128274;</i>Vote secret</div><div class="bd"><b>Personne ne voit votre choix</b>Aucun lien entre un électeur et son vote.</div></div>
+    <div class="card"><div class="top h2g"><i>&#128438;</i>Fiches imprimées</div><div class="bd"><b>Un code par électeur</b>Fiches PDF, courriel ou fichier Excel.</div></div>
+    <div class="card"><div class="top h3g"><i>&#128200;</i>Participation en direct</div><div class="bd"><b>Qui a voté, pas pour qui</b>Suivez la participation par groupe.</div></div>
+    <div class="card"><div class="top h4g"><i>&#127942;</i>Résultats publics</div><div class="bd"><b>Publiés à la clôture</b>Égalités signalées, second tour possible.</div></div>
+  </div>
+</div></section>
+
+<section class="sec"><div class="wrap about">
+  <div><span class="eyebrow">À propos</span><h2>Des élections en lesquelles on peut avoir confiance</h2>
+    <p class="lead">Conçu pour les écoles et les institutions : simple pour l’organisateur, clair pour l’électeur, vérifiable par tous. Français et anglais.</p>
+    <p><a class="btn p" style="margin-top:10px">En savoir plus</a></p></div>
+  <div class="imgslot">Image : école, salle de classe ou élèves qui votent<div class="stat"><b>100 %</b>des votes restent secrets</div></div>
+</div></section>
+
+<section class="sec"><div class="wrap">
+  <span class="eyebrow">Ce que nous offrons</span><h2>Tout ce qu’il faut, de l’import aux résultats</h2>
+  <div class="grid4">
+    <div class="card"><div class="top h3g"><i>&#128196;</i>Import des électeurs</div><div class="bd">Excel ou CSV, contrôle ligne par ligne, groupes créés pour vous.</div></div>
+    <div class="card"><div class="top h1g"><i>&#9993;</i>Codes et courriels</div><div class="bd">Fiche, courriel ou fichier : choisissez à la génération.</div></div>
+    <div class="card"><div class="top h2g"><i>&#128241;</i>Page de vote</div><div class="bd">Bulletin avec photos, prêt pour le téléphone, en deux langues.</div></div>
+    <div class="card"><div class="top h4g"><i>&#128202;</i>Résultats</div><div class="bd">Pourcentages, égalités, second tour en un clic.</div></div>
+  </div>
+  <div class="band">
+    <div><h2>Chaque voix compte</h2><p>Lancez votre première élection en quelques minutes.</p><a class="btn w">Commencer</a></div>
+    <div class="chip" style="position:static;justify-self:end">&#10003; Un électeur, un vote</div>
+  </div>
+</div></section>
+
+<section class="sec"><div class="wrap">
+  <span class="eyebrow">Comment ça marche</span><h2>Quatre étapes</h2>
+  <div class="steps">
+    <div class="step"><div class="n" style="background:#8B5CF0">1</div><b>Importer</b><span>Déposez la liste des électeurs.</span></div>
+    <div class="step"><div class="n" style="background:#0F8F7A">2</div><b>Remettre les codes</b><span>Imprimez les fiches ou envoyez par courriel.</span></div>
+    <div class="step"><div class="n" style="background:#5468D4">3</div><b>Voter</b><span>Chacun vote une fois, en secret.</span></div>
+    <div class="step"><div class="n" style="background:#E0762B">4</div><b>Résultats</b><span>Publiés à la clôture du scrutin.</span></div>
+  </div>
+</div></section>
+
+<section class="sec"><div class="wrap">
+  <span class="eyebrow">Confiance</span><h2>Pensé pour être sûr</h2>
+  <div class="trust">
+    <div class="tr"><i style="background:var(--tint)"></i><div><b>Secret par conception</b><span>Aucun vote n’est lié à un électeur.</span></div></div>
+    <div class="tr"><i style="background:var(--teal-bg)"></i><div><b>Un vote par électeur</b><span>Verrouillé côté serveur.</span></div></div>
+    <div class="tr"><i style="background:var(--amber-bg)"></i><div><b>Français et anglais</b><span>Choisis par l’élection.</span></div></div>
+    <div class="tr"><i style="background:var(--rose-bg)"></i><div><b>Journal d’audit</b><span>Chaque action est tracée.</span></div></div>
+  </div>
+  <div class="faq">
+    <div class="q"><b>Mes électeurs ont-ils besoin d’un compte ?</b><span>Non. Un code personnel suffit.</span></div>
+    <div class="q"><b>Peut-on voter depuis un téléphone ?</b><span>Oui, la page est pensée pour le téléphone.</span></div>
+    <div class="q"><b>Que se passe-t-il en cas d’égalité ?</b><span>Elle est signalée ; un second tour est possible.</span></div>
+    <div class="q"><b>Qui voit les résultats ?</b><span>Personne avant la clôture, puis la page publique.</span></div>
+  </div>
+</div></section>
+
+<div class="wrap"><div class="close"><h2>Prêt à organiser votre élection ?</h2><a class="btn w">Créer une élection</a> <a class="btn g">Se connecter</a></div></div>
+
+<footer><div class="wrap">
+  <div><div class="logo">New Voting System</div><p style="color:#C9CDF5;font-size:14px;line-height:1.5;max-width:300px">Élections en ligne, simples et secrètes, pour les écoles et les institutions.</p><span class="status"><u></u>Système en ligne</span></div>
+  <div><h3>Produit</h3><a>Comment ça marche</a><a>Sécurité</a><a>Questions</a></div>
+  <div><h3>Compte</h3><a>Se connecter</a><a>Créer un compte</a></div>
+  <div><h3>Contact</h3><a>contact@exemple.ht</a><a>FR | EN</a></div>
+</div><div class="copy">© 2026 New Voting System</div></footer>
+</body>
+</html>
