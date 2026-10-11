@@ -1,7 +1,9 @@
 # Slice 16 — Publication
 
-Brief · 2026-10-12 · branch `slice/16-publication` (from `slice/15-results` until it is merged) · written by the
-assistant during the overnight run: **the decisions below are proposals for Jun to confirm**.
+Brief · 2026-10-12 · branch `slice/16-publication` (from `slice/15-results` until it is merged) · the decisions below
+were proposed by the assistant and **confirmed by Jun on 2026-10-12** (a failing bulletin check blocks publication;
+archiving takes a published election off the public pages; the winners-only display shows turnout, winners and tied
+candidates, no counts). The other rows are the assistant's defaults, not yet questioned.
 
 ## Goal
 
@@ -17,7 +19,7 @@ assistant during the overnight run: **the decisions below are proposals for Jun 
 FR-RES-04 to FR-RES-08, FR-ELEC-03 (Published, Archived), FR-SEC-03, FR-SEC-04, FR-SEC-09, NFR-SEC-03, NFR-UX-02,
 NFR-UX-03, NFR-SEC-08.
 
-## Proposed decisions (to confirm)
+## Decisions
 
 | Question | Proposal |
 |---|---|
