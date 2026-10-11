@@ -7,8 +7,10 @@ use App\Auth\PendingSignIn;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Resources\UserResource;
+use App\Support\Audit\AuditLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Throwable;
 
 class LoginController extends Controller
 {
@@ -48,6 +50,16 @@ class LoginController extends Controller
 
         PendingSignIn::end($request->session());
         Auth::guard()->login($user);
+
+        try {
+            AuditLog::record('auth.sign_in', $user);
+        } catch (Throwable $e) {
+            // No entry, no session: a sign-in the log does not hold must not stay open.
+            Auth::guard()->logout();
+
+            throw $e;
+        }
+
         $request->session()->regenerateToken();
 
         return new UserResource($user);

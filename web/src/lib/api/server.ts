@@ -1,6 +1,8 @@
 import { cookies } from 'next/headers';
 import { cache } from 'react';
 import { createApiClient } from './client';
+import type { AuditPage } from './audit';
+import { AUDIT_PER_PAGE } from './audit';
 import type { Ballot } from './ballots';
 import type { CredentialState, GeneratedFile } from './credentials';
 import type { Party } from './parties';
@@ -356,5 +358,21 @@ export async function fetchDashboard(): Promise<Dashboard | null> {
     if (!response.ok || !data) return null;
 
     return data.data;
+  });
+}
+
+/** The first page of the audit log (an owner only), or null when the API does not give it. */
+export async function fetchAuditFirstPage(): Promise<AuditPage | null> {
+  return authorizedGet(async (headers) => {
+    const { data, response } = await createApiClient().GET('/v1/audit', {
+      headers,
+      params: { query: { page: 1, per_page: AUDIT_PER_PAGE } },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(4000),
+    });
+
+    if (!response.ok || !data) return null;
+
+    return { items: data.data, total: data.meta.total, page: data.meta.page };
   });
 }

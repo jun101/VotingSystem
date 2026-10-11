@@ -11,6 +11,7 @@ use App\Http\Resources\PageOf;
 use App\Http\Resources\VoterResource;
 use App\Models\Election;
 use App\Models\Voter;
+use App\Support\Audit\AuditLog;
 use App\Support\Voters\GroupByName;
 use App\Support\Voters\VoterFilters;
 use Dedoc\Scramble\Attributes\Response;
@@ -103,6 +104,7 @@ class VoterController extends Controller
                 $voter->voter_group_id = $group?->id;
                 $voter->save();
                 $voter->setRelation('group', $group);
+                AuditLog::record('voter.created', $voter, ['name' => $voter->full_name], $locked);
 
                 return $voter;
             });
@@ -159,8 +161,18 @@ class VoterController extends Controller
                     $row->voter_group_id = $group?->id;
                 }
 
+                $fields = array_map(
+                    static fn (string $name): string => $name === 'voter_group_id' ? 'group' : $name,
+                    array_keys($row->getDirty()),
+                );
+
                 $row->save();
                 $row->load('group');
+
+                // Nothing changed, nothing recorded.
+                if ($fields !== []) {
+                    AuditLog::record('voter.updated', $row, ['name' => $row->full_name, 'fields' => $fields], $locked);
+                }
 
                 return $row;
             }, 3);
@@ -198,6 +210,7 @@ class VoterController extends Controller
                 }
 
                 $row->delete();
+                AuditLog::record('voter.deleted', $row, ['name' => $row->full_name], $locked);
             });
         } catch (QueryException $e) {
             // A voter who voted is held by the database (1451, `participations` restricts it): a refusal, not a fault.

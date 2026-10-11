@@ -247,6 +247,9 @@ class AppServiceProvider extends ServiceProvider
         // The voters file (docs/api/turnout/GET-elections-{election}-voters-export.md): 20 an hour per user.
         RateLimiter::for('voters-export', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
 
+        // The audit log file (docs/api/audit/GET-audit-export.md): 20 an hour per user.
+        RateLimiter::for('audit-export', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
+
         // The logo of a party: 20 an hour per user, as a cover (the removal counts with the writes).
         RateLimiter::for('party-logo', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
 

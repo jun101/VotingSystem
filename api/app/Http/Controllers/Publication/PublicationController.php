@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Publication\PublishElectionRequest;
 use App\Http\Resources\ElectionResource;
 use App\Models\Election;
+use App\Support\Audit\AuditLog;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
@@ -60,6 +61,7 @@ class PublicationController extends Controller
             $locked->status = ElectionStatus::Published;
             $locked->published_at = now('UTC');
             $locked->save();
+            AuditLog::record('election.published', $locked, ['display' => $locked->results_display->value]);
 
             return $locked;
         });
@@ -91,6 +93,7 @@ class PublicationController extends Controller
             $locked->status = ElectionStatus::Closed;
             $locked->published_at = null;
             $locked->save();
+            AuditLog::record('election.unpublished', $locked);
 
             return $locked;
         });
@@ -123,6 +126,7 @@ class PublicationController extends Controller
             $locked->status = ElectionStatus::Archived;
             $locked->archived_at = now('UTC');
             $locked->save();
+            AuditLog::record('election.archived', $locked);
 
             return $locked;
         });
@@ -155,6 +159,7 @@ class PublicationController extends Controller
             $locked->archived_at = null;
             $locked->published_at = null;
             $locked->save();
+            AuditLog::record('election.unarchived', $locked);
 
             return $locked;
         });

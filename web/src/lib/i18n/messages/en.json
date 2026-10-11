@@ -2694,5 +2694,96 @@
       "elected": "Elected"
     },
     "institutionLabel": "Institution"
+  },
+  "audit": {
+    "lede": "Who did what, when and from which address. The log can be neither edited nor erased.",
+    "list": "Log entries",
+    "count": {
+      "one": "{count} entry",
+      "other": "{count} entries"
+    },
+    "filters": {
+      "title": "Filters",
+      "action": "Kind of action",
+      "actionAll": "All actions",
+      "election": "Election",
+      "electionAll": "All elections",
+      "user": "Person",
+      "userAll": "All people",
+      "from": "From",
+      "to": "To",
+      "clear": "Clear filters"
+    },
+    "families": {
+      "auth": "Sign-ins",
+      "election": "Elections",
+      "second_round": "Runoffs",
+      "voters": "Voter imports",
+      "voter": "Voters",
+      "credentials": "Access codes"
+    },
+    "actions": {
+      "auth": {
+        "sign_in": "Signed in"
+      },
+      "election": {
+        "created": "Election created",
+        "duplicated": "Election duplicated",
+        "updated": "Election edited",
+        "times_changed": "Election dates changed",
+        "scheduled": "Election scheduled",
+        "unscheduled": "Scheduling cancelled",
+        "opened": "Election opened",
+        "closed": "Election closed",
+        "extended": "Election end extended",
+        "published": "Results published",
+        "unpublished": "Publication withdrawn",
+        "archived": "Election archived",
+        "unarchived": "Election unarchived",
+        "deleted": "Draft deleted"
+      },
+      "second_round": {
+        "created": "Runoff created"
+      },
+      "voters": {
+        "imported": "Voters imported"
+      },
+      "voter": {
+        "created": "Voter added",
+        "updated": "Voter edited",
+        "deleted": "Voter deleted"
+      },
+      "credentials": {
+        "generated": "Codes generated",
+        "reissued": "Code reissued",
+        "downloaded": "Codes downloaded",
+        "emailed": "Codes sent by email"
+      }
+    },
+    "system": "Automatic scheduler",
+    "by": "By {name}",
+    "noElection": "No election",
+    "ip": "Address {address}",
+    "time": "{day} at {time}",
+    "utc": "{instant} UTC",
+    "more": "Show more",
+    "moreCount": "{shown} of {total} shown",
+    "loading": "Loading…",
+    "loadFailed": "The log could not be read.",
+    "empty": {
+      "title": "No entry",
+      "text": "No recorded action matches these filters."
+    },
+    "export": {
+      "title": "Export",
+      "csv": "Export as CSV",
+      "xlsx": "Export as Excel",
+      "failed": "The export failed."
+    },
+    "notOwner": {
+      "title": "Owner only",
+      "text": "Only an owner of the institution can read the activity log.",
+      "back": "Back to the dashboard"
+    }
   }
 }

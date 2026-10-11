@@ -11,6 +11,7 @@ use App\Models\Institution;
 use App\Models\User;
 use App\Models\Voter;
 use App\Models\Voting\Participation;
+use App\Support\Audit\AuditLog;
 use App\Support\Credentials\AccessCode;
 use App\Support\Credentials\EmailQuota;
 use App\Support\Credentials\Slip;
@@ -82,6 +83,8 @@ final class ReissueCredential
             try {
                 SendCredentialEmail::dispatch($result['mail']['voter'], $result['mail']['election'], $result['code']);
                 $queued = true;
+                // Only for a message that was queued; the voter and the count, never the code.
+                AuditLog::record('credentials.emailed', $voter, ['count' => 1]);
             } catch (Throwable $e) {
                 Log::info('credentials.email', ['outcome' => 'dispatch_failed', 'class' => $e::class]);
                 $this->markFailed($result['mail']['key'], $result['mail']['hash']);
@@ -200,6 +203,9 @@ final class ReissueCredential
         $file->expires_at = $election->ends_at;
         $file->save();
         $file->setRelation('group', $current->group);
+
+        // The voter's name and the count: never the code.
+        AuditLog::record('credentials.reissued', $current, ['name' => $current->full_name], $election);
 
         Log::info('credentials.reissue', ['outcome' => 'issued', 'reissue_count' => $reissues]);
 

@@ -10,6 +10,7 @@ use App\Models\Election;
 use App\Models\Party;
 use App\Models\Voter;
 use App\Models\VoterGroup;
+use App\Support\Audit\AuditLog;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Ramsey\Uuid\Uuid;
@@ -69,7 +70,10 @@ final class CreateSecondRound
                 throw new ApiException(409, 'ballot_not_tied');
             }
 
-            return $this->write($locked, $source, $tie['candidates'], $tie['seats_left']);
+            $new = $this->write($locked, $source, $tie['candidates'], $tie['seats_left']);
+            AuditLog::record('second_round.created', $new, ['from' => $locked->uuid, 'ballot' => $source->uuid]);
+
+            return $new;
         });
     }
 

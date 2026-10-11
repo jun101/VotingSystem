@@ -47,8 +47,13 @@ export function SideMenu({ user, searchRef, closeRef, onNavigate, logo = null }:
   const matches = useMemo(() => {
     const wanted = fold(query.trim());
 
-    return MENU_ENTRIES.filter((entry) => wanted === '' || fold(t(entry.label)).includes(wanted));
-  }, [query, t]);
+    // The audit log is the owner's alone: a manager's menu has no entry for it.
+    return MENU_ENTRIES.filter(
+      (entry) =>
+        (entry.key !== 'audit' || user.role === 'owner') &&
+        (wanted === '' || fold(t(entry.label)).includes(wanted)),
+    );
+  }, [query, t, user.role]);
 
   const institutionName = user.institution?.name ?? '';
 

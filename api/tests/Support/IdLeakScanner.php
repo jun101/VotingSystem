@@ -37,7 +37,8 @@ final class IdLeakScanner
             if (is_string($key)) {
                 $name = strtolower($key);
 
-                if ($name === 'id' && ! self::isUuid($value)) {
+                // `null` is allowed (Jun, 2026-10-12): slice 17's `actor.id` of the scheduler (`system`) names no user.
+                if ($name === 'id' && $value !== null && ! self::isUuid($value)) {
                     $leaks[] = $here.' is not a UUID: '.json_encode($value);
                 } elseif (str_ends_with($name, '_id') || str_ends_with($name, '_ids')) {
                     $leaks[] = $here.' is a foreign-key style field';
