@@ -13,8 +13,11 @@ describe('itemMessageKey', () => {
     expect(itemMessageKey('group_ballot_few_voters')).toBe(
       'elections.checklist.items.group_ballot_few_voters',
     );
-    expect(itemMessageKey('voters_without_ballot')).toBe(
-      'elections.checklist.items.voters_without_ballot',
+    expect(itemMessageKey('voters_without_ballot', 'one')).toBe(
+      'elections.checklist.items.voters_without_ballot.one',
+    );
+    expect(itemMessageKey('voters_without_ballot', 'other')).toBe(
+      'elections.checklist.items.voters_without_ballot.other',
     );
   });
 
@@ -39,7 +42,7 @@ describe('itemText', () => {
   it('uses the singular for one voter', () => {
     const text = itemText({ code: 'voters_without_ballot', count: 1 }, 'fr', t as never);
 
-    expect(text).toContain('elections.checklist.voters.one');
+    expect(text).toContain('elections.checklist.items.voters_without_ballot.one');
   });
 });
 

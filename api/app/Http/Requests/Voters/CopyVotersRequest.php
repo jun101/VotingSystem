@@ -14,6 +14,9 @@ class CopyVotersRequest extends FormRequest
     /** The longest name of a group. */
     private const NAME_MAX = 100;
 
+    /** Most groups one copy may name (the most groups an election holds). */
+    private const MAX_GROUPS = 100;
+
     /** The source election, found by `after` (the institution's scope sees its own elections only). */
     private ?Election $source = null;
 
@@ -75,6 +78,13 @@ class CopyVotersRequest extends FormRequest
         }
 
         if (! is_array($groups) || ! array_is_list($groups)) {
+            $validator->errors()->add('groups', 'invalid');
+
+            return;
+        }
+
+        // Before any query: an election holds 100 groups at most.
+        if (count($groups) > self::MAX_GROUPS) {
             $validator->errors()->add('groups', 'invalid');
 
             return;

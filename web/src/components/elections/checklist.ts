@@ -22,7 +22,11 @@ const KNOWN = [
 type KnownCode = (typeof KNOWN)[number];
 
 /** The message of an item: its own code, or the generic one for a code this page does not know. */
-export function itemMessageKey(code: string): MessageKey {
+export function itemMessageKey(code: string, plural: 'one' | 'other' = 'other'): MessageKey {
+  if (code === 'voters_without_ballot') {
+    return `elections.checklist.items.voters_without_ballot.${plural}`;
+  }
+
   return (KNOWN as readonly string[]).includes(code)
     ? (`elections.checklist.items.${code as KnownCode}` as MessageKey)
     : 'elections.checklist.items.unknown';
@@ -32,7 +36,8 @@ export function itemMessageKey(code: string): MessageKey {
 export function itemText(item: Item, locale: Locale, t: T): string {
   const count = item.count ?? 0;
 
-  return t(itemMessageKey(item.code), {
+  return t(itemMessageKey(item.code, pluralForm(locale, count)), {
+    count,
     title: item.ballot?.title ?? '',
     voters: t(`elections.checklist.voters.${pluralForm(locale, count)}`, { count }),
   });

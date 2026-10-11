@@ -384,7 +384,7 @@
     "cannot_reset_self": "For your own account, use the “My account” page.",
     "too_many_attempts_wait_one": "Too many attempts. Try again in 1 minute.",
     "too_many_attempts_wait_many": "Too many attempts. Try again in {minutes} minutes.",
-    "election_not_editable": "This election is no longer a draft: it can no longer be changed or deleted.",
+    "election_not_editable": "This election is no longer a draft: it cannot be changed or deleted. If it is scheduled, unschedule it first.",
     "ballot_limit_reached": "An election cannot have more than 50 positions.",
     "party_limit_reached": "An election cannot have more than 30 parties.",
     "candidate_limit_reached": "A position cannot have more than 50 candidates.",
@@ -1050,7 +1050,8 @@
     "checklist": {
       "title": "Before scheduling",
       "loading": "Checking…",
-      "failed": "The checklist could not be loaded. Reload the page.",
+      "failed": "The checklist could not be loaded.",
+      "retry": "Try again",
       "ok": "Everything is ready: you can schedule the election.",
       "blockers": "To fix before scheduling",
       "warnings": "To look at",
@@ -1069,7 +1070,10 @@
         "ballot_single_candidate": "The position “{title}” has only one candidate.",
         "group_ballot_no_voters": "The position “{title}” covers no voter.",
         "group_ballot_few_voters": "The position “{title}” covers only {voters}.",
-        "voters_without_ballot": "{voters} cannot vote for any position.",
+        "voters_without_ballot": {
+          "one": "{count} voter cannot vote for any position.",
+          "other": "{count} voters cannot vote for any position."
+        },
         "unknown": "One point still needs a look."
       },
       "schedule": {

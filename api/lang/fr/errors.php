@@ -24,7 +24,7 @@ return [
     'two_factor_already_enabled' => 'La double authentification est déjà activée.',
     'two_factor_not_started' => "Commencez d'abord la configuration.",
     'two_factor_not_enabled' => "La double authentification n'est pas activée.",
-    'election_not_editable' => 'Cette élection ne peut plus être modifiée.',
+    'election_not_editable' => 'Cette élection n\'est plus un brouillon et ne peut pas être modifiée. Si elle est programmée, annulez d\'abord sa programmation.',
     'ballot_limit_reached' => 'Une élection ne peut pas avoir plus de 50 postes.',
     'party_limit_reached' => 'Une élection ne peut pas avoir plus de 30 partis.',
     'candidate_limit_reached' => 'Un poste ne peut pas avoir plus de 50 candidats.',

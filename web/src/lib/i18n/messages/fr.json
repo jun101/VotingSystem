@@ -384,7 +384,7 @@
     "cannot_reset_self": "Pour votre propre compte, utilisez la page « Mon compte ».",
     "too_many_attempts_wait_one": "Trop de tentatives. Réessayez dans 1 minute.",
     "too_many_attempts_wait_many": "Trop de tentatives. Réessayez dans {minutes} minutes.",
-    "election_not_editable": "Cette élection n’est plus un brouillon : elle ne peut plus être modifiée ni supprimée.",
+    "election_not_editable": "Cette élection n’est plus un brouillon : elle ne peut pas être modifiée ni supprimée. Si elle est programmée, annulez d’abord sa programmation.",
     "ballot_limit_reached": "Une élection ne peut pas avoir plus de 50 postes.",
     "party_limit_reached": "Une élection ne peut pas avoir plus de 30 partis.",
     "candidate_limit_reached": "Un poste ne peut pas avoir plus de 50 candidats.",
@@ -1050,7 +1050,8 @@
     "checklist": {
       "title": "Avant de planifier",
       "loading": "Vérification en cours…",
-      "failed": "La liste de vérification n’a pas pu être chargée. Rechargez la page.",
+      "failed": "La liste de vérification n’a pas pu être chargée.",
+      "retry": "Réessayer",
       "ok": "Tout est prêt : vous pouvez planifier l’élection.",
       "blockers": "À corriger avant de planifier",
       "warnings": "À regarder",
@@ -1069,7 +1070,10 @@
         "ballot_single_candidate": "Le poste « {title} » n’a qu’un seul candidat.",
         "group_ballot_no_voters": "Le poste « {title} » ne couvre aucun électeur.",
         "group_ballot_few_voters": "Le poste « {title} » ne couvre que {voters}.",
-        "voters_without_ballot": "{voters} ne peuvent voter à aucun poste.",
+        "voters_without_ballot": {
+          "one": "{count} électeur ne peut voter à aucun poste.",
+          "other": "{count} électeurs ne peuvent voter à aucun poste."
+        },
         "unknown": "Un point reste à vérifier."
       },
       "schedule": {

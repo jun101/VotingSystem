@@ -24,7 +24,7 @@ return [
     'two_factor_already_enabled' => 'Two-factor authentication is already turned on.',
     'two_factor_not_started' => 'Start the setup first.',
     'two_factor_not_enabled' => 'Two-factor authentication is not turned on.',
-    'election_not_editable' => 'This election can no longer be changed.',
+    'election_not_editable' => 'This election is no longer a draft and cannot be changed. If it is scheduled, unschedule it first.',
     'ballot_limit_reached' => 'An election cannot have more than 50 ballots.',
     'party_limit_reached' => 'An election cannot have more than 30 parties.',
     'candidate_limit_reached' => 'A ballot cannot have more than 50 candidates.',

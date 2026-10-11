@@ -65,6 +65,18 @@ describe('copyBody', () => {
   });
 });
 
+describe('copyBody with every group', () => {
+  it('sends the trimmed renames with the source alone', () => {
+    const body = copyBody({
+      ...EMPTY_COPY,
+      source: 'e-1',
+      rename: { 'g-4': ' 5e année ', 'g-5': '  ' },
+    });
+
+    expect(body).toEqual({ source: 'e-1', rename: { 'g-4': '5e année' } });
+  });
+});
+
 describe('renamesOf', () => {
   it('keeps nothing for an unticked group', () => {
     expect(renamesOf(some({ groups: [], rename: { 'g-4': 'X' } }))).toEqual({});

@@ -1,6 +1,7 @@
 'use client';
 
 import { Icon } from '@/components/admin/Icon';
+import { focusRing } from '@/components/admin/classes';
 import { cx } from '@/components/ui/cx';
 import type { Checklist } from '@/lib/api/elections';
 import { pluralForm } from '@/lib/format/electionDates';
@@ -16,10 +17,13 @@ import { Panel, PANEL_ASIDE } from './Panel';
 export function ChecklistCard({
   checklist,
   failed,
+  onRetry,
   className,
 }: {
   checklist: Checklist | null;
   failed: boolean;
+  /** Reads the checklist again; the retry control shows when the read failed. */
+  onRetry?: () => void;
   className?: string;
 }) {
   const { t, locale } = useI18n();
@@ -51,9 +55,24 @@ export function ChecklistCard({
       }
     >
       {failed ? (
-        <p role="alert" className="text-base font-medium text-danger">
-          {t('elections.checklist.failed')}
-        </p>
+        <div className="flex flex-wrap items-center gap-3">
+          <p role="alert" className="text-base font-medium text-danger">
+            {t('elections.checklist.failed')}
+          </p>
+          {onRetry ? (
+            <button
+              type="button"
+              onClick={onRetry}
+              data-testid="checklist-retry"
+              className={cx(
+                'ui-control inline-flex h-10 items-center rounded-full bg-primary-soft px-4 text-base font-medium text-status-scheduled hover:bg-primary-line',
+                focusRing,
+              )}
+            >
+              {t('elections.checklist.retry')}
+            </button>
+          ) : null}
+        </div>
       ) : checklist === null ? (
         <p role="status" className="text-base text-ink-soft">
           {t('elections.checklist.loading')}

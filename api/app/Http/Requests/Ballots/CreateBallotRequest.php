@@ -47,8 +47,7 @@ class CreateBallotRequest extends FormRequest
             'seats' => ['bail', 'integer', 'min:1', 'max:20'],
             'allow_blank' => ['boolean'],
             'scope' => ['nullable', 'string'],
-            'groups' => ['nullable', 'array'],
-            'groups.*' => ['string'],
+            // `groups` is judged in `after()`, only when the effective scope is `group`.
         ];
     }
 
@@ -155,6 +154,13 @@ class CreateBallotRequest extends FormRequest
             return;
         }
 
+        // Before any query and before the UUIDs are read: the most groups an election holds.
+        if (count($given) > self::MAX_GROUPS) {
+            $this->fail($validator, 'groups', 'invalid');
+
+            return;
+        }
+
         $uuids = [];
 
         foreach ($given as $item) {
@@ -175,7 +181,7 @@ class CreateBallotRequest extends FormRequest
             ->whereIn('uuid', $uuids)
             ->count();
 
-        if (count($uuids) > self::MAX_GROUPS || $found !== count($uuids)) {
+        if ($found !== count($uuids)) {
             $this->fail($validator, 'groups', 'invalid');
 
             return;

@@ -157,7 +157,11 @@ export function ElectionSummary({ election: given }: { election: Election }) {
         setChecklistFailed(false);
       },
       () => {
-        if (current) setChecklistFailed(true);
+        if (!current) return;
+
+        // The old list is not shown nor trusted: the schedule button waits for a valid one.
+        setChecklist(null);
+        setChecklistFailed(true);
       },
     );
 
@@ -358,6 +362,10 @@ export function ElectionSummary({ election: given }: { election: Election }) {
             <ChecklistCard
               checklist={checklist}
               failed={checklistFailed}
+              onRetry={() => {
+                setChecklistFailed(false);
+                setChecklistRun((n) => n + 1);
+              }}
               className="min-[900px]:col-span-12"
             />
           ) : null}

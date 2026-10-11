@@ -15,6 +15,7 @@ use App\Http\Requests\Elections\ScheduleElectionRequest;
 use App\Http\Requests\Elections\UpdateElectionRequest;
 use App\Http\Resources\ElectionResource;
 use App\Http\Resources\PageOf;
+use App\Models\Ballot;
 use App\Models\Candidate;
 use App\Models\Election;
 use App\Models\Party;
@@ -172,6 +173,10 @@ class ElectionController extends Controller
             $imports = VoterImport::query()->where('election_id', $locked->id)->pluck('stored_file')->all();
             // The voters go before the election: a group with voters is restricted, and the cascade
             // from the election may reach the groups first.
+            // The ballots' group links go first too: the link restricts the deletion of a group.
+            DB::table('ballot_voter_group')
+                ->whereIn('ballot_id', Ballot::query()->where('election_id', $locked->id)->select('id'))
+                ->delete();
             Voter::query()->where('election_id', $locked->id)->delete();
             $locked->delete();
         });

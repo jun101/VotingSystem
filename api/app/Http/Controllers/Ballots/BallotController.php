@@ -229,6 +229,11 @@ class BallotController extends Controller
             return;
         }
 
+        if ($ballot->scope === BallotScope::General) {
+            // The locked ballot is general after the change: nothing is written, and none is kept.
+            $uuids = [];
+        }
+
         $keys = $uuids === [] ? [] : VoterGroup::query()
             ->where('election_id', $electionId)
             ->whereIn('uuid', $uuids)

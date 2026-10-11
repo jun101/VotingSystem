@@ -5,7 +5,7 @@ import { Icon } from '@/components/admin/Icon';
 import { focusRing } from '@/components/admin/classes';
 import { Button, Input, Modal, Notice, Select } from '@/components/ui';
 import { copyVoters, fetchElectionsPage, fetchGroups } from '@/lib/api/browser';
-import type { Election } from '@/lib/api/elections';
+import type { Election, ElectionFilters } from '@/lib/api/elections';
 import { ApiError } from '@/lib/api/errors';
 import type { VoterCopyResult } from '@/lib/api/voters';
 import { pluralForm } from '@/lib/format/electionDates';
@@ -23,6 +23,21 @@ import {
 
 /** Elections are read 100 a page; no institution has more than a few pages of them. */
 const MAX_PAGES = 10;
+
+/** Every election under a filter, page after page. */
+async function readAll(filters: ElectionFilters): Promise<Election[]> {
+  const found: Election[] = [];
+
+  for (let page = 1; page <= MAX_PAGES; page++) {
+    const read = await fetchElectionsPage(filters, page);
+
+    found.push(...read.items);
+
+    if (read.items.length === 0 || found.length >= read.total) break;
+  }
+
+  return found;
+}
 
 /** The group names are 100 characters at most. */
 const NAME_MAX = 100;
@@ -66,17 +81,18 @@ export function CopyVotersDialog({
     let alive = true;
 
     (async () => {
-      const found: Election[] = [];
+      // The default list leaves the archived elections out: they are read apart and merged.
+      const [active, archived] = [await readAll({}), await readAll({ status: 'archived' })];
+      const seen = new Set<string>();
+      const found = [...active, ...archived].filter((one) => {
+        if (one.id === election || seen.has(one.id)) return false;
 
-      for (let page = 1; page <= MAX_PAGES; page++) {
-        const read = await fetchElectionsPage({}, page);
+        seen.add(one.id);
 
-        found.push(...read.items);
+        return true;
+      });
 
-        if (read.items.length === 0 || found.length >= read.total) break;
-      }
-
-      if (alive) setSources(found.filter((one) => one.id !== election));
+      if (alive) setSources(found);
     })().catch(() => {
       if (alive) setSourcesFailed(true);
     });
@@ -258,32 +274,40 @@ export function CopyVotersDialog({
                 {t('voters.copy.some')}
               </label>
 
-              {draft.mode === 'some' ? (
+              {draft.mode === 'some' || source.groups.length > 0 ? (
                 <div className="flex flex-col gap-1 pl-1 md:pl-8">
-                  {source.groups.length === 0 ? (
+                  {draft.mode === 'some' && source.groups.length === 0 ? (
                     <p className="text-base text-ink-soft">{t('voters.copy.noGroups')}</p>
                   ) : null}
                   {source.groups.map((group, index) => {
-                    const on = draft.groups.includes(group.id);
+                    const some = draft.mode === 'some';
+                    const on = some ? draft.groups.includes(group.id) : true;
 
                     return (
                       <div key={group.id} className="flex flex-col gap-2">
-                        <label className="flex min-h-11 cursor-pointer items-center gap-3 text-md text-ink">
-                          <input
-                            type="checkbox"
-                            checked={on}
-                            onChange={() =>
-                              patch({ groups: toggleCopyGroup(draft.groups, group.id) })
-                            }
-                            disabled={busy}
-                            data-testid={`copy-group-${index + 1}`}
-                            className={RADIO}
-                          />
-                          <span className="min-w-0 flex-1 truncate">{group.name}</span>
-                          <b className="text-ink-soft">{group.voters_count}</b>
-                        </label>
+                        {some ? (
+                          <label className="flex min-h-11 cursor-pointer items-center gap-3 text-md text-ink">
+                            <input
+                              type="checkbox"
+                              checked={on}
+                              onChange={() =>
+                                patch({ groups: toggleCopyGroup(draft.groups, group.id) })
+                              }
+                              disabled={busy}
+                              data-testid={`copy-group-${index + 1}`}
+                              className={RADIO}
+                            />
+                            <span className="min-w-0 flex-1 truncate">{group.name}</span>
+                            <b className="text-ink-soft">{group.voters_count}</b>
+                          </label>
+                        ) : (
+                          <p className="flex min-h-11 items-center gap-3 text-md text-ink">
+                            <span className="min-w-0 flex-1 truncate">{group.name}</span>
+                            <b className="text-ink-soft">{group.voters_count}</b>
+                          </p>
+                        )}
                         {on ? (
-                          <div className="pb-2 pl-8">
+                          <div className={some ? 'pb-2 pl-8' : 'pb-2'}>
                             <Input
                               label={t('voters.copy.rename', { name: group.name })}
                               help={t('voters.copy.renameHelp')}
@@ -303,18 +327,20 @@ export function CopyVotersDialog({
                       </div>
                     );
                   })}
-                  <label className="flex min-h-11 cursor-pointer items-center gap-3 text-md text-ink">
-                    <input
-                      type="checkbox"
-                      checked={draft.ungrouped}
-                      onChange={(event) => patch({ ungrouped: event.target.checked })}
-                      disabled={busy || source.ungrouped === 0}
-                      data-testid="copy-ungrouped"
-                      className={RADIO}
-                    />
-                    <span className="min-w-0 flex-1 truncate">{t('voters.copy.ungrouped')}</span>
-                    <b className="text-ink-soft">{source.ungrouped}</b>
-                  </label>
+                  {draft.mode === 'some' ? (
+                    <label className="flex min-h-11 cursor-pointer items-center gap-3 text-md text-ink">
+                      <input
+                        type="checkbox"
+                        checked={draft.ungrouped}
+                        onChange={(event) => patch({ ungrouped: event.target.checked })}
+                        disabled={busy || source.ungrouped === 0}
+                        data-testid="copy-ungrouped"
+                        className={RADIO}
+                      />
+                      <span className="min-w-0 flex-1 truncate">{t('voters.copy.ungrouped')}</span>
+                      <b className="text-ink-soft">{source.ungrouped}</b>
+                    </label>
+                  ) : null}
                 </div>
               ) : null}
             </fieldset>

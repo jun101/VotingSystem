@@ -53,11 +53,19 @@ export function renamesOf(draft: CopyDraft): Record<string, string> {
 }
 
 /**
- * The body of the call. Everything sends the source alone (the server copies every voter,
- * ungrouped included); some groups sends the list, whether the ungrouped come, and the renames.
+ * The body of the call. Everything sends the source (the server copies every voter, ungrouped
+ * included) and the renames typed; some groups sends the list, whether the ungrouped come, and the
+ * renames of the ticked groups.
  */
 export function copyBody(draft: CopyDraft): VoterCopyBody {
-  if (draft.mode === 'all') return { source: draft.source };
+  if (draft.mode === 'all') {
+    // Every group comes, and any of them may take a new name (the source alone otherwise).
+    const named = renamesOf({ ...draft, groups: Object.keys(draft.rename) });
+
+    return Object.keys(named).length > 0
+      ? { source: draft.source, rename: named }
+      : { source: draft.source };
+  }
 
   const rename = renamesOf(draft);
 
