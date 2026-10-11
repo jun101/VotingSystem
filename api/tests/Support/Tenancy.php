@@ -143,6 +143,8 @@ final class Tenancy
         'POST api/v1/elections/{election}/archive' => 'Slice16/ArchiveTest.php',
         'POST api/v1/elections/{election}/unarchive' => 'Slice16/ArchiveTest.php',
         'GET api/v1/elections/{election}/report' => 'Slice16/ReportTest.php',
+        'GET api/v1/audit' => 'Slice17/ListAuditTest.php',
+        'GET api/v1/audit/export' => 'Slice17/ExportAuditTest.php',
         'GET api/v1/elections/{election}/credentials' => 'Slice10/CredentialsStateTest.php',
         'POST api/v1/elections/{election}/credential-runs' => 'Slice10/CredentialRunTest.php',
         'GET api/v1/elections/{election}/generated-files' => 'Slice10/GeneratedFilesTest.php',

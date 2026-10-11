@@ -337,3 +337,5 @@ Filled slice by slice: each slice adds its endpoints here with a link to their f
 | Public | `GET /public/elections/{election}/results` | 16 | [publication/GET-public-elections-{election}-results.md](publication/GET-public-elections-{election}-results.md) |
 | Public | `GET /public/elections/{election}/report` | 16 | [publication/GET-public-elections-{election}-report.md](publication/GET-public-elections-{election}-report.md) |
 | Public | `GET /public/institutions/{institution}` | 16 | [publication/GET-public-institutions-{institution}.md](publication/GET-public-institutions-{institution}.md) |
+| Audit | `GET /audit` | 17 | [audit/GET-audit.md](audit/GET-audit.md) |
+| Audit | `GET /audit/export` | 17 | [audit/GET-audit-export.md](audit/GET-audit-export.md) |

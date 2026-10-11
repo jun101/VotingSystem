@@ -160,3 +160,15 @@ pest()->beforeEach(function () {
     $this->auditPair = Tests\Support\Voting::keypair();
     $this->browser = new Tests\Support\AuthClient($this);
 })->in('Acceptance/Slice16');
+
+// Slice 17: the audit log (docs/slices/17-audit-log.md): the same as slice 12, and a temporary folder for the private
+// `credentials` disk (credential runs are part of what is recorded).
+pest()->beforeEach(function () {
+    Tests\Support\Accounts::reset();
+    Tests\Support\Tenancy::installProbeTables();
+    Tests\Support\Team::clearMedia();
+    Tests\Support\Voting::forgetCache();
+    $this->credentialsRoot = Tests\Support\Codes::useTempDisk();
+    $this->auditPair = Tests\Support\Voting::keypair();
+    $this->browser = new Tests\Support\AuthClient($this);
+})->in('Acceptance/Slice17');
