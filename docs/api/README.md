@@ -311,3 +311,9 @@ Filled slice by slice: each slice adds its endpoints here with a link to their f
 | Elections | `GET /elections/{election}/checklist` | 09 | [elections/GET-elections-{election}-checklist.md](elections/GET-elections-{election}-checklist.md) |
 | Elections | `POST /elections/{election}/schedule` | 09 | [elections/POST-elections-{election}-schedule.md](elections/POST-elections-{election}-schedule.md) |
 | Elections | `POST /elections/{election}/unschedule` | 09 | [elections/POST-elections-{election}-unschedule.md](elections/POST-elections-{election}-unschedule.md) |
+| Credentials | `GET /elections/{election}/credentials` | 10 | [credentials/GET-elections-{election}-credentials.md](credentials/GET-elections-{election}-credentials.md) |
+| Credentials | `POST /elections/{election}/credential-runs` | 10 | [credentials/POST-elections-{election}-credential-runs.md](credentials/POST-elections-{election}-credential-runs.md) |
+| Credentials | `GET /elections/{election}/generated-files` | 10 | [credentials/GET-elections-{election}-generated-files.md](credentials/GET-elections-{election}-generated-files.md) |
+| Credentials | `GET /generated-files/{file}` | 10 | [credentials/GET-generated-files-{file}.md](credentials/GET-generated-files-{file}.md) |
+| Credentials | `GET /generated-files/{file}/download` | 10 | [credentials/GET-generated-files-{file}-download.md](credentials/GET-generated-files-{file}-download.md) |
+| Credentials | `POST /voters/{voter}/credential` | 10 | [credentials/POST-voters-{voter}-credential.md](credentials/POST-voters-{voter}-credential.md) |

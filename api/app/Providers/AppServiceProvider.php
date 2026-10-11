@@ -6,6 +6,7 @@ use App\Auth\SessionUserProvider;
 use App\Models\Ballot;
 use App\Models\Candidate;
 use App\Models\Election;
+use App\Models\GeneratedFile;
 use App\Models\Party;
 use App\Models\User;
 use App\Models\Voter;
@@ -14,10 +15,13 @@ use App\Models\VoterImport;
 use App\Policies\BallotPolicy;
 use App\Policies\CandidatePolicy;
 use App\Policies\ElectionPolicy;
+use App\Policies\GeneratedFilePolicy;
 use App\Policies\PartyPolicy;
 use App\Policies\VoterGroupPolicy;
 use App\Policies\VoterImportPolicy;
 use App\Policies\VoterPolicy;
+use App\Support\Credentials\SlipWriter;
+use App\Support\Credentials\TcpdfSlipWriter;
 use Dedoc\Scramble\Scramble;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Foundation\Application;
@@ -32,6 +36,9 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        // The slip layout (slice 10): run 10b swaps this binding for the TCPDF writer.
+        $this->app->bind(SlipWriter::class, TcpdfSlipWriter::class);
+
         // The OpenAPI file is exported by `make generate`; no documentation page is served.
         // Scramble is a development package: without it (an install made with
         // `--no-dev`) the application starts all the same.
@@ -52,6 +59,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(VoterGroup::class, VoterGroupPolicy::class);
         Gate::policy(VoterImport::class, VoterImportPolicy::class);
         Gate::policy(Candidate::class, CandidatePolicy::class);
+        Gate::policy(GeneratedFile::class, GeneratedFilePolicy::class);
 
         $this->configureRateLimiters();
     }
@@ -180,6 +188,11 @@ class AppServiceProvider extends ServiceProvider
         // route (template, summary, mapping, rows, confirm, errors, cancel) shares 240 an hour.
         RateLimiter::for('voter-imports-upload', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
         RateLimiter::for('voter-imports', fn (Request $request) => Limit::perHour($times(240))->by($byUser($request)));
+
+        // The access codes (docs/api/credentials/): 20 runs an hour per user, 60 reissues, 120 downloads.
+        RateLimiter::for('credential-runs', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
+        RateLimiter::for('credential-reissue', fn (Request $request) => Limit::perHour($times(60))->by($byUser($request)));
+        RateLimiter::for('file-download', fn (Request $request) => Limit::perHour($times(120))->by($byUser($request)));
 
         // The logo of a party: 20 an hour per user, as a cover (the removal counts with the writes).
         RateLimiter::for('party-logo', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));

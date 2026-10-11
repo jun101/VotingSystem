@@ -98,7 +98,7 @@ test.describe('summary page', () => {
 
     for (const n of [1, 2, 3, 4]) {
       const step = page.getByTestId(`election-step-${n}`);
-      await expect(step).toHaveAttribute('data-state', n <= 2 ? 'ready' : 'soon');
+      await expect(step).toHaveAttribute('data-state', n <= 2 || n === 4 ? 'ready' : 'soon');
       expect(await step.locator('svg').count()).toBeGreaterThan(0);
     }
     const first = await boxOf(page, 'election-step-1');

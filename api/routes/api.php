@@ -15,6 +15,10 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Ballots\BallotController;
 use App\Http\Controllers\Candidates\CandidateController;
 use App\Http\Controllers\Candidates\CandidatePhotoController;
+use App\Http\Controllers\Credentials\CredentialRunController;
+use App\Http\Controllers\Credentials\CredentialStateController;
+use App\Http\Controllers\Credentials\GeneratedFileController;
+use App\Http\Controllers\Credentials\VoterCredentialController;
 use App\Http\Controllers\Elections\CoverController;
 use App\Http\Controllers\Elections\ElectionController;
 use App\Http\Controllers\Groups\GroupController;
@@ -118,6 +122,11 @@ Route::prefix('v1')->group(function (): void {
         // Voters loaded from another election (slice 09b).
         Route::post('/{election}/voter-copies', VoterCopyController::class)->middleware('throttle:voter-copies');
 
+        // The access codes of an election and their slip files (slice 10).
+        Route::get('/{election}/credentials', CredentialStateController::class);
+        Route::post('/{election}/credential-runs', CredentialRunController::class)->middleware('throttle:credential-runs');
+        Route::get('/{election}/generated-files', [GeneratedFileController::class, 'index']);
+
         // The voter import of an election (slice 08a): the template and the upload.
         Route::get('/{election}/voter-imports/template', [VoterImportController::class, 'template'])->middleware('throttle:voter-imports');
         Route::post('/{election}/voter-imports', [VoterImportController::class, 'store'])->middleware('throttle:voter-imports-upload');
@@ -160,6 +169,14 @@ Route::prefix('v1')->group(function (): void {
     Route::middleware(['cookie-session', 'auth', 'institution.active'])->prefix('voters')->group(function (): void {
         Route::patch('/{voter}', [VoterController::class, 'update'])->middleware('throttle:voters-write');
         Route::delete('/{voter}', [VoterController::class, 'destroy'])->middleware('throttle:voters-write');
+        // A new code and a one-slip file for one voter (slice 10).
+        Route::post('/{voter}/credential', VoterCredentialController::class)->middleware('throttle:credential-reissue');
+    });
+
+    // A file of slips: its status and the PDF (slice 10).
+    Route::middleware(['cookie-session', 'auth', 'institution.active'])->prefix('generated-files')->group(function (): void {
+        Route::get('/{file}', [GeneratedFileController::class, 'show']);
+        Route::get('/{file}/download', [GeneratedFileController::class, 'download'])->middleware('throttle:file-download');
     });
 
     Route::middleware(['cookie-session', 'auth', 'institution.active'])->prefix('groups')->group(function (): void {

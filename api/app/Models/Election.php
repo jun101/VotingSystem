@@ -93,6 +93,23 @@ class Election extends Model
         return in_array($this->status, [ElectionStatus::Draft, ElectionStatus::Scheduled, ElectionStatus::Open], true);
     }
 
+    /**
+     * Whether access codes may be generated and reissued, and slips downloaded: a draft, a
+     * scheduled or an open election (docs/slices/10-codes-and-slips.md).
+     */
+    public function isCodesOpen(): bool
+    {
+        return $this->isVotersEditable();
+    }
+
+    /** @throws ApiException 409 `election_codes_locked` */
+    public function assertCodesOpen(): void
+    {
+        if (! $this->isCodesOpen()) {
+            throw new ApiException(409, 'election_codes_locked');
+        }
+    }
+
     /** Whether voters may be deleted, and groups added, renamed, merged and deleted: a draft or a scheduled election. */
     public function isVotersDeletable(): bool
     {

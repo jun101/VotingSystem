@@ -33,6 +33,12 @@ final class VoterPolicy extends TenantPolicy
         return $this->mayManage($user, $voter);
     }
 
+    /** Generating codes for an election, or giving one voter a new code (slice 10). */
+    public function issueCredentials(User $user, Election|Voter $record): bool
+    {
+        return $this->mayManage($user, $record);
+    }
+
     private function mayManage(User $user, Election|Voter $record): bool
     {
         return $user->institution_id !== null

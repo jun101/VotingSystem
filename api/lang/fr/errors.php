@@ -42,4 +42,9 @@ return [
     'checklist_warnings' => 'Il reste des avertissements : confirmez pour programmer quand même.',
     'election_period_over' => 'La fin de l\'élection est passée : changez les dates avant de programmer.',
     'election_not_scheduled' => 'Cette élection n\'est pas programmée.',
+    'nothing_to_generate' => 'Tous les électeurs de ce choix ont déjà un code, ou il n’y a aucun électeur.',
+    'run_in_progress' => 'Une génération de codes est déjà en cours pour cette élection.',
+    'election_codes_locked' => 'Les codes ne peuvent plus être générés ni remplacés pour cette élection.',
+    'file_not_ready' => 'Ce fichier n’est pas prêt.',
+    'voter_has_voted' => 'Cet électeur a déjà voté: son code ne peut pas être remplacé.',
 ];
