@@ -33,6 +33,8 @@ import type {
   VoterList,
 } from './voters';
 import { VOTERS_PER_PAGE } from './voters';
+import type { AuditFilters, AuditPage } from './audit';
+import { AUDIT_PER_PAGE } from './audit';
 import type { paths } from './schema';
 import type { Results, SecondRound } from './results';
 import type { Dashboard, ExportQuery, Turnout, TurnoutBucket } from './turnout';
@@ -1291,5 +1293,86 @@ export async function downloadElectionReport(election: string): Promise<Download
   return {
     blob: await response.blob(),
     name: dispositionName(response.headers.get('Content-Disposition'), 'report.pdf'),
+  };
+}
+
+/** The filters that are set, as query parameters. */
+function auditParams(filters: AuditFilters): URLSearchParams {
+  const params = new URLSearchParams();
+
+  for (const key of ['action', 'election', 'user', 'from', 'to'] as const) {
+    if (filters[key] !== '') params.set(key, filters[key]);
+  }
+
+  return params;
+}
+
+/** `GET /audit`: one page of the audit log (an owner only), newest first. */
+export async function fetchAudit(filters: AuditFilters, page: number): Promise<AuditPage> {
+  const { data } = await send((api) =>
+    api.GET('/v1/audit', {
+      params: {
+        query: {
+          page,
+          per_page: AUDIT_PER_PAGE,
+          ...(filters.action === '' ? {} : { action: filters.action }),
+          ...(filters.election === '' ? {} : { election: filters.election }),
+          ...(filters.user === '' ? {} : { user: filters.user }),
+          ...(filters.from === '' ? {} : { from: filters.from }),
+          ...(filters.to === '' ? {} : { to: filters.to }),
+        },
+      },
+    }),
+  );
+
+  return { items: data!.data, total: data!.meta.total, page: data!.meta.page };
+}
+
+/**
+ * `GET /audit/export`: the log as CSV or Excel under the filters on the screen, with the name the
+ * API gives it. Read by hand so a refusal (422, 429) is an `ApiError` the page can say in words.
+ */
+export async function downloadAuditExport(
+  filters: AuditFilters,
+  format: 'csv' | 'xlsx',
+): Promise<DownloadedFile> {
+  const params = auditParams(filters);
+
+  params.set('format', format);
+
+  let response: Response;
+
+  try {
+    response = await fetch(`${apiBaseUrl()}/v1/audit/export?${params}`, {
+      credentials: 'same-origin',
+      cache: 'no-store',
+      headers: {
+        Accept:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, text/csv, application/json',
+        'Accept-Language': pageLanguage(),
+      },
+    });
+  } catch {
+    throw new ApiError(0, 'network');
+  }
+
+  if (!response.ok) {
+    let answer: unknown = null;
+
+    try {
+      answer = await response.json();
+    } catch {
+      // Not JSON: an `unknown` error.
+    }
+
+    throw parseApiError(response.status, answer, response.headers.get('Retry-After'));
+  }
+
+  return {
+    blob: await response.blob(),
+    name: dispositionName(
+      response.headers.get('Content-Disposition'),
+      format === 'csv' ? 'journal.csv' : 'journal.xlsx',
+    ),
   };
 }
