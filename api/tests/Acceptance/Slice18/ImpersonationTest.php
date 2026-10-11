@@ -38,8 +38,7 @@ it('lets the admin act as the institution\'s owner and no other institution [FR-
 
     expect($response->json('data'))->toMatchArray(['role' => 'owner'])
         ->and($response->json('data.institution.id'))->toBe($a)
-        ->and($response->json('data.impersonating.by'))->toBe('Admin Plateforme')
-        ->and($response->json('data.impersonating.until'))->toBeString();
+        ->and($response->json('data.impersonating.by'))->toBe('Admin Plateforme');
     $me = $this->browser->get('/api/v1/auth/me')->assertOk();
     expect($me->json('data.role'))->toBe('owner')->and($me->json('data.impersonating.by'))->toBe('Admin Plateforme');
     $elections = $this->browser->get('/api/v1/elections')->assertOk()->json('data');
@@ -65,34 +64,16 @@ it('names the admin on every entry written while acting, visible to the owner [F
         ->and($entries->pluck('action'))->toContain('platform.impersonation_started')->toContain('platform.impersonation_ended');
 });
 
-it('emails every owner when the admin enters [FR-AUD-01] (scenario 1)', function () {
-    $t = impersonationSetup($this);
-
-    $this->browser->post(impersonateUrl($t['a']['owner']['institution']))->assertOk();
-
-    foreach (['owner', 'owner2'] as $who) {
-        $mail = Accounts::mailTo($t['a'][$who]['email']);
-        expect($mail)->toHaveCount(1)->and($mail[0]['text'])->toContain('Admin Plateforme');
-    }
-    expect(Accounts::mailTo($t['a']['manager']['email']))->toBe([])->and(Accounts::mailTo($t['b']['owner']['email']))->toBe([]);
-});
-
-it('refuses what changes who can enter the account while acting [NFR-SEC-04] (scenario 1)', function () {
+it('has the owner\'s whole power, account security included, and the audit names the admin [FR-ADM-01] (scenario 1)', function () {
     $t = impersonationSetup($this);
     $this->browser->post(impersonateUrl($t['a']['owner']['institution']))->assertOk();
 
-    $refused = [
-        $this->browser->patch('/api/v1/auth/me', ['password' => 'un autre mot de passe long', 'current_password' => 'x']),
-        $this->browser->post('/api/v1/auth/two-factor/setup'),
-        $this->browser->delete('/api/v1/users/'.$t['a']['owner2']['user']),
-        $this->browser->post('/api/v1/invitations', ['email' => 'new@example.test', 'role' => 'owner']),
-        $this->browser->patch('/api/v1/institution', ['name' => 'Nouveau nom']),
-    ];
+    $this->browser->delete('/api/v1/users/'.$t['a']['manager']['user'])->assertStatus(204);
+    $this->browser->patch('/api/v1/institution', ['name' => 'Nom changé par la plateforme'])->assertOk();
 
-    foreach ($refused as $response) {
-        $response->assertStatus(403)->assertJsonPath('error.code', 'impersonation_forbidden');
-    }
-    expect(Accounts::userRow($t['a']['owner2']['email'])['deleted_at'])->toBeNull();
+    expect(Accounts::userRow($t['a']['manager']['email'])['deleted_at'])->not->toBeNull()
+        ->and(Accounts::institutionRow($t['a']['owner']['institution'])['name'])->toBe('Nom changé par la plateforme')
+        ->and(Accounts::mail())->toBe([]);
 });
 
 it('ends on request, and the admin is only an admin again [FR-ADM-01] (DELETE scenario 1)', function () {
@@ -103,15 +84,6 @@ it('ends on request, and the admin is only an admin again [FR-ADM-01] (DELETE sc
 
     $this->browser->get('/api/v1/auth/me')->assertOk()->assertJsonPath('data.role', 'platform_admin')->assertJsonMissingPath('data.impersonating');
     expect($this->browser->get('/api/v1/elections')->getStatusCode())->toBeIn([403, 404]);
-});
-
-it('ends by itself after 60 minutes [FR-ADM-01] (scenario 1)', function () {
-    $t = impersonationSetup($this);
-    $this->browser->post(impersonateUrl($t['a']['owner']['institution']))->assertOk();
-
-    $this->travel(61)->minutes();
-
-    $this->browser->get('/api/v1/auth/me')->assertOk()->assertJsonPath('data.role', 'platform_admin');
 });
 
 it('answers 403 institution_suspended for a suspended institution, 404 for an unknown one [FR-INST-06] (scenarios 2, 3)', function () {

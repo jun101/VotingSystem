@@ -87,9 +87,9 @@ inherits an owner's reach (voter lists, credentials, files), no more. Ballot sec
 `vote_audit`, no count before close for the admin either).
 
 Endpoint files: [impersonate](../api/platform/POST-platform-institutions-{institution}-impersonate.md),
-[end](../api/platform/DELETE-platform-impersonation.md). Safeguards: 60 minutes at most; the account-security routes
-are refused (403 `impersonation_forbidden`); every action is audited under the admin's name and visible to the owner;
-owners are emailed at the start. Tests: `api/tests/Acceptance/Slice18/ImpersonationTest.php`.
+[end](../api/platform/DELETE-platform-impersonation.md). Jun's choices: no time limit (ends at
+sign-out), nothing refused, no email to the owners; the only safeguard is that every action is audited under the admin's
+name and visible in the owner's audit log. Tests: `api/tests/Acceptance/Slice18/ImpersonationTest.php`.
 Web (18c-web): a "Se connecter en tant que" button on each active card of `/platform` (`platform-impersonate-{n}`), a
 banner on every admin page while acting (`impersonation-banner`, with the institution, the time left and
 `impersonation-end`), and the end returns to `/platform`.
