@@ -1,7 +1,8 @@
 # Slice 17 — Audit log
 
-Brief · 2026-10-12 · branch `slice/17-audit-log` · prepared by the assistant for the next session: **the rows marked
-"default" are the assistant's proposals, to confirm with Jun before coding.**
+Brief · 2026-10-12 · branch `slice/17-audit-log` · prepared by the assistant for the next session. Confirmed by Jun on
+2026-10-12: **owner only** reads and exports the log. The rows marked "default" (retention, export limit) were not
+asked and stay as proposed unless Jun says otherwise.
 
 ## Goal
 
