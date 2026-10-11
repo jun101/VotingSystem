@@ -139,7 +139,7 @@ it('answers 404, the same for every case, for a voter that is unknown, deleted, 
 it('answers 401, 403, 419 and 405 as every write [NFR-SEC-04] (scenarios 9 to 13)', function () {
     [$t, $election, $voter] = reissueSignedIn($this);
 
-    $this->browser->post(reissueUrl($voter), [], false)->assertStatus(419)->assertJsonPath('error.code', 'csrf_mismatch');
+    $this->browser->post(reissueUrl($voter), [], [], false)->assertStatus(419)->assertJsonPath('error.code', 'csrf_mismatch');
     $this->browser->other('GET', reissueUrl($voter))->assertStatus(405)->assertJsonPath('error.code', 'method_not_allowed');
     Accounts::suspend($t['a']['owner']['institution']);
     $this->browser->post(reissueUrl($voter))->assertStatus(403)->assertJsonPath('error.code', 'institution_suspended');

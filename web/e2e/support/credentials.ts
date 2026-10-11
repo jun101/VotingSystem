@@ -5,8 +5,7 @@ import { expect, type Page } from '@playwright/test';
  */
 
 export type CredentialGroup = {
-  id: string | null;
-  name: string | null;
+  group: { id: string; name: string } | null;
   voters: number;
   with_code: number;
   with_email: number;

@@ -21,7 +21,7 @@ async function openCodes(page: Page, title = 'Codes') {
   await page.goto(`/admin/elections/${election.id}/codes`);
   await expect(page.getByTestId('codes-page')).toBeVisible();
   const state = await readCredentials(page, election.id);
-  const key = (name: string | null) => state.groups.find((group) => group.name === name)!.id ?? 'none';
+  const key = (name: string | null) => state.groups.find((line) => (line.group?.name ?? null) === name)!.group?.id ?? 'none';
 
   return { election, state, g4: key('4e année'), g5: key('5e année'), none: key(null) };
 }

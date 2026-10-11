@@ -279,7 +279,7 @@ it('answers 404, the same for every case, for an election that is unknown, of an
 it('answers 401, 403, 419, 405 and 400 as every write [NFR-SEC-04] (scenarios 13 to 17)', function () {
     [$t, $election] = runSignedIn($this);
 
-    $this->browser->post(runUrl($election), ['scope' => 'all'], false)->assertStatus(419)->assertJsonPath('error.code', 'csrf_mismatch');
+    $this->browser->post(runUrl($election), ['scope' => 'all'], [], false)->assertStatus(419)->assertJsonPath('error.code', 'csrf_mismatch');
     $this->browser->other('PUT', runUrl($election))->assertStatus(405)->assertJsonPath('error.code', 'method_not_allowed');
     Accounts::suspend($t['a']['owner']['institution']);
     $this->browser->post(runUrl($election), ['scope' => 'all'])->assertStatus(403)->assertJsonPath('error.code', 'institution_suspended');
@@ -328,7 +328,8 @@ it('outputs no numeric id and no stored name in its answer [NFR-SEC-01] (scenari
         expect($body)->not->toContain($name);
     }
     $keys = [];
-    array_walk_recursive($response->json(), function ($value, $key) use (&$keys) {
+    $json = $response->json();
+    array_walk_recursive($json, function ($value, $key) use (&$keys) {
         $keys[] = $key;
     });
     expect(array_filter($keys, fn ($key) => is_string($key) && str_ends_with($key, '_id')))->toBe([]);

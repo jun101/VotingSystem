@@ -42,8 +42,8 @@ it('counts the voters, the codes and the emails, in total and per group [FR-CRED
 
     expect($response->json('data'))->toMatchArray(['voters' => 3, 'with_code' => 2, 'without_code' => 1, 'with_email' => 2, 'run_in_progress' => false])
         ->and($response->json('data.groups'))->toBe([
-            ['id' => $third, 'name' => '3e année', 'voters' => 1, 'with_code' => 1, 'with_email' => 1, 'files_ready' => 0],
-            ['id' => $fourth, 'name' => '4e année', 'voters' => 2, 'with_code' => 1, 'with_email' => 1, 'files_ready' => 1],
+            ['group' => ['id' => $third, 'name' => '3e année'], 'voters' => 1, 'with_code' => 1, 'with_email' => 1, 'files_ready' => 0],
+            ['group' => ['id' => $fourth, 'name' => '4e année'], 'voters' => 2, 'with_code' => 1, 'with_email' => 1, 'files_ready' => 1],
         ]);
     expect($file)->toBeString();
 });
@@ -56,7 +56,7 @@ it('answers zero everywhere for an election with no voter [FR-CRED-01] (scenario
     expect($response->json('data'))->toBe(['voters' => 0, 'with_code' => 0, 'without_code' => 0, 'with_email' => 0, 'run_in_progress' => false, 'groups' => []]);
 });
 
-it('lists the voters with no group on a last line with a null id and name [FR-CRED-01] (scenario 3)', function () {
+it('lists the voters with no group on a last line whose group is null [FR-CRED-01] (scenario 3)', function () {
     [$t, $election] = stateSignedIn($this);
     $group = Accounts::plantGroup(['election' => $election, 'name' => 'Zèbres']);
     Accounts::plantVoter(['election' => $election, 'full_name' => 'Dans le groupe', 'group' => $group]);
@@ -66,7 +66,7 @@ it('lists the voters with no group on a last line with a null id and name [FR-CR
     $groups = $this->browser->get(stateUrl($election))->assertOk()->json('data.groups');
 
     expect($groups)->toHaveCount(2)
-        ->and($groups[1])->toBe(['id' => null, 'name' => null, 'voters' => 2, 'with_code' => 0, 'with_email' => 1, 'files_ready' => 0]);
+        ->and($groups[1])->toBe(['group' => null, 'voters' => 2, 'with_code' => 0, 'with_email' => 1, 'files_ready' => 0]);
 });
 
 it('sorts the groups by name with accents and case ignored [FR-CRED-01] (scenario 1)', function () {
@@ -75,7 +75,7 @@ it('sorts the groups by name with accents and case ignored [FR-CRED-01] (scenari
         Accounts::plantVoter(['election' => $election, 'full_name' => "V {$name}", 'group' => Accounts::plantGroup(['election' => $election, 'name' => $name])]);
     }
 
-    $names = array_column($this->browser->get(stateUrl($election))->assertOk()->json('data.groups'), 'name');
+    $names = array_column(array_column($this->browser->get(stateUrl($election))->assertOk()->json('data.groups'), 'group'), 'name');
 
     expect($names)->toBe(['alpha', 'Beta', 'Épsilon', 'Zêta']);
 });

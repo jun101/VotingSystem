@@ -120,16 +120,23 @@ it('answers 404 for the files list of an election of another institution [FR-INS
     expect(Team::shape($this->browser->get(filesListUrl($foreign))))->toBe($unknown);
 });
 
-it('answers 401, 403 and 405 as every read [NFR-SEC-04] (scenarios 5 to 7)', function () {
+it('answers 405 for another method [NFR-SEC-04] (scenario 7)', function () {
     [$t, $election] = filesSignedIn($this);
     $file = Accounts::plantGeneratedFile(['election' => $election]);
 
     $this->browser->other('DELETE', fileUrl($file))->assertStatus(405)->assertJsonPath('error.code', 'method_not_allowed');
     $this->browser->other('POST', filesListUrl($election))->assertStatus(405)->assertJsonPath('error.code', 'method_not_allowed');
-    Accounts::suspend($t['a']['owner']['institution']);
-    $this->browser->get(fileUrl($file))->assertStatus(403)->assertJsonPath('error.code', 'institution_suspended');
-    $this->browser->get(filesListUrl($election))->assertStatus(403)->assertJsonPath('error.code', 'institution_suspended');
 });
+
+it('answers 403 for a suspended institution [NFR-SEC-04] (scenario 6)', function (string $which) {
+    [$t, $election] = filesSignedIn($this);
+    $file = Accounts::plantGeneratedFile(['election' => $election]);
+    Accounts::suspend($t['a']['owner']['institution']);
+
+    $url = $which === 'file' ? fileUrl($file) : filesListUrl($election);
+
+    $this->browser->get($url)->assertStatus(403)->assertJsonPath('error.code', 'institution_suspended');
+})->with(['file', 'list']);
 
 it('answers 401 when nobody is signed in [FR-CRED-04] (scenario 6)', function () {
     $t = Team::two();

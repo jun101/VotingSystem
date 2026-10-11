@@ -229,6 +229,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/elections/{election}/credential-runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start a run of access codes
+         * @description Gives a code to the voters of the scope (`all`, one `group`, or `ungrouped`) who have none
+         *     and writes their slips, one PDF per group (parts of 1 000 voters at most). The answer comes
+         *     before the work: the files are `queued`, and polled with `GET /generated-files/{file}`. A
+         *     draft, scheduled or open election (409 `election_codes_locked`), one run at a time (409
+         *     `run_in_progress`), something to serve (409 `nothing_to_generate`). Owner or manager.
+         *     Limited to 20 requests per hour per user.
+         */
+        post: operations["credentials.credentialRun"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/elections/{election}/credentials": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The state of the access codes of an election
+         * @description Totals and one line per group (sorted by name, accents and case ignored; the voters with no
+         *     group last, with a null `id` and `name`): voters, voters with a code, with an email, and
+         *     the files ready. `run_in_progress` is true while a file is queued. Any status of the
+         *     election; once it is closed no file counts as ready. Owner or manager.
+         */
+        get: operations["credentials.credentialState"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/auth/csrf": {
         parameters: {
             query?: never;
@@ -420,6 +468,71 @@ export interface paths {
          *     to 5 requests per hour per IP address, and 3 per hour per email address.
          */
         post: operations["auth.forgotPassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/elections/{election}/generated-files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the files of an election
+         * @description The slip PDFs, newest first, ties by group name then part (the voters with no group last).
+         *     Empty once the election is closed, published or archived: the files are deleted at the end.
+         *     Owner or manager.
+         */
+        get: operations["generatedFile.index"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/generated-files/{file}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * One file's status
+         * @description For polling after a run: `queued`, `ready` (with `size_bytes`) or `failed` (`failure`
+         *     `generation_failed`). Owner or manager.
+         */
+        get: operations["generatedFile.show"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/generated-files/{file}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download a file
+         * @description The PDF, decrypted on the way out, with a fixed name (`coupons-{group}.pdf`), never cached.
+         *     409 `file_not_ready` for a queued or failed file; 404 once the election is closed,
+         *     published or archived. Owner or manager. Limited to 120 requests per hour per user.
+         */
+        get: operations["generatedFile.download"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1162,6 +1275,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/voters/{voter}/credential": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Give one voter a code
+         * @description The first code, or a new one that replaces a lost slip (the old one no longer matches any
+         *     voter, `reissue_count` goes up). The code is in the answer once, with a ready one-slip file
+         *     and the voter; the answer is never cached. A draft, scheduled or open election (409
+         *     `election_codes_locked`); a file that cannot be written gives a 500 and keeps the old code.
+         *     Owner or manager. Limited to 60 requests per hour per user.
+         */
+        post: operations["credentials.voterCredential"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/elections/{election}/voter-imports/template": {
         parameters: {
             query?: never;
@@ -1351,7 +1488,6 @@ export interface components {
             seats?: number;
             allow_blank?: boolean;
             scope?: string | null;
-            groups?: string[] | null;
         };
         /**
          * CreateCandidateRequest
@@ -2328,6 +2464,125 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
+    "credentials.credentialRun": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The election UUID */
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            files: {
+                                id: string;
+                                kind: string;
+                                group: {
+                                    id: string;
+                                    name: string;
+                                } | null;
+                                part: number;
+                                parts: number;
+                                voter_count: number;
+                                /** @enum {string} */
+                                status: "queued" | "ready" | "failed";
+                                failure: string | null;
+                                size_bytes: number | null;
+                                expires_at: string;
+                                created_at: string;
+                            }[];
+                            voters: number;
+                            skipped: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            /** @description An error */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
+                    };
+                };
+            };
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "credentials.credentialState": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The election UUID */
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            voters: number;
+                            with_code: number;
+                            without_code: number;
+                            with_email: number;
+                            run_in_progress: boolean;
+                            groups: {
+                                group: {
+                                    id: string;
+                                    name: string;
+                                } | null;
+                                voters: number;
+                                with_code: number;
+                                with_email: number;
+                                files_ready: number;
+                            }[];
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            /** @description An error */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
+                    };
+                };
+            };
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
     "auth.csrf": {
         parameters: {
             query?: never;
@@ -2829,6 +3084,144 @@ export interface operations {
                 content?: never;
             };
             422: components["responses"]["ValidationException"];
+        };
+    };
+    "generatedFile.index": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The election UUID */
+                election: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            kind: string;
+                            group: {
+                                id: string;
+                                name: string;
+                            } | null;
+                            part: number;
+                            parts: number;
+                            voter_count: number;
+                            /** @enum {string} */
+                            status: "queued" | "ready" | "failed";
+                            failure: string | null;
+                            size_bytes: number | null;
+                            expires_at: string;
+                            created_at: string;
+                        }[];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            /** @description An error */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
+                    };
+                };
+            };
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "generatedFile.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The file UUID */
+                file: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            kind: string;
+                            group: {
+                                id: string;
+                                name: string;
+                            } | null;
+                            part: number;
+                            parts: number;
+                            voter_count: number;
+                            /** @enum {string} */
+                            status: "queued" | "ready" | "failed";
+                            failure: string | null;
+                            size_bytes: number | null;
+                            expires_at: string;
+                            created_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "generatedFile.download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The file UUID */
+                file: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": 200;
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            /** @description An error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
+                    };
+                };
+            };
         };
     };
     "group.index": {
@@ -4364,6 +4757,76 @@ export interface operations {
             };
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
+        };
+    };
+    "credentials.voterCredential": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The voter UUID */
+                voter: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            voter: {
+                                id: string;
+                                full_name: string;
+                                group: {
+                                    id: string;
+                                    name: string;
+                                } | null;
+                            };
+                            code: string;
+                            reissue_count: number;
+                            file: {
+                                id: string;
+                                kind: string;
+                                group: {
+                                    id: string;
+                                    name: string;
+                                } | null;
+                                part: number;
+                                parts: number;
+                                voter_count: number;
+                                /** @enum {string} */
+                                status: "queued" | "ready" | "failed";
+                                failure: string | null;
+                                size_bytes: number | null;
+                                expires_at: string;
+                                created_at: string;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            /** @description An error */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
+                    };
+                };
+            };
+            404: components["responses"]["ModelNotFoundException"];
         };
     };
     "voterImport.template": {

@@ -1919,6 +1919,310 @@
                 }
             }
         },
+        "/v1/elections/{election}/credential-runs": {
+            "post": {
+                "operationId": "credentials.credentialRun",
+                "description": "Gives a code to the voters of the scope (`all`, one `group`, or `ungrouped`) who have none\nand writes their slips, one PDF per group (parts of 1 000 voters at most). The answer comes\nbefore the work: the files are `queued`, and polled with `GET /generated-files/{file}`. A\ndraft, scheduled or open election (409 `election_codes_locked`), one run at a time (409\n`run_in_progress`), something to serve (409 `nothing_to_generate`). Owner or manager.\nLimited to 20 requests per hour per user.",
+                "summary": "Start a run of access codes",
+                "tags": [
+                    "CredentialRun"
+                ],
+                "parameters": [
+                    {
+                        "name": "election",
+                        "in": "path",
+                        "required": true,
+                        "description": "The election UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "files": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "kind": {
+                                                                "type": "string"
+                                                            },
+                                                            "group": {
+                                                                "type": [
+                                                                    "object",
+                                                                    "null"
+                                                                ],
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "name": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "id",
+                                                                    "name"
+                                                                ]
+                                                            },
+                                                            "part": {
+                                                                "type": "integer"
+                                                            },
+                                                            "parts": {
+                                                                "type": "integer"
+                                                            },
+                                                            "voter_count": {
+                                                                "type": "integer"
+                                                            },
+                                                            "status": {
+                                                                "type": "string",
+                                                                "enum": [
+                                                                    "queued",
+                                                                    "ready",
+                                                                    "failed"
+                                                                ]
+                                                            },
+                                                            "failure": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            "size_bytes": {
+                                                                "type": [
+                                                                    "integer",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            "expires_at": {
+                                                                "type": "string"
+                                                            },
+                                                            "created_at": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "kind",
+                                                            "group",
+                                                            "part",
+                                                            "parts",
+                                                            "voter_count",
+                                                            "status",
+                                                            "failure",
+                                                            "size_bytes",
+                                                            "expires_at",
+                                                            "created_at"
+                                                        ]
+                                                    }
+                                                },
+                                                "voters": {
+                                                    "type": "integer"
+                                                },
+                                                "skipped": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "required": [
+                                                "files",
+                                                "voters",
+                                                "skipped"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                ""
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/v1/elections/{election}/credentials": {
+            "get": {
+                "operationId": "credentials.credentialState",
+                "description": "Totals and one line per group (sorted by name, accents and case ignored; the voters with no\ngroup last, with a null `id` and `name`): voters, voters with a code, with an email, and\nthe files ready. `run_in_progress` is true while a file is queued. Any status of the\nelection; once it is closed no file counts as ready. Owner or manager.",
+                "summary": "The state of the access codes of an election",
+                "tags": [
+                    "CredentialState"
+                ],
+                "parameters": [
+                    {
+                        "name": "election",
+                        "in": "path",
+                        "required": true,
+                        "description": "The election UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "voters": {
+                                                    "type": "integer"
+                                                },
+                                                "with_code": {
+                                                    "type": "integer"
+                                                },
+                                                "without_code": {
+                                                    "type": "integer"
+                                                },
+                                                "with_email": {
+                                                    "type": "integer"
+                                                },
+                                                "run_in_progress": {
+                                                    "type": "boolean"
+                                                },
+                                                "groups": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "group": {
+                                                                "type": [
+                                                                    "object",
+                                                                    "null"
+                                                                ],
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "name": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "id",
+                                                                    "name"
+                                                                ]
+                                                            },
+                                                            "voters": {
+                                                                "type": "integer"
+                                                            },
+                                                            "with_code": {
+                                                                "type": "integer"
+                                                            },
+                                                            "with_email": {
+                                                                "type": "integer"
+                                                            },
+                                                            "files_ready": {
+                                                                "type": "integer"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "group",
+                                                            "voters",
+                                                            "with_code",
+                                                            "with_email",
+                                                            "files_ready"
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "voters",
+                                                "with_code",
+                                                "without_code",
+                                                "with_email",
+                                                "run_in_progress",
+                                                "groups"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                ""
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/v1/auth/csrf": {
             "get": {
                 "operationId": "auth.csrf",
@@ -3314,6 +3618,335 @@
                     }
                 },
                 "security": []
+            }
+        },
+        "/v1/elections/{election}/generated-files": {
+            "get": {
+                "operationId": "generatedFile.index",
+                "description": "The slip PDFs, newest first, ties by group name then part (the voters with no group last).\nEmpty once the election is closed, published or archived: the files are deleted at the end.\nOwner or manager.",
+                "summary": "List the files of an election",
+                "tags": [
+                    "GeneratedFile"
+                ],
+                "parameters": [
+                    {
+                        "name": "election",
+                        "in": "path",
+                        "required": true,
+                        "description": "The election UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "kind": {
+                                                        "type": "string"
+                                                    },
+                                                    "group": {
+                                                        "type": [
+                                                            "object",
+                                                            "null"
+                                                        ],
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "name"
+                                                        ]
+                                                    },
+                                                    "part": {
+                                                        "type": "integer"
+                                                    },
+                                                    "parts": {
+                                                        "type": "integer"
+                                                    },
+                                                    "voter_count": {
+                                                        "type": "integer"
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "queued",
+                                                            "ready",
+                                                            "failed"
+                                                        ]
+                                                    },
+                                                    "failure": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "size_bytes": {
+                                                        "type": [
+                                                            "integer",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "expires_at": {
+                                                        "type": "string"
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "kind",
+                                                    "group",
+                                                    "part",
+                                                    "parts",
+                                                    "voter_count",
+                                                    "status",
+                                                    "failure",
+                                                    "size_bytes",
+                                                    "expires_at",
+                                                    "created_at"
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                ""
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/v1/generated-files/{file}": {
+            "get": {
+                "operationId": "generatedFile.show",
+                "description": "For polling after a run: `queued`, `ready` (with `size_bytes`) or `failed` (`failure`\n`generation_failed`). Owner or manager.",
+                "summary": "One file's status",
+                "tags": [
+                    "GeneratedFile"
+                ],
+                "parameters": [
+                    {
+                        "name": "file",
+                        "in": "path",
+                        "required": true,
+                        "description": "The file UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "kind": {
+                                                    "type": "string"
+                                                },
+                                                "group": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "string"
+                                                        },
+                                                        "name": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "id",
+                                                        "name"
+                                                    ]
+                                                },
+                                                "part": {
+                                                    "type": "integer"
+                                                },
+                                                "parts": {
+                                                    "type": "integer"
+                                                },
+                                                "voter_count": {
+                                                    "type": "integer"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "queued",
+                                                        "ready",
+                                                        "failed"
+                                                    ]
+                                                },
+                                                "failure": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "size_bytes": {
+                                                    "type": [
+                                                        "integer",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "expires_at": {
+                                                    "type": "string"
+                                                },
+                                                "created_at": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "kind",
+                                                "group",
+                                                "part",
+                                                "parts",
+                                                "voter_count",
+                                                "status",
+                                                "failure",
+                                                "size_bytes",
+                                                "expires_at",
+                                                "created_at"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/v1/generated-files/{file}/download": {
+            "get": {
+                "operationId": "generatedFile.download",
+                "description": "The PDF, decrypted on the way out, with a fixed name (`coupons-{group}.pdf`), never cached.\n409 `file_not_ready` for a queued or failed file; 404 once the election is closed,\npublished or archived. Owner or manager. Limited to 120 requests per hour per user.",
+                "summary": "Download a file",
+                "tags": [
+                    "GeneratedFile"
+                ],
+                "parameters": [
+                    {
+                        "name": "file",
+                        "in": "path",
+                        "required": true,
+                        "description": "The file UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "integer",
+                                    "const": 200
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                ""
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
             }
         },
         "/v1/elections/{election}/groups": {
@@ -6821,6 +7454,208 @@
                 }
             }
         },
+        "/v1/voters/{voter}/credential": {
+            "post": {
+                "operationId": "credentials.voterCredential",
+                "description": "The first code, or a new one that replaces a lost slip (the old one no longer matches any\nvoter, `reissue_count` goes up). The code is in the answer once, with a ready one-slip file\nand the voter; the answer is never cached. A draft, scheduled or open election (409\n`election_codes_locked`); a file that cannot be written gives a 500 and keeps the old code.\nOwner or manager. Limited to 60 requests per hour per user.",
+                "summary": "Give one voter a code",
+                "tags": [
+                    "VoterCredential"
+                ],
+                "parameters": [
+                    {
+                        "name": "voter",
+                        "in": "path",
+                        "required": true,
+                        "description": "The voter UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "voter": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "string"
+                                                        },
+                                                        "full_name": {
+                                                            "type": "string"
+                                                        },
+                                                        "group": {
+                                                            "type": [
+                                                                "object",
+                                                                "null"
+                                                            ],
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "string"
+                                                                },
+                                                                "name": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "id",
+                                                                "name"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "id",
+                                                        "full_name",
+                                                        "group"
+                                                    ]
+                                                },
+                                                "code": {
+                                                    "type": "string"
+                                                },
+                                                "reissue_count": {
+                                                    "type": "integer"
+                                                },
+                                                "file": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "string"
+                                                        },
+                                                        "kind": {
+                                                            "type": "string"
+                                                        },
+                                                        "group": {
+                                                            "type": [
+                                                                "object",
+                                                                "null"
+                                                            ],
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "string"
+                                                                },
+                                                                "name": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "id",
+                                                                "name"
+                                                            ]
+                                                        },
+                                                        "part": {
+                                                            "type": "integer"
+                                                        },
+                                                        "parts": {
+                                                            "type": "integer"
+                                                        },
+                                                        "voter_count": {
+                                                            "type": "integer"
+                                                        },
+                                                        "status": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "queued",
+                                                                "ready",
+                                                                "failed"
+                                                            ]
+                                                        },
+                                                        "failure": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "size_bytes": {
+                                                            "type": [
+                                                                "integer",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "expires_at": {
+                                                            "type": "string"
+                                                        },
+                                                        "created_at": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "id",
+                                                        "kind",
+                                                        "group",
+                                                        "part",
+                                                        "parts",
+                                                        "voter_count",
+                                                        "status",
+                                                        "failure",
+                                                        "size_bytes",
+                                                        "expires_at",
+                                                        "created_at"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "voter",
+                                                "code",
+                                                "reissue_count",
+                                                "file"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "no-store"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                ""
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/v1/elections/{election}/voter-imports/template": {
             "get": {
                 "operationId": "voterImport.template",
@@ -8018,15 +8853,6 @@
                             "string",
                             "null"
                         ]
-                    },
-                    "groups": {
-                        "type": [
-                            "array",
-                            "null"
-                        ],
-                        "items": {
-                            "type": "string"
-                        }
                     }
                 },
                 "required": [
