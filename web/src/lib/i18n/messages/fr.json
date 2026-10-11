@@ -592,7 +592,12 @@
     "email_quota_exceeded": "La limite de courriels de l’institution pour 24 heures est atteinte ou le serait : envoyez moins de courriels, ou imprimez les coupons.",
     "results_not_available": "Les résultats ne sont pas disponibles : l’élection n’est pas clôturée.",
     "second_round_exists": "Un second tour existe déjà pour ce poste.",
-    "ballot_not_tied": "Ce poste n’est pas à égalité : aucun second tour n’est possible."
+    "ballot_not_tied": "Ce poste n’est pas à égalité : aucun second tour n’est possible.",
+    "results_check_failed": "Publication refusée : le nombre de bulletins ne correspond pas au nombre d’électeurs qui ont voté.",
+    "election_not_closed": "Cette élection n’est plus au stade de la clôture : rechargez la page pour voir son état actuel.",
+    "election_not_published": "Les résultats ne sont plus publiés : rechargez la page pour voir l’état actuel.",
+    "election_not_archivable": "Cette élection ne peut pas être archivée dans son état actuel.",
+    "election_not_archived": "Cette élection n’est pas archivée."
   },
   "validation": {
     "required": "Ce champ est obligatoire.",
@@ -2525,5 +2530,163 @@
       "secrecy": "Les résultats sont comptés sur les bulletins seulement : aucun lien n’existe avec un électeur."
     },
     "refreshError": "Les résultats n’ont pas pu être relus. Rechargez la page pour voir l’état actuel."
+  },
+  "publication": {
+    "title": "Publication",
+    "closeLabel": "Fermer cette fenêtre",
+    "cancel": "Annuler",
+    "status": {
+      "closed": "Les résultats sont prêts. Ils restent privés tant que vous ne les publiez pas.",
+      "published": "Les résultats sont publics : toute personne qui a le lien peut les voir, sans compte.",
+      "archived": "L’élection est archivée. Sa page publique n’est plus visible."
+    },
+    "chip": {
+      "full": "Affichage : tous les chiffres",
+      "winners": "Affichage : gagnants et participation"
+    },
+    "publish": {
+      "button": "Publier les résultats",
+      "title": "Publier les résultats ?",
+      "text": "La page « {title} » sera visible de toute personne qui a son adresse, sans compte. Vous pourrez la retirer à tout moment.",
+      "legend": "Ce que la page publique montre",
+      "full": "Tous les chiffres",
+      "fullHelp": "Votes et pourcentages de chaque candidat, votes blancs, gagnants et participation.",
+      "winners": "Gagnants et participation seulement",
+      "winnersHelp": "Les gagnants, les candidats à égalité et la participation. Aucun nombre de votes.",
+      "smallGroup": {
+        "one": "Le poste « {ballots} » compte moins de 3 électeurs : le choix d’une personne peut se deviner à partir des résultats publiés.",
+        "other": "Les postes « {ballots} » comptent moins de 3 électeurs : le choix d’une personne peut se deviner à partir des résultats publiés."
+      },
+      "confirm": "Publier",
+      "failedBallots": "Postes concernés : {ballots}."
+    },
+    "unpublish": {
+      "button": "Dépublier",
+      "title": "Retirer la page publique ?",
+      "text": "La page publique disparaît tout de suite. Les résultats restent ici et vous pourrez les publier de nouveau.",
+      "confirm": "Retirer la page"
+    },
+    "archive": {
+      "button": "Archiver",
+      "help": "Archiver retire aussi la page publique.",
+      "undo": "Désarchiver"
+    },
+    "report": {
+      "button": "Télécharger le rapport (PDF)",
+      "error": "Le rapport n’a pas pu être téléchargé."
+    },
+    "link": {
+      "open": "Ouvrir la page publique",
+      "address": "Adresse de la page publique"
+    }
+  },
+  "public": {
+    "skip": "Aller aux résultats",
+    "kicker": "Résultats officiels",
+    "institution": {
+      "kicker": "Page de l’établissement",
+      "elections": "Élections publiées",
+      "count": {
+        "one": "{count} élection publiée",
+        "other": "{count} élections publiées"
+      },
+      "empty": "Cet établissement n’a pas encore publié de résultats.",
+      "emptyHelp": "Les résultats apparaîtront ici dès qu’une élection sera publiée.",
+      "published": "Publiée le {day}",
+      "open": "Voir les résultats",
+      "type": {
+        "school": "École",
+        "university": "Université",
+        "association": "Association",
+        "other": "Organisation"
+      },
+      "description": "À propos"
+    },
+    "dates": "Vote du {start} au {end} ({zone})",
+    "published": "Résultats publiés le {day}",
+    "turnout": {
+      "title": "Participation",
+      "line": {
+        "one": "{voted} électeur sur {eligible} a voté",
+        "other": "{voted} électeurs sur {eligible} ont voté"
+      }
+    },
+    "winnersOnly": "Cette page montre les gagnants et la participation. Les nombres de votes ne sont pas publiés.",
+    "ballots": "Résultats par poste",
+    "ballot": {
+      "seats": {
+        "one": "{count} siège",
+        "other": "{count} sièges"
+      },
+      "general": "Tous les électeurs concernés",
+      "groups": "Groupes : {names}",
+      "none": "Aucun candidat n’est élu sur ce poste."
+    },
+    "candidate": {
+      "noParty": "Sans parti",
+      "votes": {
+        "one": "vote",
+        "other": "votes"
+      },
+      "winner": "Élu(e)",
+      "tied": "À égalité"
+    },
+    "blank": {
+      "line": {
+        "one": "{count} vote blanc ({percent}%)",
+        "other": "{count} votes blancs ({percent}%)"
+      }
+    },
+    "tie": {
+      "title": "Égalité",
+      "text": {
+        "one": "{names} sont à égalité pour le dernier siège ({seats} siège à pourvoir).",
+        "other": "{names} sont à égalité pour les derniers sièges ({seats} sièges à pourvoir)."
+      },
+      "never": "Le système ne départage jamais une égalité : aucun gagnant n’est désigné pour ces sièges."
+    },
+    "note": "Note de l’établissement",
+    "share": {
+      "title": "Partager ces résultats",
+      "text": "Envoyez le lien de cette page, ou téléchargez le rapport et l’image à joindre.",
+      "whatsapp": "WhatsApp",
+      "facebook": "Facebook",
+      "x": "X",
+      "copy": "Copier le lien",
+      "copied": "Lien copié",
+      "copyFailed": "La copie n’a pas fonctionné : sélectionnez l’adresse ci-dessous.",
+      "address": "Adresse de cette page",
+      "report": "Télécharger le rapport (PDF)",
+      "image": "Télécharger l’image",
+      "downloads": "Fichiers"
+    },
+    "closing": {
+      "title": "Les autres résultats de {name}",
+      "line": "Retrouvez les élections que cet établissement a publiées.",
+      "link": "Page de l’établissement"
+    },
+    "unavailable": {
+      "kicker": "Résultats publics",
+      "title": "Aucun résultat public ici",
+      "text": "Cette adresse ne mène à aucun résultat publié. Les résultats d’une élection n’apparaissent qu’après leur publication par l’établissement.",
+      "secure": "Aucun résultat n’est visible avant la publication.",
+      "home": "Retour à l’accueil"
+    },
+    "meta": {
+      "title": "{title} – {institution}",
+      "elected": {
+        "one": "Résultats de « {title} » : {names} est élu(e). Participation : {percent}%.",
+        "other": "Résultats de « {title} » : {names} sont élu(e)s. Participation : {percent}%."
+      },
+      "plain": "Résultats de « {title} » à {institution}. Participation : {percent}%.",
+      "institution": "Les élections publiées par {name}.",
+      "institutionTitle": "{name} – Résultats des élections",
+      "unavailable": "Aucun résultat public"
+    },
+    "image": {
+      "results": "Résultats",
+      "elected": "Élu(e)s"
+    },
+    "institutionLabel": "Établissement"
   }
 }

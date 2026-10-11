@@ -592,7 +592,12 @@
     "email_quota_exceeded": "The institution’s limit of emails for 24 hours is reached or would be: send fewer emails, or print the slips.",
     "results_not_available": "The results are not available: the election is not closed.",
     "second_round_exists": "A second round already exists for this position.",
-    "ballot_not_tied": "This position is not tied: no second round is possible."
+    "ballot_not_tied": "This position is not tied: no second round is possible.",
+    "results_check_failed": "Publication refused: the number of ballots does not match the number of voters who voted.",
+    "election_not_closed": "This election is no longer at the closed stage: reload the page to see its current state.",
+    "election_not_published": "The results are no longer published: reload the page to see the current state.",
+    "election_not_archivable": "This election cannot be archived in its current state.",
+    "election_not_archived": "This election is not archived."
   },
   "validation": {
     "required": "This field is required.",
@@ -2525,5 +2530,163 @@
       "secrecy": "Results are counted from the ballots only: nothing links them to a voter."
     },
     "refreshError": "The results could not be read again. Reload the page to see the current state."
+  },
+  "publication": {
+    "title": "Publication",
+    "closeLabel": "Close this window",
+    "cancel": "Cancel",
+    "status": {
+      "closed": "The results are ready. They stay private until you publish them.",
+      "published": "The results are public: anyone with the link can see them, without an account.",
+      "archived": "The election is archived. Its public page is no longer visible."
+    },
+    "chip": {
+      "full": "Display: all figures",
+      "winners": "Display: winners and turnout"
+    },
+    "publish": {
+      "button": "Publish the results",
+      "title": "Publish the results?",
+      "text": "The page “{title}” will be visible to anyone who has its address, without an account. You can take it down at any time.",
+      "legend": "What the public page shows",
+      "full": "All figures",
+      "fullHelp": "Votes and percentages of every candidate, blank votes, winners and turnout.",
+      "winners": "Winners and turnout only",
+      "winnersHelp": "The winners, the tied candidates and the turnout. No vote counts.",
+      "smallGroup": {
+        "one": "The ballot “{ballots}” has fewer than 3 voters: one person’s choice can be guessed from the published results.",
+        "other": "The ballots “{ballots}” have fewer than 3 voters: one person’s choice can be guessed from the published results."
+      },
+      "confirm": "Publish",
+      "failedBallots": "Ballots concerned: {ballots}."
+    },
+    "unpublish": {
+      "button": "Unpublish",
+      "title": "Take the public page down?",
+      "text": "The public page disappears at once. The results stay here and you can publish them again.",
+      "confirm": "Take the page down"
+    },
+    "archive": {
+      "button": "Archive",
+      "help": "Archiving also takes the public page down.",
+      "undo": "Unarchive"
+    },
+    "report": {
+      "button": "Download the report (PDF)",
+      "error": "The report could not be downloaded."
+    },
+    "link": {
+      "open": "Open the public page",
+      "address": "Address of the public page"
+    }
+  },
+  "public": {
+    "skip": "Go to the results",
+    "kicker": "Official results",
+    "institution": {
+      "kicker": "Institution page",
+      "elections": "Published elections",
+      "count": {
+        "one": "{count} published election",
+        "other": "{count} published elections"
+      },
+      "empty": "This institution has not published any results yet.",
+      "emptyHelp": "Results will appear here as soon as an election is published.",
+      "published": "Published on {day}",
+      "open": "See the results",
+      "type": {
+        "school": "School",
+        "university": "University",
+        "association": "Association",
+        "other": "Organisation"
+      },
+      "description": "About"
+    },
+    "dates": "Voting from {start} to {end} ({zone})",
+    "published": "Results published on {day}",
+    "turnout": {
+      "title": "Turnout",
+      "line": {
+        "one": "{voted} voter out of {eligible} voted",
+        "other": "{voted} voters out of {eligible} voted"
+      }
+    },
+    "winnersOnly": "This page shows the winners and the turnout. Vote counts are not published.",
+    "ballots": "Results by ballot",
+    "ballot": {
+      "seats": {
+        "one": "{count} seat",
+        "other": "{count} seats"
+      },
+      "general": "All eligible voters",
+      "groups": "Groups: {names}",
+      "none": "No candidate is elected on this ballot."
+    },
+    "candidate": {
+      "noParty": "No party",
+      "votes": {
+        "one": "vote",
+        "other": "votes"
+      },
+      "winner": "Elected",
+      "tied": "Tied"
+    },
+    "blank": {
+      "line": {
+        "one": "{count} blank vote ({percent}%)",
+        "other": "{count} blank votes ({percent}%)"
+      }
+    },
+    "tie": {
+      "title": "Tie",
+      "text": {
+        "one": "{names} are tied for the last seat ({seats} seat to fill).",
+        "other": "{names} are tied for the last seats ({seats} seats to fill)."
+      },
+      "never": "The system never breaks a tie: no winner is named for these seats."
+    },
+    "note": "Note from the institution",
+    "share": {
+      "title": "Share these results",
+      "text": "Send the link to this page, or download the report and the image to attach.",
+      "whatsapp": "WhatsApp",
+      "facebook": "Facebook",
+      "x": "X",
+      "copy": "Copy the link",
+      "copied": "Link copied",
+      "copyFailed": "Copying did not work: select the address below.",
+      "address": "Address of this page",
+      "report": "Download the report (PDF)",
+      "image": "Download the image",
+      "downloads": "Files"
+    },
+    "closing": {
+      "title": "More results from {name}",
+      "line": "Find the elections this institution has published.",
+      "link": "Institution page"
+    },
+    "unavailable": {
+      "kicker": "Public results",
+      "title": "No public results here",
+      "text": "This address leads to no published results. An election’s results only appear once the institution has published them.",
+      "secure": "No result is visible before publication.",
+      "home": "Back to the home page"
+    },
+    "meta": {
+      "title": "{title} – {institution}",
+      "elected": {
+        "one": "Results of “{title}”: {names} is elected. Turnout: {percent}%.",
+        "other": "Results of “{title}”: {names} are elected. Turnout: {percent}%."
+      },
+      "plain": "Results of “{title}” at {institution}. Turnout: {percent}%.",
+      "institution": "The elections published by {name}.",
+      "institutionTitle": "{name} – Election results",
+      "unavailable": "No public results"
+    },
+    "image": {
+      "results": "Results",
+      "elected": "Elected"
+    },
+    "institutionLabel": "Institution"
   }
 }

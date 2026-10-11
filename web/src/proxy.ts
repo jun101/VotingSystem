@@ -17,6 +17,10 @@ export function proxy(request: NextRequest) {
   const vote = /^\/vote\/([0-9a-f-]{36})(?:\/|$)/i.exec(pathname);
   headers.set('x-vote-election', vote?.[1] ?? '');
 
+  // The public results page speaks the election's language (docs/slices/16): same idea.
+  const results = /^\/results\/([0-9a-f-]{36})(?:\/|$)/i.exec(pathname);
+  headers.set('x-public-election', results?.[1] ?? '');
+
   return NextResponse.next({ request: { headers } });
 }
 
