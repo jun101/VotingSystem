@@ -8,7 +8,7 @@ import { focusRing } from '@/components/admin/classes';
 import { LiveDot } from '@/components/motion';
 import { Notice } from '@/components/ui';
 import { cx } from '@/components/ui/cx';
-import { duplicateElection, fetchChecklist } from '@/lib/api/browser';
+import { duplicateElection, fetchChecklist, fetchTurnout } from '@/lib/api/browser';
 import type { Checklist, Election, ElectionStatus } from '@/lib/api/elections';
 import { ApiError, errorText } from '@/lib/api/errors';
 import { clock, longDay } from '@/lib/format/electionDates';
@@ -127,6 +127,27 @@ export function ElectionSummary({ election: given }: { election: Election }) {
   // The election as the last answer of the API gave it (scheduling changes the status), or as the
   // page was rendered.
   const [election, setElection] = useState<Election>(given);
+  const [voted, setVoted] = useState(0);
+  const counting = ['open', 'closed', 'published', 'archived'].includes(election.status);
+
+  // The number of voters who have voted, read once (the turnout page follows it live).
+  useEffect(() => {
+    if (!counting) return;
+
+    let alive = true;
+
+    void fetchTurnout(election.id).then(
+      (turnout) => {
+        if (alive) setVoted(turnout.voted);
+      },
+      () => undefined,
+    );
+
+    return () => {
+      alive = false;
+    };
+  }, [counting, election.id]);
+
   const draft = election.status === 'draft';
   const [asking, setAsking] = useState(false);
   const [scheduling, setScheduling] = useState(false);
@@ -544,8 +565,8 @@ export function ElectionSummary({ election: given }: { election: Election }) {
                 [
                   ['positions', 'flag', election.ballots_count],
                   ['voters', 'people', election.voters_count],
-                  // No vote count is ever shown before an election is closed (rule 6).
-                  ['ballots', 'ballot', 0],
+                  // Voters who have voted (participations): never a count of votes before closing (rule 6).
+                  ['ballots', 'ballot', voted],
                 ] as const
               ).map(([name, icon, value]) => (
                 <div
@@ -565,10 +586,6 @@ export function ElectionSummary({ election: given }: { election: Election }) {
                 </div>
               ))}
             </div>
-            <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-line-soft px-3 py-1 text-xs font-bold text-status-draft">
-              <Icon name="clock" size={15} />
-              {t('elections.summary.factsSoon')}
-            </span>
           </Panel>
 
           <div

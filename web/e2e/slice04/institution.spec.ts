@@ -102,7 +102,7 @@ test.describe('the public address', () => {
     await expect(address).toBeVisible();
     await expect(address).toContainText(/\/institutions\/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/);
     await expect(page.getByTestId('public-address-copy')).toBeVisible();
-    await expect(page.getByTestId('institution-page')).toContainText('bientôt');
+    await expect(page.getByTestId('public-address-open')).toHaveAttribute('href', /^\/institutions\/[0-9a-f-]{36}$/);
   });
 });
 
