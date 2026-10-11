@@ -53,7 +53,7 @@ with their dialogs; the status chip; on the voter pages a clear closed message w
 |---|---|
 | Open card (A05) | `election-open-card`, `election-open-countdown`, `election-open-ends` |
 | Close | `election-close-button`, `close-dialog`, `close-confirmation` (input), `close-confirm` (disabled until the title is typed), `close-cancel` |
-| Extend | `election-extend-button`, `extend-dialog`, `extend-date` (the date picker of the form), `extend-confirm`, `extend-error` |
+| Extend | `election-extend-button`, `extend-dialog`, `extend-date` (the native `datetime-local` field of the form's date picker: the test fills it, in the election's time zone), `extend-confirm`, `extend-error` |
 | Status | `election-summary-status` gets `data-status` `closed` after closing; `election-closed-note` text |
 | Voter closed message | `vote-closed` (as slice 12) shown when a session call answers `election_not_open` |
 

@@ -7,7 +7,7 @@ Checks a code and opens a voter session: a cookie that lets the voter read their
 | Slice | 12 |
 | Requirements | FR-VOTE-01, FR-VOTE-06, FR-VOTE-08, FR-SEC-06, NFR-SEC-05 |
 | Caller | Anyone with a code |
-| Rate limit | 30 wrong codes per 10 minutes per IP address and election, 300 per hour per election; only failures are counted |
+| Rate limit | 30 wrong codes per 10 minutes per IP address and election, 300 wrong codes per hour per election (a valid code is never refused by the second one); only failures are counted |
 
 ## Request
 
@@ -40,11 +40,12 @@ another election never matches. The answer for an unknown code takes the same pa
 | 6 | `code` missing or not a string | 422 | `validation_failed` (`code: required`) | |
 | 7 | The election is a draft, unknown, or not a UUID | 404 | `not_found` | |
 | 8 | A second valid code on a browser that has a session | 201 (the old session is replaced) | | |
-| 9 | More than 30 wrong codes in 10 minutes from one address for this election, or 300 in an hour for it | 429, `Retry-After` | `too_many_attempts` | |
+| 9 | More than 30 wrong codes in 10 minutes from one address for this election, or a **wrong** code once 300 wrong codes in an hour have been counted for it | 429, `Retry-After` | `too_many_attempts` | |
 | 10 | Another method; body not valid JSON | 405, 400 | `method_not_allowed`, `malformed_request` | |
+| 11 | A **valid** code (not yet voted) while 300 wrong codes in the hour are counted for the election, from an address that is not locked out | 201 | | |
+| 12 | The same voter opens a second session (another browser, or after a code was typed again) | 201; the first session is ended: its next call answers 401 | `voter_session_expired` (on the first browser's next call) | |
 
-`code` is at most 64 characters (422 `code: invalid` above). The per-address counter keys an IPv6 client on its /64 prefix. Counting is atomic (the increment decides, and a valid code gives it back). Every request of this route, valid or not, is also held by the public limiter (600 per minute per address and election, the election's uuid in lower case), as are GET info, GET ballots, DELETE session and POST submit. A valid code is **not** counted against the wrong-code limits; a locked-out address still gets 429 for a valid code until the
-window passes.
+`code` is at most 64 characters (422 `code: invalid` above). The per-address counter keys an IPv6 client on its /64 prefix. Counting is atomic (the increment decides, and a valid code gives it back). Every request of this route, valid or not, is also held by the public limiter (600 per minute per address and election, the election's uuid in lower case), as are GET info, GET ballots, DELETE session and POST submit. A valid code is **not** counted against the wrong-code limits. The per-election hourly limit slows only wrong codes: once it is reached a wrong code answers 429 and a valid code still opens a session (slice 12b, Jun 2026-10-12), so an outsider cannot stop an election by guessing; the guessing space (ten characters of a 32-symbol alphabet) and the per-address and public limiters keep guessing impractical. An address that is locked out by the per-address limit still gets 429 for a valid code until the window passes.
 
 ## Responses
 
@@ -64,6 +65,12 @@ The shared error shape of [API conventions](../README.md). Order: election (404)
 state (409: `already_voted` before `election_not_open`).
 
 ## Notes
+
+A voter has one live session: opening a session records the new token as the voter's current one in the cache
+(`voter_session:{election}:{voter}`, expiring with it) and the earlier session of that voter answers 401
+`voter_session_expired` from then on (slice 12b). A leaked cookie therefore dies when the voter enters again.
+The cookie keeps its name `vote_session`: the `__Secure-` prefix was considered and not adopted (the cookie is
+already `Secure`, `HttpOnly`, `SameSite=Strict` and path-scoped).
 
 Nothing is written to the database and no vote data exists yet. The voter's name is not returned here: the next
 call shows it for confirmation (FR-VOTE-03).

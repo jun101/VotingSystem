@@ -464,6 +464,30 @@ export async function unscheduleElection(id: string): Promise<Election> {
   return data!.data;
 }
 
+/** `POST /elections/{election}/close`: closes an open election now; `confirmation` is its title. */
+export async function closeElection(id: string, confirmation: string): Promise<Election> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/close', {
+      params: { path: { election: id } },
+      body: { confirmation },
+    }),
+  );
+
+  return data!.data;
+}
+
+/** `POST /elections/{election}/extend`: moves the end of a scheduled or open election later (UTC, ISO). */
+export async function extendElection(id: string, endsAt: string): Promise<Election> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/extend', {
+      params: { path: { election: id } },
+      body: { ends_at: endsAt },
+    }),
+  );
+
+  return data!.data;
+}
+
 /** `DELETE /elections/{election}/cover`: removes the cover of a draft. */
 export async function removeElectionCover(id: string): Promise<void> {
   await send((api) =>

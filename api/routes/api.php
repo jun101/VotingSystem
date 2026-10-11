@@ -117,6 +117,8 @@ Route::prefix('v1')->group(function (): void {
         Route::get('/{election}/checklist', [ElectionController::class, 'checklist']);
         Route::post('/{election}/schedule', [ElectionController::class, 'schedule'])->middleware('throttle:election-schedule');
         Route::post('/{election}/unschedule', [ElectionController::class, 'unschedule'])->middleware('throttle:election-schedule');
+        Route::post('/{election}/close', [ElectionController::class, 'close'])->middleware('throttle:election-close');
+        Route::post('/{election}/extend', [ElectionController::class, 'extend'])->middleware('throttle:election-close');
         Route::put('/{election}/cover', [CoverController::class, 'update'])->middleware('throttle:election-cover');
         Route::delete('/{election}/cover', [CoverController::class, 'destroy']);
 

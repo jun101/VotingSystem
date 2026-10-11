@@ -41,6 +41,8 @@ return [
     'checklist_blocked' => 'L\'élection n\'est pas prête : corrigez les points bloquants.',
     'checklist_warnings' => 'Il reste des avertissements : confirmez pour programmer quand même.',
     'election_period_over' => 'La fin de l\'élection est passée : changez les dates avant de programmer.',
+    'election_started' => 'Cette élection a déjà commencé : elle ne peut plus être déprogrammée.',
+    'election_not_extendable' => 'Cette élection ne peut plus être prolongée.',
     'election_not_scheduled' => 'Cette élection n\'est pas programmée.',
     'nothing_to_generate' => 'Tous les électeurs de ce choix ont déjà un code, ou il n’y a aucun électeur.',
     'email_count_changed' => 'Le nombre de courriels a changé depuis l’aperçu : confirmez le nouveau nombre.',

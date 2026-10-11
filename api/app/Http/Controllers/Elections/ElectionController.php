@@ -8,8 +8,10 @@ use App\Actions\Elections\ListElections;
 use App\Enums\ElectionStatus;
 use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Elections\CloseElectionRequest;
 use App\Http\Requests\Elections\CreateElectionRequest;
 use App\Http\Requests\Elections\DuplicateElectionRequest;
+use App\Http\Requests\Elections\ExtendElectionRequest;
 use App\Http\Requests\Elections\ListElectionsRequest;
 use App\Http\Requests\Elections\ScheduleElectionRequest;
 use App\Http\Requests\Elections\UpdateElectionRequest;
@@ -28,6 +30,7 @@ use Dedoc\Scramble\Attributes\Response;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response as HttpResponse;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
@@ -307,7 +310,7 @@ class ElectionController extends Controller
      *
      * A scheduled election goes back to draft, so ballots and candidates can be edited again.
      * Voters, groups and the groups of the ballots are not touched. Owner or manager. Limited to
-     * 120 requests per hour per user.
+     * 120 requests per hour per user. 409 `election_started` when the start has passed.
      *
      * @response array{data: array{id: string, title: string, description: string|null, status: 'draft'|'scheduled'|'open'|'closed'|'published'|'archived', starts_at: string, ends_at: string, timezone: string, language: 'fr'|'en', candidate_order: 'manual'|'shuffled', results_display: 'full'|'winners', cover: array{sm: string, md: string}|null, ballots_count: int, voters_count: int, created_at: string}}
      */
@@ -326,6 +329,11 @@ class ElectionController extends Controller
                 throw new ApiException(409, 'election_not_scheduled');
             }
 
+            // The scheduler has not run yet but the start has passed: the election is as good as open.
+            if (! $locked->starts_at->isFuture()) {
+                throw new ApiException(409, 'election_started');
+            }
+
             $locked->status = ElectionStatus::Draft;
             $locked->save();
 
@@ -333,6 +341,98 @@ class ElectionController extends Controller
         });
 
         Log::info('election.unschedule', ['outcome' => 'unscheduled']);
+
+        return new ElectionResource($saved);
+    }
+
+    /**
+     * Close an election now.
+     *
+     * An open election is closed before its end, for good. `confirmation` must be the election's
+     * title (case and surrounding spaces ignored, accents counted): 422 `confirmation: mismatch`.
+     * 409 `election_not_open` for any other status. The status is read again under the row lock.
+     * Nothing about votes is read or written. Owner or manager. Limited to 20 requests per hour
+     * per user, shared with extend.
+     *
+     * @response array{data: array{id: string, title: string, description: string|null, status: 'draft'|'scheduled'|'open'|'closed'|'published'|'archived', starts_at: string, ends_at: string, timezone: string, language: 'fr'|'en', candidate_order: 'manual'|'shuffled', results_display: 'full'|'winners', cover: array{sm: string, md: string}|null, ballots_count: int, voters_count: int, created_at: string}}
+     */
+    public function close(CloseElectionRequest $request, Election $election): ElectionResource
+    {
+        $this->allow('update', $election);
+
+        $confirmation = $request->confirmation();
+
+        $saved = DB::transaction(function () use ($election, $confirmation): Election {
+            $locked = Election::query()->whereKey($election->getKey())->lockForUpdate()->first();
+
+            if ($locked === null) {
+                throw new ApiException(404, 'not_found');
+            }
+
+            if ($locked->status !== ElectionStatus::Open) {
+                throw new ApiException(409, 'election_not_open');
+            }
+
+            if (mb_strtolower(trim($locked->title)) !== mb_strtolower($confirmation)) {
+                throw ValidationException::withMessages(['confirmation' => ['mismatch']]);
+            }
+
+            $locked->status = ElectionStatus::Closed;
+            $locked->closed_at = now('UTC');
+            $locked->save();
+
+            return $locked;
+        });
+
+        Log::info('election.close', ['outcome' => 'closed']);
+
+        return new ElectionResource($saved);
+    }
+
+    /**
+     * Extend an election.
+     *
+     * Moves the end of a scheduled or open election later; the status stays. The new end must be
+     * after the current one (422 `ends_at: not_after`) and at most 30 days after it (`too_far`).
+     * 409 `election_not_extendable` for another status, or when the end has passed. Owner or
+     * manager. Limited to 20 requests per hour per user, shared with close.
+     *
+     * @response array{data: array{id: string, title: string, description: string|null, status: 'draft'|'scheduled'|'open'|'closed'|'published'|'archived', starts_at: string, ends_at: string, timezone: string, language: 'fr'|'en', candidate_order: 'manual'|'shuffled', results_display: 'full'|'winners', cover: array{sm: string, md: string}|null, ballots_count: int, voters_count: int, created_at: string}}
+     */
+    public function extend(ExtendElectionRequest $request, Election $election): ElectionResource
+    {
+        $this->allow('update', $election);
+
+        $end = $request->newEnd();
+
+        $saved = DB::transaction(function () use ($election, $end): Election {
+            $locked = Election::query()->whereKey($election->getKey())->lockForUpdate()->first();
+
+            if ($locked === null) {
+                throw new ApiException(404, 'not_found');
+            }
+
+            if (! in_array($locked->status, [ElectionStatus::Scheduled, ElectionStatus::Open], true) || ! $locked->ends_at->isFuture()) {
+                throw new ApiException(409, 'election_not_extendable');
+            }
+
+            $current = $locked->ends_at->copy()->utc();
+
+            if (! $end->greaterThan($current)) {
+                throw ValidationException::withMessages(['ends_at' => ['not_after']]);
+            }
+
+            if ($end->greaterThan($current->copy()->addDays(30))) {
+                throw ValidationException::withMessages(['ends_at' => ['too_far']]);
+            }
+
+            $locked->ends_at = Carbon::createFromInterface($end);
+            $locked->save();
+
+            return $locked;
+        });
+
+        Log::info('election.extend', ['outcome' => 'extended']);
 
         return new ElectionResource($saved);
     }

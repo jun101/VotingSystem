@@ -183,6 +183,8 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('elections-edit', fn (Request $request) => Limit::perHour($times(120))->by($byUser($request)));
         // Scheduling and unscheduling share 120 an hour per user (docs/api/elections/POST-elections-{election}-schedule.md).
         RateLimiter::for('election-schedule', fn (Request $request) => Limit::perHour($times(120))->by($byUser($request)));
+        // Closing early and extending share 20 an hour per user (docs/api/elections/POST-elections-{election}-close.md).
+        RateLimiter::for('election-close', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
         RateLimiter::for('election-cover', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
 
         // The ballots (docs/api/ballots/): 120 an hour per user to add, change and delete, 240 to put in order.

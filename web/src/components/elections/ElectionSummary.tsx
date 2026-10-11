@@ -15,8 +15,11 @@ import { clock, longDay } from '@/lib/format/electionDates';
 import { useI18n } from '@/lib/i18n/client';
 import { ChecklistCard } from './ChecklistCard';
 import { schedulingControls } from './checklist';
+import { CloseDialog } from './CloseDialog';
 import { DeleteElectionDialog } from './DeleteElectionDialog';
+import { ExtendDialog } from './ExtendDialog';
 import { NextSteps } from './NextSteps';
+import { OpenCard } from './OpenCard';
 import { Panel } from './Panel';
 import { ScheduleDialog } from './ScheduleDialog';
 import { UnscheduleDialog } from './UnscheduleDialog';
@@ -128,6 +131,8 @@ export function ElectionSummary({ election: given }: { election: Election }) {
   const [asking, setAsking] = useState(false);
   const [scheduling, setScheduling] = useState(false);
   const [unscheduling, setUnscheduling] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const [extending, setExtending] = useState(false);
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
   const [checklist, setChecklist] = useState<Checklist | null>(null);
@@ -355,9 +360,24 @@ export function ElectionSummary({ election: given }: { election: Election }) {
         aria-label={t('elections.summary.zone')}
         className="flex flex-col gap-4.5 rounded-2xl border border-line bg-surface p-5 shadow-1"
       >
-        {draft ? null : <Notice tone="info">{t('elections.summary.locked')}</Notice>}
+        {election.status === 'closed' ? (
+          <Notice tone="teal" tabIndex={-1} data-testid="election-closed-note">
+            {t('elections.close.note')}
+          </Notice>
+        ) : draft ? null : (
+          <Notice tone="info">{t('elections.summary.locked')}</Notice>
+        )}
 
         <div className="grid grid-cols-1 gap-4.5 min-[900px]:grid-cols-12">
+          {election.status === 'open' ? (
+            <OpenCard
+              election={election}
+              onClose={() => setClosing(true)}
+              onExtend={() => setExtending(true)}
+              className="min-[900px]:col-span-12"
+            />
+          ) : null}
+
           {draft ? (
             <ChecklistCard
               checklist={checklist}
@@ -568,6 +588,42 @@ export function ElectionSummary({ election: given }: { election: Election }) {
             setUnscheduling(false);
             setProblem(null);
             setChecklistRun((n) => n + 1);
+            router.refresh();
+          }}
+        />
+      ) : null}
+
+      {closing ? (
+        <CloseDialog
+          election={election}
+          onCancel={() => setClosing(false)}
+          onStale={() => router.refresh()}
+          onClosed={(saved) => {
+            setElection(saved);
+            setClosing(false);
+            setProblem(null);
+            router.refresh();
+            // The button that opened the dialog is gone: keep the keyboard on the page's news.
+            setTimeout(
+              () =>
+                document
+                  .querySelector<HTMLElement>('[data-testid="election-closed-note"]')
+                  ?.focus(),
+              0,
+            );
+          }}
+        />
+      ) : null}
+
+      {extending ? (
+        <ExtendDialog
+          election={election}
+          onCancel={() => setExtending(false)}
+          onStale={() => router.refresh()}
+          onExtended={(saved) => {
+            setElection(saved);
+            setExtending(false);
+            setProblem(null);
             router.refresh();
           }}
         />

@@ -5,7 +5,7 @@ Reviewers: correctness, security (two passes), id leak. Jun was asleep (full aut
 ## Security, pass 1
 | # | Finding | Result |
 |---|---|---|
-| 1 | The per-election 300 per hour limit also refuses valid codes: an outsider can stop an election for an hour | Kept: it is the strict decision Jun made; **open for Jun** |
+| 1 | The per-election 300 per hour limit also refuses valid codes: an outsider can stop an election for an hour | Kept at first; **decided 2026-10-12**: the limit slows only wrong codes, a valid code is never refused (slice 12b) |
 | 2 | No limit on session creation by valid codes | Fixed: public limiter on session and submit |
 | 3 | Limit checked then counted, not atomic | Fixed: the increment decides, valid codes given back |
 | 4 | IPv6 address rotation inside a /64 | Fixed: keyed on the /64 |
@@ -36,6 +36,5 @@ No finding.
 | 4 | Parallel sessions for one valid code fill the cache | Left: records hold no secret; bounded by the public limiter |
 
 ## Left
-- Decision for Jun: whether a valid code may pass the per-election limit.
-- `__Secure-` cookie prefix and one live session per voter (optional hardening).
+- Decided 2026-10-12 (slice 12b): a valid code passes the per-election limit; one live session per voter; no `__Secure-` prefix.
 - The `data-nimg` test (see summary).

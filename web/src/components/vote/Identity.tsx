@@ -4,7 +4,8 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Icon } from '@/components/admin/Icon';
 import { Button, Notice } from '@/components/ui';
-import { errorText } from '@/lib/api/errors';
+import { ApiError, errorText } from '@/lib/api/errors';
+import { fetchBallots, VoteError } from '@/lib/api/vote';
 import { joinList, pluralForm } from '@/lib/format/electionDates';
 import { useI18n } from '@/lib/i18n/client';
 import { VoteCard } from './VoteCard';
@@ -24,7 +25,7 @@ function initials(name: string): string {
 export function Identity() {
   const { t, tIfAny, locale } = useI18n();
   const router = useRouter();
-  const { election, signOut } = useVote();
+  const { election, signOut, leave, setPhase, setBallots } = useVote();
   const { ballots, failure, retry } = useVoterBallots();
   const [leaving, setLeaving] = useState(false);
 
@@ -53,6 +54,33 @@ export function Identity() {
 
   const { voter, ballots: list } = ballots;
   const none = list.length === 0;
+
+  // The session is asked once more before the first position: an election closed since the code was
+  // entered is told here, in the voter's language, not at the end of the vote.
+  async function proceed() {
+    setLeaving(true);
+
+    try {
+      setBallots(await fetchBallots(election));
+      router.push(`/vote/${election}/ballot/1`);
+    } catch (error) {
+      const problem = error instanceof ApiError ? error : new ApiError(0, 'network');
+
+      if (problem.code === 'voter_session_expired') return leave('expired');
+      if (problem.code === 'already_voted') return leave('alreadyVoted');
+
+      if (problem.code === 'election_not_open') {
+        const phase = error instanceof VoteError ? error.phase : null;
+
+        if (phase) setPhase(phase);
+
+        return leave(null);
+      }
+
+      // A network failure or a limit: the ballots read before are still good, the voter goes on.
+      router.push(`/vote/${election}/ballot/1`);
+    }
+  }
 
   async function notMe() {
     setLeaving(true);
@@ -112,7 +140,7 @@ export function Identity() {
                 disabled={leaving}
                 data-testid="vote-identity-yes"
                 className="w-full sm:flex-1"
-                onClick={() => router.push(`/vote/${election}/ballot/1`)}
+                onClick={() => void proceed()}
               >
                 {t('vote.identity.yes')}
               </Button>

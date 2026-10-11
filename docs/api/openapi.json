@@ -3649,7 +3649,7 @@
         "/v1/elections/{election}/unschedule": {
             "post": {
                 "operationId": "election.unschedule",
-                "description": "A scheduled election goes back to draft, so ballots and candidates can be edited again.\nVoters, groups and the groups of the ballots are not touched. Owner or manager. Limited to\n120 requests per hour per user.",
+                "description": "A scheduled election goes back to draft, so ballots and candidates can be edited again.\nVoters, groups and the groups of the ballots are not touched. Owner or manager. Limited to\n120 requests per hour per user. 409 `election_started` when the start has passed.",
                 "summary": "Unschedule an election",
                 "tags": [
                     "Election"
@@ -3787,6 +3787,322 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/v1/elections/{election}/close": {
+            "post": {
+                "operationId": "election.close",
+                "description": "An open election is closed before its end, for good. `confirmation` must be the election's\ntitle (case and surrounding spaces ignored, accents counted): 422 `confirmation: mismatch`.\n409 `election_not_open` for any other status. The status is read again under the row lock.\nNothing about votes is read or written. Owner or manager. Limited to 20 requests per hour\nper user, shared with extend.",
+                "summary": "Close an election now",
+                "tags": [
+                    "Election"
+                ],
+                "parameters": [
+                    {
+                        "name": "election",
+                        "in": "path",
+                        "required": true,
+                        "description": "The election UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CloseElectionRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "title": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "draft",
+                                                        "scheduled",
+                                                        "open",
+                                                        "closed",
+                                                        "published",
+                                                        "archived"
+                                                    ]
+                                                },
+                                                "starts_at": {
+                                                    "type": "string"
+                                                },
+                                                "ends_at": {
+                                                    "type": "string"
+                                                },
+                                                "timezone": {
+                                                    "type": "string"
+                                                },
+                                                "language": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "fr",
+                                                        "en"
+                                                    ]
+                                                },
+                                                "candidate_order": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "manual",
+                                                        "shuffled"
+                                                    ]
+                                                },
+                                                "results_display": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "full",
+                                                        "winners"
+                                                    ]
+                                                },
+                                                "cover": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "sm": {
+                                                            "type": "string"
+                                                        },
+                                                        "md": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "sm",
+                                                        "md"
+                                                    ]
+                                                },
+                                                "ballots_count": {
+                                                    "type": "integer"
+                                                },
+                                                "voters_count": {
+                                                    "type": "integer"
+                                                },
+                                                "created_at": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "title",
+                                                "description",
+                                                "status",
+                                                "starts_at",
+                                                "ends_at",
+                                                "timezone",
+                                                "language",
+                                                "candidate_order",
+                                                "results_display",
+                                                "cover",
+                                                "ballots_count",
+                                                "voters_count",
+                                                "created_at"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/v1/elections/{election}/extend": {
+            "post": {
+                "operationId": "election.extend",
+                "description": "Moves the end of a scheduled or open election later; the status stays. The new end must be\nafter the current one (422 `ends_at: not_after`) and at most 30 days after it (`too_far`).\n409 `election_not_extendable` for another status, or when the end has passed. Owner or\nmanager. Limited to 20 requests per hour per user, shared with close.",
+                "summary": "Extend an election",
+                "tags": [
+                    "Election"
+                ],
+                "parameters": [
+                    {
+                        "name": "election",
+                        "in": "path",
+                        "required": true,
+                        "description": "The election UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ExtendElectionRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "title": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "draft",
+                                                        "scheduled",
+                                                        "open",
+                                                        "closed",
+                                                        "published",
+                                                        "archived"
+                                                    ]
+                                                },
+                                                "starts_at": {
+                                                    "type": "string"
+                                                },
+                                                "ends_at": {
+                                                    "type": "string"
+                                                },
+                                                "timezone": {
+                                                    "type": "string"
+                                                },
+                                                "language": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "fr",
+                                                        "en"
+                                                    ]
+                                                },
+                                                "candidate_order": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "manual",
+                                                        "shuffled"
+                                                    ]
+                                                },
+                                                "results_display": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "full",
+                                                        "winners"
+                                                    ]
+                                                },
+                                                "cover": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "sm": {
+                                                            "type": "string"
+                                                        },
+                                                        "md": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "sm",
+                                                        "md"
+                                                    ]
+                                                },
+                                                "ballots_count": {
+                                                    "type": "integer"
+                                                },
+                                                "voters_count": {
+                                                    "type": "integer"
+                                                },
+                                                "created_at": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "title",
+                                                "description",
+                                                "status",
+                                                "starts_at",
+                                                "ends_at",
+                                                "timezone",
+                                                "language",
+                                                "candidate_order",
+                                                "results_display",
+                                                "cover",
+                                                "ballots_count",
+                                                "voters_count",
+                                                "created_at"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
                     }
                 }
             }
@@ -9780,6 +10096,20 @@
                 "items": {},
                 "title": "CandidateResource"
             },
+            "CloseElectionRequest": {
+                "type": "object",
+                "description": "docs/api/elections/POST-elections-{election}-close.md: the typed confirmation. That it equals the title\nis judged in the controller, under the row lock, after the status.",
+                "properties": {
+                    "confirmation": {
+                        "type": "string",
+                        "maxLength": 200
+                    }
+                },
+                "required": [
+                    "confirmation"
+                ],
+                "title": "CloseElectionRequest"
+            },
             "CopyVotersRequest": {
                 "type": "object",
                 "description": "docs/api/voters/POST-elections-{election}-voter-copies.md.",
@@ -10043,6 +10373,19 @@
                 "type": "array",
                 "items": {},
                 "title": "ElectionResource"
+            },
+            "ExtendElectionRequest": {
+                "type": "object",
+                "description": "docs/api/elections/POST-elections-{election}-extend.md: `ends_at` is required and an ISO 8601 date and time.\nIts place against the current end is judged in the controller, under the row lock.",
+                "properties": {
+                    "ends_at": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "ends_at"
+                ],
+                "title": "ExtendElectionRequest"
             },
             "ForgotPasswordRequest": {
                 "type": "object",

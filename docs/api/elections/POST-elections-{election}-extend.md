@@ -49,3 +49,6 @@ The election as in [GET election](GET-elections-{election}.md) with the new `end
 
 A voter who votes after the old end but before the new one is accepted: the transaction reads the election's current
 end. Files of slips expire at the election's current end (slice 10 review).
+
+Order of the checks: election (404), then the shape of the body (422 `ends_at: required` or `invalid`, even when the
+election is in another state), then the state under the row lock (409), then the value (422 `not_after`, `too_far`).
