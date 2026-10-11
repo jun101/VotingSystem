@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Enums\ElectionStatus;
 use App\Models\Election;
+use App\Support\Audit\AuditLog;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -52,12 +53,14 @@ class AdvanceElections extends Command
                 }
 
                 $changed = false;
+                $events = [];
 
                 if ($election->status === ElectionStatus::Scheduled && $election->starts_at <= $now) {
                     $election->status = ElectionStatus::Open;
                     $election->opened_at = $now;
                     $changed = true;
                     $opened++;
+                    $events[] = 'election.opened';
                 }
 
                 if ($election->status === ElectionStatus::Open && $election->ends_at <= $now) {
@@ -65,10 +68,16 @@ class AdvanceElections extends Command
                     $election->closed_at = $now;
                     $changed = true;
                     $closed++;
+                    $events[] = 'election.closed';
                 }
 
                 if ($changed) {
                     $election->save();
+
+                    // Written with no user and no address: `system`, `by: scheduler`.
+                    foreach ($events as $event) {
+                        AuditLog::record($event, $election, ['by' => 'scheduler'], system: true);
+                    }
                 }
             });
         }

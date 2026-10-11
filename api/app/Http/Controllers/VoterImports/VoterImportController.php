@@ -16,6 +16,7 @@ use App\Models\User;
 use App\Models\Voter;
 use App\Models\VoterImport;
 use App\Models\VoterImportRow;
+use App\Support\Audit\AuditLog;
 use App\Support\Imports\ErrorFileWriter;
 use App\Support\Imports\ImportFileInspector;
 use App\Support\Imports\VoterFileTemplate;
@@ -358,6 +359,10 @@ class VoterImportController extends Controller
 
             throw $e;
         }
+
+        // After the dispatch, so a failed confirm writes nothing and a retry does not duplicate it. The rows that
+        // will be written and those left out (invalid, duplicates): counts only, never a name.
+        AuditLog::record('voters.imported', $confirmed->election, ['count' => $confirmed->valid_rows, 'skipped' => max(0, $confirmed->total_rows - $confirmed->valid_rows)]);
 
         Log::info('voter_import.confirm', ['outcome' => 'queued']);
 

@@ -25,6 +25,7 @@ use App\Models\Party;
 use App\Models\User;
 use App\Models\Voter;
 use App\Models\VoterImport;
+use App\Support\Audit\AuditLog;
 use App\Support\Media\ImageReEncoder;
 use Dedoc\Scramble\Attributes\Response;
 use Illuminate\Database\QueryException;
@@ -81,7 +82,11 @@ class ElectionController extends Controller
 
         // The time zone and the language of the institution, unless the request names its own.
         $election = new Election($request->attributesToWrite() + ['timezone' => $institution->timezone, 'language' => $institution->language]);
-        $election->save();
+
+        DB::transaction(function () use ($election): void {
+            $election->save();
+            AuditLog::record('election.created', $election, ['title' => $election->title]);
+        });
 
         Log::info('election.create', ['outcome' => 'created']);
 
@@ -135,7 +140,20 @@ class ElectionController extends Controller
                 throw ValidationException::withMessages(['ends_at' => ['after_start']]);
             }
 
+            $dirty = array_keys($locked->getDirty());
+            $times = ['starts_at', 'ends_at', 'timezone'];
+            $before = $this->timesOf($locked, original: true);
+            $fields = array_values(array_diff($dirty, $times));
+
             $locked->save();
+
+            if ($fields !== []) {
+                AuditLog::record('election.updated', $locked, ['fields' => $fields]);
+            }
+
+            if (array_intersect($dirty, $times) !== []) {
+                AuditLog::record('election.times_changed', $locked, ['from' => $before, 'to' => $this->timesOf($locked)]);
+            }
 
             return $locked;
         });
@@ -188,6 +206,8 @@ class ElectionController extends Controller
                     ->delete();
                 Voter::query()->where('election_id', $locked->id)->delete();
                 $locked->delete();
+                // The uuid and the title are kept in the entry: the election itself is gone.
+                AuditLog::record('election.deleted', $locked, ['title' => $locked->title]);
             });
         } catch (QueryException $e) {
             // An election that holds votes, or a voter who voted, is held by the database (1451): a refusal, not a fault.
@@ -296,6 +316,7 @@ class ElectionController extends Controller
 
             $locked->status = ElectionStatus::Scheduled;
             $locked->save();
+            AuditLog::record('election.scheduled', $locked);
 
             return $locked;
         });
@@ -336,6 +357,7 @@ class ElectionController extends Controller
 
             $locked->status = ElectionStatus::Draft;
             $locked->save();
+            AuditLog::record('election.unscheduled', $locked);
 
             return $locked;
         });
@@ -380,6 +402,7 @@ class ElectionController extends Controller
             $locked->status = ElectionStatus::Closed;
             $locked->closed_at = now('UTC');
             $locked->save();
+            AuditLog::record('election.closed', $locked, ['by' => 'user']);
 
             return $locked;
         });
@@ -428,6 +451,10 @@ class ElectionController extends Controller
 
             $locked->ends_at = Carbon::createFromInterface($end);
             $locked->save();
+            AuditLog::record('election.extended', $locked, [
+                'from' => $current->format('Y-m-d\TH:i:s\Z'),
+                'to' => $end->format('Y-m-d\TH:i:s\Z'),
+            ]);
 
             return $locked;
         });
@@ -435,6 +462,24 @@ class ElectionController extends Controller
         Log::info('election.extend', ['outcome' => 'extended']);
 
         return new ElectionResource($saved);
+    }
+
+    /**
+     * The start, the end and the time zone as the audit log writes them (UTC, ISO 8601), of the row as it is or as it was.
+     *
+     * @return array{starts_at: string, ends_at: string, timezone: string}
+     */
+    private function timesOf(Election $election, bool $original = false): array
+    {
+        $at = static function (mixed $value): string {
+            return Carbon::parse($value instanceof \DateTimeInterface || is_string($value) ? $value : 'now', 'UTC')->utc()->format('Y-m-d\TH:i:s\Z');
+        };
+
+        return [
+            'starts_at' => $at($original ? $election->getRawOriginal('starts_at') : $election->starts_at),
+            'ends_at' => $at($original ? $election->getRawOriginal('ends_at') : $election->ends_at),
+            'timezone' => $original ? (is_string($raw = $election->getRawOriginal('timezone')) ? $raw : $election->timezone) : $election->timezone,
+        ];
     }
 
     /**

@@ -7,7 +7,7 @@ The institution's audit log, newest first.
 | Slice | 17 |
 | Requirements | FR-AUD-01, FR-AUD-02, FR-AUD-03 |
 | Caller | Institution **owner** (a manager answers 403 `forbidden`) |
-| Rate limit | The shared API limit |
+| Rate limit | None (like the other list reads) |
 
 ## Request
 

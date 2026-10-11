@@ -12,6 +12,7 @@ use App\Jobs\GenerateSlipFileJob;
 use App\Models\Election;
 use App\Models\GeneratedFile;
 use App\Models\Voter;
+use App\Support\Audit\AuditLog;
 use Dedoc\Scramble\Attributes\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Gate;
@@ -59,6 +60,14 @@ class CredentialRunController extends Controller
             }
 
             throw $e;
+        }
+
+        // After the dispatch, so a run that could not start leaves nothing. Counts and the scope only: never a
+        // name, a code or a group.
+        AuditLog::record('credentials.generated', $election, ['scope' => $request->scope(), 'count' => $run['voters']]);
+
+        if ($run['emails'] > 0) {
+            AuditLog::record('credentials.emailed', $election, ['count' => $run['emails']]);
         }
 
         // Counts only: never a name, a code or a group.

@@ -6,6 +6,7 @@ use App\Exceptions\ApiException;
 use App\Models\Election;
 use App\Models\Voter;
 use App\Models\VoterGroup;
+use App\Support\Audit\AuditLog;
 use App\Support\Imports\Fold;
 use App\Support\Voters\GroupByName;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -66,7 +67,12 @@ final class CopyVoters
                 throw new ApiException(409, 'group_limit_reached');
             }
 
-            return $this->write($locked, $plan['voters'], $known, $plan['skipped']);
+            $result = $this->write($locked, $plan['voters'], $known, $plan['skipped']);
+
+            // Counts only, never a name; in the transaction, so a 409 or a failure leaves no entry.
+            AuditLog::record('voters.imported', $locked, ['count' => $result['copied'], 'skipped' => $result['skipped'], 'source' => 'copy']);
+
+            return $result;
         });
     }
 
