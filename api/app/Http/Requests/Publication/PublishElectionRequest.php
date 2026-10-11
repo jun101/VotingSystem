@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests\Publication;
 
+use App\Exceptions\ApiException;
+use App\Models\Election;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
 
 /**
  * docs/api/publication/POST-elections-{election}-publish.md: the optional display choice. A plain `in` rule on
@@ -10,6 +13,22 @@ use Illuminate\Foundation\Http\FormRequest;
  */
 class PublishElectionRequest extends FormRequest
 {
+    /**
+     * Owners and managers of the election's institution may (the `update` ability, as the controller's own
+     * check); anyone else answers 403 before the body is validated, so a user who may not publish never learns
+     * anything from a 422.
+     */
+    public function authorize(): bool
+    {
+        $election = $this->route('election');
+
+        if ($election instanceof Election && ! Gate::forUser($this->user())->allows('update', $election)) {
+            throw new ApiException(403, 'forbidden');
+        }
+
+        return true;
+    }
+
     /** @return array<string, list<string>> */
     public function rules(): array
     {

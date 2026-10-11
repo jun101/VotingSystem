@@ -3,6 +3,7 @@ import { GrowBar, Reveal } from '@/components/motion';
 import { ClosingBand } from '@/components/ui/ClosingBand';
 import { Notice } from '@/components/ui/Notice';
 import { cx } from '@/components/ui/cx';
+import { percentOf } from '@/components/results/resultsModel';
 import { percentText } from '@/components/turnout/turnoutModel';
 import { VoteCard, type HeadTone } from '@/components/vote/VoteCard';
 import type { PublicBallot, PublicResults } from '@/lib/api/public';
@@ -393,10 +394,7 @@ function BallotCard({
           </span>
           {t(`public.blank.line.${pluralForm(locale, ballot.blank)}`, {
             count: ballot.blank,
-            percent: percentText(
-              ballot.cast && ballot.cast > 0 ? (ballot.blank / ballot.cast) * 100 : 0,
-              locale,
-            ),
+            percent: percentText(percentOf(ballot.blank, ballot.cast ?? 0), locale),
           })}
         </p>
       ) : null}

@@ -2585,10 +2585,10 @@
     "kicker": "Official results",
     "institution": {
       "kicker": "Institution page",
-      "elections": "Published elections",
+      "elections": "Latest published elections",
       "count": {
-        "one": "{count} published election",
-        "other": "{count} published elections"
+        "one": "Latest published election",
+        "other": "Latest {count} published elections"
       },
       "empty": "This institution has not published any results yet.",
       "emptyHelp": "Results will appear here as soon as an election is published.",
@@ -2664,6 +2664,12 @@
       "title": "More results from {name}",
       "line": "Find the elections this institution has published.",
       "link": "Institution page"
+    },
+    "error": {
+      "kicker": "Public results",
+      "title": "Results are not available right now",
+      "text": "The results could not be loaded for the moment. Nothing is wrong with the election: try again in a few seconds.",
+      "retry": "Try again"
     },
     "unavailable": {
       "kicker": "Public results",

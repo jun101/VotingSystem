@@ -16,7 +16,7 @@ class VoteInfoController extends Controller
      *
      * The election, its period and whether it can be voted in now (`phase`: `before`, `open` or
      * `closed`, from the status and the server's clock, never the device's). `results` is the
-     * path of the public results page once the election is published. A draft, an unknown election
+     * path of the public results page once the election is published and its institution is not suspended. A draft, an unknown election
      * and a value that is not a UUID all answer 404. No session; no count; no ballot. Limited per
      * address and election.
      */
@@ -38,7 +38,8 @@ class VoteInfoController extends Controller
                 'timezone' => $found->timezone,
                 'language' => $found->language,
                 'phase' => $elections->phase($found),
-                'results' => $found->status === ElectionStatus::Published ? '/results/'.$found->uuid : null,
+                // The same rule as the public page: published and the institution is not suspended (else it answers 404).
+                'results' => $found->status === ElectionStatus::Published && ! $elections->suspended($found) ? '/results/'.$found->uuid : null,
             ],
         ]);
     }

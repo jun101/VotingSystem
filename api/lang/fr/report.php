@@ -23,6 +23,7 @@ return [
     'check_ok' => 'conforme',
     'check_failed' => 'écart',
     'note' => 'Note',
+    'date_format' => 'd/m/Y H:i',
     'decimal' => ',',
     'percent_suffix' => ' %',
 ];

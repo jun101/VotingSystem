@@ -14,10 +14,20 @@ function first(value: string | null): string {
 }
 
 /**
- * The origin the visitor used (`https://vote.example`), from `x-forwarded-host` or `host` and
- * `x-forwarded-proto`. `http` is the fallback for a host on this machine, `https` for any other.
+ * The origin the absolute addresses (share links, canonical, preview image) are built on.
+ *
+ * `SITE_URL` (the public address of the site, e.g. `https://vote.example`) wins whenever it is set:
+ * a request header is the visitor's own, and a forged `Host` or `X-Forwarded-Host` must not end up
+ * in a link that is shared. Only when it is unset (development on this machine) the origin the
+ * visitor used is taken from `x-forwarded-host` or `host` and `x-forwarded-proto`: `http` is the
+ * fallback for a host on this machine, `https` for any other. A deployment sets `SITE_URL`. The
+ * caller passes `process.env.SITE_URL`: this module reads no environment.
  */
-export function originOf(headers: HeaderReader): string {
+export function originOf(headers: HeaderReader, configured?: string): string {
+  const site = parseOrigin(configured);
+
+  if (site) return site;
+
   const host = first(headers.get('x-forwarded-host')) || first(headers.get('host')) || 'localhost';
   const forwarded = first(headers.get('x-forwarded-proto')).toLowerCase();
   const local = /^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(host);
@@ -25,6 +35,19 @@ export function originOf(headers: HeaderReader): string {
     forwarded === 'http' || forwarded === 'https' ? forwarded : local ? 'http' : 'https';
 
   return `${proto}://${host}`;
+}
+
+/** The origin of a configured address, or null when it is unset, empty or not an http(s) address. */
+function parseOrigin(value: string | undefined): string | null {
+  if (!value || value.trim() === '') return null;
+
+  try {
+    const url = new URL(value.trim());
+
+    return url.protocol === 'http:' || url.protocol === 'https:' ? url.origin : null;
+  } catch {
+    return null;
+  }
 }
 
 /** The absolute address of a path of this site. */

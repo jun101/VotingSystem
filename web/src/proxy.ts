@@ -25,6 +25,8 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Every page; not the files of the build, the images and the API (answered by the proxy).
-  matcher: ['/((?!_next/|api/|.*\\..*).*)'],
+  // Every path, dots included, but not the files of the build and the API (answered by the proxy). A path
+  // with a dot (`/results/x.y`) must pass here too: the internal headers above are set (overwritten) only
+  // by this function, so a path that skipped it would carry the visitor's own values to `getI18n`.
+  matcher: ['/((?!_next/|api/).*)'],
 };

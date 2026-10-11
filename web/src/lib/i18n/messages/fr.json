@@ -2585,10 +2585,10 @@
     "kicker": "Résultats officiels",
     "institution": {
       "kicker": "Page de l’établissement",
-      "elections": "Élections publiées",
+      "elections": "Dernières élections publiées",
       "count": {
-        "one": "{count} élection publiée",
-        "other": "{count} élections publiées"
+        "one": "Dernière élection publiée",
+        "other": "{count} dernières élections publiées"
       },
       "empty": "Cet établissement n’a pas encore publié de résultats.",
       "emptyHelp": "Les résultats apparaîtront ici dès qu’une élection sera publiée.",
@@ -2664,6 +2664,12 @@
       "title": "Les autres résultats de {name}",
       "line": "Retrouvez les élections que cet établissement a publiées.",
       "link": "Page de l’établissement"
+    },
+    "error": {
+      "kicker": "Résultats publics",
+      "title": "Les résultats sont momentanément indisponibles",
+      "text": "Les résultats n’ont pas pu être chargés pour le moment. L’élection n’est pas en cause : réessayez dans quelques secondes.",
+      "retry": "Réessayer"
     },
     "unavailable": {
       "kicker": "Résultats publics",

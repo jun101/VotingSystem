@@ -17,48 +17,90 @@ export type PublicInstitution =
 export type PublicElectionItem = PublicInstitution['elections'][number];
 
 /**
+ * The API did not give an answer that says "found" or "not found": the rate limit (429), a server
+ * error (5xx), a timeout or no connection. The page shows its "try again" error page, never the
+ * "no public results" one, which is only for a real not-found.
+ */
+export class PublicUnavailableError extends Error {
+  constructor(readonly status: number | null) {
+    super(`The public API did not answer (${status ?? 'no answer'}).`);
+    this.name = 'PublicUnavailableError';
+  }
+}
+
+/**
+ * One public read: the `data` on 200, null on a 404 (and on 400 or 422, which the API answers for
+ * what is not a UUID), a thrown `PublicUnavailableError` on anything else. The visitor's address is
+ * forwarded so the API's limit counts the visitor, not the web server (as `fetchVoteInfo` does).
+ */
+async function readPublic<T>(
+  load: (init: { headers: Record<string, string>; signal: AbortSignal }) => Promise<{
+    data?: { data: T };
+    response: Response;
+  }>,
+  forwardedFor: string | null,
+): Promise<T | null> {
+  let result: Awaited<ReturnType<typeof load>>;
+
+  try {
+    result = await load({
+      headers: forwardedFor ? { 'X-Forwarded-For': forwardedFor } : {},
+      signal: AbortSignal.timeout(4000),
+    });
+  } catch {
+    throw new PublicUnavailableError(null);
+  }
+
+  const { data, response } = result;
+
+  if (response.ok && data) return data.data;
+  if (response.status === 404) return null;
+
+  throw new PublicUnavailableError(response.status);
+}
+
+/**
  * The public results of an election, on the server, without a cookie of the visitor: the API's
  * answer is the same for everyone. Kept for the render being done (the language, the metadata and
  * the page share it). Null for anything that is not a published election of an institution that is
- * not suspended (the same 404 for all) and when the API does not answer.
+ * not suspended (the same 404 for all); throws `PublicUnavailableError` when the API does not
+ * answer (limit, error, timeout).
  */
-export const fetchPublicResults = cache(async (election: string): Promise<PublicResults | null> => {
-  if (!isUuid(election)) return null;
+export const fetchPublicResults = cache(
+  async (election: string, forwardedFor: string | null = null): Promise<PublicResults | null> => {
+    if (!isUuid(election)) return null;
 
-  try {
-    const { data, response } = await createApiClient().GET(
-      '/v1/public/elections/{election}/results',
-      {
-        params: { path: { election } },
-        cache: 'no-store',
-        signal: AbortSignal.timeout(4000),
-      },
+    return readPublic<PublicResults>(
+      async (init) =>
+        (await createApiClient().GET('/v1/public/elections/{election}/results', {
+          params: { path: { election } },
+          cache: 'no-store',
+          ...init,
+        })) as never,
+      forwardedFor,
     );
+  },
+);
 
-    return response.ok && data ? data.data : null;
-  } catch {
-    return null;
-  }
-});
-
-/** The public profile of an institution, null when unknown, suspended or the API does not answer. */
+/**
+ * The public profile of an institution: null when unknown or suspended; throws
+ * `PublicUnavailableError` when the API does not answer.
+ */
 export const fetchPublicInstitution = cache(
-  async (institution: string): Promise<PublicInstitution | null> => {
+  async (
+    institution: string,
+    forwardedFor: string | null = null,
+  ): Promise<PublicInstitution | null> => {
     if (!isUuid(institution)) return null;
 
-    try {
-      const { data, response } = await createApiClient().GET(
-        '/v1/public/institutions/{institution}',
-        {
+    return readPublic<PublicInstitution>(
+      async (init) =>
+        (await createApiClient().GET('/v1/public/institutions/{institution}', {
           params: { path: { institution } },
           cache: 'no-store',
-          signal: AbortSignal.timeout(4000),
-        },
-      );
-
-      return response.ok && data ? data.data : null;
-    } catch {
-      return null;
-    }
+          ...init,
+        })) as never,
+      forwardedFor,
+    );
   },
 );

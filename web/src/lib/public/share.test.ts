@@ -31,6 +31,22 @@ const ballot = (over: Partial<PublicBallot> = {}): PublicBallot => ({
 });
 
 describe('originOf', () => {
+  it('uses the configured site address over any header', () => {
+    expect(
+      originOf(
+        headers({ 'x-forwarded-host': 'evil.example', host: 'evil.example' }),
+        'https://vote.example/',
+      ),
+    ).toBe('https://vote.example');
+  });
+
+  it('ignores a configured value that is not an http address', () => {
+    expect(originOf(headers({ host: 'localhost:8080' }), 'javascript:alert(1)')).toBe(
+      'http://localhost:8080',
+    );
+    expect(originOf(headers({ host: 'localhost:8080' }), '')).toBe('http://localhost:8080');
+  });
+
   it('prefers the forwarded host and protocol', () => {
     expect(
       originOf(

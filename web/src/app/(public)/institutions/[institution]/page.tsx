@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { InstitutionView } from '@/components/public/InstitutionView';
 import { fetchPublicInstitution } from '@/lib/api/public';
@@ -12,7 +13,14 @@ type Props = { params: Promise<{ institution: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { institution } = await params;
-  const profile = await fetchPublicInstitution(institution);
+  const forwardedFor = (await headers()).get('x-forwarded-for');
+  let profile: Awaited<ReturnType<typeof fetchPublicInstitution>> = null;
+
+  try {
+    profile = await fetchPublicInstitution(institution, forwardedFor);
+  } catch {
+    // The page itself raises the error; the metadata only stays out of the way.
+  }
 
   if (!profile) return { robots: { index: false, follow: false } };
 
@@ -28,7 +36,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 /** The public profile of an institution and the elections it published; an unknown or suspended one is a 404. */
 export default async function InstitutionPage({ params }: Props) {
   const { institution } = await params;
-  const profile = await fetchPublicInstitution(institution);
+  // Throws `PublicUnavailableError` when the API does not answer: the error page, not the 404.
+  const profile = await fetchPublicInstitution(
+    institution,
+    (await headers()).get('x-forwarded-for'),
+  );
 
   if (!profile) notFound();
 

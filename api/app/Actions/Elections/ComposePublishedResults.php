@@ -39,15 +39,31 @@ final class ComposePublishedResults
             ->whereNotNull('photo_file')
             ->pluck('photo_file', 'uuid')
             ->all();
+        $order = $winnersOnly ? $this->ballotOrder($election) : [];
 
         $ballots = [];
 
         foreach ($computed as $ballot) {
             $shown = [];
             $tied = $ballot['tie']['candidates'] ?? [];
+            $candidates = $ballot['candidates'];
+            $winners = $ballot['winners'];
+            $tie = $ballot['tie'];
 
-            foreach ($ballot['candidates'] as $candidate) {
-                if ($winnersOnly && ! in_array($candidate['id'], $ballot['winners'], true) && ! in_array($candidate['id'], $tied, true)) {
+            // The `winners` display lists the shown candidates in the ballot's own order, never by votes: the
+            // order would give the ranking away. The `full` display keeps the order of the votes.
+            if ($winnersOnly) {
+                $candidates = $this->rowsInBallotOrder($candidates, $order);
+                $winners = $this->uuidsInBallotOrder($winners, $order);
+                $tied = $this->uuidsInBallotOrder($tied, $order);
+
+                if ($tie !== null) {
+                    $tie['candidates'] = $tied;
+                }
+            }
+
+            foreach ($candidates as $candidate) {
+                if ($winnersOnly && ! in_array($candidate['id'], $winners, true) && ! in_array($candidate['id'], $tied, true)) {
                     continue;
                 }
 
@@ -73,7 +89,7 @@ final class ComposePublishedResults
             $ballots[] = $winnersOnly
                 ? [
                     'id' => $ballot['id'], 'title' => $ballot['title'], 'seats' => $ballot['seats'], 'groups' => $names,
-                    'candidates' => $shown, 'winners' => $ballot['winners'], 'tie' => $ballot['tie'], 'note' => $ballot['note'],
+                    'candidates' => $shown, 'winners' => $winners, 'tie' => $tie, 'note' => $ballot['note'],
                 ]
                 : [
                     'id' => $ballot['id'], 'title' => $ballot['title'], 'seats' => $ballot['seats'], 'groups' => $names,
@@ -117,6 +133,22 @@ final class ComposePublishedResults
     public function report(Election $election, bool $public, bool $full): ResultsReport
     {
         $computed = ($this->results)($election, null, $public);
+
+        // Without the counts (the public report of a `winners` display) the candidates, the winners and the tied
+        // are in the ballot's own order, never by votes: the order would give the ranking away.
+        if (! $full) {
+            $order = $this->ballotOrder($election);
+
+            foreach ($computed as $i => $ballot) {
+                $computed[$i]['candidates'] = $this->rowsInBallotOrder($ballot['candidates'], $order);
+                $computed[$i]['winners'] = $this->uuidsInBallotOrder($ballot['winners'], $order);
+
+                if ($ballot['tie'] !== null) {
+                    $computed[$i]['tie']['candidates'] = $this->uuidsInBallotOrder($ballot['tie']['candidates'], $order);
+                }
+            }
+        }
+
         [$eligible, $voted] = $this->turnout($election);
         $institution = Institution::query()->whereKey($election->institution_id)->first();
 
@@ -134,6 +166,62 @@ final class ComposePublishedResults
             showCheck: $full,
             ballots: $computed,
         );
+    }
+
+    /**
+     * The rank of each candidate of the election on its ballot: candidate uuid => rank (position, then id). Off the
+     * tenant scope like the counting; limited to this election. The rank is only compared, never output.
+     *
+     * @return array<string, int>
+     */
+    private function ballotOrder(Election $election): array
+    {
+        $rank = [];
+
+        // Nobody is signed in on the public pages, the scope would match nothing: limited to this election.
+        $uuids = Candidate::withoutInstitutionScope()
+            ->where('election_id', $election->id)
+            ->orderBy('position')
+            ->orderBy('id')
+            ->pluck('uuid');
+
+        foreach ($uuids as $i => $uuid) {
+            if (is_string($uuid)) {
+                $rank[$uuid] = $i;
+            }
+        }
+
+        return $rank;
+    }
+
+    /**
+     * Candidate uuids sorted by rank; unknown ranks keep their order (the sort is stable).
+     *
+     * @param  list<string>  $uuids
+     * @param  array<string, int>  $order
+     * @return list<string>
+     */
+    private function uuidsInBallotOrder(array $uuids, array $order): array
+    {
+        usort($uuids, static fn (string $a, string $b): int => ($order[$a] ?? PHP_INT_MAX) <=> ($order[$b] ?? PHP_INT_MAX));
+
+        return $uuids;
+    }
+
+    /**
+     * Candidate rows (with the uuid as `id`) sorted by rank.
+     *
+     * @template T of array{id: string}
+     *
+     * @param  list<T>  $rows
+     * @param  array<string, int>  $order
+     * @return list<T>
+     */
+    private function rowsInBallotOrder(array $rows, array $order): array
+    {
+        usort($rows, static fn (array $a, array $b): int => ($order[$a['id']] ?? PHP_INT_MAX) <=> ($order[$b['id']] ?? PHP_INT_MAX));
+
+        return $rows;
     }
 
     /**

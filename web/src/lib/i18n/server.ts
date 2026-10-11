@@ -45,9 +45,13 @@ export async function getI18n(): Promise<{ locale: Locale; t: Translate }> {
   const publicElection = headerStore.get('x-public-election');
 
   if (publicElection) {
-    const results = await fetchPublicResults(publicElection);
+    try {
+      const results = await fetchPublicResults(publicElection, headerStore.get('x-forwarded-for'));
 
-    if (results && isLocale(results.language)) locale = results.language;
+      if (results && isLocale(results.language)) locale = results.language;
+    } catch {
+      // The API did not answer: the page (or its error page) speaks the visitor's language.
+    }
   }
 
   const messages = getMessages(locale);

@@ -20,6 +20,26 @@ final class ReportDocument
 
     private const FONT = 'helvetica';
 
+    /**
+     * Latin letters outside Windows-1252 (Latin Extended-A and a few more: Turkish, Polish, Czech, Romanian,
+     * Vietnamese-adjacent) and the plain letter each one is drawn as.
+     */
+    private const LATIN = [
+        'Ā' => 'A', 'ā' => 'a', 'Ă' => 'A', 'ă' => 'a', 'Ą' => 'A', 'ą' => 'a', 'Ć' => 'C', 'ć' => 'c', 'Ĉ' => 'C', 'ĉ' => 'c',
+        'Ċ' => 'C', 'ċ' => 'c', 'Č' => 'C', 'č' => 'c', 'Ď' => 'D', 'ď' => 'd', 'Đ' => 'D', 'đ' => 'd', 'Ē' => 'E', 'ē' => 'e',
+        'Ĕ' => 'E', 'ĕ' => 'e', 'Ė' => 'E', 'ė' => 'e', 'Ę' => 'E', 'ę' => 'e', 'Ě' => 'E', 'ě' => 'e', 'Ĝ' => 'G', 'ĝ' => 'g',
+        'Ğ' => 'G', 'ğ' => 'g', 'Ġ' => 'G', 'ġ' => 'g', 'Ģ' => 'G', 'ģ' => 'g', 'Ĥ' => 'H', 'ĥ' => 'h', 'Ħ' => 'H', 'ħ' => 'h',
+        'Ĩ' => 'I', 'ĩ' => 'i', 'Ī' => 'I', 'ī' => 'i', 'Ĭ' => 'I', 'ĭ' => 'i', 'Į' => 'I', 'į' => 'i', 'İ' => 'I', 'ı' => 'i',
+        'Ĵ' => 'J', 'ĵ' => 'j', 'Ķ' => 'K', 'ķ' => 'k', 'Ĺ' => 'L', 'ĺ' => 'l', 'Ļ' => 'L', 'ļ' => 'l', 'Ľ' => 'L', 'ľ' => 'l',
+        'Ł' => 'L', 'ł' => 'l', 'Ń' => 'N', 'ń' => 'n', 'Ņ' => 'N', 'ņ' => 'n', 'Ň' => 'N', 'ň' => 'n', 'Ō' => 'O', 'ō' => 'o',
+        'Ŏ' => 'O', 'ŏ' => 'o', 'Ő' => 'O', 'ő' => 'o', 'Ŕ' => 'R', 'ŕ' => 'r', 'Ŗ' => 'R', 'ŗ' => 'r', 'Ř' => 'R', 'ř' => 'r',
+        'Ś' => 'S', 'ś' => 's', 'Ŝ' => 'S', 'ŝ' => 's', 'Ş' => 'S', 'ş' => 's', 'Ţ' => 'T', 'ţ' => 't', 'Ť' => 'T', 'ť' => 't',
+        'Ũ' => 'U', 'ũ' => 'u', 'Ū' => 'U', 'ū' => 'u', 'Ŭ' => 'U', 'ŭ' => 'u', 'Ů' => 'U', 'ů' => 'u', 'Ű' => 'U', 'ű' => 'u',
+        'Ų' => 'U', 'ų' => 'u', 'Ŵ' => 'W', 'ŵ' => 'w', 'Ŷ' => 'Y', 'ŷ' => 'y', 'Ź' => 'Z', 'ź' => 'z', 'Ż' => 'Z', 'ż' => 'z',
+        'Ș' => 'S', 'ș' => 's', 'Ț' => 'T', 'ț' => 't', 'Ə' => 'E', 'ə' => 'e', 'Ơ' => 'O', 'ơ' => 'o', 'Ư' => 'U', 'ư' => 'u',
+        'ẞ' => 'SS', '’' => "'", '‘' => "'", '“' => '"', '”' => '"', '‐' => '-', '‑' => '-', '′' => "'", '✓' => 'v', '✔' => 'v',
+    ];
+
     private TCPDF $pdf;
 
     private float $y = self::MARGIN;
@@ -64,8 +84,10 @@ final class ReportDocument
     private function head(): void
     {
         $r = $this->report;
-        $from = $r->startsAt->copy()->setTimezone($r->timezone)->format('d/m/Y H:i');
-        $to = $r->endsAt->copy()->setTimezone($r->timezone)->format('d/m/Y H:i');
+        // The date format is a message of the language (lang/*/report.php, `date_format`).
+        $format = $this->t('date_format');
+        $from = $r->startsAt->copy()->setTimezone($r->timezone)->format($format);
+        $to = $r->endsAt->copy()->setTimezone($r->timezone)->format($format);
 
         $this->wrapped($this->t('heading'), 9, '', 1);
         $this->wrapped($r->institution, 12, '', 4);
@@ -113,7 +135,11 @@ final class ReportDocument
             $this->tableHead();
 
             foreach ($rows as [$candidate, $status]) {
-                $this->ensure(18);
+                // After a page break inside a ballot the table's header is drawn again.
+                if ($this->ensure(18)) {
+                    $this->tableHead();
+                }
+
                 $name = trim($candidate['first_name'].' '.$candidate['last_name']);
                 $this->cell($name, 10, 'B', $this->column('name'), $this->width('name'));
                 $this->cell($candidate['party'] ?? '', 9, '', $this->column('party'), $this->width('party'));
@@ -257,11 +283,22 @@ final class ReportDocument
         foreach (preg_split('/\s+/u', $text) ?: [] as $word) {
             // A word wider than a line is cut by characters.
             while ($this->measure($word) > $space && mb_strlen($word, 'UTF-8') > 1) {
-                $cut = mb_strlen($word, 'UTF-8');
+                // The longest prefix that fits (at least one character), by binary search: the width only
+                // grows with the length, so the loop makes about log2(length) measures, not one per character.
+                $low = 1;
+                $high = mb_strlen($word, 'UTF-8');
 
-                while ($cut > 1 && $this->measure(mb_substr($word, 0, $cut, 'UTF-8')) > $space) {
-                    $cut--;
+                while ($low < $high) {
+                    $mid = intdiv($low + $high + 1, 2);
+
+                    if ($this->measure(mb_substr($word, 0, $mid, 'UTF-8')) > $space) {
+                        $high = $mid - 1;
+                    } else {
+                        $low = $mid;
+                    }
                 }
+
+                $cut = $low;
 
                 if ($current !== '') {
                     $lines[] = $current;
@@ -294,13 +331,17 @@ final class ReportDocument
         $this->y += 8;
     }
 
-    /** A new page when `$height` more points do not fit. */
-    private function ensure(float $height): void
+    /** A new page when `$height` more points do not fit; true when one was added. */
+    private function ensure(float $height): bool
     {
         if ($this->y + $height > self::HEIGHT - self::MARGIN) {
             $this->pdf->AddPage();
             $this->y = self::MARGIN;
+
+            return true;
         }
+
+        return false;
     }
 
     private function measure(string $text): float
@@ -310,10 +351,31 @@ final class ReportDocument
         return is_numeric($width) ? (float) $width : 0.0;
     }
 
-    /** Control characters out; the text is otherwise as written. */
+    /**
+     * Control characters out; the text is otherwise as written, except that a character the core font cannot
+     * draw (Windows-1252 only) is replaced by its plain Latin letter when `LATIN` knows it, and by `?` when not.
+     * The bundled Unicode font of TCPDF is not installed (TCPDF 7 ships none), so this is the documented
+     * fallback; the names stay readable, and the text of the PDF stays extractable.
+     */
     private function clean(string $text): string
     {
-        return trim((string) preg_replace('/[\x00-\x1F\x7F]+/u', ' ', $text));
+        $text = trim((string) preg_replace('/[\x00-\x1F\x7F]+/u', ' ', $text));
+        $out = '';
+
+        foreach (mb_str_split($text, 1, 'UTF-8') as $char) {
+            $out .= $this->drawable($char) ? $char : (self::LATIN[$char] ?? '?');
+        }
+
+        return $out;
+    }
+
+    private function drawable(string $char): bool
+    {
+        if (strlen($char) === 1) {
+            return true;
+        }
+
+        return mb_convert_encoding($char, 'Windows-1252', 'UTF-8') !== '?';
     }
 
     private function percent(float $value): string

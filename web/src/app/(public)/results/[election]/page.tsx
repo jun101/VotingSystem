@@ -18,13 +18,20 @@ const OPEN_GRAPH_LOCALE = { fr: 'fr_FR', en: 'en_US' } as const;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { election } = await params;
-  const results = await fetchPublicResults(election);
+  const forwardedFor = (await headers()).get('x-forwarded-for');
+  let results: Awaited<ReturnType<typeof fetchPublicResults>> = null;
+
+  try {
+    results = await fetchPublicResults(election, forwardedFor);
+  } catch {
+    // The page itself raises the error; the metadata only stays out of the way.
+  }
 
   if (!results) return { robots: { index: false, follow: false } };
 
   const locale = isLocale(results.language) ? results.language : 'fr';
   const messages = getMessages(locale);
-  const origin = originOf(await headers());
+  const origin = originOf(await headers(), process.env.SITE_URL);
   const url = absoluteUrl(origin, `/results/${results.id}`);
   const image = absoluteUrl(origin, `/results/${results.id}/opengraph-image`);
   const title = translate(messages, 'public.meta.title', {
@@ -71,12 +78,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  */
 export default async function PublicResultsPage({ params }: Props) {
   const { election } = await params;
-  const results = await fetchPublicResults(election);
+  // Throws `PublicUnavailableError` when the API does not answer: the error page, not the 404.
+  const results = await fetchPublicResults(election, (await headers()).get('x-forwarded-for'));
 
   if (!results) notFound();
 
   const { locale, t } = await getI18n();
-  const origin = originOf(await headers());
+  const origin = originOf(await headers(), process.env.SITE_URL);
   const url = absoluteUrl(origin, `/results/${results.id}`);
 
   return (

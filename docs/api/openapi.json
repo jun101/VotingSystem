@@ -9814,7 +9814,7 @@
         "/v1/vote/{election}": {
             "get": {
                 "operationId": "vote.info",
-                "description": "The election, its period and whether it can be voted in now (`phase`: `before`, `open` or\n`closed`, from the status and the server's clock, never the device's). `results` is the\npath of the public results page once the election is published. A draft, an unknown election\nand a value that is not a UUID all answer 404. No session; no count; no ballot. Limited per\naddress and election.",
+                "description": "The election, its period and whether it can be voted in now (`phase`: `before`, `open` or\n`closed`, from the status and the server's clock, never the device's). `results` is the\npath of the public results page once the election is published and its institution is not suspended. A draft, an unknown election\nand a value that is not a UUID all answer 404. No session; no count; no ballot. Limited per\naddress and election.",
                 "summary": "What a voter may know before entering a code",
                 "tags": [
                     "VoteInfo"

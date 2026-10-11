@@ -58,11 +58,22 @@ function initials(name: string): string {
 }
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ election: string }> },
 ): Promise<Response> {
   const { election } = await params;
-  const results = await fetchPublicResults(election);
+  let results: Awaited<ReturnType<typeof fetchPublicResults>>;
+
+  try {
+    // The visitor's address goes to the API, so its limit counts the visitor and not the web server.
+    results = await fetchPublicResults(election, request.headers.get('x-forwarded-for'));
+  } catch {
+    // The API did not answer (limit, error, timeout): not a "not found", and not to be kept.
+    return new Response(null, {
+      status: 503,
+      headers: { 'Cache-Control': 'no-store', 'Retry-After': '5' },
+    });
+  }
 
   if (!results) {
     return new Response(null, { status: 404, headers: { 'Cache-Control': 'no-store' } });
@@ -143,7 +154,8 @@ export async function GET(
       width: 1200,
       height: 630,
       ...(fonts.length > 0 ? { fonts } : {}),
-      headers: { 'Cache-Control': 'public, max-age=60, s-maxage=60' },
+      // Revalidated at each use: an unpublish must take the picture down at once.
+      headers: { 'Cache-Control': 'no-cache' },
     },
   );
 }
