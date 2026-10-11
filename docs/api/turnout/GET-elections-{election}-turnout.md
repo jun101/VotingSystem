@@ -53,8 +53,8 @@ No body. Query: `bucket` (optional, `hour` or `day`; default by the election's l
 }
 ```
 
-`over_time` buckets start at the election's opening hour (or day, in the election's time zone) and run to now or to
-the end; empty buckets are listed with `voted` 0. `percentage` is `voted` over `eligible` with one decimal (0 when
+`over_time` is empty while nobody has voted. Otherwise its buckets start at the election's opening hour (or day, in the election's time zone: `at` is the UTC instant the bucket begins) and run to the current bucket, or to the
+bucket of the end for an election that is over; empty buckets are listed with `voted` 0. `percentage` is `voted` over `eligible` with one decimal (0 when
 nobody is eligible). Groups are ordered by name, accents and case ignored; the line with no group is last.
 
 ## Notes

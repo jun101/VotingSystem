@@ -42,7 +42,7 @@ doing.
 }
 ```
 
-`open` lists open elections (the time check applies: an election past its end is not listed as open), newest first, at
+`voters` is the number of voters of all the institution's elections. `counts` always holds the six statuses. `open` lists open elections (the time check applies: an election past its end is not listed as open), newest first, at
 most 10. `todo`: `voters_not_voted` for each open election with voters who have not voted; `draft_blockers` for each
 draft with checklist blockers (the count of blockers); `codes_missing` for each scheduled or open election with voters
 without a code. No vote count of any ballot.

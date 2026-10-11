@@ -41,7 +41,7 @@ The voters of an election as an Excel or CSV file, for example the ones who have
 `Content-Type` the Excel or CSV type, `Content-Disposition: attachment; filename="electeurs-{slug}.xlsx|csv"` (the slug
 of the election's title), `Cache-Control: no-store`, `X-Content-Type-Options: nosniff`. Columns `Nom complet`,
 `Groupe`, `Identifiant`, `Courriel`, `Téléphone` (`Full name`, `Group`, `Identifier`, `Email`, `Phone` for an English
-election), plus `A voté` / `Has voted` (yes or no) when `voted` is `all`. **No code, no hash, no link, no time of vote.**
+election), plus `A voté` / `Has voted` (`Oui` / `Non`, `Yes` / `No`) when `voted` is `all`. Rows are sorted by group name then full name (accents and case ignored), the voters without a group last. A text that could run as a formula gets a single quote in front (`FormulaGuard`), in Excel and in CSV. **No code, no hash, no link, no time of vote.**
 
 ## Notes
 
