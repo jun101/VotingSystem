@@ -18,10 +18,23 @@ class RequireJsonBody
     /** @param  Closure(Request): Response  $next */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->isMethod('POST') && ! $request->isJson()) {
-            throw new BadRequestHttpException;
+        if ($request->isMethod('POST')) {
+            if (! $this->isJson($request)) {
+                throw new BadRequestHttpException;
+            }
+
+            // The framework reads the body as JSON only when it finds `/json` in lower case.
+            $request->headers->set('Content-Type', strtolower((string) $request->headers->get('Content-Type')));
         }
 
         return $next($request);
+    }
+
+    /** The media type is `application/json` exactly (parameters such as charset ignored; no `+json` types). */
+    private function isJson(Request $request): bool
+    {
+        $type = strtolower(trim(explode(';', (string) $request->headers->get('Content-Type'), 2)[0]));
+
+        return $type === 'application/json';
     }
 }

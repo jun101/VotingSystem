@@ -19,7 +19,7 @@ The voter's name and group, and the ballots they are eligible for with their can
 | 4 | An election with a `shuffled` candidate order | 200 (the order is the same on every read of the session) | | |
 | 5 | No cookie, an expired session, a session of another election, or a session ended | 401 | `voter_session_expired` | |
 | 6 | The election is no longer open (closed or past its end) | 409, `error.phase` | `election_not_open` | |
-| 7 | The voter has voted (the session is in the voted state) | 409 | `already_voted` | |
+| 7 | The voter has voted (the session is in the voted state, or a participation exists for the voter, for example from another session) | 409 | `already_voted` | |
 | 8 | Another method | 405 | `method_not_allowed` | |
 
 ## Responses

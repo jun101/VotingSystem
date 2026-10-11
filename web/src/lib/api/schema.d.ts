@@ -1235,7 +1235,7 @@ export interface paths {
          *     with its candidates, party, photo and slogan, in the election's order; a `shuffled` order is
          *     fixed for the session. The voter has no id here: the session names them. 401
          *     `voter_session_expired` without a live session of this election; 409 `already_voted` for a
-         *     session that voted; 409 `election_not_open` when the election is not open now.
+         *     session that voted or a voter who has a participation; 409 `election_not_open` when the election is not open now.
          */
         get: operations["vote.ballots"];
         put?: never;
@@ -1286,7 +1286,7 @@ export interface paths {
          *     replaced code answers the same 401 `invalid_code`, after the same work. A valid code opens a
          *     session: a random token in the `vote_session` cookie (HttpOnly, SameSite=Strict, path
          *     `/api/v1/vote`), kept at most 15 minutes; a session the browser already had is replaced.
-         *     Only wrong codes are counted: 30 in 10 minutes per address and election, 300 in an hour per
+         *     Only wrong codes are counted: 30 in 10 minutes per address (an IPv6 client by its /64) and election, 300 in an hour per
          *     election, 429 with `Retry-After` (a locked-out address is refused even with a valid code).
          *     409 `already_voted`, then 409 `election_not_open` with its `phase`.
          */

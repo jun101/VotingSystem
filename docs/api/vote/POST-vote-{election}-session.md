@@ -43,7 +43,7 @@ another election never matches. The answer for an unknown code takes the same pa
 | 9 | More than 30 wrong codes in 10 minutes from one address for this election, or 300 in an hour for it | 429, `Retry-After` | `too_many_attempts` | |
 | 10 | Another method; body not valid JSON | 405, 400 | `method_not_allowed`, `malformed_request` | |
 
-A valid code is **not** counted against the limits; a locked-out address still gets 429 for a valid code until the
+`code` is at most 64 characters (422 `code: invalid` above). The per-address counter keys an IPv6 client on its /64 prefix. Counting is atomic (the increment decides, and a valid code gives it back). Every request of this route, valid or not, is also held by the public limiter (600 per minute per address and election, the election's uuid in lower case), as are GET info, GET ballots, DELETE session and POST submit. A valid code is **not** counted against the wrong-code limits; a locked-out address still gets 429 for a valid code until the
 window passes.
 
 ## Responses

@@ -118,7 +118,7 @@ Body fields added:
 
 | Field | Type | Rules |
 |---|---|---|
-| scope | string | `failed_email` is added: the voters whose email failed get a **new** code (`reissue_count` + 1, the old code stops working), a slip and an email. It needs `email` true and ignores `group` |
+| scope | string | `failed_email` is added: the voters whose email failed and who have not voted get a **new** code (`reissue_count` + 1, the old code stops working), a slip and an email. It needs `email` true and ignores `group` |
 | email | boolean | Optional, default `false`. Sends one email to each voter served who has an address; the others are left for print |
 | confirm_emails | integer | Required when `email` is true: the `with_email` count of the preview the person confirmed |
 | file | string, null | Optional. `xlsx` or `csv`: also writes one self-distribution file for the run (kind `codes_xlsx` or `codes_csv`) |

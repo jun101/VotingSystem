@@ -22,6 +22,7 @@ use App\Policies\VoterImportPolicy;
 use App\Policies\VoterPolicy;
 use App\Support\Credentials\SlipWriter;
 use App\Support\Credentials\TcpdfSlipWriter;
+use App\Support\Voting\ClientAddress;
 use Dedoc\Scramble\Scramble;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Foundation\Application;
@@ -89,7 +90,7 @@ class AppServiceProvider extends ServiceProvider
             $election = $request->route('election');
 
             return Limit::perMinute(Config::integer('votes.public_per_minute') * Config::integer('auth.rate_limit_factor'))
-                ->by('vote-public:'.(is_string($election) ? $election : '-').':'.hash('sha256', (string) $request->ip()));
+                ->by('vote-public:'.(is_string($election) ? strtolower($election) : '-').':'.ClientAddress::bucket((string) $request->ip()));
         });
     }
 

@@ -53,7 +53,7 @@ it('answers the same 401 invalid_code for an unknown code, another election\'s c
     DB::connection(useMigratorConnection())->table('credentials')->where('voter_id', DB::connection(useMigratorConnection())->table('voters')->where('uuid', $e['voters']['Paul'])->value('id'))->update(['code_hash' => Codes::hash(Codes::fresh())]);
     $reference = null;
 
-    foreach ([Codes::fresh(), $other['codes']['Wideline'], 'not a code', '', str_repeat('A', 200), $old] as $typed) {
+    foreach ([Codes::fresh(), $other['codes']['Wideline'], 'not a code', '', str_repeat('A', 64), $old] as $typed) {
         $response = Voting::enter($this->browser, $e['election'], $typed);
         $shape = Tests\Support\Team::shape($response);
         if ($typed === '') {

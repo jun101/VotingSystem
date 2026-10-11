@@ -75,13 +75,14 @@ Route::prefix('v1')->group(function (): void {
     // The voter's pages (slice 12). No institution user and no cookie session: the code is the credential,
     // and the `vote_session` cookie it opens is the only one. The election is found by its uuid, never
     // listed (a draft is a 404). Wrong codes are counted in the controller (failures only, never a valid
-    // code), submissions per session there too; the reads share one limiter per address and election.
+    // code), submissions per session there too; every voting route also shares one limiter per address and election.
     Route::prefix('vote/{election}')->middleware('voter')->group(function (): void {
         Route::get('/', VoteInfoController::class)->middleware('throttle:vote-public')->name('vote.info');
-        Route::post('/session', [VoteSessionController::class, 'store'])->name('vote.session.store');
+        // No `X-RateLimit-*` counters here: every wrong answer of this route is the same answer, headers included.
+        Route::post('/session', [VoteSessionController::class, 'store'])->middleware('throttle.quiet:vote-public')->name('vote.session.store');
         Route::delete('/session', [VoteSessionController::class, 'destroy'])->middleware('throttle:vote-public')->name('vote.session.destroy');
         Route::get('/ballots', VoteBallotsController::class)->middleware('throttle:vote-public')->name('vote.ballots');
-        Route::post('/submit', VoteSubmitController::class)->name('vote.submit');
+        Route::post('/submit', VoteSubmitController::class)->middleware('throttle:vote-public')->name('vote.submit');
     });
 
     // The institution, its logo, its users and invitations (slice 04). Every route needs a

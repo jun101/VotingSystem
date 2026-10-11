@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Vote;
 use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Models\VoterGroup;
+use App\Models\Voting\Participation;
 use App\Support\Voting\VotePhase;
 use App\Support\Voting\VoterBallots;
 use App\Support\Voting\VoterContexts;
@@ -22,7 +23,7 @@ class VoteBallotsController extends Controller
      * with its candidates, party, photo and slogan, in the election's order; a `shuffled` order is
      * fixed for the session. The voter has no id here: the session names them. 401
      * `voter_session_expired` without a live session of this election; 409 `already_voted` for a
-     * session that voted; 409 `election_not_open` when the election is not open now.
+     * session that voted or a voter who has a participation; 409 `election_not_open` when the election is not open now.
      */
     #[Response(status: 200, type: "array{data: array{voter: array{full_name: string, group: string|null}, expires_at: string, ballots: list<array{id: string, title: string, description: string|null, scope: 'general'|'group', group_names: list<string>, seats: int, allow_blank: bool, candidates: list<array{id: string, first_name: string, last_name: string, sex: 'female'|'male'|'other', slogan: string|null, biography: string|null, photo: string|null, party: array{name: string, acronym: string|null, colour: string, logo: string|null}|null}>}>}}")]
     public function __invoke(Request $request, string $election, VotingElections $elections, VoterContexts $contexts, VoterBallots $ballots): JsonResponse
@@ -30,7 +31,8 @@ class VoteBallotsController extends Controller
         $found = $elections->find($election);
         $context = $contexts->resolve($request, $found);
 
-        if ($context->session->hasVoted()) {
+        // The session says so, or the participation does (a vote made in another session of the same voter).
+        if ($context->session->hasVoted() || Participation::query()->where('election_id', $found->id)->where('voter_id', $context->voter->id)->exists()) {
             throw new ApiException(409, 'already_voted');
         }
 

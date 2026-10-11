@@ -70,7 +70,8 @@ export function Review() {
 
       // 201 or 200 (an answer that had been lost): the vote is recorded either way.
       setVotedAt(answer.voted_at);
-      router.push(`/vote/${election}/done`);
+      // Replace: the back button must not return to a review of a vote that is already cast.
+      router.replace(`/vote/${election}/done`);
 
       return;
     } catch (error) {

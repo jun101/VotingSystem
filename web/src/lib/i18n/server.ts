@@ -1,7 +1,7 @@
 import { cookies, headers } from 'next/headers';
 import { fetchCurrentUser } from '@/lib/api/server';
 import { fetchVoteInfo } from '@/lib/api/voteInfo';
-import { LOCALE_COOKIE, isLocale, resolveLocale, type Locale } from './locale';
+import { LOCALE_COOKIE, VOTE_LOCALE_COOKIE, isLocale, resolveLocale, type Locale } from './locale';
 import { getMessages, translate, type Translate } from './messages';
 
 /**
@@ -23,13 +23,20 @@ export async function getI18n(): Promise<{ locale: Locale; t: Translate }> {
     if (user && isLocale(user.language)) locale = user.language;
   }
 
-  // A voting page: the election's language, unless the voter chose one with the switch (cookie).
+  // A voting page: the language the voter chose with the switch (a cookie of this election's pages
+  // only), else the election's own. The site-wide `locale` cookie and the browser do not count here.
   const election = headerStore.get('x-vote-election');
 
-  if (election && !isLocale(cookieStore.get(LOCALE_COOKIE)?.value)) {
-    const info = await fetchVoteInfo(election, headerStore.get('x-forwarded-for'));
+  if (election) {
+    const chosen = cookieStore.get(VOTE_LOCALE_COOKIE)?.value;
 
-    if (info && isLocale(info.language)) locale = info.language;
+    if (isLocale(chosen)) {
+      locale = chosen;
+    } else {
+      const info = await fetchVoteInfo(election, headerStore.get('x-forwarded-for'));
+
+      if (info && isLocale(info.language)) locale = info.language;
+    }
   }
 
   const messages = getMessages(locale);

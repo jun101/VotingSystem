@@ -4,13 +4,13 @@ import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { cx } from '@/components/ui/cx';
 import { useI18n } from '@/lib/i18n/client';
-import { rememberLocale, type Locale } from '@/lib/i18n/locale';
+import { rememberVoteLocale, type Locale } from '@/lib/i18n/locale';
 
 const FOCUS =
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-light';
 
 /**
- * FR and EN on every voting screen. The choice is a plain cookie (a language, nothing about the voter);
+ * FR and EN on every voting screen. The choice is a session cookie of this election's pages only (a language, nothing about the voter), forgotten with the voting session;
  * the page is then rendered again by the server in that language. Choices already made stay: they
  * live in the page's state, not in the render.
  */
@@ -22,7 +22,7 @@ export function LanguageToggle() {
   function choose(next: Locale) {
     if (next === locale) return;
 
-    rememberLocale(next);
+    rememberVoteLocale(next);
     startTransition(() => router.refresh());
   }
 

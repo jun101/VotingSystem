@@ -152,6 +152,8 @@ class VoterController extends Controller
         $this->electionOf($voter)->assertVotersEditable();
 
         try {
+            // A vote locks the voter and then the election; this locks the election and then the voter.
+            // The database breaks such a crossing with a deadlock error on one side: that side is retried.
             $saved = DB::transaction(function () use ($request, $voter, $groups): Voter {
                 $locked = $this->lockElection($this->electionOf($voter));
 
@@ -178,7 +180,7 @@ class VoterController extends Controller
                 $row->load('group');
 
                 return $row;
-            });
+            }, 3);
         } catch (UniqueConstraintViolationException $e) {
             throw $this->duplicate($e);
         }

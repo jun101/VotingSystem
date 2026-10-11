@@ -12,6 +12,7 @@ import {
   type ReactNode,
 } from 'react';
 import { ApiError } from '@/lib/api/errors';
+import { forgetVoteLocale } from '@/lib/i18n/locale';
 import {
   endSession,
   fetchBallots,
@@ -89,7 +90,13 @@ export function VoteProvider({
     (next: VoteNotice = null) => {
       forget();
       setNotice(next);
+      // The language chosen with the switch ends with the voting session; the server renders again in
+      // the election's language (the layout is kept by client navigation, so it is asked for).
+      const hadChoice = forgetVoteLocale();
+
       router.replace(`/vote/${election}`);
+
+      if (hadChoice) router.refresh();
     },
     [election, forget, router],
   );
