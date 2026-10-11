@@ -34,6 +34,13 @@ NFR-UX-03, NFR-SEC-08.
 | Suspended institution | Its public pages answer 404 |
 | Photos | Candidate photos are shown (they are already public to voters) |
 
+## Warning carried from slice 15
+
+A group ballot whose group holds one voter (or whose voters all chose alike) shows that voter's choice: `cast`, `voted`
+and the candidate's votes are those of one person. It is by design in the institution's own results; on the public page it
+is published. The publication card in A13 warns the person (text, not a block) when a published ballot has fewer than 3
+eligible voters.
+
 ## Endpoints
 
 New files in `docs/api/publication/` (7 files, listed in `docs/api/README.md`): publish, unpublish, archive and unarchive,
