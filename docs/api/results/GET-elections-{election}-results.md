@@ -63,10 +63,14 @@ The results of a closed election, per ballot.
 }
 ```
 
-`candidates` are ordered by votes descending, then by the election's order. `tie` is `null` or `{ "candidates": [ids],
+`groups` is a list of `{ "id", "name" }`, empty for a general ballot. `party` is the party's name or `null`. `candidates` are ordered by votes descending, then by the election's order. `tie` is `null` or `{ "candidates": [ids],
 "seats_left": n }`. `percentage` is `votes` over `cast`, one decimal. A general ballot is never split by group.
 
 ## Notes
 
 Read from `votes` and `vote_choices` only; `vote_audit` is never read (FR-SEC-09). The election's `results_display`
 setting applies to the public page in slice 16, not here.
+
+A candidate with no vote never wins and is never part of a tie: a ballot nobody voted for has empty `winners` and `tie`
+`null`. With fewer voted-for candidates than seats, `winners` holds the voted-for ones. `cast` counts the vote papers of the
+ballot (blank included); `voted` counts the voters eligible for the ballot who have a participation.

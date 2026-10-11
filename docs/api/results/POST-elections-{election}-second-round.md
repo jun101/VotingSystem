@@ -34,8 +34,10 @@ Body, JSON: `{ "ballot": "<uuid>" }`, a ballot of that election whose result has
 
 ### 201
 
-The new election as in [GET election](../elections/GET-elections-{election}.md), `status` `draft`, `parent` the first
-election's UUID, title "Second tour – {title}" (cut to 200 characters), `ballots_count` 1, `voters_count` as the first.
+The new election as in [GET election](../elections/GET-elections-{election}.md) plus a `parent` field holding the first
+election's UUID (this response only): `status` `draft`, title "Second tour – {title}" (with an en dash, cut to 200
+characters; "Second round – {title}" for an election whose language is `en`), `ballots_count` 1, `voters_count` as the
+first. The dates are the first election's, as in a duplicate: the person edits them before scheduling.
 
 ## Notes
 
