@@ -89,6 +89,7 @@ NFR-SEC-05, NFR-UX-02, NFR-UX-03. Not here: email and the export file (slice 11)
 | Run | `codes-generate-all` (the voters without a code), `codes-run-status` (shown while a file is `queued`), `codes-run-result` (after it) |
 | One group, `{key}` is the group's UUID, or `none` for the voters with no group | `codes-group-{key}`, `codes-group-{key}-count` ("with a code" number), `codes-group-{key}-generate`, `codes-group-{key}-download` (first ready file; absent when there is none) |
 | Lost slip | `codes-lost` (opens the dialog), `lost-search`, `lost-voter-{n}` (n from 1, matches of the search), `lost-confirm`, `lost-code` (the code, shown once), `lost-download` (the one-slip PDF), `lost-close` |
+| Ways in | `election-step-4` on the election page becomes a link (`data-state` `ready`, like steps 1 and 2); the card `codes-card` of the voters page becomes a link to the page (its lock icon goes) |
 | Locked | `codes-locked-notice` (election closed, published or archived: no generate or lost button) |
 
 Download names are those of the endpoint file. Text in French and English only; tokens only; phone: one column.

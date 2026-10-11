@@ -272,6 +272,7 @@ hash of a code is stored, the file is written by the same job that generates the
 | stored_file | UUID, null | The PDF encrypted with `Crypt::encryptString`, on the private disk `credentials` under this name, no extension |
 | size_bytes | int, null | |
 | expires_at | dt | The election's end; the file is deleted after it |
+| created_at, updated_at | dt | Slice 10 (`credentials` has `issued_at` only, no timestamps) |
 
 ### 2.4 Voting: the secrecy boundary
 

@@ -82,3 +82,12 @@ pest()->beforeEach(function () {
     Tests\Support\Team::clearMedia();
     $this->browser = new Tests\Support\AuthClient($this);
 })->in('Acceptance/Slice09');
+
+// Slice 10: the same, and a temporary folder for the private `credentials` disk (docs/slices/10-codes-and-slips.md).
+pest()->beforeEach(function () {
+    Tests\Support\Accounts::reset();
+    Tests\Support\Tenancy::installProbeTables();
+    Tests\Support\Team::clearMedia();
+    $this->credentialsRoot = Tests\Support\Codes::useTempDisk();
+    $this->browser = new Tests\Support\AuthClient($this);
+})->in('Acceptance/Slice10');

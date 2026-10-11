@@ -4,7 +4,9 @@ namespace Tests\Support;
 
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 use Ramsey\Uuid\Uuid;
 
@@ -709,5 +711,122 @@ final class Accounts
         $id = $db->table('elections')->where('uuid', $election)->value('id');
 
         return $db->table('voter_imports')->where('election_id', $id)->orderBy('id')->pluck('uuid')->all();
+    }
+
+    /**
+     * The current code of a voter (slice 10), written straight into `credentials` as the application stores it: only the
+     * HMAC. `voter` is the voter's uuid; `code` the code in clear (`XXXXX-XXXXX`, generated when absent). Returns the code.
+     *
+     * @param  array{voter: string, code?: string, issued_at?: string, reissue_count?: int, email_status?: string|null}  $o
+     */
+    public static function plantCredential(array $o): string
+    {
+        $db = DB::connection(useMigratorConnection());
+        $voter = $db->table('voters')->where('uuid', $o['voter'])->first();
+        $code = $o['code'] ?? Codes::fresh();
+        $now = Carbon::now('UTC')->format('Y-m-d H:i:s');
+
+        $db->table('credentials')->insert([
+            'institution_id' => $voter->institution_id,
+            'election_id' => $voter->election_id,
+            'voter_id' => $voter->id,
+            'code_hash' => Codes::hash($code),
+            'issued_at' => $o['issued_at'] ?? $now,
+            'issued_by_user_id' => null,
+            'reissue_count' => $o['reissue_count'] ?? 0,
+            'email_status' => $o['email_status'] ?? null,
+        ]);
+
+        return $code;
+    }
+
+    /** The row of `credentials` of one voter (its uuid), as an array, or null. */
+    public static function credentialRow(string $voter): ?array
+    {
+        $db = DB::connection(useMigratorConnection());
+        $row = $db->table('credentials')->where('voter_id', $db->table('voters')->where('uuid', $voter)->value('id'))->first();
+
+        return $row === null ? null : (array) $row;
+    }
+
+    /**
+     * The rows of `credentials` of one election (its uuid), by voter name.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function credentialRows(string $election): array
+    {
+        $db = DB::connection(useMigratorConnection());
+        $id = $db->table('elections')->where('uuid', $election)->value('id');
+
+        return $db->table('credentials')
+            ->join('voters', 'voters.id', '=', 'credentials.voter_id')
+            ->where('credentials.election_id', $id)
+            ->orderBy('voters.full_name')
+            ->get(['credentials.*', 'voters.uuid as voter_uuid', 'voters.full_name as full_name'])
+            ->map(fn ($row) => (array) $row)
+            ->all();
+    }
+
+    /**
+     * A file of slips (slice 10), written into `generated_files` and, for a ready file, onto the `credentials` disk as
+     * the application stores it (`Crypt::encryptString` of the PDF bytes under a random name). Returns its uuid.
+     *
+     * @param  array{election: string, user?: string, group?: string|null, status?: string, part?: int, parts?: int, voter_count?: int, pdf?: string, failure?: string|null, expires_at?: string, created_at?: string}  $o
+     */
+    public static function plantGeneratedFile(array $o): string
+    {
+        $db = DB::connection(useMigratorConnection());
+        $election = $db->table('elections')->where('uuid', $o['election'])->first();
+        $uuid = Uuid::uuid4()->toString();
+        $status = $o['status'] ?? 'ready';
+        $stored = null;
+        $size = null;
+        $now = Carbon::now('UTC')->format('Y-m-d H:i:s');
+
+        if ($status === 'ready') {
+            $pdf = $o['pdf'] ?? Pdfs::sample();
+            $stored = Uuid::uuid4()->toString();
+            Storage::disk('credentials')->put($stored, Crypt::encryptString($pdf));
+            $size = strlen($pdf);
+        }
+
+        $user = isset($o['user'])
+            ? $db->table('users')->where('uuid', $o['user'])->value('id')
+            : $db->table('users')->where('institution_id', $election->institution_id)->orderBy('id')->value('id');
+
+        $db->table('generated_files')->insert([
+            'uuid' => $uuid,
+            'institution_id' => $election->institution_id,
+            'election_id' => $election->id,
+            'user_id' => $user,
+            'kind' => 'slips_pdf',
+            'voter_group_id' => ($o['group'] ?? null) === null ? null : $db->table('voter_groups')->where('uuid', $o['group'])->value('id'),
+            'part' => $o['part'] ?? 1,
+            'parts' => $o['parts'] ?? 1,
+            'voter_count' => $o['voter_count'] ?? 1,
+            'status' => $status,
+            'failure' => $o['failure'] ?? ($status === 'failed' ? 'generation_failed' : null),
+            'stored_file' => $stored,
+            'size_bytes' => $size,
+            'expires_at' => Carbon::parse($o['expires_at'] ?? '2030-03-05 19:00:00', 'UTC')->format('Y-m-d H:i:s'),
+            'created_at' => Carbon::parse($o['created_at'] ?? $now, 'UTC')->format('Y-m-d H:i:s'),
+            'updated_at' => $now,
+        ]);
+
+        return $uuid;
+    }
+
+    /**
+     * The rows of `generated_files` of one election (its uuid), oldest first.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function generatedFileRows(string $election): array
+    {
+        $db = DB::connection(useMigratorConnection());
+        $id = $db->table('elections')->where('uuid', $election)->value('id');
+
+        return $db->table('generated_files')->where('election_id', $id)->orderBy('id')->get()->map(fn ($row) => (array) $row)->all();
     }
 }
