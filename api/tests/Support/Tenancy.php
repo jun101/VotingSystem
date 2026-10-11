@@ -39,6 +39,13 @@ final class Tenancy
         'POST api/v1/auth/accept-invitation',
         // Slice 04b: finishes a sign-in started with a password; a pending sign-in in the session is its only input.
         'POST api/v1/auth/two-factor-challenge',
+        // Slice 12: the voter's own pages. A voter session (a random token in a cookie) is their only credential and it
+        // names one voter of one election; the election is found by its uuid and is never listed.
+        'GET api/v1/vote/{election}',
+        'POST api/v1/vote/{election}/session',
+        'DELETE api/v1/vote/{election}/session',
+        'GET api/v1/vote/{election}/ballots',
+        'POST api/v1/vote/{election}/submit',
     ];
 
     /**
