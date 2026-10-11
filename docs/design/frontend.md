@@ -410,6 +410,7 @@ Rules:
 | Name | From | Layout |
 |---|---|---|
 | base | 320 px | One column. Admin: the side menu becomes a drawer |
+| `sm` | 640 px | Forms and button rows go side by side. In px like the others, so a larger breakpoint always wins in the CSS |
 | `md` | 768 px | Voter flow moves to the centred desktop layout |
 | `lg` | 1024 px | Admin: fixed side menu (272 px, gradient panel, rounded outer corners) plus content |
 | `xl` | 1280 px | Admin: list and detail side by side; this is the first mockup width |
