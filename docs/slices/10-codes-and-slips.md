@@ -73,10 +73,26 @@ NFR-SEC-05, NFR-UX-02, NFR-UX-03. Not here: email and the export file (slice 11)
 - The code hash is `hash_hmac('sha256', strtoupper(str_replace('-', '', $code)), CREDENTIAL_HASH_KEY, true)`.
 - A write failure on the `credentials` disk marks the file `failed` and rolls the codes of that file back.
 
+## Run 10b details
+
+- **Layout (TCPDF, `tecnickcom/tcpdf`):** US Letter, 2 columns by 5 rows, a dashed cut line around each slip, the same
+  text strings and reading order as `PlainSlipWriter` (core fonts, the code in one bold string), the institution name
+  and election title on top, then voter, group, code, address, period. The QR code is drawn by TCPDF's own 2D
+  barcode as filled rectangles (no image) at about 22 mm; its payload is `{APP_URL}/vote/{election uuid}#{CODE}` with
+  the code as shown (`K7MP4-QX9RT`). A unit test of the payload builder is written with the run.
+- **Purge (`php artisan files:purge`, daily in `routes/console.php`):** deletes the rows and the stored copies of the
+  files of closed, published and archived elections (failed and queued rows included), and marks a `queued` file
+  older than one hour `failed` with `generation_failed` so a stuck run cannot block the election. Idempotent, prints
+  only counts.
+- **Measure:** one run of 1 000 slips in the `queue` container: time and peak memory, written in the summary; if
+  the peak is above 128 MB or the time above 60 s the cap per file is lowered and the brief changed first.
+- The `SlipWriter` binding switches to the TCPDF writer; `PlainSlipWriter` is deleted with its unit test replaced by the
+  TCPDF one.
+
 ## Tests (written before the code, the coder never edits them)
 
 - API: `api/tests/Acceptance/Slice10/` — `CredentialsStateTest`, `CredentialRunTest`, `CodeRulesTest`,
-  `GeneratedFilesTest`, `DownloadFileTest`, `ReissueCredentialTest`; helpers in `api/tests/Support/Accounts.php`
+  `GeneratedFilesTest`, `DownloadFileTest`, `ReissueCredentialTest`, `PurgeFilesTest`, `SlipLayoutTest`; helpers in `api/tests/Support/Accounts.php`
   (`plantCredential`, `credentialRow`, `credentialRows`, `plantGeneratedFile`, `generatedFileRows`) and
   `api/tests/Support/Pdfs.php`; six routes in `Tenancy::TENANT_ROUTES`; the `Slice10` hook in `api/tests/Pest.php`.
 - Browser: `web/e2e/slice10/codes.spec.ts`, helpers `web/e2e/support/credentials.ts`.

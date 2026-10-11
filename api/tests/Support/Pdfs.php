@@ -119,6 +119,16 @@ final class Pdfs
         return $m[0];
     }
 
+    /**
+     * The inflated content of every stream of the document, in order (a page's drawing and text operators).
+     *
+     * @return list<string>
+     */
+    public static function streams(string $pdf): array
+    {
+        return self::contents($pdf);
+    }
+
     /** @return list<string> the inflated content of every stream that can be read */
     private static function contents(string $pdf): array
     {
