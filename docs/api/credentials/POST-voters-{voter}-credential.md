@@ -4,7 +4,7 @@ Gives one voter a code (the first one, or a new one that replaces a lost slip) a
 
 | | |
 |---|---|
-| Slice | 10 (the refusal for a voter who has voted is added in slice 12) |
+| Slice | 10; the refusal for a voter who has voted is slice 12 |
 | Requirements | FR-CRED-01, FR-CRED-02, FR-CRED-03 |
 | Caller | Institution user: owner or manager |
 | Rate limit | 60 requests per hour per user |
@@ -25,7 +25,7 @@ No body.
 | 2 | A voter with a code | 201 (a new code; the old one no longer matches any voter; `reissue_count` + 1) | | |
 | 3 | The answer | The code in clear **once**, a ready one-slip file and the voter; the response is `Cache-Control: no-store` | | |
 | 4 | The old code is used afterwards | Refused as an unknown code (slice 12 tests it with the voting endpoint) | | |
-| 5 | The voter has voted | 409 `voter_has_voted` (**slice 12**: needs `participations`; until then no voter has voted) | | |
+| 5 | The voter has voted (a participation exists) | 409 | `voter_has_voted` | |
 | 6 | The election is closed, published or archived | 409 | `election_codes_locked` | |
 | 7 | The file cannot be written | 500 `server_error` and the voter's code is unchanged | | |
 | 8 | Not a UUID, unknown, deleted, or another institution's voter (one answer for all) | 404 | `not_found` | |

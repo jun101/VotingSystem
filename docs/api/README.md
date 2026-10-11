@@ -317,3 +317,8 @@ Filled slice by slice: each slice adds its endpoints here with a link to their f
 | Credentials | `GET /generated-files/{file}` | 10 | [credentials/GET-generated-files-{file}.md](credentials/GET-generated-files-{file}.md) |
 | Credentials | `GET /generated-files/{file}/download` | 10 | [credentials/GET-generated-files-{file}-download.md](credentials/GET-generated-files-{file}-download.md) |
 | Credentials | `POST /voters/{voter}/credential` | 10 | [credentials/POST-voters-{voter}-credential.md](credentials/POST-voters-{voter}-credential.md) |
+| Voting | `GET /vote/{election}` | 12 | [vote/GET-vote-{election}.md](vote/GET-vote-{election}.md) |
+| Voting | `POST /vote/{election}/session` | 12 | [vote/POST-vote-{election}-session.md](vote/POST-vote-{election}-session.md) |
+| Voting | `DELETE /vote/{election}/session` | 12 | [vote/DELETE-vote-{election}-session.md](vote/DELETE-vote-{election}-session.md) |
+| Voting | `GET /vote/{election}/ballots` | 12 | [vote/GET-vote-{election}-ballots.md](vote/GET-vote-{election}-ballots.md) |
+| Voting | `POST /vote/{election}/submit` | 12 | [vote/POST-vote-{election}-submit.md](vote/POST-vote-{election}-submit.md) |
