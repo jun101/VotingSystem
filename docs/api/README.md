@@ -322,3 +322,11 @@ Filled slice by slice: each slice adds its endpoints here with a link to their f
 | Voting | `DELETE /vote/{election}/session` | 12 | [vote/DELETE-vote-{election}-session.md](vote/DELETE-vote-{election}-session.md) |
 | Voting | `GET /vote/{election}/ballots` | 12 | [vote/GET-vote-{election}-ballots.md](vote/GET-vote-{election}-ballots.md) |
 | Voting | `POST /vote/{election}/submit` | 12 | [vote/POST-vote-{election}-submit.md](vote/POST-vote-{election}-submit.md) |
+| Elections | `POST /elections/{election}/close` | 13 | [elections/POST-elections-{election}-close.md](elections/POST-elections-{election}-close.md) |
+| Elections | `POST /elections/{election}/extend` | 13 | [elections/POST-elections-{election}-extend.md](elections/POST-elections-{election}-extend.md) |
+| Turnout | `GET /elections/{election}/turnout` | 14 | [turnout/GET-elections-{election}-turnout.md](turnout/GET-elections-{election}-turnout.md) |
+| Turnout | `GET /elections/{election}/voters/export` | 14 | [turnout/GET-elections-{election}-voters-export.md](turnout/GET-elections-{election}-voters-export.md) |
+| Turnout | `GET /dashboard` | 14 | [turnout/GET-dashboard.md](turnout/GET-dashboard.md) |
+| Results | `GET /elections/{election}/results` | 15 | [results/GET-elections-{election}-results.md](results/GET-elections-{election}-results.md) |
+| Results | `PUT /ballots/{ballot}/result-note` | 15 | [results/PUT-ballots-{ballot}-result-note.md](results/PUT-ballots-{ballot}-result-note.md) |
+| Results | `POST /elections/{election}/second-round` | 15 | [results/POST-elections-{election}-second-round.md](results/POST-elections-{election}-second-round.md) |

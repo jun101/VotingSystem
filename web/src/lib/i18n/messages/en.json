@@ -12,12 +12,181 @@
       "online": "Online",
       "offline": "Offline",
       "unavailable": "Unavailable",
-      "unknown": "Unknown"
+      "unknown": "Unknown",
+      "overallOk": "System online",
+      "overallDown": "System partly offline",
+      "overallUnknown": "System status unknown"
+    },
+    "nav": {
+      "label": "Main navigation",
+      "home": "Home",
+      "how": "How it works",
+      "security": "Security",
+      "faq": "FAQ",
+      "signIn": "Sign in",
+      "create": "Create an election",
+      "menu": "Menu",
+      "close": "Close the menu"
     },
     "hero": {
-      "pill": "Online elections",
-      "accent": "Voting",
-      "lede": "Secure elections for schools and institutions, in French and English."
+      "pill": "Online elections for schools",
+      "title": "Vote simply,",
+      "accent": "in secret.",
+      "lede": "Import your voters, hand a code to each one, and follow turnout live. The vote stays secret and results are published when the election closes.",
+      "create": "Create an election",
+      "how": "How it works"
+    },
+    "art": {
+      "secret": "Secret ballot",
+      "phone": "100% online, on a phone",
+      "ballot": "Student council president",
+      "one": "Marie-Claire Pierre",
+      "two": "Jean Baptiste",
+      "three": "Nadège Louis",
+      "blank": "Blank vote"
+    },
+    "voter": {
+      "title": "I am a voter",
+      "text": "Paste the voting link you received on your slip or by email.",
+      "label": "Voting link or election address",
+      "placeholder": "https://…/vote/…",
+      "button": "Vote",
+      "error": "This link is not valid. Paste the full link from your slip or your email."
+    },
+    "organiser": {
+      "title": "I organise an election",
+      "text": "Create the election, import the voters, print the codes.",
+      "signIn": "Sign in",
+      "register": "Create an account"
+    },
+    "features": {
+      "title": "What makes the difference",
+      "secret": {
+        "head": "Secret ballot",
+        "title": "Nobody sees your choice",
+        "text": "No link between a voter and a vote."
+      },
+      "slips": {
+        "head": "Printed slips",
+        "title": "One code per voter",
+        "text": "PDF slips, email or an Excel file."
+      },
+      "live": {
+        "head": "Live turnout",
+        "title": "Who voted, not for whom",
+        "text": "Follow turnout group by group."
+      },
+      "results": {
+        "head": "Public results",
+        "title": "Published at closing",
+        "text": "Ties are flagged, a runoff is possible."
+      }
+    },
+    "about": {
+      "eyebrow": "About",
+      "title": "Elections you can trust",
+      "lead": "Built for schools and institutions: simple for the organiser, clear for the voter, verifiable by everyone. French and English.",
+      "more": "Learn more",
+      "image": "Image: a school, a classroom or students voting",
+      "statFigure": "100%",
+      "statText": "of votes stay secret"
+    },
+    "offer": {
+      "eyebrow": "What we offer",
+      "title": "Everything you need, from import to results",
+      "import": {
+        "title": "Voter import",
+        "text": "Excel or CSV, checked line by line, groups created for you."
+      },
+      "codes": {
+        "title": "Codes and emails",
+        "text": "Slip, email or file: choose when you generate."
+      },
+      "page": {
+        "title": "Voting page",
+        "text": "A ballot with photos, ready for phones, in two languages."
+      },
+      "results": {
+        "title": "Results",
+        "text": "Percentages, ties, a runoff in one click."
+      }
+    },
+    "band": {
+      "title": "Every voice counts",
+      "text": "Launch your first election in minutes.",
+      "action": "Get started",
+      "chip": "One voter, one vote"
+    },
+    "steps": {
+      "eyebrow": "How it works",
+      "title": "Four steps",
+      "import": {
+        "title": "Import",
+        "text": "Drop in the list of voters."
+      },
+      "codes": {
+        "title": "Hand out the codes",
+        "text": "Print the slips or send them by email."
+      },
+      "vote": {
+        "title": "Vote",
+        "text": "Everyone votes once, in secret."
+      },
+      "results": {
+        "title": "Results",
+        "text": "Published when the election closes."
+      }
+    },
+    "trust": {
+      "eyebrow": "Trust",
+      "title": "Built to be safe",
+      "secret": {
+        "title": "Secret by design",
+        "text": "No vote is linked to a voter."
+      },
+      "once": {
+        "title": "One vote per voter",
+        "text": "Locked on the server."
+      },
+      "languages": {
+        "title": "French and English",
+        "text": "Chosen by the election."
+      },
+      "audit": {
+        "title": "Audit log",
+        "text": "Every action is recorded."
+      }
+    },
+    "faq": {
+      "account": {
+        "q": "Do my voters need an account?",
+        "a": "No. A personal code is enough."
+      },
+      "phone": {
+        "q": "Can people vote from a phone?",
+        "a": "Yes, the page is designed for phones."
+      },
+      "tie": {
+        "q": "What happens in case of a tie?",
+        "a": "It is flagged and a runoff is possible."
+      },
+      "results": {
+        "q": "Who sees the results?",
+        "a": "Nobody before closing, then the public page."
+      }
+    },
+    "closing": {
+      "title": "Ready to organise your election?",
+      "create": "Create an election",
+      "signIn": "Sign in"
+    },
+    "footer": {
+      "tagline": "Simple, secret online elections for schools and institutions.",
+      "product": "Product",
+      "account": "Account",
+      "contact": "Contact",
+      "email": "contact@example.ht",
+      "copy": "© {year} New Voting System"
     }
   },
   "notFound": {
