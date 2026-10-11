@@ -41,3 +41,11 @@ The shared error shape of [API conventions](../README.md). Order: 404, then 409.
 ## Notes
 
 Voters and groups are not touched. Group ballots keep their groups.
+
+## Slice 13: a started election
+
+| # | Scenario | Status | `error.code` | Test |
+|---|---|---|---|---|
+| 30 | The election is `scheduled` but its `starts_at` has passed (the scheduler has not run yet) | 409 | `election_started` | |
+
+Checked under the election row lock, with the server time, before the status change.

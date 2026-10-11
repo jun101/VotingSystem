@@ -82,3 +82,10 @@ Query parameters added: `credential` (`issued` or `none`: has a current code or 
 combined with the others; a value that is not in the list answers 422 `validation_failed` (`credential: invalid`,
 `email: invalid`). The voter object gets `has_code` (boolean) and `email_status` (`queued`, `sent`, `failed` or
 `null`). The code and its hash never appear.
+
+## Slice 14: has voted
+
+The voter object gets `has_voted` (boolean) and `voted_at` (UTC datetime or `null`): institution users see **whether**
+and when a voter voted, never what (FR-VOT-07). The list takes `voted` (`yes` or `no`), combinable with the other
+filters; another value answers 422 `validation_failed` (`voted: invalid`). A voter who voted cannot be deleted (409,
+as before).
