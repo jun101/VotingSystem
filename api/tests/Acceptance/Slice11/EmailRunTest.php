@@ -85,9 +85,17 @@ it('sends to the voter\'s address only and never shows another voter or the inst
 
     $this->browser->post(emailRunUrl($election), ['scope' => 'all', 'email' => true, 'confirm_emails' => 3])->assertStatus(202);
 
+    $names = ['rose@example.ht' => 'Rose Désir', 'jean@example.ht' => 'Jean Pierre', 'paul@example.ht' => 'Paul Joseph'];
     foreach (Accounts::mail() as $mail) {
-        expect($mail['to'])->toHaveCount(1)
-            ->and($mail['text'])->not->toContain('Jean Pierre')->and($mail['text'])->not->toContain('Paul Joseph')->and($mail['text'])->not->toContain($t['a']['owner']['email']);
+        expect($mail['to'])->toHaveCount(1);
+        foreach ($names as $address => $name) {
+            if ($address === $mail['to'][0]) {
+                expect($mail['text'])->toContain($name);
+            } else {
+                expect($mail['text'])->not->toContain($name);
+            }
+        }
+        expect($mail['text'])->not->toContain($t['a']['owner']['email']);
     }
 });
 

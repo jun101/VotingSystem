@@ -15,13 +15,15 @@ final class ClaimedFile
 {
     /**
      * @param  list<Slip>  $slips
-     * @param  list<array{voter: int, hash: string}>  $issued
+     * @param  list<array{voter: int, hash: string, previous: array<string, mixed>|null}>  $issued  `previous` is the row a replaced code had (null for a first code)
+     * @param  list<array{voter: int, uuid: string, hash: string, code: string}>  $emails  the messages to queue once the file is `ready`
      */
     public function __construct(
         public readonly Election $election,
         public readonly ?VoterGroup $group,
         public readonly array $slips,
         public readonly array $issued,
+        public readonly array $emails,
         public readonly string $name,
         public readonly string $institution,
         public readonly int $part,

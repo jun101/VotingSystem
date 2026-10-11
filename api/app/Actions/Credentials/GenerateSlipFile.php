@@ -3,6 +3,7 @@
 namespace App\Actions\Credentials;
 
 use App\Exceptions\ApiException;
+use App\Jobs\SendCredentialEmail;
 use App\Models\Credential;
 use App\Models\Election;
 use App\Models\GeneratedFile;
@@ -15,6 +16,7 @@ use App\Support\Credentials\SlipSheet;
 use App\Support\Credentials\SlipWriter;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -34,8 +36,10 @@ use Throwable;
  * 3. a short transaction, the election's row locked first: the file is marked `ready`.
  *
  * A failure of phase 2 or 3 deletes the codes phase 1 wrote (the voter and the hash must both
- * match: a code reissued meanwhile is not touched), removes the stored copy and marks the file
- * `failed`: a code that no file shows is never kept. The lock order is always election, file, codes.
+ * match: a code reissued meanwhile is not touched; a code that replaced another, for the scope
+ * `failed_email`, puts the old row back), removes the stored copy and marks the file `failed`: a
+ * code that no file shows is never kept. When the run sends emails, phase 1 sets the voters'
+ * `email_status` to `queued` with the codes; the messages are queued after phase 3 commits. The lock order is always election, file, codes.
  *
  * Nobody is signed in when it runs: every record is read by its own key. Nothing of a code, a
  * name or a request is logged: an outcome, a count, an exception class.
@@ -89,7 +93,41 @@ final class GenerateSlipFile
             return;
         }
 
-        Log::info('credentials.file', ['outcome' => 'ready', 'voters' => count($plan->slips)]);
+        // After the commit of the file: a message that was queued is sent only for a file that exists.
+        $this->dispatchEmails($plan);
+
+        Log::info('credentials.file', ['outcome' => 'ready', 'voters' => count($plan->slips), 'emails' => count($plan->emails)]);
+    }
+
+    /**
+     * One queued job per message, each holding the voter's UUID, the election's UUID and the code.
+     * A message that cannot be queued is `failed` at once, so no voter stays `queued` for ever.
+     */
+    private function dispatchEmails(ClaimedFile $plan): void
+    {
+        $lost = [];
+
+        foreach ($plan->emails as $one) {
+            try {
+                SendCredentialEmail::dispatch($one['uuid'], $plan->election->uuid, $one['code']);
+            } catch (Throwable $e) {
+                $lost[] = $one;
+                Log::info('credentials.email', ['outcome' => 'dispatch_failed', 'class' => $e::class]);
+            }
+        }
+
+        foreach ($lost as $one) {
+            try {
+                // Queue job: nobody is signed in; the voter and the hash of the code are the keys.
+                Credential::withoutInstitutionScope()
+                    ->where('voter_id', $one['voter'])
+                    ->where('code_hash', $one['hash'])
+                    ->where('email_status', Credential::EMAIL_QUEUED)
+                    ->update(['email_status' => Credential::EMAIL_FAILED, 'email_error' => Credential::ERROR_SEND_FAILED]);
+            } catch (Throwable) {
+                // The status stays `queued`: the voters list shows it and a new run can replace it.
+            }
+        }
     }
 
     /**
@@ -151,20 +189,30 @@ final class GenerateSlipFile
         }
 
         // Queue job: nobody is signed in, so the scope reads no institution; the election is the bound.
-        $voters = Voter::withoutInstitutionScope()
+        $query = Voter::withoutInstitutionScope()
             ->where('voters.election_id', $election->id)
             ->when(
                 $current->voter_group_id === null,
                 fn ($query) => $query->whereNull('voters.voter_group_id'),
                 fn ($query) => $query->where('voters.voter_group_id', $current->voter_group_id),
-            )
-            ->whereNotExists(function (Builder $credentials): void {
+            );
+
+        if ($current->replace) {
+            // The scope `failed_email`: the voters whose last email failed, who still have an address.
+            $query->join('credentials', 'credentials.voter_id', '=', 'voters.id')
+                ->where('credentials.email_status', Credential::EMAIL_FAILED)
+                ->whereNotNull('voters.email');
+        } else {
+            $query->whereNotExists(function (Builder $credentials): void {
                 $credentials->select(DB::raw('1'))->from('credentials')->whereColumn('credentials.voter_id', 'voters.id');
-            })
+            });
+        }
+
+        $voters = $query
             ->orderBy('voters.full_name')
             ->orderBy('voters.id')
             ->limit($current->voter_count)
-            ->get(['voters.id', 'voters.full_name']);
+            ->get(['voters.id', 'voters.uuid', 'voters.full_name', 'voters.email']);
 
         if ($voters->isEmpty()) {
             // Everyone was served meanwhile: a file with no slip is not kept.
@@ -173,13 +221,47 @@ final class GenerateSlipFile
             return null;
         }
 
+        // The rows a replaced code had, locked (the election's row is held, so no one else writes them).
+        /** @var Collection<int, Credential> $existing */
+        $existing = new Collection;
+
+        if ($current->replace) {
+            // Queue job: nobody is signed in; the election and the voters are the bound.
+            $existing = Credential::withoutInstitutionScope()
+                ->where('election_id', $election->id)
+                ->whereIn('voter_id', $voters->pluck('id')->all())
+                ->lockForUpdate()
+                ->get()
+                ->keyBy('voter_id');
+        }
+
         $slips = [];
         $issued = [];
+        $emails = [];
 
         foreach ($voters as $voter) {
-            $code = ($this->credentials)($election, $voter->id, $current->user_id);
+            $row = $existing->get($voter->id);
+            $previous = $row === null ? null : [
+                'hash' => $row->code_hash,
+                'issued_at' => $row->issued_at,
+                'issued_by_user_id' => $row->issued_by_user_id,
+                'reissue_count' => $row->reissue_count,
+                'email_status' => $row->email_status,
+                'email_sent_at' => $row->email_sent_at,
+                'email_error' => $row->email_error,
+            ];
+
+            // A message is queued for a voter with an address; the others are left for print.
+            $queue = $current->send_email && $voter->email !== null;
+
+            $code = ($this->credentials)($election, $voter->id, $current->user_id, $row, $queue);
+            $hash = AccessCode::hash($code);
             $slips[] = new Slip($voter->full_name, $group->name ?? self::NO_GROUP, $code);
-            $issued[] = ['voter' => $voter->id, 'hash' => AccessCode::hash($code)];
+            $issued[] = ['voter' => $voter->id, 'hash' => $hash, 'previous' => $previous];
+
+            if ($queue) {
+                $emails[] = ['voter' => $voter->id, 'uuid' => $voter->uuid, 'hash' => $hash, 'code' => $code];
+            }
         }
 
         // The name the PDF will be stored under: it also marks the file as taken.
@@ -194,6 +276,7 @@ final class GenerateSlipFile
             group: $group,
             slips: $slips,
             issued: $issued,
+            emails: $emails,
             name: $name,
             institution: is_string($institution) ? $institution : '',
             part: $current->part,
@@ -280,11 +363,27 @@ final class GenerateSlipFile
 
                     foreach ($plan->issued as $one) {
                         // No user is signed in: the codes are named by the election, the voter and the hash.
-                        Credential::withoutInstitutionScope()
+                        $written = Credential::withoutInstitutionScope()
                             ->where('election_id', $election->id)
                             ->where('voter_id', $one['voter'])
-                            ->where('code_hash', $one['hash'])
-                            ->delete();
+                            ->where('code_hash', $one['hash']);
+
+                        if ($one['previous'] === null) {
+                            $written->delete();
+
+                            continue;
+                        }
+
+                        // A replaced code comes back with its statuses: nobody was emailed.
+                        $written->update([
+                            'code_hash' => $one['previous']['hash'],
+                            'issued_at' => $one['previous']['issued_at'],
+                            'issued_by_user_id' => $one['previous']['issued_by_user_id'],
+                            'reissue_count' => $one['previous']['reissue_count'],
+                            'email_status' => $one['previous']['email_status'],
+                            'email_sent_at' => $one['previous']['email_sent_at'],
+                            'email_error' => $one['previous']['email_error'],
+                        ]);
                     }
 
                     if ($current !== null && $current->status === GeneratedFile::STATUS_QUEUED) {

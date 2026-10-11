@@ -3,6 +3,7 @@
 namespace App\Actions\Credentials;
 
 use App\Exceptions\ApiException;
+use App\Models\Credential;
 use App\Models\Election;
 use App\Models\GeneratedFile;
 use App\Models\User;
@@ -27,16 +28,19 @@ final class StartCredentialRun
     public const STALE_MINUTES = 15;
 
     /**
-     * @param  'all'|'group'|'ungrouped'  $scope
-     * @return array{files: list<GeneratedFile>, voters: int, skipped: int}
+     * @param  'all'|'group'|'ungrouped'|'failed_email'  $scope
+     * @param  bool  $email  the voters served who have an address are emailed their code
+     * @param  int|null  $confirmEmails  the count of emails the person confirmed (needed when `$email`)
+     * @return array{files: list<GeneratedFile>, voters: int, skipped: int, emails: int}
      *
-     * @throws ApiException 404, or 409 `election_codes_locked`, `run_in_progress`, `nothing_to_generate`
+     * @throws ApiException 404, or 409 `election_codes_locked`, `run_in_progress`, `nothing_to_generate`,
+     *                      `nothing_to_email`, `email_count_changed` (with the count now true)
      */
-    public function __invoke(Election $election, string $scope, ?VoterGroup $group, ?User $user): array
+    public function __invoke(Election $election, string $scope, ?VoterGroup $group, ?User $user, bool $email = false, ?int $confirmEmails = null): array
     {
         $stale = [];
 
-        $run = DB::transaction(function () use ($election, $scope, $group, $user, &$stale): array {
+        $run = DB::transaction(function () use ($election, $scope, $group, $user, $email, $confirmEmails, &$stale): array {
             // Locked first, as every write of the voters and codes of an election.
             $locked = Election::query()->whereKey($election->getKey())->lockForUpdate()->first();
 
@@ -55,16 +59,30 @@ final class StartCredentialRun
                 throw new ApiException(409, 'run_in_progress');
             }
 
-            $counts = $this->counts($locked, $scope, $group);
+            $counts = $scope === 'failed_email' ? $this->failedCounts($locked) : $this->counts($locked, $scope, $group);
             $skipped = array_sum(array_column($counts, 'coded'));
             $toServe = 0;
+            $emails = 0;
 
             foreach ($counts as $row) {
                 $toServe += $row['total'] - $row['coded'];
+                $emails += $row['emailable'];
             }
 
             if ($toServe === 0) {
                 throw new ApiException(409, 'nothing_to_generate');
+            }
+
+            if ($email) {
+                if ($emails === 0) {
+                    throw new ApiException(409, 'nothing_to_email');
+                }
+
+                // The count the person saw is read again under the lock: a voter added, removed
+                // or given an address since the preview changes it, and then nothing is done.
+                if ($confirmEmails !== $emails) {
+                    throw new ApiException(409, 'email_count_changed', count: $emails);
+                }
             }
 
             $files = [];
@@ -84,6 +102,8 @@ final class StartCredentialRun
                     $file->voter_count = $size;
                     $file->status = GeneratedFile::STATUS_QUEUED;
                     $file->failure = null;
+                    $file->send_email = $email;
+                    $file->replace = $scope === 'failed_email';
                     $file->expires_at = $locked->ends_at;
                     $file->save();
                     $file->setRelation('group', $serving);
@@ -93,7 +113,7 @@ final class StartCredentialRun
                 }
             }
 
-            return ['files' => $files, 'voters' => $toServe, 'skipped' => $skipped];
+            return ['files' => $files, 'voters' => $toServe, 'skipped' => $skipped, 'emails' => $email ? $emails : 0];
         });
 
         // After the commit: the copies a lost job had claimed.
@@ -139,7 +159,7 @@ final class StartCredentialRun
     /**
      * Voters and voters with a code, by group id (key 0 for the voters with no group).
      *
-     * @return array<int, array{total: int, coded: int}>
+     * @return array<int, array{total: int, coded: int, emailable: int}>
      */
     private function counts(Election $election, string $scope, ?VoterGroup $group): array
     {
@@ -149,7 +169,7 @@ final class StartCredentialRun
                 $join->on('credentials.voter_id', '=', 'voters.id')
                     ->on('credentials.institution_id', '=', 'voters.institution_id');
             })
-            ->selectRaw('voters.voter_group_id as group_key, count(*) as total, count(credentials.id) as coded')
+            ->selectRaw('voters.voter_group_id as group_key, count(*) as total, count(credentials.id) as coded, sum(credentials.id is null and voters.email is not null) as emailable')
             ->groupBy('voters.voter_group_id');
 
         if ($scope === 'group' && $group !== null) {
@@ -164,7 +184,38 @@ final class StartCredentialRun
             $counts[RowCount::of($row, 'group_key')] = [
                 'total' => RowCount::of($row, 'total'),
                 'coded' => RowCount::of($row, 'coded'),
+                'emailable' => RowCount::of($row, 'emailable'),
             ];
+        }
+
+        return $counts;
+    }
+
+    /**
+     * The scope `failed_email`, by group id (key 0 for no group): the voters whose last email
+     * failed and who have an address. Every one of them is served and emailed; none is skipped.
+     *
+     * @return array<int, array{total: int, coded: int, emailable: int}>
+     */
+    private function failedCounts(Election $election): array
+    {
+        $rows = Voter::query()
+            ->where('voters.election_id', $election->id)
+            ->join('credentials', function (JoinClause $join): void {
+                $join->on('credentials.voter_id', '=', 'voters.id')
+                    ->on('credentials.institution_id', '=', 'voters.institution_id');
+            })
+            ->where('credentials.email_status', Credential::EMAIL_FAILED)
+            ->whereNotNull('voters.email')
+            ->selectRaw('voters.voter_group_id as group_key, count(*) as total')
+            ->groupBy('voters.voter_group_id')
+            ->get();
+
+        $counts = [];
+
+        foreach ($rows as $row) {
+            $total = RowCount::of($row, 'total');
+            $counts[RowCount::of($row, 'group_key')] = ['total' => $total, 'coded' => 0, 'emailable' => $total];
         }
 
         return $counts;
@@ -173,7 +224,7 @@ final class StartCredentialRun
     /**
      * The groups that have voters to serve, by name, the voters with no group last.
      *
-     * @param  array<int, array{total: int, coded: int}>  $counts
+     * @param  array<int, array{total: int, coded: int, emailable: int}>  $counts
      * @return list<array{0: VoterGroup|null, 1: int}>
      */
     private function groupsToServe(Election $election, array $counts): array

@@ -43,6 +43,8 @@ return [
     'election_period_over' => 'The end of the election has passed: change the dates before scheduling.',
     'election_not_scheduled' => 'This election is not scheduled.',
     'nothing_to_generate' => 'Every voter of this choice already has a code, or there is no voter.',
+    'email_count_changed' => 'The number of emails changed since the preview: confirm the new number.',
+    'nothing_to_email' => 'No voter of this choice has an email address: no message can be sent.',
     'run_in_progress' => 'A code run is already in progress for this election.',
     'election_codes_locked' => 'Codes can no longer be generated or reissued for this election.',
     'file_not_ready' => 'This file is not ready.',

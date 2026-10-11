@@ -2,105 +2,67 @@
 
 namespace App\Http\Requests\Credentials;
 
-use App\Models\Election;
-use App\Models\VoterGroup;
 use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\ValidationException;
 
-/** docs/api/credentials/POST-elections-{election}-credential-runs.md. */
-class StartCredentialRunRequest extends FormRequest
+/** docs/api/credentials/POST-elections-{election}-credential-runs.md, with the channels of slice 11. */
+class StartCredentialRunRequest extends CredentialScopeRequest
 {
-    private ?VoterGroup $group = null;
-
     /**
-     * `scope` is required and one of three; `group` is a UUID, required for the scope `group` and
-     * ignored for the other two. The codes reported are those of the endpoint file (`required`,
-     * `invalid`), see `failedValidation`.
+     * `email` is a boolean, `confirm_emails` an integer of 0 or more (required with `email`), `file`
+     * `xlsx`, `csv` or null. The codes reported are those of the endpoint file, see `failedValidation`.
      *
      * @return array<string, list<string>>
      */
     public function rules(): array
     {
-        return [
-            'scope' => ['bail', 'required', 'string', 'in:all,group,ungrouped'],
-            'group' => ['bail', 'exclude_unless:scope,group', 'required_if:scope,group', 'string', 'uuid'],
+        return parent::rules() + [
+            'email' => ['bail', 'nullable', 'boolean'],
+            'confirm_emails' => ['bail', 'nullable', 'integer', 'min:0'],
+            'file' => ['bail', 'nullable', 'string', 'in:xlsx,csv'],
         ];
     }
 
-    /**
-     * The codes of the endpoint file: a missing value is `required`, any other refusal `invalid`
-     * (a group that is not a UUID of this election's groups included, see `after`).
-     */
-    protected function failedValidation(Validator $validator): never
-    {
-        $codes = [];
-        /** @var array<string, array<string, mixed>> $failed */
-        $failed = $validator->failed();
-
-        foreach ($failed as $field => $rules) {
-            $codes[$field][] = isset($rules['Required']) || isset($rules['RequiredIf']) ? 'required' : 'invalid';
-        }
-
-        // Errors added by the `after` check carry their code as the message.
-        foreach ($validator->errors()->messages() as $field => $messages) {
-            if (! isset($codes[$field])) {
-                $codes[$field] = array_values($messages);
-            }
-        }
-
-        throw ValidationException::withMessages($codes);
-    }
-
-    /**
-     * The group of the scope `group` must be one of this election's (unknown, another election's
-     * and another institution's are one answer: `invalid`).
-     *
-     * @return list<callable(Validator): void>
-     */
+    /** @return list<callable(Validator): void> */
     public function after(): array
     {
-        return [function (Validator $validator): void {
-            if ($validator->errors()->isNotEmpty() || $this->input('scope') !== 'group') {
-                return;
+        return array_merge(parent::after(), [function (Validator $validator): void {
+            $errors = $validator->errors();
+
+            // `confirm_emails` is needed when emails are sent, so the person confirms a count.
+            if ($this->wantsEmail() && ! $errors->has('email')) {
+                $confirm = $this->input('confirm_emails');
+
+                if (($confirm === null || $confirm === '') && ! $errors->has('confirm_emails')) {
+                    $errors->add('confirm_emails', 'required');
+                }
             }
 
-            $group = $this->input('group');
-            $election = $this->route('election');
-
-            if (! is_string($group) || ! $election instanceof Election) {
-                $validator->errors()->add('group', 'invalid');
-
-                return;
+            // A new code for a failed message is sent by email or not at all.
+            if ($this->input('scope') === 'failed_email' && ! $this->wantsEmail() && ! $errors->has('email')) {
+                $errors->add('email', 'required');
             }
-
-            // The institution's scope hides another institution's groups.
-            $this->group = VoterGroup::query()
-                ->where('election_id', $election->getKey())
-                ->where('uuid', strtolower($group))
-                ->first();
-
-            if ($this->group === null) {
-                $validator->errors()->add('group', 'invalid');
-            }
-        }];
+        }]);
     }
 
-    /** @return 'all'|'group'|'ungrouped' */
-    public function scope(): string
+    /** Whether the voters served are emailed their code. */
+    public function wantsEmail(): bool
     {
-        $scope = $this->input('scope');
-
-        return match ($scope) {
-            'group' => 'group',
-            'ungrouped' => 'ungrouped',
-            default => 'all',
-        };
+        return $this->boolean('email');
     }
 
-    /** The group of the scope `group`, found by the validation. */
-    public function group(): ?VoterGroup
+    /** The count of emails the person confirmed, or null. */
+    public function confirmEmails(): ?int
     {
-        return $this->group;
+        $confirm = $this->input('confirm_emails');
+
+        return is_numeric($confirm) ? (int) $confirm : null;
+    }
+
+    /** `xlsx`, `csv` or null: the self-distribution file asked for. */
+    public function fileFormat(): ?string
+    {
+        $file = $this->input('file');
+
+        return $file === 'xlsx' || $file === 'csv' ? $file : null;
     }
 }

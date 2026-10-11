@@ -6,6 +6,7 @@ use App\Models\Concerns\BelongsToInstitution;
 use App\Models\Concerns\HasUuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 
 /**
@@ -44,5 +45,15 @@ class Voter extends Model
     public function group(): BelongsTo
     {
         return $this->belongsTo(VoterGroup::class, 'voter_group_id');
+    }
+
+    /**
+     * The voter's current access code, as a hash (none until one is issued).
+     *
+     * @return HasOne<Credential, $this>
+     */
+    public function credential(): HasOne
+    {
+        return $this->hasOne(Credential::class);
     }
 }

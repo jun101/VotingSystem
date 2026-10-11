@@ -41,10 +41,8 @@ it('counts the voters, the codes and the emails, in total and per group [FR-CRED
     $response = $this->browser->get(stateUrl($election))->assertOk();
 
     expect($response->json('data'))->toMatchArray(['voters' => 3, 'with_code' => 2, 'without_code' => 1, 'with_email' => 2, 'run_in_progress' => false])
-        ->and($response->json('data.groups'))->toBe([
-            ['group' => ['id' => $third, 'name' => '3e année'], 'voters' => 1, 'with_code' => 1, 'with_email' => 1, 'files_ready' => 0],
-            ['group' => ['id' => $fourth, 'name' => '4e année'], 'voters' => 2, 'with_code' => 1, 'with_email' => 1, 'files_ready' => 1],
-        ]);
+        ->and($response->json('data.groups.0'))->toMatchArray(['group' => ['id' => $third, 'name' => '3e année'], 'voters' => 1, 'with_code' => 1, 'with_email' => 1, 'files_ready' => 0])
+        ->and($response->json('data.groups.1'))->toMatchArray(['group' => ['id' => $fourth, 'name' => '4e année'], 'voters' => 2, 'with_code' => 1, 'with_email' => 1, 'files_ready' => 1]);
     expect($file)->toBeString();
 });
 
@@ -53,7 +51,7 @@ it('answers zero everywhere for an election with no voter [FR-CRED-01] (scenario
 
     $response = $this->browser->get(stateUrl($election))->assertOk();
 
-    expect($response->json('data'))->toBe(['voters' => 0, 'with_code' => 0, 'without_code' => 0, 'with_email' => 0, 'run_in_progress' => false, 'groups' => []]);
+    expect($response->json('data'))->toMatchArray(['voters' => 0, 'with_code' => 0, 'without_code' => 0, 'with_email' => 0, 'email_queued' => 0, 'email_sent' => 0, 'email_failed' => 0, 'run_in_progress' => false, 'groups' => []]);
 });
 
 it('lists the voters with no group on a last line whose group is null [FR-CRED-01] (scenario 3)', function () {
@@ -66,7 +64,7 @@ it('lists the voters with no group on a last line whose group is null [FR-CRED-0
     $groups = $this->browser->get(stateUrl($election))->assertOk()->json('data.groups');
 
     expect($groups)->toHaveCount(2)
-        ->and($groups[1])->toBe(['group' => null, 'voters' => 2, 'with_code' => 0, 'with_email' => 1, 'files_ready' => 0]);
+        ->and($groups[1])->toMatchArray(['group' => null, 'voters' => 2, 'with_code' => 0, 'with_email' => 1, 'files_ready' => 0]);
 });
 
 it('sorts the groups by name with accents and case ignored [FR-CRED-01] (scenario 1)', function () {

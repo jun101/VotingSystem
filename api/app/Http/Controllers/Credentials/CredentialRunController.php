@@ -23,21 +23,25 @@ class CredentialRunController extends Controller
     /**
      * Start a run of access codes.
      *
-     * Gives a code to the voters of the scope (`all`, one `group`, or `ungrouped`) who have none
-     * and writes their slips, one PDF per group (parts of 1 000 voters at most). The answer comes
-     * before the work: the files are `queued`, and polled with `GET /generated-files/{file}`. A
-     * draft, scheduled or open election (409 `election_codes_locked`), one run at a time (409
-     * `run_in_progress`), something to serve (409 `nothing_to_generate`). Owner or manager.
-     * Limited to 20 requests per hour per user.
+     * Gives a code to the voters of the scope (`all`, one `group`, `ungrouped`, or `failed_email`
+     * for a new code to the voters whose email failed) who have none and writes their slips, one
+     * PDF per group (parts of 1 000 voters at most). With `email` the voters served who have an
+     * address are emailed their link and code in the background; `confirm_emails` is the count the
+     * person saw (409 `email_count_changed` with `error.count`, 409 `nothing_to_email`). `file` is
+     * `xlsx`, `csv` or null. The answer comes before the work: the files are `queued`, and polled
+     * with `GET /generated-files/{file}`. A draft, scheduled or open election (409
+     * `election_codes_locked`), one run at a time (409 `run_in_progress`), something to serve (409
+     * `nothing_to_generate`). Owner or manager. Limited to 20 requests per hour per user.
      */
-    #[Response(status: 202, type: 'array{data: array{files: list<array{id: string, kind: string, group: array{id: string, name: string}|null, part: int, parts: int, voter_count: int, status: \'queued\'|\'ready\'|\'failed\', failure: string|null, size_bytes: int|null, expires_at: string, created_at: string}>, voters: int, skipped: int}}')]
+    #[Response(status: 202, type: 'array{data: array{files: list<array{id: string, kind: string, group: array{id: string, name: string}|null, part: int, parts: int, voter_count: int, status: \'queued\'|\'ready\'|\'failed\', failure: string|null, size_bytes: int|null, expires_at: string, created_at: string}>, voters: int, skipped: int, emails: int}}')]
     public function __invoke(StartCredentialRunRequest $request, Election $election, StartCredentialRun $start): JsonResponse
     {
         if (! Gate::forUser($request->user())->allows('issueCredentials', [Voter::class, $election])) {
             throw new ApiException(403, 'forbidden');
         }
 
-        $run = $start($election, $request->scope(), $request->group(), $request->user());
+        // The file channel (`xlsx`, `csv`) is validated here and written by the file job of slice 11b.
+        $run = $start($election, $request->scope(), $request->group(), $request->user(), $request->wantsEmail(), $request->confirmEmails());
 
         $uuids = array_map(fn (GeneratedFile $file): string => $file->uuid, $run['files']);
 
@@ -57,13 +61,14 @@ class CredentialRunController extends Controller
         }
 
         // Counts only: never a name, a code or a group.
-        Log::info('credentials.run', ['outcome' => 'queued', 'files' => count($uuids), 'voters' => $run['voters'], 'skipped' => $run['skipped']]);
+        Log::info('credentials.run', ['outcome' => 'queued', 'files' => count($uuids), 'voters' => $run['voters'], 'skipped' => $run['skipped'], 'emails' => $run['emails']]);
 
         return response()->json([
             'data' => [
                 'files' => array_map(fn (GeneratedFile $file): array => (new GeneratedFileResource($file))->resolve(), $run['files']),
                 'voters' => $run['voters'],
                 'skipped' => $run['skipped'],
+                'emails' => $run['emails'],
             ],
         ], 202);
     }

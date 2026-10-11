@@ -26,6 +26,15 @@ class Credential extends Model
 {
     use BelongsToInstitution;
 
+    public const EMAIL_QUEUED = 'queued';
+
+    public const EMAIL_SENT = 'sent';
+
+    public const EMAIL_FAILED = 'failed';
+
+    /** The one reason code a message that could not be sent carries: never the transport's text. */
+    public const ERROR_SEND_FAILED = 'send_failed';
+
     public $timestamps = false;
 
     // Nothing is mass-assigned: the writer sets each attribute itself.

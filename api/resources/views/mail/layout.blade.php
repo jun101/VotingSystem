@@ -35,7 +35,7 @@
 <!--[if mso]><table role="presentation" width="600" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
 <table role="presentation" class="col" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;">
 <tr><td bgcolor="#1e2a5a" class="pad" style="background-color:#1e2a5a;padding:20px 32px;{!! $font !!}font-size:20px;line-height:26px;font-weight:bold;color:#ffffff;">{{ config('app.name') }}</td></tr>
-<tr><td bgcolor="#5468d4" class="pad" style="background-color:#5468d4;background-image:linear-gradient(135deg,#a8349a,#7c5bd0 45%,#5468d4);padding:36px 32px;">
+<tr><td bgcolor="#5468d4" class="pad" style="background-color:#5468d4;@empty($solidHero)background-image:linear-gradient(135deg,#a8349a,#7c5bd0 45%,#5468d4);@endempty padding:36px 32px;">
 <h1 style="margin:0 0 8px;{!! $font !!}font-size:26px;line-height:32px;font-weight:bold;color:#ffffff;">{{ $title }}</h1>
 <div style="{!! $font !!}font-size:16px;line-height:24px;color:#ffffff;">{{ $line }}</div>
 </td></tr>
@@ -43,6 +43,24 @@
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
 <tr><td class="dm-ink" style="padding-bottom:12px;{!! $font !!}font-size:16px;line-height:24px;color:#14162b;">{{ __('mail.greeting') }}</td></tr>
 <tr><td class="dm-ink" style="padding-bottom:28px;{!! $font !!}font-size:16px;line-height:24px;color:#14162b;">{{ $intro }}</td></tr>
+@isset($code)
+<tr><td style="padding-bottom:28px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f8f9fe" style="width:100%;background-color:#f8f9fe;border:1px solid #b7c1f6;border-radius:8px;">
+<tr><td align="center" style="padding:16px 12px 4px;{!! $font !!}font-size:14px;line-height:20px;color:#565b76;">{{ $codeLabel }}</td></tr>
+<tr><td align="center" style="padding:0 12px 16px;{!! $font !!}font-size:28px;line-height:36px;font-weight:bold;letter-spacing:2px;color:#14162b;">{{ $code }}</td></tr>
+</table>
+</td></tr>
+@endisset
+@isset($details)
+<tr><td style="padding-bottom:28px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+@foreach ($details as $detail)
+<tr><td style="padding-bottom:6px;{!! $font !!}font-size:14px;line-height:20px;color:#565b76;">{{ $detail[0] }}</td></tr>
+<tr><td style="padding-bottom:14px;{!! $font !!}font-size:16px;line-height:24px;color:#14162b;">{{ $detail[1] }}</td></tr>
+@endforeach
+</table>
+</td></tr>
+@endisset
 <tr><td style="padding-bottom:28px;">
 <!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ $url }}" style="height:48px;v-text-anchor:middle;width:{{ $buttonWidth }}px;" arcsize="17%" stroke="f" fillcolor="#f29a76"><w:anchorlock/><center style="font-family:Arial,sans-serif;font-size:16px;font-weight:bold;color:#1e2a5a;">{{ $button }}</center></v:roundrect><![endif]-->
 <!--[if !mso]><!-->

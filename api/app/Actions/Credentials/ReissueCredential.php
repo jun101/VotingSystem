@@ -3,12 +3,14 @@
 namespace App\Actions\Credentials;
 
 use App\Exceptions\ApiException;
+use App\Jobs\SendCredentialEmail;
 use App\Models\Credential;
 use App\Models\Election;
 use App\Models\GeneratedFile;
 use App\Models\Institution;
 use App\Models\User;
 use App\Models\Voter;
+use App\Support\Credentials\AccessCode;
 use App\Support\Credentials\Slip;
 use App\Support\Credentials\SlipSheet;
 use App\Support\Credentials\SlipWriter;
@@ -16,6 +18,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Ramsey\Uuid\Uuid;
 use Throwable;
 
@@ -33,19 +36,21 @@ final class ReissueCredential
     ) {}
 
     /**
-     * @return array{code: string, reissue_count: int, file: GeneratedFile}
+     * @param  bool  $email  the new code is also emailed to the voter (in the background)
+     * @return array{code: string, reissue_count: int, file: GeneratedFile, email: 'queued'|null}
      *
      * @throws ApiException 404, 409 `election_codes_locked`, or 500 `server_error`
+     * @throws ValidationException 422 `email: no_address` (nothing is changed)
      */
-    public function __invoke(Voter $voter, ?User $user): array
+    public function __invoke(Voter $voter, ?User $user, bool $email = false): array
     {
         $stored = null;
 
         try {
-            return DB::transaction(function () use ($voter, $user, &$stored): array {
-                return $this->run($voter, $user, $stored);
+            $result = DB::transaction(function () use ($voter, $user, $email, &$stored): array {
+                return $this->run($voter, $user, $email, $stored);
             });
-        } catch (ApiException $e) {
+        } catch (ApiException|ValidationException $e) {
             throw $e;
         } catch (Throwable) {
             // The exception is not reported: only the outcome is logged.
@@ -61,14 +66,48 @@ final class ReissueCredential
 
             throw new ApiException(500, 'server_error');
         }
+
+        // After the commit: the message is queued only for a code that is kept.
+        $queued = false;
+
+        if ($result['mail'] !== null) {
+            try {
+                SendCredentialEmail::dispatch($result['mail']['voter'], $result['mail']['election'], $result['code']);
+                $queued = true;
+            } catch (Throwable $e) {
+                Log::info('credentials.email', ['outcome' => 'dispatch_failed', 'class' => $e::class]);
+                $this->markFailed($result['mail']['key'], $result['mail']['hash']);
+            }
+        }
+
+        return [
+            'code' => $result['code'],
+            'reissue_count' => $result['reissue_count'],
+            'file' => $result['file'],
+            'email' => $queued ? 'queued' : null,
+        ];
+    }
+
+    /** The queue could not be reached: the status must not stay `queued`. */
+    private function markFailed(int $voterKey, string $hash): void
+    {
+        try {
+            // Nobody else can be writing this row now, and the hash makes sure it is still this code.
+            Credential::query()
+                ->where('voter_id', $voterKey)
+                ->where('code_hash', $hash)
+                ->update(['email_status' => Credential::EMAIL_FAILED, 'email_error' => Credential::ERROR_SEND_FAILED]);
+        } catch (Throwable) {
+            // The status stays `queued`: the voters list shows it.
+        }
     }
 
     /**
      * @param-out string $stored
      *
-     * @return array{code: string, reissue_count: int, file: GeneratedFile}
+     * @return array{code: string, reissue_count: int, file: GeneratedFile, mail: array{voter: string, election: string, key: int, hash: string}|null}
      */
-    private function run(Voter $voter, ?User $user, ?string &$stored): array
+    private function run(Voter $voter, ?User $user, bool $email, ?string &$stored): array
     {
         // Locked first, as every write of the codes of an election.
         $election = Election::query()->whereKey($voter->election_id)->lockForUpdate()->first();
@@ -87,9 +126,14 @@ final class ReissueCredential
 
         // Slice 12 refuses here (409 `voter_has_voted`) once `participations` exists.
 
+        // Read under the lock: an address removed since the page was drawn is seen here.
+        if ($email && $current->email === null) {
+            throw ValidationException::withMessages(['email' => ['no_address']]);
+        }
+
         $existing = Credential::query()->where('voter_id', $current->id)->lockForUpdate()->first();
 
-        $code = ($this->credentials)($election, $current->id, $user?->id, $existing);
+        $code = ($this->credentials)($election, $current->id, $user?->id, $existing, $email);
 
         // The row was updated in place: its count is the new one.
         $reissues = $existing === null ? 0 : $existing->reissue_count;
@@ -131,7 +175,12 @@ final class ReissueCredential
 
         Log::info('credentials.reissue', ['outcome' => 'issued', 'reissue_count' => $reissues]);
 
-        return ['code' => $code, 'reissue_count' => $reissues, 'file' => $file];
+        return [
+            'code' => $code,
+            'reissue_count' => $reissues,
+            'file' => $file,
+            'mail' => $email ? ['voter' => $current->uuid, 'election' => $election->uuid, 'key' => $current->id, 'hash' => AccessCode::hash($code)] : null,
+        ];
     }
 
     private function institutionName(Election $election): string

@@ -33,15 +33,16 @@ class VoterController extends Controller
      *
      * 24 per page by default, by full name ignoring case, then creation order, in any status of
      * the election. `q` looks for a text in the full name, the identifier and the email; `group`
-     * is a group's UUID or `none`. Owner or manager.
+     * is a group's UUID or `none`; `credential` is `issued` or `none`; `email` is the status of
+     * the last email (`queued`, `sent`, `failed`, `none`). Owner or manager.
      *
-     * @response array{data: list<array{id: string, full_name: string, group: array{id: string, name: string}|null, identifier: string|null, email: string|null, phone: string|null, created_at: string, updated_at: string}>, meta: array{page: int, per_page: int, total: int}}
+     * @response array{data: list<array{id: string, full_name: string, group: array{id: string, name: string}|null, identifier: string|null, email: string|null, phone: string|null, has_code: bool, email_status: 'queued'|'sent'|'failed'|null, created_at: string, updated_at: string}>, meta: array{page: int, per_page: int, total: int}}
      */
     public function index(ListVotersRequest $request, Election $election): PageOf
     {
         $this->allow('viewAny', [Voter::class, $election]);
 
-        $query = $election->voters()->with('group');
+        $query = $election->voters()->with(['group', 'credential']);
 
         $search = $request->search();
 
@@ -67,6 +68,23 @@ class VoterController extends Controller
                 ->select('id'));
         }
 
+        $credential = $request->credential();
+
+        if ($credential === 'issued') {
+            $query->whereHas('credential');
+        } elseif ($credential === 'none') {
+            $query->whereDoesntHave('credential');
+        }
+
+        $email = $request->emailStatus();
+
+        if ($email === 'none') {
+            // Never emailed: no code, or a code whose status is empty.
+            $query->whereDoesntHave('credential', fn (Builder $has) => $has->whereNotNull('email_status'));
+        } elseif ($email !== null) {
+            $query->whereHas('credential', fn (Builder $has) => $has->where('email_status', $email));
+        }
+
         return PageOf::from($query->paginate($request->perPage(), page: $request->page()), VoterResource::class);
     }
 
@@ -79,7 +97,7 @@ class VoterController extends Controller
      * 409 `election_voters_locked`). The identifier and the email are unique in the election.
      * Owner or manager. Limited to 240 requests per hour per user.
      */
-    #[Response(status: 201, type: 'array{data: array{id: string, full_name: string, group: array{id: string, name: string}|null, identifier: string|null, email: string|null, phone: string|null, created_at: string, updated_at: string}}')]
+    #[Response(status: 201, type: 'array{data: array{id: string, full_name: string, group: array{id: string, name: string}|null, identifier: string|null, email: string|null, phone: string|null, has_code: bool, email_status: \'queued\'|\'sent\'|\'failed\'|null, created_at: string, updated_at: string}}')]
     public function store(CreateVoterRequest $request, Election $election, GroupByName $groups): JsonResponse
     {
         $this->allow('create', [Voter::class, $election]);
@@ -124,7 +142,7 @@ class VoterController extends Controller
      * keeps the voter's group (409 `election_voters_locked`). Owner or manager.
      * Limited to 240 requests per hour per user.
      *
-     * @response array{data: array{id: string, full_name: string, group: array{id: string, name: string}|null, identifier: string|null, email: string|null, phone: string|null, created_at: string, updated_at: string}}
+     * @response array{data: array{id: string, full_name: string, group: array{id: string, name: string}|null, identifier: string|null, email: string|null, phone: string|null, has_code: bool, email_status: 'queued'|'sent'|'failed'|null, created_at: string, updated_at: string}}
      */
     public function update(UpdateVoterRequest $request, Voter $voter, GroupByName $groups): VoterResource
     {

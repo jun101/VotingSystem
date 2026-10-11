@@ -37,7 +37,8 @@ it('uses only the colours of the design tokens [docs/design/email.md section 1]'
     $css = file_get_contents(base_path('../web/src/styles/tokens.css'));
     preg_match_all('/--color-[a-z0-9-]+:\s*(#[0-9a-fA-F]{6})\b/', (string) $css, $tokens);
     $allowed = array_map('strtolower', $tokens[1]);
-    preg_match_all('/#[0-9a-fA-F]{3,6}\b/', $mail['html'], $used);
+    // The `#CODE` of the personal link is not a colour: look at the colours outside the href attributes.
+    preg_match_all('/#[0-9a-fA-F]{3,6}\b/', preg_replace('/href="[^"]*"/', '', $mail['html']), $used);
 
     foreach (array_unique(array_map('strtolower', $used[0])) as $colour) {
         expect($allowed)->toContain($colour);

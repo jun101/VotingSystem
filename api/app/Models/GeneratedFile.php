@@ -23,6 +23,8 @@ use Illuminate\Support\Carbon;
  * @property int $voter_count
  * @property string $status
  * @property string|null $failure
+ * @property bool $send_email
+ * @property bool $replace
  * @property string|null $stored_file
  * @property int|null $size_bytes
  * @property Carbon $expires_at
@@ -53,6 +55,8 @@ class GeneratedFile extends Model
     {
         return [
             'expires_at' => 'datetime',
+            'send_email' => 'boolean',
+            'replace' => 'boolean',
         ];
     }
 
