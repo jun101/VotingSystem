@@ -91,3 +91,12 @@ pest()->beforeEach(function () {
     $this->credentialsRoot = Tests\Support\Codes::useTempDisk();
     $this->browser = new Tests\Support\AuthClient($this);
 })->in('Acceptance/Slice10');
+
+// Slice 11: the same as slice 10 (docs/slices/11-email-and-file.md).
+pest()->beforeEach(function () {
+    Tests\Support\Accounts::reset();
+    Tests\Support\Tenancy::installProbeTables();
+    Tests\Support\Team::clearMedia();
+    $this->credentialsRoot = Tests\Support\Codes::useTempDisk();
+    $this->browser = new Tests\Support\AuthClient($this);
+})->in('Acceptance/Slice11');
