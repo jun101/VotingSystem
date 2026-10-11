@@ -364,7 +364,8 @@ export function ElectionForm({
         <NextSteps title={t('elections.next.title')} />
       </div>
 
-      <div className="flex flex-col gap-2 sm:flex-row sm:justify-end lg:col-start-2 lg:row-start-1 lg:items-center">
+      {/* Under the form, where a person who has filled it looks next; not above, where it is easily missed. */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:justify-end lg:col-start-1 lg:row-start-3 lg:items-center">
         <Link
           href={backTo}
           data-testid="election-cancel"

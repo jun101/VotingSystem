@@ -183,6 +183,23 @@ test.describe('the checklist and the scheduling (A05)', () => {
     await expect(page.getByTestId('ballots-add')).toHaveCount(0);
   });
 
+  test('opens the schedule dialog from the Planifier step, and goes to the checklist when something blocks [FR-ELEC-03]', async ({ page }) => {
+    const election = await ready(page);
+    await page.goto(`/admin/elections/${election.id}`);
+    await expect(page.getByTestId('checklist-blockers')).toBeVisible();
+
+    await page.getByTestId('election-step-3').click();
+    await expect(page.getByTestId('schedule-dialog')).toHaveCount(0);
+    await expect(page.getByTestId('election-checklist')).toBeInViewport();
+
+    await complete(page, election.id);
+    await page.goto(`/admin/elections/${election.id}`);
+    await expect(page.getByTestId('checklist-ok')).toBeVisible();
+    await page.getByTestId('election-step-3').click();
+    await expect(page.getByTestId('schedule-dialog')).toBeVisible();
+    await expect(page).not.toHaveURL(/#/);
+  });
+
   test('needs a tick when there are warnings [FR-ELEC-04]', async ({ page }) => {
     const election = await ready(page);
     const ballot = await createBallot(page, election.id, 'Un seul candidat');

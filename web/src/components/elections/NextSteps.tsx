@@ -27,7 +27,7 @@ export function NextSteps({
   headerTestId,
   ballotsHref,
   votersHref,
-  scheduleHref,
+  onSchedule,
   codesHref,
   done = [],
 }: {
@@ -38,8 +38,8 @@ export function NextSteps({
   ballotsHref?: string;
   /** The same for the second step (the voters). */
   votersHref?: string;
-  /** The same for the third step (scheduling): where the checklist and its action are. */
-  scheduleHref?: string;
+  /** The third step (scheduling) is an action, not an address: it opens the schedule dialog. */
+  onSchedule?: () => void;
   /** The same for the fourth step (the access codes). */
   codesHref?: string;
   /** The steps already done (`ballots`, `voters`, `schedule`, `codes`): they say so and count. */
@@ -76,55 +76,95 @@ export function NextSteps({
               ? ballotsHref
               : step.key === 'voters'
                 ? votersHref
-                : step.key === 'schedule'
-                  ? scheduleHref
-                  : step.key === 'codes'
-                    ? codesHref
-                    : undefined;
+                : step.key === 'codes'
+                  ? codesHref
+                  : undefined;
+          const action = step.key === 'schedule' ? onSchedule : undefined;
           const finished = done.includes(step.key);
 
           return soon ? (
-            href ? (
+            href || action ? (
               <li
                 key={step.key}
                 data-testid={`election-step-${index + 1}`}
                 data-state="ready"
                 className="path-step flex"
               >
-                <Link
-                  href={href}
-                  className={cx(
-                    'group flex w-full flex-col items-center gap-2 rounded-lg px-3.5 text-center',
-                    focusRing,
-                  )}
-                >
-                  <span
-                    aria-hidden="true"
+                {href ? (
+                  <Link
+                    href={href}
                     className={cx(
-                      'path-dot relative z-10 flex size-13.5 items-center justify-center rounded-full shadow-[0_0_0_6px_var(--color-surface)]',
-                      step.tone,
+                      'group flex w-full flex-col items-center gap-2 rounded-lg px-3.5 text-center',
+                      focusRing,
                     )}
                   >
-                    <Icon name={step.icon} size={26} />
-                  </span>
-                  <b className="font-display text-lg font-extrabold text-ink">
-                    {t(`elections.next.${step.key}.title`)}
-                  </b>
-                  <span className="max-w-64 text-base text-ink-soft">
-                    {t(`elections.next.${step.key}.text`)}
-                  </span>
-                  {finished ? (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-soft px-3 py-1 text-xs font-bold text-teal-ink">
-                      <Icon name="check" size={14} />
-                      {t('elections.next.done')}
+                    <span
+                      aria-hidden="true"
+                      className={cx(
+                        'path-dot relative z-10 flex size-13.5 items-center justify-center rounded-full shadow-[0_0_0_6px_var(--color-surface)]',
+                        step.tone,
+                      )}
+                    >
+                      <Icon name={step.icon} size={26} />
                     </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-soft px-3 py-1 text-xs font-bold text-primary-hover group-hover:bg-primary-line">
-                      {t('elections.card.open')}
-                      <Icon name="open" size={14} />
+                    <b className="font-display text-lg font-extrabold text-ink">
+                      {t(`elections.next.${step.key}.title`)}
+                    </b>
+                    <span className="max-w-64 text-base text-ink-soft">
+                      {t(`elections.next.${step.key}.text`)}
                     </span>
-                  )}
-                </Link>
+                    {finished ? (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-soft px-3 py-1 text-xs font-bold text-teal-ink">
+                        <Icon name="check" size={14} />
+                        {t('elections.next.done')}
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-soft px-3 py-1 text-xs font-bold text-primary-hover group-hover:bg-primary-line">
+                        {t('elections.card.open')}
+                        <Icon name="open" size={14} />
+                      </span>
+                    )}
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={action}
+                    className={cx(
+                      cx(
+                        'group flex w-full flex-col items-center gap-2 rounded-lg px-3.5 text-center',
+                        focusRing,
+                      ),
+                      'cursor-pointer',
+                    )}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={cx(
+                        'path-dot relative z-10 flex size-13.5 items-center justify-center rounded-full shadow-[0_0_0_6px_var(--color-surface)]',
+                        step.tone,
+                      )}
+                    >
+                      <Icon name={step.icon} size={26} />
+                    </span>
+                    <b className="font-display text-lg font-extrabold text-ink">
+                      {t(`elections.next.${step.key}.title`)}
+                    </b>
+                    <span className="max-w-64 text-base text-ink-soft">
+                      {t(`elections.next.${step.key}.text`)}
+                    </span>
+                    {finished ? (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-soft px-3 py-1 text-xs font-bold text-teal-ink">
+                        <Icon name="check" size={14} />
+                        {t('elections.next.done')}
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-soft px-3 py-1 text-xs font-bold text-primary-hover group-hover:bg-primary-line">
+                        {t('elections.card.open')}
+                        <Icon name="open" size={14} />
+                      </span>
+                    )}
+                  </button>
+                )}
               </li>
             ) : (
               <li

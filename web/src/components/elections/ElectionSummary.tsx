@@ -211,6 +211,23 @@ export function ElectionSummary({ election: given }: { election: Election }) {
   });
   const yearsDiffer = !sameYear(start, end, zone);
 
+  /**
+   * The "Planifier" step: when the checklist is read and has no blocker the schedule dialog opens, as
+   * from the button of the band; otherwise the page goes to the checklist card, where the blockers are
+   * (the dialog would have nothing to confirm).
+   */
+  function openSchedule() {
+    if (!controls.scheduleDisabled && !busy) {
+      setScheduling(true);
+
+      return;
+    }
+
+    document
+      .getElementById('election-checklist-title')
+      ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
   async function duplicate() {
     setProblem(null);
     setBusy(true);
@@ -603,7 +620,7 @@ export function ElectionSummary({ election: given }: { election: Election }) {
               headerTestId="election-card-header-steps"
               ballotsHref={`/admin/elections/${election.id}/ballots`}
               votersHref={`/admin/elections/${election.id}/voters`}
-              scheduleHref={election.status === 'draft' ? '#election-checklist-title' : undefined}
+              onSchedule={election.status === 'draft' ? openSchedule : undefined}
               codesHref={`/admin/elections/${election.id}/codes`}
               done={[
                 ...(election.ballots_count > 0 ? ['ballots'] : []),
