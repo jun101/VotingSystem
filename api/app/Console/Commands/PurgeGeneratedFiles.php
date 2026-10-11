@@ -73,10 +73,23 @@ class PurgeGeneratedFiles extends Command
             ->where('status', GeneratedFile::STATUS_QUEUED)
             ->where('created_at', '<', $stuck)
             ->orderBy('id')
-            ->chunkById(100, function ($files) use ($stuck, &$failed): void {
+            ->chunkById(100, function ($files) use ($stuck, $disk, &$failed, &$failedCopies): void {
                 foreach ($files as $candidate) {
-                    if ($this->markFailed($candidate->id, $candidate->election_id, $stuck)) {
-                        $failed++;
+                    $stored = $this->markFailed($candidate->id, $candidate->election_id, $stuck);
+
+                    if ($stored === false) {
+                        continue;
+                    }
+
+                    $failed++;
+
+                    // The claimed copy, or the partial of a file of codes: a failed file keeps none.
+                    if ($stored !== null) {
+                        try {
+                            $disk->delete($stored);
+                        } catch (Throwable) {
+                            $failedCopies++;
+                        }
                     }
                 }
             });
@@ -117,10 +130,14 @@ class PurgeGeneratedFiles extends Command
         });
     }
 
-    /** Marks the file failed if it is still queued and older than the limit, under the locks. */
-    private function markFailed(int $fileKey, int $electionKey, Carbon $stuck): bool
+    /**
+     * Marks the file failed if it is still queued and older than the limit, under the locks.
+     *
+     * @return string|false|null the stored name to remove (null when there is none), false when nothing was marked
+     */
+    private function markFailed(int $fileKey, int $electionKey, Carbon $stuck): string|false|null
     {
-        return DB::transaction(function () use ($fileKey, $electionKey, $stuck): bool {
+        return DB::transaction(function () use ($fileKey, $electionKey, $stuck): string|false|null {
             // No user is signed in: locked by its own key, in the job's order (election first, then file).
             Election::withoutInstitutionScope()->whereKey($electionKey)->lockForUpdate()->first();
 
@@ -134,12 +151,15 @@ class PurgeGeneratedFiles extends Command
                 return false;
             }
 
+            $stored = $file->stored_file;
+
             $file->forceFill([
                 'status' => GeneratedFile::STATUS_FAILED,
                 'failure' => GeneratedFile::FAILURE_GENERATION,
+                'stored_file' => null,
             ])->save();
 
-            return true;
+            return $stored;
         });
     }
 }

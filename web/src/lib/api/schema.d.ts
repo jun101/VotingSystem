@@ -555,7 +555,8 @@ export interface paths {
         };
         /**
          * Download a file
-         * @description The PDF, decrypted on the way out, with a fixed name (`coupons-{group}.pdf`), never cached.
+         * @description The PDF of slips (`coupons-{group}.pdf`), or the Excel or CSV file of codes (`codes-{group}.xlsx`,
+         *     `codes-tous.csv`), decrypted on the way out, with a fixed name, never cached.
          *     409 `file_not_ready` for a queued or failed file; 404 once the election is closed,
          *     published or archived. Owner or manager. Limited to 120 requests per hour per user.
          */

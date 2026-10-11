@@ -52,6 +52,7 @@ final class GenerateSlipFile
     public function __construct(
         private readonly SlipWriter $writer,
         private readonly WriteCredential $credentials,
+        private readonly AppendCodeRows $codeRows,
     ) {}
 
     public function __invoke(string $fileUuid): void
@@ -93,10 +94,30 @@ final class GenerateSlipFile
             return;
         }
 
+        // After the commit: the rows of the self-distribution file of the run, if one was asked for.
+        // A failure here is found by that file's job, which fails rather than write an incomplete file.
+        $this->handOverRows($file, $plan);
+
         // After the commit of the file: a message that was queued is sent only for a file that exists.
         $this->dispatchEmails($plan);
 
         Log::info('credentials.file', ['outcome' => 'ready', 'voters' => count($plan->slips), 'emails' => count($plan->emails)]);
+    }
+
+    private function handOverRows(GeneratedFile $file, ClaimedFile $plan): void
+    {
+        try {
+            $base = rtrim(config()->string('app.url'), '/').'/vote/'.$plan->election->uuid.'#';
+            $group = $plan->group->name ?? '';
+            $rows = array_map(
+                static fn (Slip $slip): array => [$slip->name, $group, $slip->code, $base.$slip->code],
+                $plan->slips,
+            );
+
+            ($this->codeRows)($file, $rows);
+        } catch (Throwable $e) {
+            Log::info('credentials.file', ['outcome' => 'rows_not_kept', 'class' => $e::class]);
+        }
     }
 
     /**

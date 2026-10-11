@@ -58,7 +58,11 @@ class StartCredentialRunRequest extends CredentialScopeRequest
         return is_numeric($confirm) ? (int) $confirm : null;
     }
 
-    /** `xlsx`, `csv` or null: the self-distribution file asked for. */
+    /**
+     * `xlsx`, `csv` or null: the self-distribution file asked for.
+     *
+     * @return 'xlsx'|'csv'|null
+     */
     public function fileFormat(): ?string
     {
         $file = $this->input('file');

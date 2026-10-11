@@ -31,16 +31,17 @@ final class StartCredentialRun
      * @param  'all'|'group'|'ungrouped'|'failed_email'  $scope
      * @param  bool  $email  the voters served who have an address are emailed their code
      * @param  int|null  $confirmEmails  the count of emails the person confirmed (needed when `$email`)
+     * @param  'xlsx'|'csv'|null  $format  the self-distribution file asked for: one more file, written last
      * @return array{files: list<GeneratedFile>, voters: int, skipped: int, emails: int}
      *
      * @throws ApiException 404, or 409 `election_codes_locked`, `run_in_progress`, `nothing_to_generate`,
      *                      `nothing_to_email`, `email_count_changed` (with the count now true)
      */
-    public function __invoke(Election $election, string $scope, ?VoterGroup $group, ?User $user, bool $email = false, ?int $confirmEmails = null): array
+    public function __invoke(Election $election, string $scope, ?VoterGroup $group, ?User $user, bool $email = false, ?int $confirmEmails = null, ?string $format = null): array
     {
         $stale = [];
 
-        $run = DB::transaction(function () use ($election, $scope, $group, $user, $email, $confirmEmails, &$stale): array {
+        $run = DB::transaction(function () use ($election, $scope, $group, $user, $email, $confirmEmails, $format, &$stale): array {
             // Locked first, as every write of the voters and codes of an election.
             $locked = Election::query()->whereKey($election->getKey())->lockForUpdate()->first();
 
@@ -86,6 +87,8 @@ final class StartCredentialRun
             }
 
             $files = [];
+            // One instant for every file of the run: the file of codes finds the slips of its run by it.
+            $now = Carbon::now('UTC');
 
             foreach ($this->groupsToServe($locked, $counts) as [$serving, $left]) {
                 $sizes = PartSplitter::sizes($left);
@@ -105,12 +108,40 @@ final class StartCredentialRun
                     $file->send_email = $email;
                     $file->replace = $scope === 'failed_email';
                     $file->expires_at = $locked->ends_at;
+                    $file->created_at = $now;
+                    $file->updated_at = $now;
                     $file->save();
                     $file->setRelation('group', $serving);
                     $file->setRelation('election', $locked);
 
                     $files[] = $file;
                 }
+            }
+
+            if ($format !== null) {
+                // The codes are made inside the jobs of the slip files and never stored: this file is
+                // assembled from what they hand over, and it is the last of the chain.
+                $file = new GeneratedFile;
+                $file->institution_id = $locked->institution_id;
+                $file->election_id = $locked->id;
+                $file->user_id = $user?->id;
+                $file->kind = $format === 'csv' ? GeneratedFile::KIND_CODES_CSV : GeneratedFile::KIND_CODES_XLSX;
+                $file->voter_group_id = $scope === 'group' ? $group?->id : null;
+                $file->part = 1;
+                $file->parts = 1;
+                $file->voter_count = $toServe;
+                $file->status = GeneratedFile::STATUS_QUEUED;
+                $file->failure = null;
+                $file->send_email = false;
+                $file->replace = false;
+                $file->expires_at = $locked->ends_at;
+                $file->created_at = $now;
+                $file->updated_at = $now;
+                $file->save();
+                $file->setRelation('group', $scope === 'group' ? $group : null);
+                $file->setRelation('election', $locked);
+
+                $files[] = $file;
             }
 
             return ['files' => $files, 'voters' => $toServe, 'skipped' => $skipped, 'emails' => $email ? $emails : 0];

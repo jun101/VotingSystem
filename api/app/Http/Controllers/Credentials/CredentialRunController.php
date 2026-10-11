@@ -40,8 +40,7 @@ class CredentialRunController extends Controller
             throw new ApiException(403, 'forbidden');
         }
 
-        // The file channel (`xlsx`, `csv`) is validated here and written by the file job of slice 11b.
-        $run = $start($election, $request->scope(), $request->group(), $request->user(), $request->wantsEmail(), $request->confirmEmails());
+        $run = $start($election, $request->scope(), $request->group(), $request->user(), $request->wantsEmail(), $request->confirmEmails(), $request->fileFormat());
 
         $uuids = array_map(fn (GeneratedFile $file): string => $file->uuid, $run['files']);
 

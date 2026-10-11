@@ -38,6 +38,13 @@ class GeneratedFile extends Model
 
     public const KIND_SLIPS = 'slips_pdf';
 
+    public const KIND_CODES_XLSX = 'codes_xlsx';
+
+    public const KIND_CODES_CSV = 'codes_csv';
+
+    /** The kinds of the self-distribution file of a run. */
+    public const CODE_KINDS = [self::KIND_CODES_XLSX, self::KIND_CODES_CSV];
+
     public const STATUS_QUEUED = 'queued';
 
     public const STATUS_READY = 'ready';

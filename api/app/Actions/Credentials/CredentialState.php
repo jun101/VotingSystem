@@ -51,6 +51,7 @@ final class CredentialState
             $files = GeneratedFile::query()
                 ->where('election_id', $election->id)
                 ->where('status', GeneratedFile::STATUS_READY)
+                ->where('kind', GeneratedFile::KIND_SLIPS)
                 ->selectRaw('voter_group_id as group_key, count(*) as ready')
                 ->groupBy('voter_group_id')
                 ->get();

@@ -4068,7 +4068,7 @@
         "/v1/generated-files/{file}/download": {
             "get": {
                 "operationId": "generatedFile.download",
-                "description": "The PDF, decrypted on the way out, with a fixed name (`coupons-{group}.pdf`), never cached.\n409 `file_not_ready` for a queued or failed file; 404 once the election is closed,\npublished or archived. Owner or manager. Limited to 120 requests per hour per user.",
+                "description": "The PDF of slips (`coupons-{group}.pdf`), or the Excel or CSV file of codes (`codes-{group}.xlsx`,\n`codes-tous.csv`), decrypted on the way out, with a fixed name, never cached.\n409 `file_not_ready` for a queued or failed file; 404 once the election is closed,\npublished or archived. Owner or manager. Limited to 120 requests per hour per user.",
                 "summary": "Download a file",
                 "tags": [
                     "GeneratedFile"
