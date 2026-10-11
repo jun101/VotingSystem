@@ -92,6 +92,33 @@ test.describe('the status on the voters page', () => {
   });
 });
 
+test.describe('a lost slip, by email', () => {
+  test('emails the new code to a voter who has an address [FR-CRED-04]', async ({ page }) => {
+    const { election, rose } = await openCodes(page);
+
+    await page.getByTestId('codes-lost').click();
+    await page.getByTestId('lost-search').fill('Rose');
+    await page.getByTestId('lost-voter-1').click();
+    await page.getByTestId('lost-email').check();
+    await page.getByTestId('lost-confirm').click();
+
+    const code = (await page.getByTestId('lost-code').textContent())!.trim();
+    const [mail] = await waitForMails(rose, 1);
+    expect(mail!.text).toContain(code);
+    expect(mail!.text).toContain(`/vote/${election.id}#${code}`);
+  });
+
+  test('offers no email choice for a voter with no address [FR-CRED-04]', async ({ page }) => {
+    await openCodes(page);
+
+    await page.getByTestId('codes-lost').click();
+    await page.getByTestId('lost-search').fill('Nadège');
+    await page.getByTestId('lost-voter-1').click();
+
+    await expect(page.getByTestId('lost-email')).toHaveCount(0);
+  });
+});
+
 test.describe('quality', () => {
   test('is accessible and never scrolls sideways on both screens [NFR-UX-02, NFR-UX-03]', async ({ page }) => {
     await openCodes(page);

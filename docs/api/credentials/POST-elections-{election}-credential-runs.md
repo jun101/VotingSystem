@@ -137,3 +137,14 @@ Each email is a queued job with an encrypted payload holding the voter's UUID, t
 code is in no other queue field, no log and no failed-jobs row in clear. The answer carries the same `data` as before
 plus `emails`: the number of messages queued. The status of each message is read from
 [GET credentials](GET-elections-{election}-credentials.md) and the voters list.
+
+### Review round (slice 11)
+
+| Scenario | Status | `error.code` |
+|---|---|---|
+| `email` true and the user's email is not verified (also for a reissue with `email`) | 403 | `email_not_verified` |
+| The emails of the run would pass the institution's quota of the last 24 hours (`credentials.emails_per_institution_per_day`, default 5 000) | 409, `error.count` is the number left | `email_quota_exceeded` |
+
+The run records which voters are to be emailed and at which address; a message is sent only for those, to that
+address, and only while the voter's status is still `queued`. A code written without an email clears the voter's
+email status. The files of a run are matched by an identifier of the run.

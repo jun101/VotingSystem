@@ -86,6 +86,20 @@ filters `credential` and `email`).
 | Files | `codes-file-{n}` (n from 1: the code files, Excel or CSV, newest first; a link that downloads) |
 | Voters page | `voters-filter-credential` (select: empty, `issued`, `none`), `voters-filter-email` (select: empty, `queued`, `sent`, `failed`, `none`), per card `voter-code-{n}`, `voter-email-status-{n}` |
 
+## Review round (2026-10-11)
+
+Decided from the two reviewers while Jun was asleep (recorded for his return):
+
+- **Who may email:** a user whose email is not verified cannot send emails (403 `email_not_verified`, on a run with `email` and on a reissue with `email`); a run without email is not affected. An institution may send at most `credentials.emails_per_institution_per_day` (default 5 000) emails in 24 hours: more answers 409 `email_quota_exceeded` with the number left in `error.count`.
+- **Throttle and giving up:** the 120 a minute limit is kept per institution (key by institution) inside a platform cap, giving up is by real send attempts, not by time in the queue; the job has a backoff; the retry counter is keyed by voter and code hash.
+- **Suspension:** the email job checks the institution is not suspended and otherwise marks the voter `failed` (`institution_suspended`).
+- **Statuses never lie:** a code written without an email clears `email_status`, `email_sent_at` and `email_error`; `files:purge` marks a voter whose email stayed `queued` more than 7 hours `failed` (`send_failed`) so `failed_email` can serve it; a message is sent only if the status is still `queued` (atomic claim); a crash after phase 1 of a slip file leaves the voters to that sweep.
+- **Who is emailed is fixed at the run:** the run records which voters are to be emailed and at which address; the job refuses an address that changed.
+- **Text:** control characters of the voter name, election title and institution name become spaces in the text email.
+- **A run has its own identifier** (`run` UUID column on `generated_files`): the files of a run are matched by it, not by `created_at`.
+- **Web:** `running` is driven by queued files only (queued emails refresh the page more slowly and never disable the buttons); the run result counts slip files only and reports a failed code file with its own message; the lost-slip dialog gets `lost-email` (a checkbox, shown for a voter who has an address) that reissues with `email: true`; group email counts are pluralised.
+- **Names and counts:** the file of the voters with no group downloads as `codes-sans-groupe.{xlsx|csv}`; `email_failed` counts only voters who still have an address (the ones a resend can serve).
+
 ## Not in this slice
 
 The voting page (12), SMS or WhatsApp, a bounce or delivery report from the mail provider, audit entries (17).
