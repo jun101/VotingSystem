@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Validator;
 
 /**
  * Creates a platform admin (docs/api/platform/COMMAND-platform-create-admin.md): the only way, there is no sign-up
- * for it. The password is asked twice, hidden, and is never printed or logged; the new user is named by uuid.
+ * for it. The password is asked twice, hidden (or read from the variable named by --password-from-env), and is never printed or logged; the new user is named by uuid.
  * Any refusal exits 1 and creates nothing. No audit entry: the operator runs it outside the application.
  */
 class CreatePlatformAdmin extends Command
@@ -21,7 +21,8 @@ class CreatePlatformAdmin extends Command
 
     private const MAX_PASSWORD = 128;
 
-    protected $signature = 'platform:create-admin {email : The email address of the new platform admin}';
+    protected $signature = 'platform:create-admin {email : The email address of the new platform admin}
+        {--password-from-env= : Read the password from this environment variable instead of asking}';
 
     protected $description = 'Create a platform admin (asks for the password)';
 
@@ -43,10 +44,20 @@ class CreatePlatformAdmin extends Command
             return self::FAILURE;
         }
 
-        $password = $this->secret('Password');
-        $confirmation = $this->secret('Confirm password');
-        $password = is_string($password) ? $password : '';
-        $confirmation = is_string($confirmation) ? $confirmation : '';
+        $variable = $this->option('password-from-env');
+
+        if (is_string($variable) && $variable !== '') {
+            // For scripts (make e2e): no question, no confirmation. Read through getenv() and $_SERVER/$_ENV, never printed.
+            $value = getenv($variable);
+            $value = $value === false ? ($_SERVER[$variable] ?? $_ENV[$variable] ?? '') : $value;
+            $password = is_string($value) ? $value : '';
+            $confirmation = $password;
+        } else {
+            $password = $this->secret('Password');
+            $confirmation = $this->secret('Confirm password');
+            $password = is_string($password) ? $password : '';
+            $confirmation = is_string($confirmation) ? $confirmation : '';
+        }
 
         if (! hash_equals($password, $confirmation)) {
             $this->error('The two passwords are not the same.');

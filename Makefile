@@ -48,6 +48,7 @@ test-web:
 
 e2e: ## Browser tests against the running stack
 	$(COMPOSE) up -d --wait
+	$(COMPOSE) exec -T -e PLATFORM_ADMIN_PASSWORD='un mot de passe long et sûr' api php artisan platform:create-admin e2e-admin@platform.test --password-from-env=PLATFORM_ADMIN_PASSWORD || true
 	$(COMPOSE) run --rm -T e2e
 
 lint: lint-api lint-web ## Pint, PHPStan, ESLint, Prettier, tsc
