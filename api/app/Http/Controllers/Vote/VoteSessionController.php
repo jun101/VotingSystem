@@ -148,12 +148,13 @@ class VoteSessionController extends Controller
 
     /**
      * A wrong code: counted (begin did), and refused with 429 when the election-wide limit is reached,
-     * with the request given back so the counter stays at its maximum; else 401 `invalid_code`.
+     * with only that counter given back so it stays at its maximum (the address keeps the failure counted);
+     * else 401 `invalid_code`.
      */
     private function wrongCode(CodeAttempts $attempts, string $election, string $address, ?int $electionWait): never
     {
         if ($electionWait !== null) {
-            $attempts->forgive($election, $address);
+            $attempts->forgiveElection($election, $address);
 
             throw new ApiException(429, 'too_many_attempts', ['Retry-After' => (string) $electionWait]);
         }

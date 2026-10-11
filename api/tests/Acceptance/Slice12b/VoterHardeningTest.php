@@ -50,6 +50,19 @@ it('does not give the guessing back: a wrong code is not counted twice and a val
     Voting::enter(Voting::browser($this)->fromAddress('10.99.99.6'), $e['election'], Codes::fresh())->assertStatus(429);
 });
 
+it('keeps counting wrong codes on the address once the election limit is reached: no guessing without the address limit [NFR-SEC-05] (scenarios 9, 11)', function () {
+    $e = Voting::election();
+    hardeningFill($this, $e['election']);
+    $browser = Voting::browser($this)->fromAddress('10.88.88.88');
+
+    foreach (range(1, 31) as $i) {
+        Voting::enter($browser, $e['election'], Codes::fresh())->assertStatus(429);
+    }
+
+    Voting::enter($browser, $e['election'], $e['codes']['Wideline'])->assertStatus(429)->assertJsonPath('error.code', 'too_many_attempts');
+    Voting::enter(Voting::browser($this)->fromAddress('10.88.88.89'), $e['election'], $e['codes']['Wideline'])->assertCreated();
+});
+
 it('still locks out an address after 30 wrong codes, valid code included, when the election limit is not reached [NFR-SEC-05] (scenario 9)', function () {
     $e = Voting::election();
     $browser = Voting::browser($this)->fromAddress('10.20.30.60');

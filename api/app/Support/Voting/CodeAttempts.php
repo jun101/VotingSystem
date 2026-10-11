@@ -78,6 +78,18 @@ final class CodeAttempts
     }
 
     /**
+     * A wrong code refused by the election-wide limit: only that counter is given back (it stays at its maximum).
+     * The wrong code stays counted on the address, so a saturated election is no way to guess without the
+     * per-address limit.
+     */
+    public function forgiveElection(string $election, string $address): void
+    {
+        [, [$key, , $window]] = $this->limits($election, $address);
+
+        RateLimiter::decrement($key, $window);
+    }
+
+    /**
      * Seconds to wait when the limits are already exhausted for this address, else null. A read
      * only (it counts nothing); the controller uses `begin`, whose increment decides atomically.
      */
