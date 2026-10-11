@@ -1,15 +1,12 @@
 import Link from 'next/link';
 import { headers } from 'next/headers';
 import { Icon, type IconName } from '@/components/admin/Icon';
-import { HeroArt } from '@/components/home/HeroArt';
-import { HomeCard } from '@/components/home/HomeCard';
 import { HomeNav } from '@/components/home/HomeNav';
-import { ImageSlot } from '@/components/home/ImageSlot';
+import { LiveBallot } from '@/components/home/LiveBallot';
 import { linkStyles } from '@/components/home/links';
 import { VoterDoor } from '@/components/home/VoterDoor';
 import { LiveDot, Reveal } from '@/components/motion';
 import { LogoMark, Pill } from '@/components/ui';
-import type { HeadTone } from '@/components/vote/VoteCard';
 import { fetchHealthCached } from '@/lib/api/health';
 import { formatDateTime } from '@/lib/format/dateTime';
 import { I18nProvider } from '@/lib/i18n/client';
@@ -19,7 +16,7 @@ import { getMessages, type Messages } from '@/lib/i18n/messages';
 // Read at each visit: the page shows the state of the system now.
 export const dynamic = 'force-dynamic';
 
-const SECTION = 'mx-auto w-full max-w-6xl px-4 pt-12 md:pt-16';
+const SECTION = 'mx-auto w-full max-w-6xl px-4 pt-16 md:pt-20';
 const EYEBROW = 'text-xs font-bold tracking-wide text-primary-hover uppercase';
 const TITLE = 'mt-2 text-2xl text-ink md:text-3xl';
 
@@ -28,7 +25,7 @@ export default async function HomePage() {
   const forwardedFor = (await headers()).get('x-forwarded-for');
   const health = await fetchHealthCached({ forwardedFor });
   const all = getMessages(locale);
-  // The client parts of the page (the voter's field, the language switch) ship only these texts.
+  // The client parts of the page (the voter's field, the live ballot, the language switch) ship only these texts.
   const clientMessages = {
     home: all.home,
     vote: { language: all.vote.language },
@@ -52,24 +49,11 @@ export default async function HomePage() {
       ? 'overallDown'
       : 'overallUnknown';
 
-  const features: {
-    key: 'secret' | 'slips' | 'live' | 'results';
-    icon: IconName;
-    tone: HeadTone;
-  }[] = [
-    { key: 'secret', icon: 'lock', tone: 'activity' },
-    { key: 'slips', icon: 'qr', tone: 'figures' },
-    { key: 'live', icon: 'chart', tone: 'latest' },
-    { key: 'results', icon: 'flag', tone: 'todo' },
+  const assure: { key: 'secret' | 'once' | 'phone'; icon: IconName }[] = [
+    { key: 'secret', icon: 'lock' },
+    { key: 'once', icon: 'check' },
+    { key: 'phone', icon: 'phone' },
   ];
-
-  const offers: { key: 'import' | 'codes' | 'page' | 'results'; icon: IconName; tone: HeadTone }[] =
-    [
-      { key: 'import', icon: 'people', tone: 'latest' },
-      { key: 'codes', icon: 'mail', tone: 'activity' },
-      { key: 'page', icon: 'phone', tone: 'figures' },
-      { key: 'results', icon: 'chart', tone: 'todo' },
-    ];
 
   const steps = [
     { key: 'import', badge: 'bg-hero-mid text-surface' },
@@ -78,252 +62,187 @@ export default async function HomePage() {
     { key: 'results', badge: 'bg-accent text-deep' },
   ] as const;
 
-  const trust: { key: 'secret' | 'once' | 'languages' | 'audit'; icon: IconName; tone: string }[] =
-    [
-      { key: 'secret', icon: 'eye', tone: 'bg-primary-soft text-primary-hover' },
-      { key: 'once', icon: 'check', tone: 'bg-teal-soft text-teal-ink' },
-      { key: 'languages', icon: 'lang', tone: 'bg-warm-soft text-warm-ink' },
-      { key: 'audit', icon: 'log', tone: 'bg-status-published-soft text-status-published' },
-    ];
+  const why: { key: 'secret' | 'slips' | 'live' | 'results'; icon: IconName; tone: string }[] = [
+    { key: 'secret', icon: 'eye', tone: 'bg-primary-soft text-primary-hover' },
+    { key: 'slips', icon: 'qr', tone: 'bg-teal-soft text-teal-ink' },
+    { key: 'live', icon: 'chart', tone: 'bg-warm-soft text-warm-ink' },
+    { key: 'results', icon: 'flag', tone: 'bg-status-published-soft text-status-published' },
+  ];
 
+  const figures = ['one', 'zero', 'two', 'full'] as const;
   const faq = ['account', 'phone', 'tie', 'results'] as const;
 
   return (
     <I18nProvider locale={locale} messages={clientMessages}>
       <div id="top" className="min-h-screen bg-canvas">
-        <div className="relative">
-          <HomeNav t={t} />
+        <HomeNav t={t} />
 
-          <main>
-            {/* ---- Hero ---- */}
-            <section
-              data-testid="home-hero"
-              data-live="true"
-              className="bg-hero relative overflow-hidden pt-28 pb-40 text-surface md:pt-32 md:pb-44"
-            >
-              <div
-                aria-hidden="true"
-                className="hero-light hero-light-a -top-24 -right-16 size-96"
-              />
-              <div
-                aria-hidden="true"
-                className="hero-light hero-light-b -bottom-32 left-1/4 size-80"
-              />
+        <main>
+          {/* ---- Hero: light, one live ballot ---- */}
+          <section
+            data-testid="home-hero"
+            data-live="true"
+            className="relative overflow-hidden pt-12 pb-20 md:pt-16 md:pb-24"
+          >
+            <div
+              aria-hidden="true"
+              className="hero-light-a absolute -top-24 -right-20 size-96 rounded-full bg-backdrop-from/20 blur-3xl"
+            />
+            <div
+              aria-hidden="true"
+              className="hero-light-b absolute -bottom-28 -left-24 size-96 rounded-full bg-primary/20 blur-3xl"
+            />
 
-              <div className="relative mx-auto grid w-full max-w-6xl items-center gap-8 px-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-10">
-                <div className="flex min-w-0 flex-col items-start gap-5">
-                  <span className="inline-flex items-center gap-2 rounded-full border border-glass-line bg-glass px-3.5 py-1.5 text-sm font-semibold text-surface">
-                    <LiveDot className="text-accent-light" />
-                    {t('home.hero.pill')}
-                  </span>
-                  <h1
-                    data-testid="home-hero-title"
-                    className="text-4xl text-surface md:text-[44px] md:leading-[50px]"
-                  >
-                    <span className="sr-only">{t('app.name')}</span> {t('home.hero.title')}
-                    <br />
-                    <span className="accent-word">{t('home.hero.accent')}</span>
-                  </h1>
-                  <p className="max-w-xl text-lg text-hero-ink-soft">{t('home.hero.lede')}</p>
-                  <div className="flex flex-col gap-3 sm:flex-row">
-                    <Link
-                      href="/register"
-                      data-testid="home-hero-create"
-                      className={linkStyles.white}
-                    >
-                      {t('home.hero.create')}
-                    </Link>
-                    <a href="#how" className={linkStyles.glass}>
-                      {t('home.hero.how')}
-                    </a>
-                  </div>
-                </div>
-
-                <HeroArt t={t} />
-              </div>
-            </section>
-
-            {/* ---- The two doors, over the hero's bottom edge ---- */}
-            <section className="relative z-10 mx-auto -mt-24 w-full max-w-6xl px-4">
-              <div className="rise-stagger grid gap-5 md:grid-cols-2">
-                <div
-                  data-testid="home-voter-door"
-                  className="flex min-w-0 flex-col gap-4 rounded-xl bg-surface p-5 shadow-3 sm:flex-row sm:p-6"
+            <div className="relative mx-auto grid w-full max-w-6xl items-center gap-10 px-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-14">
+              <div className="flex min-w-0 flex-col items-start gap-5">
+                <span className="inline-flex items-center gap-2 rounded-full bg-primary-soft px-3.5 py-1.5 text-sm font-bold tracking-wide text-primary-hover uppercase">
+                  <LiveDot className="text-accent" />
+                  {t('home.hero.pill')}
+                </span>
+                <h1
+                  data-testid="home-hero-title"
+                  className="text-4xl text-ink md:text-[56px] md:leading-[60px]"
                 >
-                  <span
-                    aria-hidden="true"
-                    className="flex size-16 shrink-0 items-center justify-center rounded-lg bg-primary-soft text-primary"
+                  <span className="sr-only">{t('app.name')}</span> {t('home.hero.title')}
+                  <br />
+                  <span className="hero-word">{t('home.hero.accent')}</span>
+                </h1>
+                <p className="max-w-xl text-lg text-ink-soft md:text-xl">{t('home.hero.lede')}</p>
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <Link
+                    href="/register"
+                    data-testid="home-hero-create"
+                    className={linkStyles.primary}
                   >
-                    <Icon name="lock" size={34} />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <h2 className="text-xl text-ink md:text-2xl">{t('home.voter.title')}</h2>
-                    <p className="mt-1 mb-3 text-md text-ink-soft">{t('home.voter.text')}</p>
-                    <VoterDoor />
-                  </div>
-                </div>
-
-                <div
-                  data-testid="home-organiser-door"
-                  className="flex min-w-0 flex-col gap-4 rounded-xl bg-surface p-5 shadow-3 sm:flex-row sm:p-6"
-                >
-                  <span
-                    aria-hidden="true"
-                    className="flex size-16 shrink-0 items-center justify-center rounded-lg bg-teal-soft text-teal"
-                  >
-                    <Icon name="ballot" size={34} />
-                  </span>
-                  <div className="flex min-w-0 flex-1 flex-col">
-                    <h2 className="text-xl text-ink md:text-2xl">{t('home.organiser.title')}</h2>
-                    <p className="mt-1 mb-4 text-md text-ink-soft">{t('home.organiser.text')}</p>
-                    <div className="mt-auto flex flex-col gap-3 sm:flex-row">
-                      <Link href="/login" data-testid="home-signin" className={linkStyles.primary}>
-                        {t('home.organiser.signIn')}
-                      </Link>
-                      <Link
-                        href="/register"
-                        data-testid="home-register"
-                        className={linkStyles.soft}
-                      >
-                        {t('home.organiser.register')}
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* ---- Four reasons ---- */}
-            <section aria-labelledby="home-features-title" className={SECTION}>
-              <h2 id="home-features-title" className="sr-only">
-                {t('home.features.title')}
-              </h2>
-              <Reveal stagger className="grid gap-4 lg:grid-cols-4 sm:grid-cols-2">
-                {features.map((item) => (
-                  <HomeCard
-                    key={item.key}
-                    tone={item.tone}
-                    icon={item.icon}
-                    head={t(`home.features.${item.key}.head`)}
-                  >
-                    <p className="font-display text-lg font-extrabold text-ink">
-                      {t(`home.features.${item.key}.title`)}
-                    </p>
-                    <p>{t(`home.features.${item.key}.text`)}</p>
-                  </HomeCard>
-                ))}
-              </Reveal>
-            </section>
-
-            {/* ---- About ---- */}
-            <section aria-labelledby="home-about-title" className={SECTION}>
-              <Reveal className="grid items-center gap-6 lg:grid-cols-[1.1fr_1fr] lg:gap-8">
-                <div className="flex flex-col items-start">
-                  <p className={EYEBROW}>{t('home.about.eyebrow')}</p>
-                  <h2 id="home-about-title" className={TITLE}>
-                    {t('home.about.title')}
-                  </h2>
-                  <p className="mt-3 max-w-xl text-lg text-ink-soft">{t('home.about.lead')}</p>
-                  <a href="#security" className={`${linkStyles.primary} mt-5`}>
-                    {t('home.about.more')}
+                    {t('home.hero.create')}
+                    <Icon name="open" size={18} />
+                  </Link>
+                  <a href="#how" className={linkStyles.outline}>
+                    {t('home.hero.how')}
                   </a>
                 </div>
-                <ImageSlot placeholder={t('home.about.image')}>
-                  <p className="rounded-md bg-surface px-4 py-3 shadow-3">
-                    <span className="block font-display text-2xl font-extrabold text-primary-hover">
-                      {t('home.about.statFigure')}
-                    </span>
-                    <span className="text-base font-semibold text-ink">
-                      {t('home.about.statText')}
-                    </span>
-                  </p>
-                </ImageSlot>
-              </Reveal>
-            </section>
+                <ul className="mt-2 flex flex-wrap gap-x-6 gap-y-2 text-base font-semibold text-ink-soft">
+                  {assure.map((item) => (
+                    <li key={item.key} className="flex items-center gap-2">
+                      <span aria-hidden="true" className="text-teal">
+                        <Icon name={item.icon} size={18} />
+                      </span>
+                      {t(`home.hero.assure.${item.key}`)}
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
-            {/* ---- What we offer, then the dark band ---- */}
-            <section aria-labelledby="home-offer-title" className={SECTION}>
-              <p className={EYEBROW}>{t('home.offer.eyebrow')}</p>
-              <h2 id="home-offer-title" className={TITLE}>
-                {t('home.offer.title')}
-              </h2>
-              <Reveal stagger className="mt-6 grid gap-4 lg:grid-cols-4 sm:grid-cols-2">
-                {offers.map((item) => (
-                  <HomeCard
-                    key={item.key}
-                    tone={item.tone}
-                    icon={item.icon}
-                    head={t(`home.offer.${item.key}.title`)}
-                  >
-                    <p>{t(`home.offer.${item.key}.text`)}</p>
-                  </HomeCard>
-                ))}
-              </Reveal>
+              <div className="mx-auto w-full max-w-md">
+                <LiveBallot />
+              </div>
+            </div>
+          </section>
 
-              <Reveal className="bg-band relative mt-12 grid items-center gap-5 overflow-hidden rounded-xl p-6 text-surface md:mt-16 md:grid-cols-[1.3fr_1fr] md:p-10">
-                <div aria-hidden="true" className="hero-light -top-16 -right-10 size-72" />
-                <div className="relative flex flex-col items-start gap-3">
-                  <h2 className="text-2xl text-surface md:text-3xl">{t('home.band.title')}</h2>
-                  <p className="text-lg text-hero-ink-soft">{t('home.band.text')}</p>
-                  <Link href="/register" className={`${linkStyles.white} mt-1`}>
-                    {t('home.band.action')}
-                  </Link>
+          {/* ---- The two doors: one panel, two halves, over the hero's bottom edge ---- */}
+          <section className="relative z-10 mx-auto -mt-10 w-full max-w-6xl px-4">
+            <div className="rise-stagger grid rounded-xl bg-surface shadow-3 md:grid-cols-2">
+              <div
+                data-testid="home-voter-door"
+                className="flex min-w-0 flex-col gap-4 p-5 sm:flex-row sm:p-7"
+              >
+                <span
+                  aria-hidden="true"
+                  className="flex size-14 shrink-0 items-center justify-center rounded-lg bg-primary-soft text-primary"
+                >
+                  <Icon name="lock" size={30} />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-xl text-ink md:text-2xl">{t('home.voter.title')}</h2>
+                  <p className="mt-1 mb-3 text-md text-ink-soft">{t('home.voter.text')}</p>
+                  <VoterDoor />
                 </div>
-                <p className="relative flex items-center gap-2 justify-self-start rounded-md bg-surface px-4 py-3 text-base font-semibold text-ink shadow-3 md:justify-self-end">
-                  <span
-                    aria-hidden="true"
-                    className="flex size-6 items-center justify-center rounded-full bg-teal text-surface"
-                  >
-                    <Icon name="check" size={14} />
-                  </span>
-                  {t('home.band.chip')}
-                </p>
-              </Reveal>
-            </section>
+              </div>
 
-            {/* ---- Four steps ---- */}
-            <section id="how" aria-labelledby="home-how-title" className={`${SECTION} scroll-mt-4`}>
+              <div
+                data-testid="home-organiser-door"
+                className="flex min-w-0 flex-col gap-4 border-t border-line-soft p-5 md:border-t-0 md:border-l sm:flex-row sm:p-7"
+              >
+                <span
+                  aria-hidden="true"
+                  className="flex size-14 shrink-0 items-center justify-center rounded-lg bg-teal-soft text-teal"
+                >
+                  <Icon name="ballot" size={30} />
+                </span>
+                <div className="flex min-w-0 flex-1 flex-col">
+                  <h2 className="text-xl text-ink md:text-2xl">{t('home.organiser.title')}</h2>
+                  <p className="mt-1 mb-4 text-md text-ink-soft">{t('home.organiser.text')}</p>
+                  <div className="mt-auto flex flex-col gap-3 sm:flex-row">
+                    <Link href="/login" data-testid="home-signin" className={linkStyles.primary}>
+                      {t('home.organiser.signIn')}
+                    </Link>
+                    <Link
+                      href="/register"
+                      data-testid="home-register"
+                      className={linkStyles.outline}
+                    >
+                      {t('home.organiser.register')}
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* ---- Four steps: a path, not cards ---- */}
+          <section id="how" aria-labelledby="home-how-title" className={`${SECTION} scroll-mt-20`}>
+            <div className="text-center">
               <p className={EYEBROW}>{t('home.steps.eyebrow')}</p>
               <h2 id="home-how-title" className={TITLE}>
                 {t('home.steps.title')}
               </h2>
-              <Reveal stagger className="mt-6 grid gap-4 lg:grid-cols-4 sm:grid-cols-2">
-                {steps.map((step, index) => (
-                  <article
-                    key={step.key}
-                    className="min-w-0 rounded-lg border border-line bg-surface p-5 shadow-2"
-                  >
-                    <span
-                      aria-hidden="true"
-                      className={`mb-3 flex size-11 items-center justify-center rounded-full font-display text-xl font-extrabold ${step.badge}`}
-                    >
-                      {index + 1}
-                    </span>
-                    <h3 className="font-display text-lg font-extrabold text-ink">
-                      {t(`home.steps.${step.key}.title`)}
-                    </h3>
-                    <p className="mt-1 text-md text-ink-soft">{t(`home.steps.${step.key}.text`)}</p>
-                  </article>
-                ))}
-              </Reveal>
-            </section>
-
-            {/* ---- Trust and questions ---- */}
-            <section
-              id="security"
-              aria-labelledby="home-trust-title"
-              className={`${SECTION} scroll-mt-4`}
+            </div>
+            <Reveal
+              stagger
+              className="relative mt-10 grid gap-8 md:grid-cols-2 lg:grid-cols-4 lg:gap-6"
             >
-              <p className={EYEBROW}>{t('home.trust.eyebrow')}</p>
-              <h2 id="home-trust-title" className={TITLE}>
-                {t('home.trust.title')}
-              </h2>
-              <Reveal stagger className="mt-6 grid gap-4 lg:grid-cols-4 sm:grid-cols-2">
-                {trust.map((item) => (
-                  <article
-                    key={item.key}
-                    className="flex min-w-0 items-start gap-3 rounded-lg border border-line bg-surface p-5 shadow-1"
+              <div
+                aria-hidden="true"
+                className="absolute top-7 right-[12.5%] left-[12.5%] hidden border-t-2 border-dashed border-primary-line lg:block"
+              />
+              {steps.map((step, index) => (
+                <div key={step.key} className="relative min-w-0 px-2 text-center">
+                  <span
+                    aria-hidden="true"
+                    className={`mx-auto mb-3.5 flex size-14 items-center justify-center rounded-full font-display text-2xl font-extrabold ring-[6px] ring-canvas ${step.badge}`}
                   >
+                    {index + 1}
+                  </span>
+                  <h3 className="font-display text-xl font-extrabold text-ink">
+                    {t(`home.steps.${step.key}.title`)}
+                  </h3>
+                  <p className="mt-1 text-md text-ink-soft">{t(`home.steps.${step.key}.text`)}</p>
+                </div>
+              ))}
+            </Reveal>
+          </section>
+
+          {/* ---- Why us: a split, an open list ---- */}
+          <section
+            id="security"
+            aria-labelledby="home-why-title"
+            className={`${SECTION} scroll-mt-20`}
+          >
+            <Reveal className="grid items-start gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+              <div className="flex flex-col items-start">
+                <p className={EYEBROW}>{t('home.why.eyebrow')}</p>
+                <h2 id="home-why-title" className={TITLE}>
+                  {t('home.why.title')}
+                </h2>
+                <p className="mt-3 max-w-md text-lg text-ink-soft">{t('home.why.lead')}</p>
+                <Link href="/register" className={`${linkStyles.primary} mt-6`}>
+                  {t('home.hero.create')}
+                </Link>
+              </div>
+
+              <ul className="grid gap-7 sm:grid-cols-2 sm:gap-x-9">
+                {why.map((item) => (
+                  <li key={item.key} className="flex min-w-0 items-start gap-3.5">
                     <span
                       aria-hidden="true"
                       className={`flex size-11 shrink-0 items-center justify-center rounded-md ${item.tone}`}
@@ -332,49 +251,105 @@ export default async function HomePage() {
                     </span>
                     <div className="min-w-0">
                       <h3 className="font-display text-lg font-extrabold text-ink">
-                        {t(`home.trust.${item.key}.title`)}
+                        {t(`home.why.${item.key}.title`)}
                       </h3>
-                      <p className="text-base text-ink-soft">{t(`home.trust.${item.key}.text`)}</p>
+                      <p className="mt-0.5 text-md text-ink-soft">
+                        {t(`home.why.${item.key}.text`)}
+                      </p>
                     </div>
-                  </article>
+                  </li>
                 ))}
-              </Reveal>
+              </ul>
+            </Reveal>
+          </section>
 
-              <div id="faq" className="mt-4 scroll-mt-4">
-                <Reveal stagger className="grid gap-4 md:grid-cols-2">
-                  {faq.map((key) => (
-                    <article
-                      key={key}
-                      className="min-w-0 rounded-md border border-line bg-surface px-5 py-4 shadow-1"
-                    >
-                      <h3 className="font-display text-lg font-extrabold text-ink">
-                        {t(`home.faq.${key}.q`)}
-                      </h3>
-                      <p className="mt-1 text-md text-ink-soft">{t(`home.faq.${key}.a`)}</p>
-                    </article>
-                  ))}
-                </Reveal>
-              </div>
-            </section>
+          {/* ---- Four true figures, separated by lines, not tiles ---- */}
+          <section
+            aria-labelledby="home-figures-title"
+            className="bg-hero relative mt-16 overflow-hidden py-12 text-surface md:mt-20 md:py-14"
+          >
+            <div aria-hidden="true" className="hero-light -top-32 -right-24 size-96" />
+            <h2 id="home-figures-title" className="sr-only">
+              {t('home.figures.title')}
+            </h2>
+            <Reveal
+              stagger
+              className="relative mx-auto grid w-full max-w-6xl gap-y-8 px-4 text-center md:grid-cols-2 lg:grid-cols-4 lg:divide-x lg:divide-glass-line"
+            >
+              {figures.map((key, index) => (
+                <p key={key} className="px-4">
+                  <span
+                    className={`block font-display text-4xl font-extrabold md:text-[52px] md:leading-[58px] ${index === 0 ? 'text-accent-light' : 'text-surface'}`}
+                  >
+                    {t(`home.figures.${key}.value`)}
+                  </span>
+                  <span className="mt-1 block text-md font-semibold text-surface">
+                    {t(`home.figures.${key}.label`)}
+                  </span>
+                </p>
+              ))}
+            </Reveal>
+          </section>
 
-            {/* ---- Closing band ---- */}
-            <section aria-labelledby="home-closing-title" className={`${SECTION} pb-12 md:pb-16`}>
-              <Reveal className="bg-hero rounded-xl px-6 py-10 text-center text-surface md:p-12">
-                <h2 id="home-closing-title" className="text-2xl text-surface md:text-3xl">
-                  {t('home.closing.title')}
+          {/* ---- Questions: a native accordion ---- */}
+          <section id="faq" aria-labelledby="home-faq-title" className={`${SECTION} scroll-mt-20`}>
+            <Reveal className="grid items-start gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+              <div className="flex flex-col items-start">
+                <p className={EYEBROW}>{t('home.faq.eyebrow')}</p>
+                <h2 id="home-faq-title" className={TITLE}>
+                  {t('home.faq.title')}
                 </h2>
-                <div className="mt-5 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                  <Link href="/register" className={linkStyles.white}>
-                    {t('home.closing.create')}
-                  </Link>
-                  <Link href="/login" className={linkStyles.glass}>
-                    {t('home.closing.signIn')}
-                  </Link>
-                </div>
-              </Reveal>
-            </section>
-          </main>
-        </div>
+                <p className="mt-3 text-lg text-ink-soft">
+                  {t('home.faq.lead')}{' '}
+                  <a
+                    href={`mailto:${t('home.footer.email')}`}
+                    className="rounded-sm font-semibold text-primary-hover underline focus-visible:outline-2 focus-visible:outline-primary"
+                  >
+                    {t('home.footer.email')}
+                  </a>
+                </p>
+              </div>
+
+              <div>
+                {faq.map((key, index) => (
+                  <details
+                    key={key}
+                    open={index === 0}
+                    className="group border-b border-line first:border-t"
+                  >
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-sm py-5 font-display text-lg font-extrabold text-ink focus-visible:outline-2 focus-visible:outline-primary [&::-webkit-details-marker]:hidden">
+                      {t(`home.faq.${key}.q`)}
+                      <span
+                        aria-hidden="true"
+                        className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary-hover transition-transform group-open:rotate-45"
+                      >
+                        <Icon name="plus" size={16} />
+                      </span>
+                    </summary>
+                    <p className="pb-5 text-md text-ink-soft">{t(`home.faq.${key}.a`)}</p>
+                  </details>
+                ))}
+              </div>
+            </Reveal>
+          </section>
+
+          {/* ---- Closing ---- */}
+          <section aria-labelledby="home-closing-title" className={`${SECTION} pb-16 md:pb-20`}>
+            <Reveal className="text-center">
+              <h2 id="home-closing-title" className="text-2xl text-ink md:text-3xl">
+                {t('home.closing.title')}
+              </h2>
+              <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                <Link href="/register" className={linkStyles.primary}>
+                  {t('home.closing.create')}
+                </Link>
+                <Link href="/login" className={linkStyles.outline}>
+                  {t('home.closing.signIn')}
+                </Link>
+              </div>
+            </Reveal>
+          </section>
+        </main>
 
         {/* ---- Footer: the product, the links, the contact and the state of the system. Not behind a reveal. ---- */}
         <footer className="bg-deep text-surface">

@@ -34,16 +34,27 @@
       "accent": "in secret.",
       "lede": "Import your voters, hand a code to each one, and follow turnout live. The vote stays secret and results are published when the election closes.",
       "create": "Create an election",
-      "how": "How it works"
+      "how": "How it works",
+      "assure": {
+        "secret": "Secret ballot",
+        "once": "One vote per voter",
+        "phone": "On a phone"
+      }
     },
     "art": {
-      "secret": "Secret ballot",
-      "phone": "100% online, on a phone",
+      "label": "Demo",
       "ballot": "Student council president",
       "one": "Marie-Claire Pierre",
+      "oneRole": "Candidate, year 3",
       "two": "Jean Baptiste",
-      "three": "Nadège Louis",
-      "blank": "Blank vote"
+      "twoRole": "Candidate, year 4",
+      "blank": "Blank vote",
+      "blankRole": "No candidate",
+      "vote": "Vote",
+      "slot": "Tap a candidate to vote",
+      "slotDone": "Ballot dropped in the box",
+      "idle": "No real vote: this is a trial.",
+      "voted": "Trial: “{name}”, ballot cast."
     },
     "voter": {
       "title": "I am a voter",
@@ -59,67 +70,49 @@
       "signIn": "Sign in",
       "register": "Create an account"
     },
-    "features": {
-      "title": "What makes the difference",
+    "why": {
+      "eyebrow": "Why us",
+      "title": "Elections you can trust",
+      "lead": "Built for schools and institutions: simple for the organiser, clear for the voter, verifiable by everyone.",
       "secret": {
-        "head": "Secret ballot",
         "title": "Nobody sees your choice",
         "text": "No link between a voter and a vote."
       },
       "slips": {
-        "head": "Printed slips",
         "title": "One code per voter",
         "text": "PDF slips, email or an Excel file."
       },
       "live": {
-        "head": "Live turnout",
         "title": "Who voted, not for whom",
         "text": "Follow turnout group by group."
       },
       "results": {
-        "head": "Public results",
         "title": "Published at closing",
         "text": "Ties are flagged, a runoff is possible."
       }
     },
-    "about": {
-      "eyebrow": "About",
-      "title": "Elections you can trust",
-      "lead": "Built for schools and institutions: simple for the organiser, clear for the voter, verifiable by everyone. French and English.",
-      "more": "Learn more",
-      "image": "Image: a school, a classroom or students voting",
-      "statFigure": "100%",
-      "statText": "of votes stay secret"
-    },
-    "offer": {
-      "eyebrow": "What we offer",
-      "title": "Everything you need, from import to results",
-      "import": {
-        "title": "Voter import",
-        "text": "Excel or CSV, checked line by line, groups created for you."
+    "figures": {
+      "title": "At a glance",
+      "one": {
+        "value": "1",
+        "label": "code per voter, one vote"
       },
-      "codes": {
-        "title": "Codes and emails",
-        "text": "Slip, email or file: choose when you generate."
+      "zero": {
+        "value": "0",
+        "label": "vote linked to a voter"
       },
-      "page": {
-        "title": "Voting page",
-        "text": "A ballot with photos, ready for phones, in two languages."
+      "two": {
+        "value": "2",
+        "label": "languages: French and English"
       },
-      "results": {
-        "title": "Results",
-        "text": "Percentages, ties, a runoff in one click."
+      "full": {
+        "value": "100%",
+        "label": "online, on a phone"
       }
-    },
-    "band": {
-      "title": "Every voice counts",
-      "text": "Launch your first election in minutes.",
-      "action": "Get started",
-      "chip": "One voter, one vote"
     },
     "steps": {
       "eyebrow": "How it works",
-      "title": "Four steps",
+      "title": "Four steps, from file to results",
       "import": {
         "title": "Import",
         "text": "Drop in the list of voters."
@@ -137,27 +130,10 @@
         "text": "Published when the election closes."
       }
     },
-    "trust": {
-      "eyebrow": "Trust",
-      "title": "Built to be safe",
-      "secret": {
-        "title": "Secret by design",
-        "text": "No vote is linked to a voter."
-      },
-      "once": {
-        "title": "One vote per voter",
-        "text": "Locked on the server."
-      },
-      "languages": {
-        "title": "French and English",
-        "text": "Chosen by the election."
-      },
-      "audit": {
-        "title": "Audit log",
-        "text": "Every action is recorded."
-      }
-    },
     "faq": {
+      "eyebrow": "Questions",
+      "title": "You may be wondering",
+      "lead": "Another question? Write to us.",
       "account": {
         "q": "Do my voters need an account?",
         "a": "No. A personal code is enough."
