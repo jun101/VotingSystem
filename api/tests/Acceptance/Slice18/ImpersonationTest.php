@@ -6,6 +6,8 @@
  * Jun, 2026-10-12: the platform admin may act as a school's owner, without the school's consent.
  */
 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Tests\Support\Accounts;
 use Tests\Support\AuthClient;
 use Tests\Support\Team;
@@ -129,4 +131,58 @@ it('keeps the ballot secret from the admin as from the owner [rule 3]', function
     $response = $this->browser->get("/api/v1/elections/{$e['election']}/results");
 
     expect($response->getStatusCode())->toBe(409)->and($response->getContent())->not->toContain('votes_count');
+});
+
+it('is dropped when someone else signs in in the same browser [security review 2026-10-12]', function () {
+    $t = impersonationSetup($this);
+    $this->browser->post(impersonateUrl($t['a']['owner']['institution']))->assertOk();
+
+    $this->browser->login($t['b']['owner']['email'], $t['b']['owner']['password'])->assertOk();
+
+    $this->browser->get('/api/v1/auth/me')->assertOk()->assertJsonPath('data.role', 'owner')->assertJsonMissingPath('data.impersonating');
+    $this->browser->delete(END_IMPERSONATION)->assertStatus(409)->assertJsonPath('error.code', 'not_impersonating');
+});
+
+it('ends when the admin\'s password changes [security review 2026-10-12]', function () {
+    $t = impersonationSetup($this);
+    $this->browser->post(impersonateUrl($t['a']['owner']['institution']))->assertOk();
+
+    DB::connection(useMigratorConnection())->table('users')
+        ->where('email', 'admin@platform.test')->update(['password' => Hash::make('un tout autre mot de passe')]);
+
+    $this->browser->get('/api/v1/auth/me')->assertStatus(401);
+});
+
+it('writes an entry naming the admin for owner actions that have no audit entry of their own [FR-AUD-01]', function () {
+    $t = impersonationSetup($this);
+    $this->browser->post(impersonateUrl($t['a']['owner']['institution']))->assertOk();
+    $this->browser->post('/api/v1/invitations', ['email' => 'nouveau@example.test', 'role' => 'manager'])->assertStatus(201);
+    $this->browser->patch('/api/v1/institution', ['name' => 'Nom changé'])->assertOk();
+    $this->browser->delete('/api/v1/users/'.$t['a']['manager']['user'])->assertStatus(204);
+
+    $entries = collect($this->browser->get('/api/v1/audit')->assertOk()->json('data'))->where('action', 'platform.impersonation_action');
+
+    expect($entries->pluck('details.what')->all())->toContain('invitation.created')->toContain('institution.updated')->toContain('user.removed')
+        ->and($entries->first()['actor']['name'])->toBe('Admin Plateforme (plateforme)')
+        ->and($entries->first()['details']['impersonated_by'])->toBe('Admin Plateforme')
+        ->and(Accounts::userRow('admin@platform.test')['uuid'])->toBe($entries->first()['details']['impersonated_by_id']);
+});
+
+it('asks for the admin\'s own password on account-security routes, and counts failures on the admin [security review 2026-10-12]', function () {
+    $t = impersonationSetup($this);
+    $this->browser->post(impersonateUrl($t['a']['owner']['institution']))->assertOk();
+
+    $this->browser->post('/api/v1/auth/two-factor/setup', ['password' => $t['a']['owner']['password']])->assertStatus(422)->assertJsonPath('error.fields.password.0', 'incorrect');
+    $this->browser->post('/api/v1/auth/two-factor/setup', ['password' => Accounts::PASSWORD])->assertOk();
+});
+
+it('ends even after sixty requests of the hour were used [security review 2026-10-12]', function () {
+    $t = impersonationSetup($this);
+    $this->browser->post(impersonateUrl($t['a']['owner']['institution']))->assertOk();
+    for ($i = 0; $i < 60; $i++) {
+        $this->browser->delete(END_IMPERSONATION);
+        $this->browser->post(impersonateUrl($t['a']['owner']['institution']));
+    }
+
+    $this->browser->delete(END_IMPERSONATION)->assertOk();
 });
