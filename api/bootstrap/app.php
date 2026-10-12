@@ -2,6 +2,7 @@
 
 use App\Exceptions\ApiErrorRenderer;
 use App\Http\Middleware\AssignRequestId;
+use App\Http\Middleware\EndStaleImpersonation;
 use App\Http\Middleware\EnsureInstitutionActive;
 use App\Http\Middleware\EnsureOwner;
 use App\Http\Middleware\EnsurePlatformAdmin;
@@ -67,6 +68,7 @@ return Application::configure(basePath: dirname(__DIR__))
             StartSession::class,
             VerifyCsrfToken::class,
             AuthenticateSession::class,
+            EndStaleImpersonation::class,
         ]);
         // The voter's pages (slice 12): no session, no CSRF token and no cookie encryption. The voter's
         // token is its own cookie, read and written by the controllers (`SameSite=Strict`, path
@@ -106,6 +108,7 @@ return Application::configure(basePath: dirname(__DIR__))
             VerifyCsrfToken::class,
             EnsureInstitutionActive::class,
             AuthenticatesSessions::class,
+            EndStaleImpersonation::class,
             // The platform admin's role is judged before the institution of the route is bound (an owner never learns
             // whether an institution exists), and the binding before the rate limit (an unknown institution is a 404
             // that uses no allowance).

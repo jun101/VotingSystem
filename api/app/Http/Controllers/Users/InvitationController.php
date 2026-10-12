@@ -11,6 +11,7 @@ use App\Http\Resources\InvitationResource;
 use App\Http\Resources\PageOf;
 use App\Models\Invitation;
 use App\Models\User;
+use App\Support\Platform\Impersonation;
 use Dedoc\Scramble\Attributes\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response as HttpResponse;
@@ -53,6 +54,7 @@ class InvitationController extends Controller
         $data = $request->validated();
 
         $invitation = $create($inviter, $data['email'], Role::from($data['role']));
+        Impersonation::note('invitation.created');
 
         return (new InvitationResource($invitation))->response()->setStatusCode(201);
     }

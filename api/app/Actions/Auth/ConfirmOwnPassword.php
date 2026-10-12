@@ -3,7 +3,9 @@
 namespace App\Actions\Auth;
 
 use App\Auth\PasswordFailures;
+use App\Enums\Role;
 use App\Models\User;
+use App\Support\Platform\Impersonation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -24,6 +26,20 @@ final class ConfirmOwnPassword
 {
     public function __invoke(Request $request, User $user, string $password): void
     {
+        // A platform admin acting as an owner: the admin's own password is asked, and the failures are the admin's.
+        $by = Impersonation::by();
+
+        if ($by !== null) {
+            // The admin has no institution, so the tenant scope would match nobody: the session names the admin's key.
+            $admin = User::withoutInstitutionScope()->whereKey($by['id'])->where('role', Role::PlatformAdmin->value)->first();
+
+            if ($admin === null) {
+                PasswordFailures::endSession($request);
+            }
+
+            $user = $admin;
+        }
+
         $attempts = PasswordFailures::hit($user);
 
         if ($attempts > PasswordFailures::MAX) {

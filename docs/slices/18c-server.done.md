@@ -36,3 +36,36 @@ the tests themselves:
   (`RemoveUser`), so the row is not found. `Accounts::userRowByUuid($t['a']['manager']['user'])` is the lookup that works.
 
 With those three lines corrected in a scratch copy of the file (deleted afterwards), the file passes: 21 tests.
+
+## Fix pass (security review, 2026-10-12)
+
+- **Bound to the owner**: the session keeps `impersonated_owner_id` beside the admin's keys; `Impersonation::by()` answers
+  only while the guard's user is that owner. A listener on the `Login` event (`AppServiceProvider`) clears the keys on
+  every sign-in, registration and invitation acceptance; `start()` puts its keys after its own login, so it is not hit.
+- **Admin's password**: a fingerprint of the admin's password hash is stored at the start (`Impersonation::fingerprint`).
+  The middleware `EndStaleImpersonation` (in the `cookie-session` group, after `AuthenticateSession`) ends the session
+  (logout, flush, 401) when the admin is gone, is no longer a platform admin, or the fingerprint no longer matches.
+- **`platform.impersonation_action`**: `Impersonation::note($what, $subject)` writes one entry while acting
+  (`{what, impersonated_by, impersonated_by_uuid}`) from `UserController::destroy` (`user.removed`), `resetTwoFactor`,
+  `InvitationController::store` (`invitation.created`), `InstitutionController::update` (`institution.updated`),
+  `LogoController::update` and `destroy` (`institution.logo_changed`), and `TwoFactorController::setup`, `confirm`,
+  `disable`, `recoveryCodes` (`two_factor.changed`; `confirm` is added to the list of the brief since it is what turns the
+  factor on).
+- **Password confirmations**: `ConfirmOwnPassword` checks the admin's password and counts failures, lock and 5th-failure
+  logout on the admin's `PasswordFailures` while acting.
+- **Limiter**: `DELETE /platform/impersonation` has no rate limiter; start, suspend and reactivate keep `platform-write`
+  keyed on the real admin.
+- **`details.impersonated_by_uuid`**: the admin's uuid, written by `AuditLog::record` beside `impersonated_by`.
+- `make generate` run (limiter text of the end endpoint); `make lint-api` clean.
+
+### Tests that look wrong (not edited)
+
+- "asks for the admin's own password on account-security routes ...": the admin (`platformAdmin()`) and the owner
+  (`Team::two()`) are both created with `Accounts::PASSWORD`, so the owner's password is also the admin's and the first
+  call cannot answer 422.
+- "ends even after sixty requests of the hour were used": 1 start + 60 loop starts is 61 `platform-write` hits, so the
+  61st start answers 429, the admin is not acting and the last DELETE answers 409 (the limit of 60 stays by the
+  contract). The loop should run 59 times.
+- "names the admin on every entry ..." and "writes an entry naming the admin ...": they read `details.impersonated_by_uuid`
+  through `GET /audit`, and `tests/Support/IdLeakScanner` (run on every response) refuses any key ending in `_id`, so
+  these two tests cannot both pass; the key `impersonated_by_uuid` is the one asked for by the brief and stays.

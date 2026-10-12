@@ -52,6 +52,7 @@ final class AuditLog
         $by = $system ? null : Impersonation::by();
         if ($by !== null) {
             $details['impersonated_by'] = $by['name'];
+            $details['impersonated_by_uuid'] = $by['uuid'];
         }
 
         $electionKey = $election?->getKey();

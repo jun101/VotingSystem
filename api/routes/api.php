@@ -143,7 +143,7 @@ Route::prefix('v1')->group(function (): void {
         Route::post('/institutions/{institution}/impersonate', [ImpersonationController::class, 'store'])->middleware('throttle:platform-write');
     });
     Route::middleware(['cookie-session', 'auth'])->prefix('platform')->group(function (): void {
-        Route::delete('/impersonation', [ImpersonationController::class, 'destroy'])->middleware('throttle:platform-write');
+        Route::delete('/impersonation', [ImpersonationController::class, 'destroy']);
     });
 
     // The audit log (slice 17): the owner reads and exports the institution's entries. The file is limited to 20 an hour per user.

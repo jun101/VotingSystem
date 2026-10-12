@@ -54,6 +54,8 @@ final class ImpersonateInstitution
             Impersonation::KEY_ID => $admin->id,
             Impersonation::KEY_UUID => $admin->uuid,
             Impersonation::KEY_NAME => $admin->name,
+            Impersonation::KEY_OWNER => $owner->getKey(),
+            Impersonation::KEY_FINGERPRINT => Impersonation::fingerprint($admin),
         ]);
 
         try {
@@ -108,7 +110,7 @@ final class ImpersonateInstitution
 
     private function giveBack(Request $request, User $admin): void
     {
-        $request->session()->forget([Impersonation::KEY_ID, Impersonation::KEY_UUID, Impersonation::KEY_NAME]);
+        $request->session()->forget(Impersonation::KEYS);
         Auth::guard()->login($admin);
     }
 }

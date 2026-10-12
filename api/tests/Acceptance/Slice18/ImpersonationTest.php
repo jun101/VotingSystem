@@ -165,21 +165,23 @@ it('writes an entry naming the admin for owner actions that have no audit entry 
     expect($entries->pluck('details.what')->all())->toContain('invitation.created')->toContain('institution.updated')->toContain('user.removed')
         ->and($entries->first()['actor']['name'])->toBe('Admin Plateforme (plateforme)')
         ->and($entries->first()['details']['impersonated_by'])->toBe('Admin Plateforme')
-        ->and(Accounts::userRow('admin@platform.test')['uuid'])->toBe($entries->first()['details']['impersonated_by_id']);
+        ->and(Accounts::userRow('admin@platform.test')['uuid'])->toBe($entries->first()['details']['impersonated_by_uuid']);
 });
 
 it('asks for the admin\'s own password on account-security routes, and counts failures on the admin [security review 2026-10-12]', function () {
-    $t = impersonationSetup($this);
+    $t = Team::two();
+    $admin = Accounts::user(['role' => 'platform_admin', 'name' => 'Admin Plateforme', 'email' => 'admin2@platform.test', 'password' => 'le mot de passe propre de l admin']);
+    Team::signIn($this, $admin);
     $this->browser->post(impersonateUrl($t['a']['owner']['institution']))->assertOk();
 
     $this->browser->post('/api/v1/auth/two-factor/setup', ['password' => $t['a']['owner']['password']])->assertStatus(422)->assertJsonPath('error.fields.password.0', 'incorrect');
-    $this->browser->post('/api/v1/auth/two-factor/setup', ['password' => Accounts::PASSWORD])->assertOk();
+    $this->browser->post('/api/v1/auth/two-factor/setup', ['password' => 'le mot de passe propre de l admin'])->assertOk();
 });
 
 it('ends even after sixty requests of the hour were used [security review 2026-10-12]', function () {
     $t = impersonationSetup($this);
     $this->browser->post(impersonateUrl($t['a']['owner']['institution']))->assertOk();
-    for ($i = 0; $i < 60; $i++) {
+    for ($i = 0; $i < 59; $i++) {
         $this->browser->delete(END_IMPERSONATION);
         $this->browser->post(impersonateUrl($t['a']['owner']['institution']));
     }

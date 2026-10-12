@@ -17,7 +17,7 @@ class ImpersonationController extends Controller
      * Platform admin only. The session becomes the institution's oldest owner's (every rule of an owner applies,
      * ballot secrecy included) and stays so until `DELETE /platform/impersonation` or sign-out; no time limit, nothing
      * refused, no email to the owners. Every entry written meanwhile names the admin. 409 `already_impersonating`,
-     * 403 `institution_suspended`. Limited to 60 requests an hour per admin, shared with suspend, reactivate and end.
+     * 403 `institution_suspended`. Limited to 60 requests an hour per admin, shared with suspend and reactivate.
      *
      * @response array{data: array{id: string, name: string, email: string, role: 'owner'|'manager'|'platform_admin', email_verified: bool, language: 'fr'|'en', institution: array{id: string, name: string, type: 'school'|'university'|'association'|'other'}|null, impersonating: array{by: string}}}
      */
@@ -33,7 +33,7 @@ class ImpersonationController extends Controller
      * Stop acting as the owner.
      *
      * The platform admin gets their own session back (the session id is regenerated). 409 `not_impersonating`.
-     * Works even if the institution was suspended meanwhile. Shares the limiter of the impersonation.
+     * Works even if the institution was suspended meanwhile. Not rate limited: ending must always work.
      *
      * @response array{data: array{id: string, name: string, email: string, role: 'owner'|'manager'|'platform_admin', email_verified: bool, language: 'fr'|'en', institution: array{id: string, name: string, type: 'school'|'university'|'association'|'other'}|null}}
      */

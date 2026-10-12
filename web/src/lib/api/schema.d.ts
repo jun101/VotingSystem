@@ -798,7 +798,7 @@ export interface paths {
          * @description Platform admin only. The session becomes the institution's oldest owner's (every rule of an owner applies,
          *     ballot secrecy included) and stays so until `DELETE /platform/impersonation` or sign-out; no time limit, nothing
          *     refused, no email to the owners. Every entry written meanwhile names the admin. 409 `already_impersonating`,
-         *     403 `institution_suspended`. Limited to 60 requests an hour per admin, shared with suspend, reactivate and end.
+         *     403 `institution_suspended`. Limited to 60 requests an hour per admin, shared with suspend and reactivate.
          */
         post: operations["impersonation.store"];
         delete?: never;
@@ -820,7 +820,7 @@ export interface paths {
         /**
          * Stop acting as the owner
          * @description The platform admin gets their own session back (the session id is regenerated). 409 `not_impersonating`.
-         *     Works even if the institution was suspended meanwhile. Shares the limiter of the impersonation.
+         *     Works even if the institution was suspended meanwhile. Not rate limited: ending must always work.
          */
         delete: operations["impersonation.destroy"];
         options?: never;

@@ -64,6 +64,6 @@ and `impersonating`.
   `{ "what": "user.removed" | "invitation.created" | "institution.updated" | "institution.logo_changed" | "two_factor.changed", "impersonated_by": name }`.
 - **Audit (visible to the owner):** `platform.impersonation_started` and `platform.impersonation_ended` entries
   (`institution_id` of the institution, `details` `{by}`), and every entry written while acting names the admin:
-  `actor.id` `null`, `actor.name` `"<admin name> (plateforme)"`, `details.impersonated_by` the admin's name and `details.impersonated_by_id` the admin's uuid. The owner's
+  `actor.id` `null`, `actor.name` `"<admin name> (plateforme)"`, `details.impersonated_by` the admin's name and `details.impersonated_by_uuid` the admin's uuid. The owner's
   audit list shows them like any other entry.
 - **No email** is sent to the owners (Jun's decision); the audit entries are how they see it.

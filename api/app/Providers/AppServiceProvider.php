@@ -25,11 +25,13 @@ use App\Support\Credentials\TcpdfSlipWriter;
 use App\Support\Platform\Impersonation;
 use App\Support\Voting\ClientAddress;
 use Dedoc\Scramble\Scramble;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -53,6 +55,11 @@ class AppServiceProvider extends ServiceProvider
     {
         // Users are found by the guard without the institution scope (see SessionUserProvider).
         Auth::provider('institution-session', fn (Application $app, array $config) => new SessionUserProvider($app->make('hash'), Config::string('auth.providers.users.model')));
+
+        // Every sign-in, registration and invitation acceptance (a Login event) drops an acting-as state left in the
+        // session (slice 18c): a person who signs in in the same browser is never the admin's puppet. The start of an
+        // impersonation puts its keys after its own login, so it is not affected.
+        Event::listen(Login::class, fn () => Impersonation::clear());
 
         Gate::policy(Election::class, ElectionPolicy::class);
         Gate::policy(Ballot::class, BallotPolicy::class);
