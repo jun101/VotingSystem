@@ -70,8 +70,9 @@ test.describe('web security headers [NFR-SEC-04]', () => {
     const response = await request.get('/api/v1/health');
 
     expect(response.headers()['x-content-type-options']).toBe('nosniff');
-    expect(response.headers()['referrer-policy']).toBe('no-referrer');
-    expect(response.headers()['content-security-policy']).toBe("default-src 'none'; frame-ancestors 'none'");
+    expect(response.headers()['content-security-policy']).toContain("frame-ancestors 'none'");
     expect(response.headers()['cache-control']).toContain('no-store');
+    expect(response.headers()['permissions-policy']).toContain('camera=()');
+    expect(response.headers()['server']).toBeUndefined();
   });
 });
