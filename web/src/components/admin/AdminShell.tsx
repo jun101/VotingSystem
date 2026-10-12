@@ -13,6 +13,7 @@ import type { CurrentUser } from '@/lib/api/user';
 import { useI18n } from '@/lib/i18n/client';
 import { AdminUserProvider } from './AdminUser';
 import { focusRing } from './classes';
+import { ImpersonationBanner } from './ImpersonationBanner';
 import { SideMenu } from './SideMenu';
 import { TopBar } from './TopBar';
 
@@ -180,6 +181,12 @@ export function AdminShell({
         </div>
 
         <div inert={open} className="flex min-h-screen flex-col lg:pl-[272px]">
+          {user.impersonating ? (
+            <ImpersonationBanner
+              by={user.impersonating.by}
+              institution={user.institution?.name ?? ''}
+            />
+          ) : null}
           <TopBar open={open} menuButtonRef={menuButton} onMenu={() => setOpen(true)} />
           <main
             id="admin-content"

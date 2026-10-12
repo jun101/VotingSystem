@@ -41,7 +41,7 @@ No path parameter, no query parameter, no body.
 }
 ```
 
-`role` is `owner`, `manager` or `platform_admin`. `institution` is `null` for a platform
+`impersonating` is present only for a platform admin acting as an institution (slice 18c): `{ "by": "Admin name" }`; the user shown is then the institution's owner. `role` is `owner`, `manager` or `platform_admin`. `institution` is `null` for a platform
 admin. No numeric key, no password hash, no secret appears.
 
 ### 401 and 403

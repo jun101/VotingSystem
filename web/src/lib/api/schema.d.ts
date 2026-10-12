@@ -784,6 +784,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/platform/institutions/{institution}/impersonate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Act as an institution's owner
+         * @description Platform admin only. The session becomes the institution's oldest owner's (every rule of an owner applies,
+         *     ballot secrecy included) and stays so until `DELETE /platform/impersonation` or sign-out; no time limit, nothing
+         *     refused, no email to the owners. Every entry written meanwhile names the admin. 409 `already_impersonating`,
+         *     403 `institution_suspended`. Limited to 60 requests an hour per admin, shared with suspend and reactivate.
+         */
+        post: operations["impersonation.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/platform/impersonation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Stop acting as the owner
+         * @description The platform admin gets their own session back (the session id is regenerated). 409 `not_impersonating`.
+         *     Works even if the institution was suspended meanwhile. Not rate limited: ending must always work.
+         */
+        delete: operations["impersonation.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/institution": {
         parameters: {
             query?: never;
@@ -4509,6 +4553,87 @@ export interface operations {
                     };
                 };
             };
+        };
+    };
+    "impersonation.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The institution UUID */
+                institution: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            name: string;
+                            email: string;
+                            /** @enum {string} */
+                            role: "owner" | "manager" | "platform_admin";
+                            email_verified: boolean;
+                            /** @enum {string} */
+                            language: "fr" | "en";
+                            institution: {
+                                id: string;
+                                name: string;
+                                /** @enum {string} */
+                                type: "school" | "university" | "association" | "other";
+                            } | null;
+                            impersonating: {
+                                by: string;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "impersonation.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            name: string;
+                            email: string;
+                            /** @enum {string} */
+                            role: "owner" | "manager" | "platform_admin";
+                            email_verified: boolean;
+                            /** @enum {string} */
+                            language: "fr" | "en";
+                            institution: {
+                                id: string;
+                                name: string;
+                                /** @enum {string} */
+                                type: "school" | "university" | "association" | "other";
+                            } | null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
         };
     };
     "institution.show": {

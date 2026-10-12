@@ -30,6 +30,7 @@ use App\Http\Controllers\Institution\InstitutionController;
 use App\Http\Controllers\Institution\LogoController;
 use App\Http\Controllers\Parties\PartyController;
 use App\Http\Controllers\Parties\PartyLogoController;
+use App\Http\Controllers\Platform\ImpersonationController;
 use App\Http\Controllers\Platform\PlatformInstitutionController;
 use App\Http\Controllers\Publication\PublicationController;
 use App\Http\Controllers\Publication\PublicInstitutionController;
@@ -133,6 +134,16 @@ Route::prefix('v1')->group(function (): void {
         Route::get('/institutions', [PlatformInstitutionController::class, 'index']);
         Route::post('/institutions/{institution}/suspend', [PlatformInstitutionController::class, 'suspend'])->middleware('throttle:platform-write');
         Route::post('/institutions/{institution}/reactivate', [PlatformInstitutionController::class, 'reactivate'])->middleware('throttle:platform-write');
+    });
+
+    // The platform admin acts as an institution's owner (slice 18c). Starting passes the platform middleware in its
+    // `acting` form (an admin already acting is answered 409, not 403); ending is called while the session user is the
+    // owner, so it sits behind `auth` only and judges "is acting" itself. Both share the `platform-write` limiter.
+    Route::middleware(['cookie-session', 'auth', 'platform.admin:acting'])->prefix('platform')->group(function (): void {
+        Route::post('/institutions/{institution}/impersonate', [ImpersonationController::class, 'store'])->middleware('throttle:platform-write');
+    });
+    Route::middleware(['cookie-session', 'auth'])->prefix('platform')->group(function (): void {
+        Route::delete('/impersonation', [ImpersonationController::class, 'destroy']);
     });
 
     // The audit log (slice 17): the owner reads and exports the institution's entries. The file is limited to 20 an hour per user.

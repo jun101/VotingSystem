@@ -2,7 +2,10 @@ import type { operations } from './schema';
 
 /** The current user and their institution: the `data` of `GET /auth/me`. */
 export type CurrentUser =
-  operations['auth.me']['responses'][200]['content']['application/json']['data'];
+  operations['auth.me']['responses'][200]['content']['application/json']['data'] & {
+    /** Present only while a platform admin acts as the institution's owner (slice 18c). */
+    impersonating?: { by: string };
+  };
 
 export type RegisterBody = {
   institution_name: string;

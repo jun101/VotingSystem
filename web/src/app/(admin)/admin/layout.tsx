@@ -19,7 +19,9 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   if (session.status === 'suspended') redirect('/login?suspended=1');
   if (session.status === 'signed-out') redirect('/login');
 
-  if (session.user.role === 'platform_admin') redirect('/platform');
+  // A platform admin goes to their own screen, unless acting as an owner (the session is then
+  // the owner's, with `impersonating`).
+  if (session.user.role === 'platform_admin' && !session.user.impersonating) redirect('/platform');
 
   const { locale } = await getI18n();
   const messages = pick(getMessages(locale), 'app', 'admin', 'errors');

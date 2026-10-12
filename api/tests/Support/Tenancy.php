@@ -84,6 +84,9 @@ final class Tenancy
         'GET api/v1/platform/institutions',
         'POST api/v1/platform/institutions/{institution}/suspend',
         'POST api/v1/platform/institutions/{institution}/reactivate',
+        // Slice 18c: the admin acts as an institution's owner, and ends it (this one is called while acting).
+        'POST api/v1/platform/institutions/{institution}/impersonate',
+        'DELETE api/v1/platform/impersonation',
     ];
 
     /**

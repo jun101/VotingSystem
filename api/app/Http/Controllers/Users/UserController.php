@@ -14,6 +14,7 @@ use App\Http\Requests\Users\ResetTwoFactorRequest;
 use App\Http\Resources\PageOf;
 use App\Http\Resources\TeamMemberResource;
 use App\Models\User;
+use App\Support\Platform\Impersonation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -52,6 +53,7 @@ class UserController extends Controller
     public function destroy(Request $request, User $user, RemoveUser $remove): Response
     {
         $remove($user);
+        Impersonation::note('user.removed', $user);
 
         if ($request->user()?->is($user) === true) {
             Auth::guard()->logout();
@@ -94,6 +96,7 @@ class UserController extends Controller
         }
 
         $clear($user);
+        Impersonation::note('two_factor.changed', $user);
 
         Log::info('users.reset_two_factor', ['outcome' => 'reset']);
 

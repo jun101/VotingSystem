@@ -18,11 +18,16 @@ export function InstitutionCard({
   n,
   onSuspend,
   onReactivate,
+  onImpersonate,
+  entering = false,
 }: {
   institution: PlatformInstitution;
   n: number;
   onSuspend: () => void;
   onReactivate: () => void;
+  onImpersonate: () => void;
+  /** True while the sign-in as this institution's owner is under way. */
+  entering?: boolean;
 }) {
   const { t, locale } = useI18n();
   const suspended = institution.status === 'suspended';
@@ -161,7 +166,7 @@ export function InstitutionCard({
         </div>
       ) : null}
 
-      <div className="flex justify-end">
+      <div className="flex flex-wrap justify-end gap-2">
         {suspended ? (
           <Button
             variant="primary"
@@ -172,14 +177,27 @@ export function InstitutionCard({
             {t('platform.reactivate')}
           </Button>
         ) : (
-          <Button
-            variant="danger"
-            data-testid={`platform-suspend-${n}`}
-            onClick={onSuspend}
-            className="max-md:w-full"
-          >
-            {t('platform.suspend')}
-          </Button>
+          <>
+            <Button
+              variant="secondary"
+              data-testid={`platform-impersonate-${n}`}
+              disabled={entering}
+              aria-busy={entering || undefined}
+              onClick={onImpersonate}
+              className="max-md:w-full"
+            >
+              <Icon name="open" size={18} />
+              {t('platform.impersonate')}
+            </Button>
+            <Button
+              variant="danger"
+              data-testid={`platform-suspend-${n}`}
+              onClick={onSuspend}
+              className="max-md:w-full"
+            >
+              {t('platform.suspend')}
+            </Button>
+          </>
         )}
       </div>
     </li>

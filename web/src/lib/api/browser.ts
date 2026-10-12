@@ -1375,6 +1375,23 @@ export async function reactivateInstitution(id: string): Promise<PlatformInstitu
 }
 
 /**
+ * `POST /platform/institutions/{institution}/impersonate`: the session becomes the institution's
+ * owner's, with the admin named in `impersonating`. The page then navigates in full.
+ */
+export async function impersonateInstitution(id: string): Promise<void> {
+  await send((api) =>
+    api.POST('/v1/platform/institutions/{institution}/impersonate', {
+      params: { path: { institution: id } },
+    }),
+  );
+}
+
+/** `DELETE /platform/impersonation`: the admin's own session again. */
+export async function endImpersonation(): Promise<void> {
+  await send((api) => api.DELETE('/v1/platform/impersonation'));
+}
+
+/**
  * `GET /audit/export`: the log as CSV or Excel under the filters on the screen, with the name the
  * API gives it. Read by hand so a refusal (422, 429) is an `ApiError` the page can say in words.
  */

@@ -527,6 +527,12 @@
       "title": "Not available yet",
       "text": "This page comes with a later step of the product. The rest of the area is ready to use.",
       "back": "Back to the dashboard"
+    },
+    "impersonation": {
+      "title": "You are acting as the owner of {institution}",
+      "text": "Signed in by {name} (platform administration). Every action is recorded in the audit log under your name and is visible to the institution’s owners.",
+      "end": "Leave the institution",
+      "ending": "Leaving…"
     }
   },
   "errors": {
@@ -595,7 +601,9 @@
     "election_not_archivable": "This election cannot be archived in its current state.",
     "election_not_archived": "This election is not archived.",
     "already_suspended": "This institution is already suspended. Reload the page.",
-    "not_suspended": "This institution is not suspended. Reload the page."
+    "not_suspended": "This institution is not suspended. Reload the page.",
+    "already_impersonating": "You are already acting as an institution’s owner. Leave it first.",
+    "not_impersonating": "You are not acting as an institution’s owner. Reload the page."
   },
   "validation": {
     "required": "This field is required.",
@@ -2888,6 +2896,7 @@
       "title": "Reactivate {name}?",
       "text": "Its users will be able to sign in again and its paused elections will resume. The owner is told by email.",
       "confirm": "Reactivate"
-    }
+    },
+    "impersonate": "Sign in as"
   }
 }

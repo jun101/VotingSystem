@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Enums\Role;
 use App\Exceptions\ApiException;
 use App\Models\User;
+use App\Support\Platform\Impersonation;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,9 +18,15 @@ use Symfony\Component\HttpFoundation\Response;
 class EnsurePlatformAdmin
 {
     /** @param  Closure(Request): Response  $next */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, string ...$options): Response
     {
         $user = $request->user();
+
+        // `acting`: the route is also answered to an admin acting as an owner (the session user is then the owner), so
+        // that starting a second impersonation is a 409 and not a 403.
+        if (in_array('acting', $options, true) && Impersonation::isActing($request)) {
+            return $next($request);
+        }
 
         if (! $user instanceof User || $user->role !== Role::PlatformAdmin) {
             throw new ApiException(403, 'forbidden');

@@ -9,6 +9,7 @@ import { cx } from '@/components/ui/cx';
 import { LogoMark } from '@/components/ui/LogoMark';
 import {
   fetchPlatformInstitutions,
+  impersonateInstitution,
   logout,
   reactivateInstitution,
   suspendInstitution,
@@ -22,6 +23,7 @@ import type {
 import { NO_PLATFORM_FILTERS } from '@/lib/api/platform';
 import { pluralForm } from '@/lib/format/electionDates';
 import { useI18n } from '@/lib/i18n/client';
+import { loadPage } from '@/lib/navigation';
 import { InstitutionCard } from './InstitutionCard';
 import { hasMore, isFiltering } from './platformModel';
 
@@ -47,15 +49,30 @@ export function PlatformPage({ initial }: { initial: Page }) {
   const [reasonError, setReasonError] = useState<string | null>(null);
   const [working, setWorking] = useState(false);
   const [dialogError, setDialogError] = useState<string | null>(null);
+  const [entering, setEntering] = useState<string | null>(null);
+  const [enterProblem, setEnterProblem] = useState<string | null>(null);
   const [signingOut, setSigningOut] = useState(false);
   const [signOutProblem, setSignOutProblem] = useState<string | null>(null);
   const ticket = useRef(0);
   const alive = useRef(true);
   const timer = useRef<number | null>(null);
+  // The list request under way, so the sign-in as an owner can wait for it (see `enter`).
+  const inflight = useRef<Promise<void> | null>(null);
   const filtersRef = useRef(filters);
   const reasonField = useRef<HTMLTextAreaElement>(null);
 
-  async function load(next: PlatformFilters, page: number) {
+  function load(next: PlatformFilters, page: number): Promise<void> {
+    const request = read(next, page);
+
+    inflight.current = request;
+    void request.finally(() => {
+      if (inflight.current === request) inflight.current = null;
+    });
+
+    return request;
+  }
+
+  async function read(next: PlatformFilters, page: number) {
     const mine = ++ticket.current;
 
     setBusy(true);
@@ -200,6 +217,46 @@ export function PlatformPage({ initial }: { initial: Page }) {
     if (alive.current) setWorking(false);
   }
 
+  async function enter(institution: PlatformInstitution) {
+    if (entering) return;
+
+    setEntering(institution.id);
+    setEnterProblem(null);
+
+    // The session id changes when the sign-in as the owner is answered: a list request still on
+    // its way would answer later with the cookie of the old session and undo it. A search not yet
+    // sent is dropped, one under way is waited for.
+    if (timer.current !== null) window.clearTimeout(timer.current);
+
+    ticket.current += 1;
+    await inflight.current?.catch(() => undefined);
+
+    try {
+      await impersonateInstitution(institution.id);
+    } catch (caught) {
+      if (!alive.current) return;
+
+      const error = caught instanceof ApiError ? caught : new ApiError(0, 'unknown');
+
+      if (error.code === 'unauthenticated') {
+        router.push('/login');
+
+        return;
+      }
+
+      setEnterProblem(waitText(error, tIfAny));
+      setEntering(null);
+      // The search dropped above is run again.
+      void load(filtersRef.current, 1);
+
+      return;
+    }
+
+    // A full navigation: the server layout reads the new session, and nothing of the admin's own
+    // screen stays in memory.
+    loadPage('/admin');
+  }
+
   async function signOut() {
     setSigningOut(true);
     setSignOutProblem(null);
@@ -308,6 +365,12 @@ export function PlatformPage({ initial }: { initial: Page }) {
           </p>
         </section>
 
+        {enterProblem ? (
+          <Notice tone="danger" role="alert" data-testid="platform-impersonate-error">
+            {enterProblem}
+          </Notice>
+        ) : null}
+
         {problem ? (
           <Notice tone="danger" role="alert" data-testid="platform-load-error">
             {problem}
@@ -330,6 +393,8 @@ export function PlatformPage({ initial }: { initial: Page }) {
                 n={index + 1}
                 onSuspend={() => open('suspend', institution)}
                 onReactivate={() => open('reactivate', institution)}
+                onImpersonate={() => void enter(institution)}
+                entering={entering === institution.id}
               />
             ))}
           </ul>
