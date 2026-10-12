@@ -33,6 +33,8 @@ import type {
   VoterList,
 } from './voters';
 import { VOTERS_PER_PAGE } from './voters';
+import type { PlatformFilters, PlatformInstitution, PlatformPage } from './platform';
+import { PLATFORM_PER_PAGE } from './platform';
 import type { AuditFilters, AuditPage } from './audit';
 import { AUDIT_PER_PAGE } from './audit';
 import type { paths } from './schema';
@@ -1326,6 +1328,50 @@ export async function fetchAudit(filters: AuditFilters, page: number): Promise<A
   );
 
   return { items: data!.data, total: data!.meta.total, page: data!.meta.page };
+}
+
+/** `GET /platform/institutions`: a page of the platform admin's list, under the filters. */
+export async function fetchPlatformInstitutions(
+  filters: PlatformFilters,
+  page: number,
+): Promise<PlatformPage> {
+  const { data } = await send((api) =>
+    api.GET('/v1/platform/institutions', {
+      params: {
+        query: {
+          page,
+          per_page: PLATFORM_PER_PAGE,
+          ...(filters.q.trim() === '' ? {} : { q: filters.q.trim() }),
+          ...(filters.status === 'all' ? {} : { status: filters.status }),
+        },
+      },
+    }),
+  );
+
+  return { items: data!.data, total: data!.meta.total, page: data!.meta.page };
+}
+
+/** `POST /platform/institutions/{institution}/suspend`: the institution as it is now. */
+export async function suspendInstitution(id: string, reason: string): Promise<PlatformInstitution> {
+  const { data } = await send((api) =>
+    api.POST('/v1/platform/institutions/{institution}/suspend', {
+      params: { path: { institution: id } },
+      body: { reason },
+    }),
+  );
+
+  return data!.data;
+}
+
+/** `POST /platform/institutions/{institution}/reactivate`: the institution as it is now. */
+export async function reactivateInstitution(id: string): Promise<PlatformInstitution> {
+  const { data } = await send((api) =>
+    api.POST('/v1/platform/institutions/{institution}/reactivate', {
+      params: { path: { institution: id } },
+    }),
+  );
+
+  return data!.data;
 }
 
 /**

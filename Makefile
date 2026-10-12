@@ -48,6 +48,8 @@ test-web:
 
 e2e: ## Browser tests against the running stack
 	$(COMPOSE) up -d --wait
+	@# The browser tests' platform admin (a known password) is made only on a local or testing stack.
+	@case "$$($(COMPOSE) exec -T api printenv APP_ENV)" in local|testing) $(COMPOSE) exec -T -e PLATFORM_ADMIN_PASSWORD='un mot de passe long et sûr' api php artisan platform:create-admin e2e-admin@platform.test --password-from-env=PLATFORM_ADMIN_PASSWORD || true ;; esac
 	$(COMPOSE) run --rm -T e2e
 
 lint: lint-api lint-web ## Pint, PHPStan, ESLint, Prettier, tsc

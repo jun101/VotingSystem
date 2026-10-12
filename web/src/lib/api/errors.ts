@@ -17,6 +17,8 @@ export class ApiError extends Error {
     readonly items: ErrorItem[] = [],
     /** The UUIDs of the ballots a `results_check_failed` names (`error.ballots`). */
     readonly ballots: string[] = [],
+    /** The reason an `institution_suspended` sign-in refusal carries (`error.reason`). */
+    readonly reason: string | null = null,
   ) {
     super(code);
     this.name = 'ApiError';
@@ -68,6 +70,7 @@ export function parseApiError(status: number, body: unknown, retryAfter: string 
     Array.isArray(error.ballots)
       ? error.ballots.filter((ballot): ballot is string => typeof ballot === 'string')
       : [],
+    typeof error.reason === 'string' && error.reason.trim() !== '' ? error.reason : null,
   );
 }
 

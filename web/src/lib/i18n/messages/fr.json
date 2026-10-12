@@ -291,7 +291,7 @@
       "register": "Inscrire mon établissement",
       "notice": "Votre mot de passe a été changé. Vous pouvez vous connecter.",
       "suspended": "Cet établissement est suspendu. Vous avez été déconnecté.",
-      "platformAdmin": "L’espace des administrateurs de la plateforme n’est pas encore disponible. Vous avez été déconnecté."
+      "suspendedReason": "Cet établissement est suspendu. Motif donné par l’administration de la plateforme :"
     },
     "forgot": {
       "title": "Mot de passe oublié",
@@ -527,10 +527,6 @@
       "title": "Pas encore disponible",
       "text": "Cette page arrive avec une prochaine étape du produit. Le reste de l’espace est déjà utilisable.",
       "back": "Retour au tableau de bord"
-    },
-    "turnedAway": {
-      "title": "Espace non disponible",
-      "text": "Ce compte n’a pas d’établissement. Vous êtes déconnecté."
     }
   },
   "errors": {
@@ -597,7 +593,9 @@
     "election_not_closed": "Cette élection n’est plus au stade de la clôture : rechargez la page pour voir son état actuel.",
     "election_not_published": "Les résultats ne sont plus publiés : rechargez la page pour voir l’état actuel.",
     "election_not_archivable": "Cette élection ne peut pas être archivée dans son état actuel.",
-    "election_not_archived": "Cette élection n’est pas archivée."
+    "election_not_archived": "Cette élection n’est pas archivée.",
+    "already_suspended": "Cet établissement est déjà suspendu. Rechargez la page.",
+    "not_suspended": "Cet établissement n’est pas suspendu. Rechargez la page."
   },
   "validation": {
     "required": "Ce champ est obligatoire.",
@@ -868,6 +866,15 @@
       },
       "rename": {
         "invalid": "Un nouveau nom est vide, trop long (100 caractères au plus) ou ne correspond pas à un groupe chargé."
+      }
+    },
+    "platform": {
+      "suspend": {
+        "reason": {
+          "required": "Indiquez le motif de la suspension.",
+          "min": "Le motif doit avoir au moins 3 caractères.",
+          "max": "Le motif est trop long (500 caractères au plus)."
+        }
       }
     }
   },
@@ -2222,7 +2229,8 @@
       "voter_session_expired": "Votre session a pris fin. Entrez de nouveau votre code.",
       "choices_invalid": "Un de vos choix n’est plus valable. Reprenez le vote depuis le début.",
       "ballots_mismatch": "Les postes qui vous concernent ont changé. Reprenez le vote depuis le début.",
-      "empty": "Entrez votre code pour continuer."
+      "empty": "Entrez votre code pour continuer.",
+      "election_not_open_paused": "Le vote est en pause. Il reprendra lorsque la suspension de l’établissement sera levée."
     },
     "before": {
       "heading": "Votre élection n’est pas encore ouverte",
@@ -2338,6 +2346,12 @@
       "home": "Retour à l’accueil",
       "homeText": "Vous pouvez aussi repartir de la page d’accueil.",
       "secure": "Aucun vote n’a été enregistré ici."
+    },
+    "paused": {
+      "heading": "Le vote est en pause",
+      "text": "Cet établissement est suspendu par l’administration de la plateforme : le vote est en pause et reprendra lorsque la suspension sera levée. Aucun vote n’est perdu ni modifié, et l’heure de fin ne change pas.",
+      "hint": "Gardez votre code et revenez plus tard : rechargez cette page pour vérifier.",
+      "status": "En pause"
     }
   },
   "turnout": {
@@ -2784,6 +2798,96 @@
       "title": "Réservé au propriétaire",
       "text": "Seul un propriétaire de l’établissement peut lire le journal d’activité.",
       "back": "Retour au tableau de bord"
+    }
+  },
+  "platform": {
+    "kicker": "Administration de la plateforme",
+    "title": "Établissements",
+    "lede": "Les établissements de la plateforme, avec leurs effectifs. Vous voyez des nombres seulement : jamais un nom d’électeur, un code ou un vote.",
+    "signOut": "Se déconnecter",
+    "filters": "Recherche et filtre",
+    "search": "Rechercher un établissement",
+    "list": "Liste des établissements",
+    "filter": {
+      "label": "État",
+      "all": "Tous",
+      "active": "Actifs",
+      "suspended": "Suspendus"
+    },
+    "count": {
+      "one": "{count} établissement",
+      "other": "{count} établissements"
+    },
+    "status": {
+      "active": "Actif",
+      "suspended": "Suspendu"
+    },
+    "type": {
+      "school": "École",
+      "university": "Université",
+      "association": "Association",
+      "other": "Autre"
+    },
+    "counts": {
+      "users": {
+        "one": "utilisateur",
+        "other": "utilisateurs"
+      },
+      "voters": {
+        "one": "électeur",
+        "other": "électeurs"
+      },
+      "elections": {
+        "one": "élection",
+        "other": "élections"
+      },
+      "byStatus": "Élections par état",
+      "noElection": "Aucune élection pour le moment."
+    },
+    "electionStatus": {
+      "draft": "brouillon",
+      "scheduled": "planifiée",
+      "open": "ouverte",
+      "closed": "terminée",
+      "published": "publiée",
+      "archived": "archivée"
+    },
+    "created": "Créé le",
+    "createdOn": "Créé le {day}",
+    "lastSignIn": "Dernière connexion",
+    "lastSignInOn": "Dernière connexion le {day}",
+    "neverSignedIn": "Aucune connexion pour le moment",
+    "reasonTitle": "Motif de la suspension",
+    "suspendedOn": "Suspendu le {day}",
+    "suspend": "Suspendre",
+    "reactivate": "Réactiver",
+    "cancel": "Annuler",
+    "more": "Voir plus",
+    "moreCount": "{shown} sur {total} affichés",
+    "loading": "Chargement…",
+    "loadFailed": "La liste n’a pas pu être mise à jour.",
+    "empty": {
+      "title": "Aucun établissement",
+      "text": "Les établissements apparaîtront ici dès leur inscription."
+    },
+    "emptyFiltered": {
+      "title": "Aucun résultat",
+      "text": "Aucun établissement ne correspond à cette recherche. Changez le nom ou le filtre."
+    },
+    "suspendDialog": {
+      "title": "Suspendre {name} ?",
+      "text": "Ses utilisateurs ne pourront plus se connecter et ses élections ouvertes seront mises en pause. Le propriétaire est prévenu par email, avec le motif.",
+      "reasonLabel": "Motif de la suspension",
+      "reasonHelp": "Entre 3 et 500 caractères. Le propriétaire le verra.",
+      "reasonRequired": "Indiquez le motif de la suspension.",
+      "reasonShort": "Le motif doit avoir au moins 3 caractères.",
+      "reasonLong": "Le motif est trop long (500 caractères au plus).",
+      "confirm": "Suspendre"
+    },
+    "reactivateDialog": {
+      "title": "Réactiver {name} ?",
+      "text": "Ses utilisateurs pourront se connecter de nouveau et ses élections en pause reprendront. Le propriétaire est prévenu par email.",
+      "confirm": "Réactiver"
     }
   }
 }

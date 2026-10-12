@@ -30,6 +30,7 @@ use App\Http\Controllers\Institution\InstitutionController;
 use App\Http\Controllers\Institution\LogoController;
 use App\Http\Controllers\Parties\PartyController;
 use App\Http\Controllers\Parties\PartyLogoController;
+use App\Http\Controllers\Platform\PlatformInstitutionController;
 use App\Http\Controllers\Publication\PublicationController;
 use App\Http\Controllers\Publication\PublicInstitutionController;
 use App\Http\Controllers\Publication\PublicReportController;
@@ -124,6 +125,14 @@ Route::prefix('v1')->group(function (): void {
             Route::post('/invitations', [InvitationController::class, 'store'])->middleware('throttle:invitations-create');
             Route::delete('/invitations/{invitation}', [InvitationController::class, 'destroy']);
         });
+    });
+
+    // The platform admin (slice 18): the institutions with counts, suspend and reactivate. No `institution.active`: a
+    // platform admin has no institution. The role is judged before the rate limit; the two writes share one limiter.
+    Route::middleware(['cookie-session', 'auth', 'platform.admin'])->prefix('platform')->group(function (): void {
+        Route::get('/institutions', [PlatformInstitutionController::class, 'index']);
+        Route::post('/institutions/{institution}/suspend', [PlatformInstitutionController::class, 'suspend'])->middleware('throttle:platform-write');
+        Route::post('/institutions/{institution}/reactivate', [PlatformInstitutionController::class, 'reactivate'])->middleware('throttle:platform-write');
     });
 
     // The audit log (slice 17): the owner reads and exports the institution's entries. The file is limited to 20 an hour per user.

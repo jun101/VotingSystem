@@ -16,10 +16,11 @@ final class ApiException extends HttpException
      * @param  string|null  $messageKey  the `errors.<key>` of the message when it is not the code's own
      * @param  list<array<string, mixed>>|null  $items  what the error lists (the checklist's blockers or warnings)
      * @param  int|null  $count  a number the error reports (`email_count_changed`: the count now true)
-     * @param  string|null  $phase  where an election is for a voter (`election_not_open`: `before` or `closed`)
+     * @param  string|null  $phase  where an election is for a voter (`election_not_open`: `before`, `closed` or `paused`)
      * @param  list<string>|null  $ballots  the ballots (uuids) an error is about (`results_check_failed`)
+     * @param  string|null  $reason  the text the platform admin gave (`institution_suspended` at sign-in only)
      */
-    public function __construct(int $status, public readonly string $errorCode, array $headers = [], public readonly ?string $messageKey = null, public readonly ?array $items = null, public readonly ?int $count = null, public readonly ?string $phase = null, public readonly ?array $ballots = null)
+    public function __construct(int $status, public readonly string $errorCode, array $headers = [], public readonly ?string $messageKey = null, public readonly ?array $items = null, public readonly ?int $count = null, public readonly ?string $phase = null, public readonly ?array $ballots = null, public readonly ?string $reason = null)
     {
         parent::__construct($status, $errorCode, null, $headers);
     }

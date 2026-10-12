@@ -1,6 +1,8 @@
 import { cookies } from 'next/headers';
 import { cache } from 'react';
 import { createApiClient } from './client';
+import type { PlatformPage } from './platform';
+import { PLATFORM_PER_PAGE } from './platform';
 import type { AuditPage } from './audit';
 import { AUDIT_PER_PAGE } from './audit';
 import type { Ballot } from './ballots';
@@ -367,6 +369,22 @@ export async function fetchAuditFirstPage(): Promise<AuditPage | null> {
     const { data, response } = await createApiClient().GET('/v1/audit', {
       headers,
       params: { query: { page: 1, per_page: AUDIT_PER_PAGE } },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(4000),
+    });
+
+    if (!response.ok || !data) return null;
+
+    return { items: data.data, total: data.meta.total, page: data.meta.page };
+  });
+}
+
+/** The first page of the institutions (a platform admin only), or null when the API does not give it. */
+export async function fetchPlatformFirstPage(): Promise<PlatformPage | null> {
+  return authorizedGet(async (headers) => {
+    const { data, response } = await createApiClient().GET('/v1/platform/institutions', {
+      headers,
+      params: { query: { page: 1, per_page: PLATFORM_PER_PAGE } },
       cache: 'no-store',
       signal: AbortSignal.timeout(4000),
     });

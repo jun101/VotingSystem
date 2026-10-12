@@ -14,13 +14,13 @@ class VoteInfoController extends Controller
     /**
      * What a voter may know before entering a code.
      *
-     * The election, its period and whether it can be voted in now (`phase`: `before`, `open` or
+     * The election, its period and whether it can be voted in now (`phase`: `before`, `open`, `paused` or
      * `closed`, from the status and the server's clock, never the device's). `results` is the
      * path of the public results page once the election is published and its institution is not suspended. A draft, an unknown election
      * and a value that is not a UUID all answer 404. No session; no count; no ballot. Limited per
      * address and election.
      */
-    #[Response(status: 200, type: "array{data: array{id: string, title: string, institution: string, starts_at: string, ends_at: string, timezone: string, language: 'fr'|'en', phase: 'before'|'open'|'closed', results: string|null}}")]
+    #[Response(status: 200, type: "array{data: array{id: string, title: string, institution: string, starts_at: string, ends_at: string, timezone: string, language: 'fr'|'en', phase: 'before'|'open'|'closed'|'paused', results: string|null}}")]
     public function __invoke(string $election, VotingElections $elections): JsonResponse
     {
         $found = $elections->find($election);

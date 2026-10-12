@@ -4,6 +4,7 @@ use App\Exceptions\ApiErrorRenderer;
 use App\Http\Middleware\AssignRequestId;
 use App\Http\Middleware\EnsureInstitutionActive;
 use App\Http\Middleware\EnsureOwner;
+use App\Http\Middleware\EnsurePlatformAdmin;
 use App\Http\Middleware\RefuseOptions;
 use App\Http\Middleware\RejectMalformedJson;
 use App\Http\Middleware\RequireJsonBody;
@@ -77,6 +78,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'institution.active' => EnsureInstitutionActive::class,
             'owner' => EnsureOwner::class,
+            'platform.admin' => EnsurePlatformAdmin::class,
             'throttle.quiet' => ThrottleWithoutCounters::class,
         ]);
 
@@ -104,6 +106,10 @@ return Application::configure(basePath: dirname(__DIR__))
             VerifyCsrfToken::class,
             EnsureInstitutionActive::class,
             AuthenticatesSessions::class,
+            // The platform admin's role is judged before the institution of the route is bound (an owner never learns
+            // whether an institution exists), and the binding before the rate limit (an unknown institution is a 404
+            // that uses no allowance).
+            EnsurePlatformAdmin::class,
             SubstituteBindings::class,
             EnsureOwner::class,
             ThrottleRequests::class,

@@ -7056,6 +7056,540 @@
                 }
             }
         },
+        "/v1/platform/institutions": {
+            "get": {
+                "operationId": "platformInstitution.index",
+                "description": "Platform admin only. Newest created first, 20 per page (1 to 100), filtered by part of the name (`q`) and by\n`status` (`active` or `suspended`). Counts only: users, voters and elections by status, and the latest\nsign-in. Never a name or email of a user or a voter, a code, a candidate, a title or a vote.",
+                "summary": "The institutions of the platform",
+                "tags": [
+                    "PlatformInstitution"
+                ],
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "maxLength": 100
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "enum": [
+                                "active",
+                                "suspended",
+                                null
+                            ]
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 1000000
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "type": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "school",
+                                                            "university",
+                                                            "association",
+                                                            "other"
+                                                        ]
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "active",
+                                                            "suspended"
+                                                        ]
+                                                    },
+                                                    "suspended_at": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "suspension_reason": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "created_at": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "last_sign_in_at": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "counts": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "users": {
+                                                                "type": "integer"
+                                                            },
+                                                            "voters": {
+                                                                "type": "integer"
+                                                            },
+                                                            "elections": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "draft": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "scheduled": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "open": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "closed": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "published": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "archived": {
+                                                                        "type": "integer"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "draft",
+                                                                    "scheduled",
+                                                                    "open",
+                                                                    "closed",
+                                                                    "published",
+                                                                    "archived"
+                                                                ]
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "users",
+                                                            "voters",
+                                                            "elections"
+                                                        ]
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "name",
+                                                    "type",
+                                                    "status",
+                                                    "suspended_at",
+                                                    "suspension_reason",
+                                                    "created_at",
+                                                    "last_sign_in_at",
+                                                    "counts"
+                                                ]
+                                            }
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "page": {
+                                                    "type": "integer"
+                                                },
+                                                "per_page": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "required": [
+                                                "page",
+                                                "per_page",
+                                                "total"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "meta"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/v1/platform/institutions/{institution}/suspend": {
+            "post": {
+                "operationId": "platformInstitution.suspend",
+                "description": "Platform admin only; the reason (3 to 500 characters, control characters removed) is shown to the owners at\nsign-in and emailed to them. Open elections are paused; nothing is deleted. 409 `already_suspended`. Limited\nto 60 requests an hour per admin, shared with the reactivation.",
+                "summary": "Suspend an institution",
+                "tags": [
+                    "PlatformInstitution"
+                ],
+                "parameters": [
+                    {
+                        "name": "institution",
+                        "in": "path",
+                        "required": true,
+                        "description": "The institution UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "reason": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "type": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "school",
+                                                        "university",
+                                                        "association",
+                                                        "other"
+                                                    ]
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "active",
+                                                        "suspended"
+                                                    ]
+                                                },
+                                                "suspended_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "suspension_reason": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "created_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "last_sign_in_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "counts": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "users": {
+                                                            "type": "integer"
+                                                        },
+                                                        "voters": {
+                                                            "type": "integer"
+                                                        },
+                                                        "elections": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "draft": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "scheduled": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "open": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "closed": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "published": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "archived": {
+                                                                    "type": "integer"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "draft",
+                                                                "scheduled",
+                                                                "open",
+                                                                "closed",
+                                                                "published",
+                                                                "archived"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "users",
+                                                        "voters",
+                                                        "elections"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "name",
+                                                "type",
+                                                "status",
+                                                "suspended_at",
+                                                "suspension_reason",
+                                                "created_at",
+                                                "last_sign_in_at",
+                                                "counts"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/v1/platform/institutions/{institution}/reactivate": {
+            "post": {
+                "operationId": "platformInstitution.reactivate",
+                "description": "Platform admin only. Clears the suspension and its reason; its owners are emailed (without the reason).\n409 `not_suspended`. Limited to 60 requests an hour per admin, shared with the suspension.",
+                "summary": "Reactivate an institution",
+                "tags": [
+                    "PlatformInstitution"
+                ],
+                "parameters": [
+                    {
+                        "name": "institution",
+                        "in": "path",
+                        "required": true,
+                        "description": "The institution UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "type": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "school",
+                                                        "university",
+                                                        "association",
+                                                        "other"
+                                                    ]
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "active",
+                                                        "suspended"
+                                                    ]
+                                                },
+                                                "suspended_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "suspension_reason": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "created_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "last_sign_in_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "counts": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "users": {
+                                                            "type": "integer"
+                                                        },
+                                                        "voters": {
+                                                            "type": "integer"
+                                                        },
+                                                        "elections": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "draft": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "scheduled": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "open": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "closed": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "published": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "archived": {
+                                                                    "type": "integer"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "draft",
+                                                                "scheduled",
+                                                                "open",
+                                                                "closed",
+                                                                "published",
+                                                                "archived"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "users",
+                                                        "voters",
+                                                        "elections"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "name",
+                                                "type",
+                                                "status",
+                                                "suspended_at",
+                                                "suspension_reason",
+                                                "created_at",
+                                                "last_sign_in_at",
+                                                "counts"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/v1/public/institutions/{institution}": {
             "get": {
                 "operationId": "publication.publicInstitution",
@@ -10143,7 +10677,7 @@
         "/v1/vote/{election}": {
             "get": {
                 "operationId": "vote.info",
-                "description": "The election, its period and whether it can be voted in now (`phase`: `before`, `open` or\n`closed`, from the status and the server's clock, never the device's). `results` is the\npath of the public results page once the election is published and its institution is not suspended. A draft, an unknown election\nand a value that is not a UUID all answer 404. No session; no count; no ballot. Limited per\naddress and election.",
+                "description": "The election, its period and whether it can be voted in now (`phase`: `before`, `open`, `paused` or\n`closed`, from the status and the server's clock, never the device's). `results` is the\npath of the public results page once the election is published and its institution is not suspended. A draft, an unknown election\nand a value that is not a UUID all answer 404. No session; no count; no ballot. Limited per\naddress and election.",
                 "summary": "What a voter may know before entering a code",
                 "tags": [
                     "VoteInfo"
@@ -10199,7 +10733,8 @@
                                                     "enum": [
                                                         "before",
                                                         "open",
-                                                        "closed"
+                                                        "closed",
+                                                        "paused"
                                                     ]
                                                 },
                                                 "results": {

@@ -1,5 +1,14 @@
 <?php
 
+use Tests\Support\Accounts;
+use Tests\Support\AuthClient;
+use Tests\Support\Codes;
+use Tests\Support\Spreadsheets;
+use Tests\Support\Team;
+use Tests\Support\Tenancy;
+use Tests\Support\Voting;
+use Tests\TestCase;
+
 /*
  * Part of the acceptance harness: it is not edited when a slice is coded.
  *
@@ -9,166 +18,176 @@
  * All suites run against a real MariaDB and a real Redis, inside the Compose stack.
  */
 
-pest()->extend(Tests\TestCase::class)->in('Acceptance', 'Feature', 'Unit');
+pest()->extend(TestCase::class)->in('Acceptance', 'Feature', 'Unit');
 
 const UUID_V4 = '/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/';
 
 // Slice 02 and after: a clean database and one browser (docs/api/auth/).
 pest()->beforeEach(function () {
-    Tests\Support\Accounts::reset();
-    $this->browser = new Tests\Support\AuthClient($this);
+    Accounts::reset();
+    $this->browser = new AuthClient($this);
 })->in('Acceptance/Slice02');
 
 // Slice 03: the same, and the test-only tenant tables (docs/slices/03-admin-shell-and-tenant-isolation.md).
 pest()->beforeEach(function () {
-    Tests\Support\Accounts::reset();
-    Tests\Support\Tenancy::installProbeTables();
-    $this->browser = new Tests\Support\AuthClient($this);
+    Accounts::reset();
+    Tenancy::installProbeTables();
+    $this->browser = new AuthClient($this);
 })->in('Acceptance/Slice03');
 
 // Slice 04: the same, and an empty `media` disk where the logos are written
 // (docs/slices/04-profile-and-users.md).
 pest()->beforeEach(function () {
-    Tests\Support\Accounts::reset();
-    Tests\Support\Tenancy::installProbeTables();
-    Tests\Support\Team::clearMedia();
-    $this->browser = new Tests\Support\AuthClient($this);
+    Accounts::reset();
+    Tenancy::installProbeTables();
+    Team::clearMedia();
+    $this->browser = new AuthClient($this);
 })->in('Acceptance/Slice04');
 
 // Slice 04b: the same (docs/slices/04b-two-factor.md).
 pest()->beforeEach(function () {
-    Tests\Support\Accounts::reset();
-    Tests\Support\Tenancy::installProbeTables();
-    $this->browser = new Tests\Support\AuthClient($this);
+    Accounts::reset();
+    Tenancy::installProbeTables();
+    $this->browser = new AuthClient($this);
 })->in('Acceptance/Slice04b');
 
 // Slice 05: the same, and an empty `media` disk (docs/slices/05-elections.md).
 pest()->beforeEach(function () {
-    Tests\Support\Accounts::reset();
-    Tests\Support\Tenancy::installProbeTables();
-    Tests\Support\Team::clearMedia();
-    $this->browser = new Tests\Support\AuthClient($this);
+    Accounts::reset();
+    Tenancy::installProbeTables();
+    Team::clearMedia();
+    $this->browser = new AuthClient($this);
 })->in('Acceptance/Slice05');
 
 // Slice 06: the same (docs/slices/06a-ballots.md).
 pest()->beforeEach(function () {
-    Tests\Support\Accounts::reset();
-    Tests\Support\Tenancy::installProbeTables();
-    Tests\Support\Team::clearMedia();
-    $this->browser = new Tests\Support\AuthClient($this);
+    Accounts::reset();
+    Tenancy::installProbeTables();
+    Team::clearMedia();
+    $this->browser = new AuthClient($this);
 })->in('Acceptance/Slice06');
 
 // Slice 07: the same (docs/slices/07-voters-groups.md).
 pest()->beforeEach(function () {
-    Tests\Support\Accounts::reset();
-    Tests\Support\Tenancy::installProbeTables();
-    Tests\Support\Team::clearMedia();
-    $this->browser = new Tests\Support\AuthClient($this);
+    Accounts::reset();
+    Tenancy::installProbeTables();
+    Team::clearMedia();
+    $this->browser = new AuthClient($this);
 })->in('Acceptance/Slice07');
 
 // Slice 08: the same, and an empty `imports` disk (docs/slices/08-import.md). The queue runs `sync`.
 pest()->beforeEach(function () {
-    Tests\Support\Accounts::reset();
-    Tests\Support\Tenancy::installProbeTables();
-    Tests\Support\Team::clearMedia();
-    Tests\Support\Spreadsheets::clearImports();
-    $this->browser = new Tests\Support\AuthClient($this);
+    Accounts::reset();
+    Tenancy::installProbeTables();
+    Team::clearMedia();
+    Spreadsheets::clearImports();
+    $this->browser = new AuthClient($this);
 })->in('Acceptance/Slice08');
 
 // Slice 09: the same (docs/slices/09-scope-copy-schedule.md).
 pest()->beforeEach(function () {
-    Tests\Support\Accounts::reset();
-    Tests\Support\Tenancy::installProbeTables();
-    Tests\Support\Team::clearMedia();
-    $this->browser = new Tests\Support\AuthClient($this);
+    Accounts::reset();
+    Tenancy::installProbeTables();
+    Team::clearMedia();
+    $this->browser = new AuthClient($this);
 })->in('Acceptance/Slice09');
 
 // Slice 10: the same, and a temporary folder for the private `credentials` disk (docs/slices/10-codes-and-slips.md).
 pest()->beforeEach(function () {
-    Tests\Support\Accounts::reset();
-    Tests\Support\Tenancy::installProbeTables();
-    Tests\Support\Team::clearMedia();
-    $this->credentialsRoot = Tests\Support\Codes::useTempDisk();
-    $this->browser = new Tests\Support\AuthClient($this);
+    Accounts::reset();
+    Tenancy::installProbeTables();
+    Team::clearMedia();
+    $this->credentialsRoot = Codes::useTempDisk();
+    $this->browser = new AuthClient($this);
 })->in('Acceptance/Slice10');
 
 // Slice 11: the same as slice 10 (docs/slices/11-email-and-file.md).
 pest()->beforeEach(function () {
-    Tests\Support\Accounts::reset();
-    Tests\Support\Tenancy::installProbeTables();
-    Tests\Support\Team::clearMedia();
-    $this->credentialsRoot = Tests\Support\Codes::useTempDisk();
-    $this->browser = new Tests\Support\AuthClient($this);
+    Accounts::reset();
+    Tenancy::installProbeTables();
+    Team::clearMedia();
+    $this->credentialsRoot = Codes::useTempDisk();
+    $this->browser = new AuthClient($this);
 })->in('Acceptance/Slice11');
 
 // Slice 12: voting (docs/slices/12-voting-flow.md): a clean cache for sessions and limits, the test's audit key pair.
 pest()->beforeEach(function () {
-    Tests\Support\Accounts::reset();
-    Tests\Support\Tenancy::installProbeTables();
-    Tests\Support\Team::clearMedia();
-    Tests\Support\Voting::forgetCache();
-    $this->auditPair = Tests\Support\Voting::keypair();
-    $this->browser = new Tests\Support\AuthClient($this);
+    Accounts::reset();
+    Tenancy::installProbeTables();
+    Team::clearMedia();
+    Voting::forgetCache();
+    $this->auditPair = Voting::keypair();
+    $this->browser = new AuthClient($this);
 })->in('Acceptance/Slice12');
 
 // Slice 13: closing early, extending, the unschedule guard (docs/slices/13-opening-and-closing.md): the same as slice 12.
 pest()->beforeEach(function () {
-    Tests\Support\Accounts::reset();
-    Tests\Support\Tenancy::installProbeTables();
-    Tests\Support\Team::clearMedia();
-    Tests\Support\Voting::forgetCache();
-    $this->auditPair = Tests\Support\Voting::keypair();
-    $this->browser = new Tests\Support\AuthClient($this);
+    Accounts::reset();
+    Tenancy::installProbeTables();
+    Team::clearMedia();
+    Voting::forgetCache();
+    $this->auditPair = Voting::keypair();
+    $this->browser = new AuthClient($this);
 })->in('Acceptance/Slice13');
 
 // Slice 12b: voter session hardening (docs/slices/12b-voter-hardening.md): the same as slice 12.
 pest()->beforeEach(function () {
-    Tests\Support\Accounts::reset();
-    Tests\Support\Tenancy::installProbeTables();
-    Tests\Support\Team::clearMedia();
-    Tests\Support\Voting::forgetCache();
-    $this->auditPair = Tests\Support\Voting::keypair();
-    $this->browser = new Tests\Support\AuthClient($this);
+    Accounts::reset();
+    Tenancy::installProbeTables();
+    Team::clearMedia();
+    Voting::forgetCache();
+    $this->auditPair = Voting::keypair();
+    $this->browser = new AuthClient($this);
 })->in('Acceptance/Slice12b');
 
 // Slice 14: turnout, who has voted, the dashboard (docs/slices/14-turnout-and-dashboard.md): the same as slice 12.
 pest()->beforeEach(function () {
-    Tests\Support\Accounts::reset();
-    Tests\Support\Tenancy::installProbeTables();
-    Tests\Support\Team::clearMedia();
-    Tests\Support\Voting::forgetCache();
-    $this->auditPair = Tests\Support\Voting::keypair();
-    $this->browser = new Tests\Support\AuthClient($this);
+    Accounts::reset();
+    Tenancy::installProbeTables();
+    Team::clearMedia();
+    Voting::forgetCache();
+    $this->auditPair = Voting::keypair();
+    $this->browser = new AuthClient($this);
 })->in('Acceptance/Slice14');
 
 // Slice 15: results, notes, second round (docs/slices/15-results.md): the same as slice 12.
 pest()->beforeEach(function () {
-    Tests\Support\Accounts::reset();
-    Tests\Support\Tenancy::installProbeTables();
-    Tests\Support\Team::clearMedia();
-    Tests\Support\Voting::forgetCache();
-    $this->auditPair = Tests\Support\Voting::keypair();
-    $this->browser = new Tests\Support\AuthClient($this);
+    Accounts::reset();
+    Tenancy::installProbeTables();
+    Team::clearMedia();
+    Voting::forgetCache();
+    $this->auditPair = Voting::keypair();
+    $this->browser = new AuthClient($this);
 })->in('Acceptance/Slice15');
 
 // Slice 16: publication, public pages, reports (docs/slices/16-publication.md): the same as slice 12.
 pest()->beforeEach(function () {
-    Tests\Support\Accounts::reset();
-    Tests\Support\Tenancy::installProbeTables();
-    Tests\Support\Team::clearMedia();
-    Tests\Support\Voting::forgetCache();
-    $this->auditPair = Tests\Support\Voting::keypair();
-    $this->browser = new Tests\Support\AuthClient($this);
+    Accounts::reset();
+    Tenancy::installProbeTables();
+    Team::clearMedia();
+    Voting::forgetCache();
+    $this->auditPair = Voting::keypair();
+    $this->browser = new AuthClient($this);
 })->in('Acceptance/Slice16');
 
 // Slice 17: the audit log (docs/slices/17-audit-log.md): the same as slice 12, and a temporary folder for the private
 // `credentials` disk (credential runs are part of what is recorded).
 pest()->beforeEach(function () {
-    Tests\Support\Accounts::reset();
-    Tests\Support\Tenancy::installProbeTables();
-    Tests\Support\Team::clearMedia();
-    Tests\Support\Voting::forgetCache();
-    $this->credentialsRoot = Tests\Support\Codes::useTempDisk();
-    $this->auditPair = Tests\Support\Voting::keypair();
-    $this->browser = new Tests\Support\AuthClient($this);
+    Accounts::reset();
+    Tenancy::installProbeTables();
+    Team::clearMedia();
+    Voting::forgetCache();
+    $this->credentialsRoot = Codes::useTempDisk();
+    $this->auditPair = Voting::keypair();
+    $this->browser = new AuthClient($this);
 })->in('Acceptance/Slice17');
+
+// Slice 18: platform administration (docs/slices/18-platform-administration.md): the same as slice 12.
+pest()->beforeEach(function () {
+    Accounts::reset();
+    Tenancy::installProbeTables();
+    Team::clearMedia();
+    Voting::forgetCache();
+    $this->auditPair = Voting::keypair();
+    $this->browser = new AuthClient($this);
+})->in('Acceptance/Slice18');

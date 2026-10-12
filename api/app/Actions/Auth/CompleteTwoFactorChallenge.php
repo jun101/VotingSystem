@@ -59,7 +59,8 @@ final class CompleteTwoFactorChallenge
             PendingSignIn::end($session);
             Log::info('auth.two_factor_challenge', ['outcome' => 'suspended']);
 
-            throw new ApiException(403, 'institution_suspended');
+            // Only here, once the password is right: the reason is for the people of this institution.
+            throw new ApiException(403, 'institution_suspended', reason: $user->institution->suspension_reason);
         }
 
         $accountKey = self::accountKey($user);

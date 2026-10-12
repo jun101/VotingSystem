@@ -29,7 +29,7 @@ Signs a user in with email and password.
 | 3 | Unknown email | 401 | `invalid_credentials` | |
 | 4 | Wrong password | 401 | `invalid_credentials` | |
 | 5 | The user was removed (`deleted_at` set) | 401 | `invalid_credentials` | |
-| 6 | The user's institution is suspended | 403 | `institution_suspended` | |
+| 6 | The user's institution is suspended | 403 | `institution_suspended` (`error.reason` holds the reason of the suspension) | |
 | 7 | CSRF token missing | 419 | `csrf_mismatch` | |
 | 8 | Too many requests or failed attempts | 429 | `too_many_attempts` | |
 | 9 | Another method than POST | 405 | `method_not_allowed` | |
@@ -67,10 +67,14 @@ checked against a dummy value when the user does not exist).
 ### 403 — scenario 6
 
 ```json
-{ "error": { "code": "institution_suspended", "message": "Cet établissement est suspendu." } }
+{ "error": { "code": "institution_suspended", "message": "Cet établissement est suspendu.", "reason": "Paiement non reçu" } }
 ```
 
-Given only when the password is right.
+Given only when the password is right. `reason` is the text the platform admin gave
+([POST /platform/institutions/{institution}/suspend](../platform/POST-platform-institutions-{institution}-suspend.md));
+it is shown to this person and to nobody else. The same body is given at the second step of a sign-in
+([POST /auth/two-factor-challenge](POST-auth-two-factor-challenge.md)). Every other answer with this code
+(`GET /auth/me` and the other routes) has no `reason`.
 
 ### 422, 419, 429, 405
 

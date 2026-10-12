@@ -39,10 +39,10 @@ final class VotingElections
     }
 
     /**
-     * `before`, `open` or `closed`, from the status and the server's clock. A suspended
-     * institution's election is closed.
+     * `before`, `open`, `closed` or `paused`, from the status and the server's clock. A suspended
+     * institution's scheduled or open election is paused.
      *
-     * @return 'before'|'open'|'closed'
+     * @return 'before'|'open'|'closed'|'paused'
      */
     public function phase(Election $election, ?Carbon $now = null): string
     {

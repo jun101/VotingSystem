@@ -49,6 +49,33 @@ NFR-UX-02, NFR-UX-03.
 - **18b, web:** A16 `/platform` (cards per institution, search, filter, suspend dialog with the reason, reactivate
   dialog), the sign-in refusal screen showing the reason, replace the "not yet available" message at sign-in.
 
+## Behaviour changed in existing contracts (written 2026-10-12)
+
+- `VotePhase`: a suspended institution's `scheduled` or `open` election is `paused` (was `closed`); closed, published and
+  archived ones stay `closed`. `GET /vote/{election}` and `POST /vote/{election}/session` (`error.phase`) carry it; the
+  vote submit answers 409 `election_not_open`. The test of slice 12 VoteInfoTest scenario 5 was changed with it.
+- `elections:advance` skips elections of a suspended institution (no opening, no closing). After reactivation its
+  next run applies the usual rules.
+- `POST /auth/login` and the two-factor challenge give `error.reason` with `institution_suspended`.
+- `Tests\Support\Tenancy::PLATFORM_ROUTES`: a fifth list (routes for the platform admin only; `auth` + the platform
+  middleware, no `institution.active` needed), counted by the coverage tests.
+
+## Test ids (browser tests `web/e2e/slice18/platform.spec.ts`)
+
+| Element | Test id |
+|---|---|
+| Page | `platform-page`, `platform-empty` |
+| Cards (n from 1, newest first) | `platform-institution-{n}`, `platform-name-{n}`, `platform-status-{n}` (`data-status` `active` or `suspended`), `platform-counts-{n}`, `platform-suspend-{n}`, `platform-reactivate-{n}` |
+| Filters | `platform-search` (live search by name), `platform-filter-status` (select: all, active, suspended) |
+| Dialogs | `suspend-reason` (required; the confirm does nothing and the dialog stays while it is empty), `suspend-confirm`, `suspend-cancel`, `reactivate-confirm`, `platform-error` |
+| Sign-in refusal | `login-suspended` (the notice), `login-suspended-reason` (the text of the reason only) |
+
+Routes: `/platform` for the platform admin only (an owner or manager is redirected to `/admin`, a signed-out visitor to
+`/login`); a platform admin who signs in lands on `/platform`, and any `/admin` page sends them there.
+`make e2e` creates the browser tests' admin with `platform:create-admin e2e-admin@platform.test
+--password-from-env=PLATFORM_ADMIN_PASSWORD` (new option of the command, the password read from that environment
+variable instead of asked; documented in the command's file).
+
 ## Not in this slice
 
 Platform statistics beyond counts, billing, impersonation (never), the operator's vote-audit command (19).

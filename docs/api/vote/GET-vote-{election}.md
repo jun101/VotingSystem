@@ -23,7 +23,8 @@ What a voter may know before entering a code: the election, its period and wheth
 | 2 | An open election, server time between start and end | 200 (`phase` `open`) | | |
 | 3 | A closed election, or an open one whose end has passed, or a published or archived one | 200 (`phase` `closed`; `results` set once published) | | |
 | 4 | A draft, an unknown election, not a UUID | 404 | `not_found` (the same answer) | |
-| 5 | The institution is suspended | 200 as above, `phase` `closed` | | |
+| 5 | The institution is suspended and the election is `scheduled` or `open` (whatever the time) | 200 as above, `phase` `paused` (nothing is closed; votes resume on reactivation) | | |
+| 5b | The institution is suspended and the election is closed, published or archived | 200, `phase` `closed` as before | | |
 | 6 | Another method | 405 | `method_not_allowed` | |
 | 7 | Too many requests | 429 | `too_many_attempts` | |
 
@@ -47,6 +48,6 @@ What a voter may know before entering a code: the election, its period and wheth
 }
 ```
 
-`results` is the path of the public results page (`/results/{election}`) once the election is `published`, else
+`phase` is `before`, `open`, `closed` or `paused`. `results` is the path of the public results page (`/results/{election}`) once the election is `published`, else
 `null`. The time is the server's: the page never decides the phase from the device's clock. No numeric id, no count
 of voters or votes, no ballot.

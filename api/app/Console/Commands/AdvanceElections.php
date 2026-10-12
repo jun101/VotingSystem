@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Enums\ElectionStatus;
 use App\Models\Election;
+use App\Models\Institution;
 use App\Support\Audit\AuditLog;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
@@ -33,12 +34,15 @@ class AdvanceElections extends Command
         $closed = 0;
 
         // No user is signed in: the command works across every institution, on the status and the dates only.
+        // The elections of a suspended institution are paused: not opened, not closed (docs/slices/18).
         $due = Election::withoutInstitutionScope()
+            ->whereNotIn('institution_id', Institution::query()->whereNotNull('suspended_at')->select('id'))
             ->where(function ($query) use ($now): void {
-                $query->where('status', ElectionStatus::Scheduled->value)->where('starts_at', '<=', $now->format('Y-m-d H:i:s'));
-            })
-            ->orWhere(function ($query) use ($now): void {
-                $query->where('status', ElectionStatus::Open->value)->where('ends_at', '<=', $now->format('Y-m-d H:i:s'));
+                $query->where(function ($query) use ($now): void {
+                    $query->where('status', ElectionStatus::Scheduled->value)->where('starts_at', '<=', $now->format('Y-m-d H:i:s'));
+                })->orWhere(function ($query) use ($now): void {
+                    $query->where('status', ElectionStatus::Open->value)->where('ends_at', '<=', $now->format('Y-m-d H:i:s'));
+                });
             })
             ->orderBy('id')
             ->pluck('id');
@@ -48,7 +52,8 @@ class AdvanceElections extends Command
                 // The election read again under its lock: something may have changed since the list was drawn.
                 $election = Election::withoutInstitutionScope()->whereKey($key)->lockForUpdate()->first();
 
-                if ($election === null) {
+                // Suspended since the list was drawn: paused, nothing changes.
+                if ($election === null || Institution::query()->whereKey($election->institution_id)->whereNotNull('suspended_at')->exists()) {
                     return;
                 }
 

@@ -57,4 +57,27 @@ return [
         'validity' => 'Vous ne pouvez voter qu’une fois, pendant la période indiquée.',
         'ignore' => 'Gardez ce message pour vous : toute personne qui a votre code peut voter à votre place. Si vous ne l’attendiez pas, ignorez-le.',
     ],
+
+    'suspended' => [
+        'subject' => 'Votre établissement a été suspendu',
+        'title' => 'Votre établissement a été suspendu',
+        'line' => 'La connexion et le vote sont suspendus.',
+        'preheader' => 'Votre établissement a été suspendu par la plateforme.',
+        'intro' => 'Votre établissement a été suspendu par la plateforme. Personne ne peut se connecter et ses élections ouvertes sont en pause jusqu’à la réactivation ; rien n’a été supprimé.',
+        'reason' => 'Motif indiqué',
+        'button' => 'Aller à la page de connexion',
+        'validity' => 'Les élections reprennent à la levée de la suspension ; leur heure de fin ne change pas.',
+        'ignore' => 'Si vous pensez qu’il s’agit d’une erreur, contactez l’opérateur de la plateforme.',
+    ],
+
+    'reactivated' => [
+        'subject' => 'Votre établissement a été réactivé',
+        'title' => 'Votre établissement a été réactivé',
+        'line' => 'Vous pouvez de nouveau vous connecter.',
+        'preheader' => 'La suspension de votre établissement a été levée.',
+        'intro' => 'La suspension de votre établissement a été levée. Votre équipe peut de nouveau se connecter et les élections ouvertes reprennent les votes.',
+        'button' => 'Aller à la page de connexion',
+        'validity' => 'L’heure de fin d’une élection n’a pas bougé pendant la pause : vérifiez-la.',
+        'ignore' => 'Pour toute question, contactez l’opérateur de la plateforme.',
+    ],
 ];

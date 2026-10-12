@@ -5,6 +5,7 @@
  */
 
 use Tests\Support\Accounts;
+use Tests\Support\Team;
 use Tests\Support\Voting;
 
 const VOTE_INFO_UNKNOWN = '3f1c0c1e-8a54-4c5e-9b7b-2d0f0c9a51aa';
@@ -55,19 +56,21 @@ it('gives the address of the public results once published [FR-VOTE-02] (scenari
 it('answers 404, the same for every case, for a draft, an unknown election or a value that is not a UUID [FR-VOTE-01] (scenario 4)', function () {
     $e = Voting::election(['status' => 'draft']);
 
-    $unknown = Tests\Support\Team::shape($this->browser->get(voteInfoUrl(VOTE_INFO_UNKNOWN)));
+    $unknown = Team::shape($this->browser->get(voteInfoUrl(VOTE_INFO_UNKNOWN)));
     expect($unknown['status'])->toBe(404);
 
     foreach ([$e['election'], 'not-a-uuid', '12'] as $target) {
-        expect(Tests\Support\Team::shape($this->browser->get(voteInfoUrl($target))))->toBe($unknown);
+        expect(Team::shape($this->browser->get(voteInfoUrl($target))))->toBe($unknown);
     }
 });
 
-it('stays readable and closed for a suspended institution [FR-VOTE-02] (scenario 5)', function () {
+it('stays readable and paused for a suspended institution, and closed for a closed election [FR-VOTE-02] (scenarios 5, 5b)', function () {
     $e = Voting::election();
+    $done = Voting::election(['status' => 'closed', 'institution' => $e['institution']]);
     Accounts::suspend($e['institution']);
 
-    $this->browser->get(voteInfoUrl($e['election']))->assertOk()->assertJsonPath('data.phase', 'closed');
+    $this->browser->get(voteInfoUrl($e['election']))->assertOk()->assertJsonPath('data.phase', 'paused');
+    $this->browser->get(voteInfoUrl($done['election']))->assertOk()->assertJsonPath('data.phase', 'closed');
 });
 
 it('answers 405 for another method [NFR-SEC-04] (scenario 6)', function () {

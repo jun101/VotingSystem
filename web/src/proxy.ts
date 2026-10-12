@@ -10,7 +10,14 @@ export function proxy(request: NextRequest) {
   const headers = new Headers(request.headers);
   const { pathname } = request.nextUrl;
 
-  headers.set('x-admin-area', pathname === '/admin' || pathname.startsWith('/admin/') ? '1' : '0');
+  // The platform admin's screen (slice 18) follows the stored language too.
+  const area =
+    pathname === '/admin' ||
+    pathname.startsWith('/admin/') ||
+    pathname === '/platform' ||
+    pathname.startsWith('/platform/');
+
+  headers.set('x-admin-area', area ? '1' : '0');
 
   // The voting pages follow the election's language when the voter has not chosen one
   // (docs/slices/12): the page needs to know which election the address names.

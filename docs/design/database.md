@@ -44,6 +44,7 @@ repeated.
 | timezone | str(64) | Default `America/Port-au-Prince` |
 | language | char(2) | `fr` (default) or `en` |
 | suspended_at | dt, null | Set by the platform admin |
+| suspension_reason | string(500), null | The reason given at suspension (slice 18); cleared on reactivation, kept in the platform audit entry |
 
 **`users`** — institution users and platform admins (section 3 of the spec).
 
