@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\User;
+use App\Support\Platform\Impersonation;
 use Illuminate\Http\Request;
 
 /**
@@ -19,6 +20,7 @@ final class UserResource extends ApiResource
     protected function fields(Request $request): array
     {
         $user = $this->resource;
+        $by = $request->user()?->is($user) === true ? Impersonation::by($request) : null;
 
         return [
             'name' => $user->name,
@@ -27,6 +29,6 @@ final class UserResource extends ApiResource
             'email_verified' => $user->hasVerifiedEmail(),
             'language' => $user->language,
             'institution' => $user->institution === null ? null : new InstitutionResource($user->institution),
-        ];
+        ] + ($by === null ? [] : ['impersonating' => (object) ['by' => $by['name']]]);
     }
 }

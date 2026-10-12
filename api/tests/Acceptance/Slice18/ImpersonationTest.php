@@ -43,14 +43,14 @@ it('lets the admin act as the institution\'s owner and no other institution [FR-
     expect($me->json('data.role'))->toBe('owner')->and($me->json('data.impersonating.by'))->toBe('Admin Plateforme');
     $elections = $this->browser->get('/api/v1/elections')->assertOk()->json('data');
     expect($elections)->toHaveCount(1);
-    $this->browser->post('/api/v1/elections', ['title' => 'Créée par la plateforme'])->assertStatus(201);
+    $this->browser->post('/api/v1/elections', ['title' => 'Créée par la plateforme', 'starts_at' => '2027-10-12T12:00:00Z', 'ends_at' => '2027-10-16T19:00:00Z'])->assertStatus(201);
 });
 
 it('names the admin on every entry written while acting, visible to the owner [FR-AUD-01] (scenario 1)', function () {
     $t = impersonationSetup($this);
     $a = $t['a']['owner']['institution'];
     $this->browser->post(impersonateUrl($a))->assertOk();
-    $this->browser->post('/api/v1/elections', ['title' => 'Créée par la plateforme'])->assertStatus(201);
+    $this->browser->post('/api/v1/elections', ['title' => 'Créée par la plateforme', 'starts_at' => '2027-10-12T12:00:00Z', 'ends_at' => '2027-10-16T19:00:00Z'])->assertStatus(201);
     $this->browser->delete(END_IMPERSONATION)->assertOk();
 
     $owner = new AuthClient($this);
@@ -71,7 +71,7 @@ it('has the owner\'s whole power, account security included, and the audit names
     $this->browser->delete('/api/v1/users/'.$t['a']['manager']['user'])->assertStatus(204);
     $this->browser->patch('/api/v1/institution', ['name' => 'Nom changé par la plateforme'])->assertOk();
 
-    expect(Accounts::userRow($t['a']['manager']['email'])['deleted_at'])->not->toBeNull()
+    expect(Accounts::userRowByUuid($t['a']['manager']['user'])['deleted_at'])->not->toBeNull()
         ->and(Accounts::institutionRow($t['a']['owner']['institution'])['name'])->toBe('Nom changé par la plateforme')
         ->and(Accounts::mail())->toBe([]);
 });

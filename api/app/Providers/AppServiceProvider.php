@@ -22,6 +22,7 @@ use App\Policies\VoterImportPolicy;
 use App\Policies\VoterPolicy;
 use App\Support\Credentials\SlipWriter;
 use App\Support\Credentials\TcpdfSlipWriter;
+use App\Support\Platform\Impersonation;
 use App\Support\Voting\ClientAddress;
 use Dedoc\Scramble\Scramble;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -261,6 +262,7 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('second-round', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
 
         // The platform admin's writes (docs/api/platform/): suspend and reactivate share 60 an hour per admin.
-        RateLimiter::for('platform-write', fn (Request $request) => Limit::perHour($times(60))->by('platform-write:'.$byUser($request)));
+        // While acting as an owner (slice 18c) the session user is the owner: the allowance stays the real admin's.
+        RateLimiter::for('platform-write', fn (Request $request) => Limit::perHour($times(60))->by('platform-write:'.(($by = Impersonation::by($request)) !== null ? 'user:'.$by['uuid'] : $byUser($request))));
     }
 }
