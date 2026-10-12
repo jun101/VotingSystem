@@ -7,7 +7,7 @@ Ends the acting-as session and gives the platform admin back their own.
 | Slice | 18c |
 | Requirements | FR-ADM-01, FR-AUD-01 |
 | Caller | A platform admin who is acting as an institution (the session is `impersonating`) |
-| Rate limit | Shared with [POST …/impersonate](POST-platform-institutions-{institution}-impersonate.md) |
+| Rate limit | **None**: ending must always work (security review, 2026-10-12) |
 
 ## Scenarios
 

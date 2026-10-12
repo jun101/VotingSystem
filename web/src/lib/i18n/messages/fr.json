@@ -527,6 +527,12 @@
       "title": "Pas encore disponible",
       "text": "Cette page arrive avec une prochaine étape du produit. Le reste de l’espace est déjà utilisable.",
       "back": "Retour au tableau de bord"
+    },
+    "impersonation": {
+      "title": "Vous agissez en tant que responsable de {institution}",
+      "text": "Connecté par {name} (administration de la plateforme). Toutes vos actions sont enregistrées dans le journal d’audit, sous votre nom, et visibles par les responsables de l’établissement.",
+      "end": "Quitter l’établissement",
+      "ending": "Sortie en cours…"
     }
   },
   "errors": {
@@ -595,7 +601,9 @@
     "election_not_archivable": "Cette élection ne peut pas être archivée dans son état actuel.",
     "election_not_archived": "Cette élection n’est pas archivée.",
     "already_suspended": "Cet établissement est déjà suspendu. Rechargez la page.",
-    "not_suspended": "Cet établissement n’est pas suspendu. Rechargez la page."
+    "not_suspended": "Cet établissement n’est pas suspendu. Rechargez la page.",
+    "already_impersonating": "Vous agissez déjà en tant que responsable d’un établissement. Quittez-le d’abord.",
+    "not_impersonating": "Vous n’agissez pas en tant que responsable d’un établissement. Rechargez la page."
   },
   "validation": {
     "required": "Ce champ est obligatoire.",
@@ -2888,6 +2896,7 @@
       "title": "Réactiver {name} ?",
       "text": "Ses utilisateurs pourront se connecter de nouveau et ses élections en pause reprendront. Le propriétaire est prévenu par email.",
       "confirm": "Réactiver"
-    }
+    },
+    "impersonate": "Se connecter en tant que"
   }
 }

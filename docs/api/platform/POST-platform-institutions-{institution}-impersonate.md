@@ -7,7 +7,7 @@ The platform admin enters an institution and acts as its owner ("connect as scho
 | Slice | 18c |
 | Requirements | FR-ADM-01, FR-AUD-01, NFR-SEC-04 |
 | Caller | **Platform admin** (not already acting as an institution) |
-| Rate limit | 60 requests per hour per admin, shared with suspend, reactivate and end |
+| Rate limit | 60 requests per hour per admin, shared with suspend and reactivate (ending is not limited) |
 
 Jun's decision, 2026-10-12: **no consent from the school** is needed. This replaces "impersonation: never" of the slice 18
 brief; the safeguards below are what makes it acceptable.
@@ -54,8 +54,16 @@ and `impersonating`.
 - `GET /auth/me` gives `impersonating: {by}`; every other time it is absent.
 - **Nothing is refused** (Jun, 2026-10-12): the admin has exactly the owner's power, account security and users
   included. Ballot secrecy is the only limit, and it is the owner's own.
+- **The session is bound to the owner it acts as**: it counts as acting only while the signed-in user is that owner and
+  the admin's password has not changed since it started; otherwise it is dropped (the admin's password change or reset
+  ends it). A sign-in, registration or invitation acceptance in the same browser clears it.
+- **Password confirmations while acting** (two-factor routes, user two-factor reset) ask for the **admin's own password**,
+  and wrong attempts count on the admin's counter, never on the owner's.
+- **Owner actions with no audit entry of their own** (removing a user, inviting, editing the institution or its logo,
+  two-factor changes and resets) write one entry `platform.impersonation_action` while acting, with `details`
+  `{ "what": "user.removed" | "invitation.created" | "institution.updated" | "institution.logo_changed" | "two_factor.changed", "impersonated_by": name }`.
 - **Audit (visible to the owner):** `platform.impersonation_started` and `platform.impersonation_ended` entries
   (`institution_id` of the institution, `details` `{by}`), and every entry written while acting names the admin:
-  `actor.id` `null`, `actor.name` `"<admin name> (plateforme)"`, `details.impersonated_by` the admin's name. The owner's
+  `actor.id` `null`, `actor.name` `"<admin name> (plateforme)"`, `details.impersonated_by` the admin's name and `details.impersonated_by_id` the admin's uuid. The owner's
   audit list shows them like any other entry.
 - **No email** is sent to the owners (Jun's decision); the audit entries are how they see it.

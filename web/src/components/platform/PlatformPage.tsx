@@ -9,6 +9,7 @@ import { cx } from '@/components/ui/cx';
 import { LogoMark } from '@/components/ui/LogoMark';
 import {
   fetchPlatformInstitutions,
+  impersonateInstitution,
   logout,
   reactivateInstitution,
   suspendInstitution,
@@ -47,6 +48,8 @@ export function PlatformPage({ initial }: { initial: Page }) {
   const [reasonError, setReasonError] = useState<string | null>(null);
   const [working, setWorking] = useState(false);
   const [dialogError, setDialogError] = useState<string | null>(null);
+  const [entering, setEntering] = useState<string | null>(null);
+  const [enterProblem, setEnterProblem] = useState<string | null>(null);
   const [signingOut, setSigningOut] = useState(false);
   const [signOutProblem, setSignOutProblem] = useState<string | null>(null);
   const ticket = useRef(0);
@@ -200,6 +203,36 @@ export function PlatformPage({ initial }: { initial: Page }) {
     if (alive.current) setWorking(false);
   }
 
+  async function enter(institution: PlatformInstitution) {
+    if (entering) return;
+
+    setEntering(institution.id);
+    setEnterProblem(null);
+
+    try {
+      await impersonateInstitution(institution.id);
+    } catch (caught) {
+      if (!alive.current) return;
+
+      const error = caught instanceof ApiError ? caught : new ApiError(0, 'unknown');
+
+      if (error.code === 'unauthenticated') {
+        router.push('/login');
+
+        return;
+      }
+
+      setEnterProblem(waitText(error, tIfAny));
+      setEntering(null);
+
+      return;
+    }
+
+    // A full navigation: the server layout reads the new session, and nothing of the admin's own
+    // screen stays in memory.
+    window.location.href = '/admin';
+  }
+
   async function signOut() {
     setSigningOut(true);
     setSignOutProblem(null);
@@ -308,6 +341,12 @@ export function PlatformPage({ initial }: { initial: Page }) {
           </p>
         </section>
 
+        {enterProblem ? (
+          <Notice tone="danger" role="alert" data-testid="platform-impersonate-error">
+            {enterProblem}
+          </Notice>
+        ) : null}
+
         {problem ? (
           <Notice tone="danger" role="alert" data-testid="platform-load-error">
             {problem}
@@ -330,6 +369,8 @@ export function PlatformPage({ initial }: { initial: Page }) {
                 n={index + 1}
                 onSuspend={() => open('suspend', institution)}
                 onReactivate={() => open('reactivate', institution)}
+                onImpersonate={() => void enter(institution)}
+                entering={entering === institution.id}
               />
             ))}
           </ul>
