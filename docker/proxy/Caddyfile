@@ -12,6 +12,8 @@
 		Referrer-Policy strict-origin-when-cross-origin
 		# No page of the product is shown inside another site's frame (clickjacking).
 		X-Frame-Options DENY
+		# Nothing of the product needs the camera, the microphone, the position or a payment.
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
 		# No header names the software or its version.
 		-Server
 		-X-Powered-By

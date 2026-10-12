@@ -44,6 +44,17 @@ return [
             'password' => env('DB_PASSWORD'),
         ],
 
+        // The operator's `php artisan vote-audit:read` (slice 19): a SELECT-only account on the operator's side
+        // (a dump or a tunnel), never configured on a server. Unset, it falls back to the migrator's values, which
+        // is what the tests use.
+        'audit_reader' => array_merge($mariadb, [
+            'host' => env('DB_AUDIT_READER_HOST', env('DB_HOST', '127.0.0.1')),
+            'port' => env('DB_AUDIT_READER_PORT', env('DB_PORT', '3306')),
+            'database' => env('DB_AUDIT_READER_DATABASE', env('DB_DATABASE', 'votesystem')),
+            'username' => env('DB_AUDIT_READER_USERNAME', env('DB_MIGRATOR_USERNAME')),
+            'password' => env('DB_AUDIT_READER_PASSWORD', env('DB_MIGRATOR_PASSWORD')),
+        ]),
+
     ],
 
     // The account that `php artisan db:grant-app` gives its rights to (docs/design/database.md

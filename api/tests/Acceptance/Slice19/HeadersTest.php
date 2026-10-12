@@ -29,7 +29,7 @@ it('puts the hardening headers on every kind of API answer [NFR-SEC-04]', functi
         expect($response->headers->get('X-Content-Type-Options'))->toBe('nosniff', $name)
             ->and($response->headers->get('Referrer-Policy'))->toBe('no-referrer', $name)
             ->and($response->headers->get('Content-Security-Policy'))->toBe("default-src 'none'; frame-ancestors 'none'", $name)
-            ->and($response->headers->get('Cache-Control'))->toContain('no-store', $name);
+            ->and($response->headers->get('Cache-Control'))->toContain('no-store');
     }
 });
 

@@ -25,6 +25,7 @@ No body.
 | 2 | The institution is not suspended | 409 | `not_suspended` | |
 | 3 | Unknown institution, or not a UUID | 404 | `not_found` | |
 | 4 | An owner or a manager | 403 | `forbidden` | |
+| 4a | A platform admin without two-factor authentication, where `platform.require_two_factor` is on (production) | 403 | `two_factor_required` (judged right after the role; `/auth/me` and the two-factor routes still work) | |
 | 5 | Not signed in | 401 | `unauthenticated` | |
 | 6 | CSRF token missing | 419 | `csrf_mismatch` | |
 | 7 | More than 60 requests in the hour | 429 | `too_many_attempts` | |

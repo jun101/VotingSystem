@@ -3,6 +3,7 @@
 return [
     'malformed_request' => 'The request is malformed.',
     'unauthenticated' => 'Please sign in.',
+    'two_factor_required' => 'Turn on two-factor authentication to use the platform area.',
     'forbidden' => 'You are not allowed to do this.',
     'not_found' => 'Resource not found.',
     'method_not_allowed' => 'Method not allowed.',

@@ -29,6 +29,7 @@ Query:
 | 3 | No match | 200 (`data: []`, `meta.total: 0`) | | |
 | 4 | A bad `status`, `per_page` out of range, `page` below 1 | 422 | `validation_failed` | |
 | 5 | An owner or a manager | 403 | `forbidden` | |
+| 5a | A platform admin without two-factor authentication, where `platform.require_two_factor` is on (production) | 403 | `two_factor_required` (judged right after the role; `/auth/me` and the two-factor routes still work) | |
 | 6 | Not signed in, another method | 401, 405 | the shared codes | |
 
 ## Responses

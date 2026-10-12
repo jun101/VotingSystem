@@ -30,10 +30,12 @@ it('counts the 12 hours from the second step of a two-factor sign-in [NFR-SEC-01
     $browser = new AuthClient($this);
     $browser->login($t['a']['owner']['email'], $t['a']['owner']['password'])->assertOk()->assertJsonPath('data.two_factor_required', true);
     $this->travel(3)->minutes();
-    $browser->post('/api/v1/auth/two-factor-challenge', ['code' => Totp::code($two['secret'])])->assertOk();
+    $browser->post('/api/v1/auth/two-factor-challenge', ['code' => Totp::code($two['secret'], Totp::step(now()->getTimestamp()))])->assertOk();
 
-    $this->travel(11)->hours();
-    $browser->get('/api/v1/auth/me')->assertOk();
+    foreach (range(1, 5) as $hop) {
+        $this->travel(2)->hours();
+        $browser->get('/api/v1/auth/me')->assertOk();
+    }
     $this->travel(2)->hours();
 
     $browser->get('/api/v1/auth/me')->assertStatus(401);

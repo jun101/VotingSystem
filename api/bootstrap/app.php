@@ -1,7 +1,9 @@
 <?php
 
 use App\Exceptions\ApiErrorRenderer;
+use App\Http\Middleware\AddApiSecurityHeaders;
 use App\Http\Middleware\AssignRequestId;
+use App\Http\Middleware\EndExpiredSession;
 use App\Http\Middleware\EndStaleImpersonation;
 use App\Http\Middleware\EnsureInstitutionActive;
 use App\Http\Middleware\EnsureOwner;
@@ -54,6 +56,9 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Global, so that routes outside the `api` group get a request id too.
         $middleware->prepend(AssignRequestId::class);
+        // The hardening headers (slice 19): outermost and global, so that a 404, a 405, a refused host and an
+        // OPTIONS answer carry them too, not only the routes that matched.
+        $middleware->prepend(AddApiSecurityHeaders::class);
         $middleware->append(RefuseOptions::class);
 
         // The routes that use the cookie session (docs/api/auth/): sign-in, CSRF, the current
@@ -67,6 +72,7 @@ return Application::configure(basePath: dirname(__DIR__))
             RejectMalformedJson::class,
             StartSession::class,
             VerifyCsrfToken::class,
+            EndExpiredSession::class,
             AuthenticateSession::class,
             EndStaleImpersonation::class,
         ]);
@@ -103,6 +109,8 @@ return Application::configure(basePath: dirname(__DIR__))
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
             StartSession::class,
+            // The absolute lifetime is judged right after the session is read, before the CSRF token.
+            EndExpiredSession::class,
             ShareErrorsFromSession::class,
             AuthenticatesRequests::class,
             VerifyCsrfToken::class,

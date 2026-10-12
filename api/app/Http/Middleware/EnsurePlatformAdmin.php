@@ -32,6 +32,12 @@ class EnsurePlatformAdmin
             throw new ApiException(403, 'forbidden');
         }
 
+        // Slice 19: where the rule is on (production), a platform admin works only with two-factor authentication
+        // turned on; `/auth/me` and the two-factor routes are not behind this middleware and still answer.
+        if (config('platform.require_two_factor') === true && ! $user->hasTwoFactorEnabled()) {
+            throw new ApiException(403, 'two_factor_required');
+        }
+
         return $next($request);
     }
 }
