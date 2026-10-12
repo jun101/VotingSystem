@@ -191,3 +191,13 @@ pest()->beforeEach(function () {
     $this->auditPair = Voting::keypair();
     $this->browser = new AuthClient($this);
 })->in('Acceptance/Slice18');
+
+// Slice 19: security hardening (docs/slices/19-security-hardening.md): the same as slice 12.
+pest()->beforeEach(function () {
+    Accounts::reset();
+    Tenancy::installProbeTables();
+    Team::clearMedia();
+    Voting::forgetCache();
+    $this->auditPair = Voting::keypair();
+    $this->browser = new AuthClient($this);
+})->in('Acceptance/Slice19');
