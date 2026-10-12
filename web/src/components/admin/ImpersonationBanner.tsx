@@ -5,6 +5,7 @@ import { Button, Notice } from '@/components/ui';
 import { endImpersonation } from '@/lib/api/browser';
 import { ApiError, waitText } from '@/lib/api/errors';
 import { useI18n } from '@/lib/i18n/client';
+import { loadPage } from '@/lib/navigation';
 import { Icon } from './Icon';
 
 /**
@@ -41,7 +42,7 @@ export function ImpersonationBanner({ by, institution }: { by: string; instituti
       // Not acting any more (ended elsewhere): the way out is the same.
       if (error.code !== 'not_impersonating') {
         if (error.code === 'unauthenticated') {
-          window.location.href = '/login';
+          loadPage('/login');
 
           return;
         }
@@ -54,7 +55,7 @@ export function ImpersonationBanner({ by, institution }: { by: string; instituti
     }
 
     // A full navigation: the session is the admin's again and the server layout must read it.
-    window.location.href = '/platform';
+    loadPage('/platform');
   }
 
   return (

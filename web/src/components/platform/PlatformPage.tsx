@@ -23,6 +23,7 @@ import type {
 import { NO_PLATFORM_FILTERS } from '@/lib/api/platform';
 import { pluralForm } from '@/lib/format/electionDates';
 import { useI18n } from '@/lib/i18n/client';
+import { loadPage } from '@/lib/navigation';
 import { InstitutionCard } from './InstitutionCard';
 import { hasMore, isFiltering } from './platformModel';
 
@@ -55,10 +56,23 @@ export function PlatformPage({ initial }: { initial: Page }) {
   const ticket = useRef(0);
   const alive = useRef(true);
   const timer = useRef<number | null>(null);
+  // The list request under way, so the sign-in as an owner can wait for it (see `enter`).
+  const inflight = useRef<Promise<void> | null>(null);
   const filtersRef = useRef(filters);
   const reasonField = useRef<HTMLTextAreaElement>(null);
 
-  async function load(next: PlatformFilters, page: number) {
+  function load(next: PlatformFilters, page: number): Promise<void> {
+    const request = read(next, page);
+
+    inflight.current = request;
+    void request.finally(() => {
+      if (inflight.current === request) inflight.current = null;
+    });
+
+    return request;
+  }
+
+  async function read(next: PlatformFilters, page: number) {
     const mine = ++ticket.current;
 
     setBusy(true);
@@ -209,6 +223,14 @@ export function PlatformPage({ initial }: { initial: Page }) {
     setEntering(institution.id);
     setEnterProblem(null);
 
+    // The session id changes when the sign-in as the owner is answered: a list request still on
+    // its way would answer later with the cookie of the old session and undo it. A search not yet
+    // sent is dropped, one under way is waited for.
+    if (timer.current !== null) window.clearTimeout(timer.current);
+
+    ticket.current += 1;
+    await inflight.current?.catch(() => undefined);
+
     try {
       await impersonateInstitution(institution.id);
     } catch (caught) {
@@ -224,13 +246,15 @@ export function PlatformPage({ initial }: { initial: Page }) {
 
       setEnterProblem(waitText(error, tIfAny));
       setEntering(null);
+      // The search dropped above is run again.
+      void load(filtersRef.current, 1);
 
       return;
     }
 
     // A full navigation: the server layout reads the new session, and nothing of the admin's own
     // screen stays in memory.
-    window.location.href = '/admin';
+    loadPage('/admin');
   }
 
   async function signOut() {
