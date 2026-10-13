@@ -5,7 +5,9 @@
 setup() {
   ROOT="$(cd "$BATS_TEST_DIRNAME/.." && pwd)"
   export VOTE_LANG=en
-  . "$ROOT/lib/common.sh"; . "$ROOT/lib/preflight.sh"; . "$ROOT/lib/ports.sh"; . "$ROOT/lib/firewall.sh"
+  # The tests must not depend on the memory of the machine they run on (the check has its own test).
+  export MIN_RAM_MB=0
+  . "$ROOT/lib/common.sh"; . "$ROOT/lib/preflight.sh"; . "$ROOT/lib/ports.sh"; . "$ROOT/lib/firewall.sh"; . "$ROOT/lib/setup.sh"
   export FIREWALL_RECORD="$BATS_TEST_TMPDIR/fw.rules"
   OCCUPIED=()
 }
@@ -60,7 +62,7 @@ occupy() { python3 -c "import socket,time;s=socket.socket();s.setsockopt(socket.
 
 @test "too little memory is refused" {
   printf 'MemTotal:        2097152 kB\n' > "$BATS_TEST_TMPDIR/mem"
-  MEMINFO_FILE="$BATS_TEST_TMPDIR/mem" run preflight_ram
+  MIN_RAM_MB=3500 MEMINFO_FILE="$BATS_TEST_TMPDIR/mem" run preflight_ram
   [ "$status" -eq 1 ]
 }
 
@@ -89,4 +91,39 @@ occupy() { python3 -c "import socket,time;s=socket.socket();s.setsockopt(socket.
   firewall_close
   ! ufw status | grep -q 38400
   [ ! -s "$FIREWALL_RECORD" ]
+}
+
+@test "render replaces every placeholder and nothing else" {
+  printf 'port @PORT@ root @ROOT@ again @PORT@ keep @OTHER@\n' > "$BATS_TEST_TMPDIR/t"
+  run render "$BATS_TEST_TMPDIR/t" PORT=8080 "ROOT=/opt/votesystem/current"
+  [ "$output" = "port 8080 root /opt/votesystem/current again 8080 keep @OTHER@" ]
+}
+
+@test "the templates have no placeholder left once rendered with every value" {
+  for f in mariadb.cnf redis.conf Caddyfile votectl.conf; do
+    run render "$ROOT/templates/$f.tmpl" ROOT=/opt/votesystem/current DB_PORT=1 REDIS_PORT=2 REDIS_PASSWORD=x
+    ! grep -qE '@[A-Z_]+@' <<< "$output"
+  done
+  for f in "$ROOT"/templates/systemd/*; do
+    run render "$f" ROOT=/opt/votesystem/current
+    ! grep -qE '@[A-Z_]+@' <<< "$output"
+  done
+}
+
+@test "the one-time installer refuses a folder that is not a bundle" {
+  [ "$(id -u)" -eq 0 ] || skip "needs root"
+  run env VOTE_PREFIX="$BATS_TEST_TMPDIR/opt" VOTE_ETC="$BATS_TEST_TMPDIR/etc" VOTE_DATA="$BATS_TEST_TMPDIR/data" \
+    "$ROOT/install.sh" --yes --lang en
+  [ "$status" -ne 0 ]
+}
+
+@test "a server address is a private address or a host name, never empty" {
+  run server_address
+  [ -n "$output" ]
+}
+
+@test "hex gives the requested number of random bytes as hex" {
+  run hex 16
+  [ "${#output}" -eq 32 ]
+  [[ "$output" =~ ^[0-9a-f]+$ ]]
 }

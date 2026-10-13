@@ -1,0 +1,22 @@
+[Unit]
+Description=VoteSystem entry point (routes /api, /media and the web application)
+After=votesystem-api.service votesystem-web.service
+
+[Service]
+Type=simple
+User=votesystem
+Group=votesystem
+EnvironmentFile=/etc/votesystem/env
+Environment=HOME=/var/lib/votesystem
+Environment=XDG_DATA_HOME=/var/lib/votesystem/xdg-data
+Environment=XDG_CONFIG_HOME=/var/lib/votesystem/xdg-config
+ExecStart=@ROOT@/bin/frankenphp run --config /etc/votesystem/Caddyfile --adapter caddyfile
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,11 @@
+# VoteSystem cache, sessions and queue. Written by the installer.
+bind 127.0.0.1
+port @REDIS_PORT@
+protected-mode yes
+requirepass @REDIS_PASSWORD@
+dir /var/lib/votesystem/redis
+save 900 1
+save 300 100
+appendonly no
+daemonize no
+loglevel notice

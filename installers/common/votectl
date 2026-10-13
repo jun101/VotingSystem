@@ -53,11 +53,19 @@ artisan() {
       [ -t 0 ] || tty=(-T)
       docker compose -f "$COMPOSE_FILE" exec "${tty[@]}" api php artisan "$@" ;;
     native)
-      if [ "$(id -un)" = "$SERVICE_USER" ]; then
-        (cd "$APP_DIR" && "$PHP_BIN" artisan "$@")
-      else
-        (cd "$APP_DIR" && runuser -u "$SERVICE_USER" -- "$PHP_BIN" artisan "$@")
-      fi ;;
+      # The application reads its settings from the environment: the installation's file is loaded for this call only.
+      (
+        set -a
+        # shellcheck disable=SC1090
+        [ -f "$ENV_FILE" ] && . "$ENV_FILE"
+        set +a
+        cd "$APP_DIR" || exit 1
+        if [ "$(id -un)" = "$SERVICE_USER" ]; then
+          "$PHP_BIN" artisan "$@"
+        else
+          runuser -u "$SERVICE_USER" -- env HOME="$DATA_DIR" "$PHP_BIN" artisan "$@"
+        fi
+      ) ;;
     *) die "unknown DRIVER '$DRIVER' in $CONF" ;;
   esac
 }
