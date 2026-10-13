@@ -20,8 +20,10 @@ the platform operator **on their own machine**, never on the server.
 | `--out=` | Required: the CSV file to write; it must not exist; it is created with mode 0600 |
 | `--log=` | The operator's log file (default `storage/logs/vote-audit-reads.log`); one JSON line is appended per use |
 
-The connection used is `audit_reader` (config `database.connections.audit_reader`, from `DB_AUDIT_READER_*`; in the
-tests it is the migrator connection): a database user with SELECT only, on the operator's side (a dump or a tunnel).
+The connection used is `audit_reader` (config `database.connections.audit_reader`, from `DB_AUDIT_READER_*`): a
+database user with SELECT only on `elections`, `ballots`, `voters`, `candidates`, `vote_choices` and `vote_audit`, on
+the operator's side (a dump or a tunnel). Without `DB_AUDIT_READER_*` the command falls back to the migrator account
+**only** when `APP_ENV` is `local` or `testing`; anywhere else it refuses (exit 1, nothing read).
 
 ## Behaviour
 
@@ -34,6 +36,6 @@ tests it is the migrator connection): a database user with SELECT only, on the o
 | 5 | The election does not exist, or the UUID is invalid | Exit 1; no file; the log line says `outcome: unknown_election` | |
 | 6 | The `--out` file already exists | Exit 1; the file is left as it was | |
 | 7 | `APP_ENV` is `production` | Exit 1: "never on the server"; nothing read | |
-| 8 | Any use that gets as far as reading | One JSON line in the log: `at` (UTC), `operator`, `election` (uuid), `reason`, `records`, `outcome` (`read`, `key_rejected`, `unknown_election`); **never** the key, a voter, a vote or a candidate | |
+| 8 | Any use that gets as far as reading | The log line is appended **before** the CSV is opened and, if it cannot be appended, the command exits 1 with no CSV. An error while reading logs `outcome: error`. One JSON line in the log: `at` (UTC), `operator`, `election` (uuid), `reason`, `records`, `outcome` (`read`, `key_rejected`, `unknown_election`, `error`); **never** the key, a voter, a vote or a candidate | |
 
 The command never writes to the database, never logs the CSV's content, and results are never computed from it.

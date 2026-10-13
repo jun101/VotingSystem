@@ -7,6 +7,8 @@ import { NextResponse, type NextRequest } from 'next/server';
  * A value sent by the visitor is always overwritten.
  */
 export function proxy(request: NextRequest) {
+  const nonce = btoa(crypto.randomUUID());
+  const policy = contentSecurityPolicy(nonce);
   const headers = new Headers(request.headers);
   const { pathname } = request.nextUrl;
 
@@ -28,7 +30,44 @@ export function proxy(request: NextRequest) {
   const results = /^\/results\/([0-9a-f-]{36})(?:\/|$)/i.exec(pathname);
   headers.set('x-public-election', results?.[1] ?? '');
 
-  return NextResponse.next({ request: { headers } });
+  // Next.js reads the nonce from the request's policy and puts it on its own scripts and styles; `x-nonce`
+  // is for the server components that render an inline element of their own.
+  headers.set('x-nonce', nonce);
+  headers.set('Content-Security-Policy', policy);
+
+  const response = NextResponse.next({ request: { headers } });
+  response.headers.set('Content-Security-Policy', policy);
+
+  return response;
+}
+
+/**
+ * The policy of every page (docs/slices/19 "Web CSP"): scripts only from the site and from what a nonce'd
+ * script loads, nothing from another origin, no frame, no `<base>`, no plug-in.
+ *
+ * `style-src-attr` lets React's `style` attributes through (a bar's width, a token's value); the styles
+ * written as elements still need the nonce, and scripts never get `'unsafe-inline'`.
+ * The development server evaluates code for its error overlay: `'unsafe-eval'` is added only when
+ * NODE_ENV is not production and `CSP_DEV_UNSAFE_EVAL=1` (off in Compose, so the browser tests see the same
+ * policy as production).
+ */
+export function contentSecurityPolicy(nonce: string, env: NodeJS.ProcessEnv = process.env): string {
+  const devEval =
+    env.NODE_ENV !== 'production' && env.CSP_DEV_UNSAFE_EVAL === '1' ? " 'unsafe-eval'" : '';
+
+  return [
+    "default-src 'self'",
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${devEval}`,
+    `style-src 'self' 'nonce-${nonce}'`,
+    "style-src-attr 'unsafe-inline'",
+    "img-src 'self' data: blob:",
+    "font-src 'self'",
+    "connect-src 'self'",
+    "frame-ancestors 'none'",
+    "base-uri 'none'",
+    "form-action 'self'",
+    "object-src 'none'",
+  ].join('; ');
 }
 
 export const config = {

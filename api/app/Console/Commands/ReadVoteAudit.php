@@ -70,7 +70,11 @@ class ReadVoteAudit extends Command
             return $this->refuse('The output file already exists.');
         }
 
-        $hex = $stdin ? $this->text($this->secret('Private key')) : $this->readKeyFile($keyFile);
+        if (! is_string(config('database.connections.audit_reader.username')) || config('database.connections.audit_reader.username') === '') {
+            return $this->refuse('No audit_reader account is configured (DB_AUDIT_READER_*).');
+        }
+
+        $hex = $stdin ? $this->readKeyFromInput() : $this->readKeyFile($keyFile);
         $secret = preg_match('/\A[0-9a-fA-F]{64}\z/', trim($hex)) === 1 ? hex2bin(trim($hex)) : false;
         unset($hex);
 
@@ -82,21 +86,29 @@ class ReadVoteAudit extends Command
         $log = $log !== '' ? $log : storage_path('logs/vote-audit-reads.log');
         $entry = ['at' => gmdate('Y-m-d\TH:i:s\Z'), 'operator' => $operator, 'election' => $election, 'reason' => $reason];
 
-        $db = DB::connection('audit_reader');
-        $electionId = Str::isUuid($election) ? $db->table('elections')->where('uuid', $election)->value('id') : null;
+        try {
+            $db = DB::connection('audit_reader');
+            $electionId = Str::isUuid($election) ? $db->table('elections')->where('uuid', $election)->value('id') : null;
 
-        if ($electionId === null) {
-            $this->writeLog($log, $entry + ['records' => 0, 'outcome' => 'unknown_election']);
-            $this->error('Unknown election.');
+            if ($electionId === null) {
+                return $this->logged($log, $entry + ['records' => 0, 'outcome' => 'unknown_election'], 'Unknown election.');
+            }
 
-            return self::FAILURE;
+            $rows = $this->records($db, is_numeric($electionId) ? (int) $electionId : 0, $secret);
+        } catch (Throwable) {
+            // The use got as far as reading: it is on the log, with no message that could carry the key or a record.
+            return $this->logged($log, $entry + ['records' => 0, 'outcome' => 'error'], 'The records could not be read.');
+        } finally {
+            sodium_memzero($secret);
         }
 
-        $rows = $this->records($db, is_numeric($electionId) ? (int) $electionId : 0, $secret);
-
         if ($rows === null) {
-            $this->writeLog($log, $entry + ['records' => 0, 'outcome' => 'key_rejected']);
-            $this->error('The key does not open the records.');
+            return $this->logged($log, $entry + ['records' => 0, 'outcome' => 'key_rejected'], 'The key does not open the records.');
+        }
+
+        // The use is logged before the file exists: no CSV without its line.
+        if (! $this->writeLog($log, $entry + ['records' => count($rows), 'outcome' => 'read'])) {
+            $this->error('The log line could not be written: nothing was kept.');
 
             return self::FAILURE;
         }
@@ -107,10 +119,33 @@ class ReadVoteAudit extends Command
             return self::FAILURE;
         }
 
-        $this->writeLog($log, $entry + ['records' => count($rows), 'outcome' => 'read']);
         $this->info(count($rows).' records written.');
 
         return self::SUCCESS;
+    }
+
+    /** @param  array<string, mixed>  $line */
+    private function logged(string $log, array $line, string $message): int
+    {
+        if (! $this->writeLog($log, $line)) {
+            $message .= ' The log line could not be written either.';
+        }
+
+        $this->error($message);
+
+        return self::FAILURE;
+    }
+
+    /** The key from a hidden prompt, or from a pipe when the input is not a terminal (`cat key | … --key-stdin`). */
+    private function readKeyFromInput(): string
+    {
+        if ($this->input->isInteractive()) {
+            return $this->text($this->secret('Private key'));
+        }
+
+        $content = stream_get_contents(STDIN);
+
+        return $content === false ? '' : $content;
     }
 
     private function text(mixed $value): string
@@ -144,7 +179,7 @@ class ReadVoteAudit extends Command
      *
      * @return list<list<string>>|null
      */
-    private function records(ConnectionInterface $db, int $electionId, string $secret): ?array
+    private function records(ConnectionInterface $db, int $electionId, #[\SensitiveParameter] string $secret): ?array
     {
         $pair = sodium_crypto_box_keypair_from_secretkey_and_publickey($secret, sodium_crypto_box_publickey_from_secretkey($secret));
         $plains = [];
@@ -171,13 +206,32 @@ class ReadVoteAudit extends Command
 
         $ballots = $db->table('ballots')->where('election_id', $electionId)->pluck('title', 'uuid');
         $voters = $db->table('voters')->where('election_id', $electionId)->pluck('full_name', 'uuid');
-        $choices = $db->table('vote_choices')->whereIn('vote_uuid', array_column($parsed, 'vote'))->get();
-        $people = $db->table('candidates')->whereIn('id', $choices->pluck('candidate_id')->unique()->all())->get()->keyBy('id');
+        // In chunks: one placeholder per vote would pass the 65 535 of a prepared statement on a large election.
+        /** @var array<string, list<int>> $voteCandidates vote uuid => candidate ids */
+        $voteCandidates = [];
+
+        foreach (array_chunk(array_column($parsed, 'vote'), 1000) as $chunk) {
+            foreach ($db->table('vote_choices')->whereIn('vote_uuid', $chunk)->get(['vote_uuid', 'candidate_id']) as $choice) {
+                $voteCandidates[$this->text($choice->vote_uuid)][] = is_numeric($choice->candidate_id) ? (int) $choice->candidate_id : 0;
+            }
+        }
+
+        $ids = array_values(array_unique(array_merge([], ...array_values($voteCandidates))));
+        /** @var array<int, string> $names candidate id => full name */
+        $names = [];
+
+        foreach (array_chunk($ids, 1000) as $chunk) {
+            foreach ($db->table('candidates')->whereIn('id', $chunk)->get(['id', 'first_name', 'last_name']) as $person) {
+                $names[is_numeric($person->id) ? (int) $person->id : 0] = trim($this->text($person->first_name).' '.$this->text($person->last_name));
+            }
+        }
+
         $candidates = [];
 
-        foreach ($choices as $choice) {
-            $person = $people[$choice->candidate_id] ?? null;
-            $candidates[$this->text($choice->vote_uuid)][] = $person === null ? '' : trim($this->text($person->first_name).' '.$this->text($person->last_name));
+        foreach ($voteCandidates as $vote => $candidateIds) {
+            foreach ($candidateIds as $candidateId) {
+                $candidates[$vote][] = $names[$candidateId] ?? '';
+            }
         }
 
         $rows = [];
@@ -233,7 +287,7 @@ class ReadVoteAudit extends Command
     }
 
     /** @param  array<string, mixed>  $line */
-    private function writeLog(string $path, array $line): void
+    private function writeLog(string $path, array $line): bool
     {
         $dir = dirname($path);
 
@@ -241,6 +295,13 @@ class ReadVoteAudit extends Command
             @mkdir($dir, 0700, true);
         }
 
-        file_put_contents($path, json_encode($line, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)."\n", FILE_APPEND | LOCK_EX);
+        // A log that did not exist is created for the operator alone.
+        $mask = umask(0177);
+
+        try {
+            return @file_put_contents($path, json_encode($line, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)."\n", FILE_APPEND | LOCK_EX) !== false;
+        } finally {
+            umask($mask);
+        }
     }
 }

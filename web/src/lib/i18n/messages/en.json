@@ -540,6 +540,7 @@
     "invalid_credentials": "Email or password is incorrect.",
     "institution_suspended": "This institution is suspended.",
     "unauthenticated": "Your session has ended. Sign in again.",
+    "two_factor_required": "Platform administration needs two-factor authentication. Set it up below, then reload this page.",
     "csrf_mismatch": "The session has expired. Reload the page, then try again.",
     "too_many_attempts": "Too many attempts. Try again in a moment.",
     "expired": "This link has expired. Ask for a new one.",
@@ -2809,6 +2810,9 @@
     }
   },
   "platform": {
+    "twoFactorRequiredKicker": "Two-factor authentication required",
+    "twoFactorRequiredTitle": "Turn on two-factor authentication",
+    "twoFactorRequiredBody": "Platform administration needs two-factor authentication. Set it up below, then reload this page.",
     "kicker": "Platform administration",
     "title": "Institutions",
     "lede": "The institutions of the platform, with their numbers. You see counts only: never a voter's name, a code or a vote.",

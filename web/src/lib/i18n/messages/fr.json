@@ -540,6 +540,7 @@
     "invalid_credentials": "Courriel ou mot de passe incorrect.",
     "institution_suspended": "Cet établissement est suspendu.",
     "unauthenticated": "Votre session a pris fin. Connectez-vous de nouveau.",
+    "two_factor_required": "L’administration de la plateforme exige l’authentification à deux facteurs. Activez-la ci-dessous, puis rechargez cette page.",
     "csrf_mismatch": "La session a expiré. Rechargez la page, puis réessayez.",
     "too_many_attempts": "Trop de tentatives. Réessayez dans un instant.",
     "expired": "Ce lien a expiré. Demandez-en un nouveau.",
@@ -2809,6 +2810,9 @@
     }
   },
   "platform": {
+    "twoFactorRequiredKicker": "Authentification à deux facteurs requise",
+    "twoFactorRequiredTitle": "Activez l’authentification à deux facteurs",
+    "twoFactorRequiredBody": "L’administration de la plateforme exige l’authentification à deux facteurs. Activez-la ci-dessous, puis rechargez cette page.",
     "kicker": "Administration de la plateforme",
     "title": "Établissements",
     "lede": "Les établissements de la plateforme, avec leurs effectifs. Vous voyez des nombres seulement : jamais un nom d’électeur, un code ou un vote.",

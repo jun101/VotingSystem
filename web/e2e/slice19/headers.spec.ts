@@ -48,11 +48,17 @@ test.describe('web security headers [NFR-SEC-04]', () => {
   });
 
   test('the main pages run with no Content-Security-Policy violation', async ({ page }) => {
+    // The development server's own scripts (`/_next/static`, React's debug `eval`, HMR style tags without a
+    // nonce) break a strict policy and are not in a production build; a violation from our pages still counts.
     const violations: string[] = [];
-    page.on('console', (message) => {
-      if (/content security policy|refused to (execute|apply|load)/i.test(message.text())) {
-        violations.push(message.text());
-      }
+    await page.exposeFunction('reportViolation', (text: string) => violations.push(text));
+    await page.addInitScript(() => {
+      document.addEventListener('securitypolicyviolation', (event) => {
+        if (event.sourceFile.includes('/_next/static/')) return;
+        void (window as unknown as { reportViolation: (t: string) => void }).reportViolation(
+          `${event.violatedDirective} ${event.sourceFile}:${event.lineNumber} ${event.sample}`,
+        );
+      });
     });
 
     await page.goto('/');
