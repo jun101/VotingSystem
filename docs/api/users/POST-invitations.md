@@ -77,3 +77,9 @@ The shared error shape of [API conventions](../README.md), with the codes of the
 - Two institutions can invite the same address; whoever accepts first takes it, and the
   other invitation then fails with `email_taken` ([accept](../auth/POST-auth-accept-invitation.md)).
 - The token is never in a response, a log, or any place but the email.
+
+## School mode
+
+When `DEPLOYMENT_MODE` is `school` this route answers **404 `not_found`**, whatever the body: nothing is sent by email in
+that mode and the account is made by the installer or by an owner
+([POST /users](../users/POST-users.md)). See [API conventions](../README.md) section 7a.

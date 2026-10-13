@@ -36,7 +36,7 @@ export function VoteCard({
   return (
     <section
       className={cx(
-        'flex min-w-0 flex-col overflow-hidden rounded-lg border border-line bg-surface shadow-2',
+        'flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-line bg-surface shadow-2',
         className,
       )}
       {...rest}
@@ -51,7 +51,7 @@ export function VoteCard({
         >
           <Icon name={icon} size={22} />
         </span>
-        <Heading className="min-w-0 flex-1 truncate font-display text-xl font-extrabold">
+        <Heading className="min-w-0 flex-1 truncate font-display text-lg font-extrabold sm:text-xl">
           {title}
         </Heading>
         {aside}

@@ -7,14 +7,14 @@ import { Icon } from '@/components/admin/Icon';
 import { Button, Notice } from '@/components/ui';
 import { ApiError, waitText } from '@/lib/api/errors';
 import { submitVote, VoteError } from '@/lib/api/vote';
+import { pluralForm } from '@/lib/format/electionDates';
 import { useI18n } from '@/lib/i18n/client';
-import { VoteCard } from './VoteCard';
 import { useVote, useVoterBallots } from './VoteProvider';
 import { VoteShell } from './VoteShell';
 
 /** M4: every choice in one place, with a way back to change one, then the single confirmation. */
 export function Review() {
-  const { t, tIfAny } = useI18n();
+  const { t, tIfAny, locale } = useI18n();
   const router = useRouter();
   const { election, choices, setBallots, setPhase, setVotedAt, leave, forget } = useVote();
   const { ballots, failure, retry } = useVoterBallots();
@@ -107,13 +107,20 @@ export function Review() {
   }
 
   const hero = (
-    <div className="flex flex-col gap-2">
-      <p className="flex items-center gap-2 text-sm font-semibold tracking-wide text-hero-ink-soft uppercase">
-        <Icon name="check" size={18} />
-        {t('vote.review.kicker')}
-      </p>
-      <h1 className="text-3xl text-surface md:text-4xl">{t('vote.review.heading')}</h1>
-      <p className="max-w-2xl text-md text-hero-ink-soft">{t('vote.review.lede')}</p>
+    <div className="flex items-center gap-4">
+      <span
+        aria-hidden="true"
+        className="code-key flex size-12 shrink-0 items-center justify-center rounded-full bg-glass-line sm:size-16"
+      >
+        <Icon name="shield" size={32} />
+      </span>
+      <div className="flex min-w-0 flex-col gap-1">
+        <p className="text-sm font-semibold tracking-wide text-hero-ink-soft uppercase">
+          {t('vote.review.kicker')}
+        </p>
+        <h1 className="text-3xl text-surface md:text-4xl">{t('vote.review.heading')}</h1>
+        <p className="max-w-2xl text-base text-hero-ink-soft md:text-md">{t('vote.review.lede')}</p>
+      </div>
     </div>
   );
 
@@ -147,6 +154,22 @@ export function Review() {
     </div>
   );
 
+  const confirmButton = (
+    <Button
+      variant="primary"
+      size="voter"
+      shimmer
+      loading={sending}
+      className="min-h-14 w-full text-lg"
+      onClick={() => void confirm()}
+    >
+      <span className="inline-flex items-center gap-2">
+        <Icon name="lock" size={20} />
+        {t('vote.review.confirm')}
+      </span>
+    </Button>
+  );
+
   return (
     <VoteShell hero={hero} bar={bar} testId="vote-review">
       <div className="flex flex-col gap-4">
@@ -166,88 +189,170 @@ export function Review() {
             {problem.text}
           </Notice>
         ) : null}
-        <ol className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {list.map((ballot, index) => {
-            const picked = choices[ballot.id] ?? [];
-            const chosen = ballot.candidates.filter((candidate) => picked.includes(candidate.id));
+        <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
+          <section className="flex min-w-0 flex-col overflow-hidden rounded-lg border border-line bg-surface shadow-3">
+            <header
+              data-head="getting-started"
+              className="dash-head relative flex h-16 items-center gap-3 overflow-hidden px-5"
+            >
+              <span
+                aria-hidden="true"
+                className="flex size-10 shrink-0 items-center justify-center rounded-full bg-glass-line"
+              >
+                <Icon name="ballot" size={22} />
+              </span>
+              <h2 className="font-display text-xl font-extrabold">{t('vote.review.slip')}</h2>
+            </header>
+            <ol className="flex flex-col">
+              {list.map((ballot, index) => {
+                const picked = choices[ballot.id] ?? [];
+                const chosen = ballot.candidates.filter((candidate) =>
+                  picked.includes(candidate.id),
+                );
 
-            return (
-              <li key={ballot.id} className="min-w-0">
-                <VoteCard
-                  tone={index % 2 === 0 ? 'getting-started' : 'latest'}
-                  icon="ballot"
-                  title={t('vote.review.ballotOf', { n: index + 1, title: ballot.title })}
-                  headingLevel={2}
-                  data-testid={`vote-review-ballot-${index + 1}`}
-                  className="h-full"
-                >
-                  {chosen.length === 0 ? (
-                    <p className="flex items-center gap-3 text-md font-bold text-ink">
-                      <span
-                        aria-hidden="true"
-                        className="flex size-12 shrink-0 items-center justify-center rounded-full bg-line-soft text-ink-2"
-                      >
-                        <Icon name="blank" size={22} />
-                      </span>
-                      {t('vote.review.blank')}
-                    </p>
-                  ) : (
-                    <ul className="flex flex-col gap-3">
-                      {chosen.map((candidate) => (
-                        <li key={candidate.id} className="flex items-center gap-3">
-                          {candidate.photo ? (
-                            // Decorative: the name is beside it.
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={candidate.photo}
-                              alt=""
-                              className="size-12 shrink-0 rounded-full border border-line object-cover"
-                            />
-                          ) : (
-                            <span
-                              aria-hidden="true"
-                              data-sex={candidate.sex === 'female' ? 'female' : 'male'}
-                              className="cand-avatar flex size-12 shrink-0 items-center justify-center rounded-full"
-                            >
-                              <Icon name="user" size={22} />
-                            </span>
-                          )}
-                          <span className="flex min-w-0 flex-col">
-                            <span className="font-display text-lg font-extrabold break-words text-ink">
-                              {candidate.first_name} {candidate.last_name}
-                            </span>
-                            <span className="flex items-center gap-2 text-sm text-ink-soft">
-                              {candidate.party ? (
-                                <>
-                                  <span
-                                    aria-hidden="true"
-                                    className="size-2.5 shrink-0 rounded-[3px]"
-                                    style={{ backgroundColor: candidate.party.colour }}
-                                  />
-                                  {candidate.party.name}
-                                </>
-                              ) : (
-                                t('vote.ballot.independent')
-                              )}
+                return (
+                  <li
+                    key={ballot.id}
+                    data-testid={`vote-review-ballot-${index + 1}`}
+                    style={{ animationDelay: `${Math.min(index, 8) * 120}ms` }}
+                    className="id-rise grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 gap-y-3 border-b border-line-soft p-4 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:px-5"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary font-display text-base font-extrabold text-surface"
+                    >
+                      {index + 1}
+                    </span>
+                    <div className="flex min-w-0 flex-col gap-2">
+                      <h3 className="text-sm font-semibold text-ink-soft">
+                        {t('vote.review.ballotOf', { n: index + 1, title: ballot.title })}
+                      </h3>
+                      {chosen.length === 0 ? (
+                        <p className="flex items-center gap-3">
+                          <span className="relative flex size-14 shrink-0 items-center justify-center rounded-full bg-line-soft text-ink-2">
+                            <Icon name="blank" size={26} />
+                            <span className="id-check absolute -right-1 -bottom-1 flex size-6 items-center justify-center rounded-full border-2 border-surface bg-status-open text-surface">
+                              <Icon name="check" size={12} />
                             </span>
                           </span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                  <Link
-                    href={`/vote/${election}/ballot/${index + 1}`}
-                    data-testid={`vote-review-edit-${index + 1}`}
-                    className="ui-control mt-auto inline-flex min-h-11 w-fit items-center gap-2 rounded-full border border-line-strong px-4 text-base font-semibold text-ink hover:bg-primary-soft focus-visible:ring-4 focus-visible:ring-primary-soft focus-visible:outline-2 focus-visible:outline-primary"
+                          <span className="flex min-w-0 flex-col">
+                            <span className="font-display text-xl font-extrabold text-ink">
+                              {t('vote.review.blank')}
+                            </span>
+                            <span className="text-sm text-ink-soft">
+                              {t('vote.review.blankHint')}
+                            </span>
+                          </span>
+                        </p>
+                      ) : (
+                        <ul className="flex flex-col gap-3">
+                          {chosen.map((candidate) => (
+                            <li key={candidate.id} className="flex items-center gap-3">
+                              <span className="relative shrink-0">
+                                {candidate.photo ? (
+                                  // Decorative: the name is beside it.
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img
+                                    src={candidate.photo}
+                                    alt=""
+                                    className="size-14 rounded-full border border-line object-cover"
+                                  />
+                                ) : (
+                                  <span
+                                    aria-hidden="true"
+                                    data-sex={candidate.sex === 'female' ? 'female' : 'male'}
+                                    className="cand-avatar flex size-14 items-center justify-center rounded-full"
+                                  >
+                                    <Icon name="user" size={26} />
+                                  </span>
+                                )}
+                                <span
+                                  aria-hidden="true"
+                                  className="id-check absolute -right-1 -bottom-1 flex size-6 items-center justify-center rounded-full border-2 border-surface bg-status-open text-surface"
+                                >
+                                  <Icon name="check" size={12} />
+                                </span>
+                              </span>
+                              <span className="flex min-w-0 flex-col">
+                                <span className="font-display text-xl font-extrabold break-words text-ink">
+                                  {candidate.first_name} {candidate.last_name}
+                                </span>
+                                <span className="flex items-center gap-2 text-sm text-ink-soft">
+                                  <Icon name="party" size={14} />
+                                  {candidate.party ? (
+                                    <>
+                                      <span
+                                        aria-hidden="true"
+                                        className="size-2.5 shrink-0 rounded-[3px]"
+                                        style={{ backgroundColor: candidate.party.colour }}
+                                      />
+                                      {candidate.party.name}
+                                    </>
+                                  ) : (
+                                    t('vote.ballot.independent')
+                                  )}
+                                </span>
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                    <Link
+                      href={`/vote/${election}/ballot/${index + 1}`}
+                      data-testid={`vote-review-edit-${index + 1}`}
+                      className="ui-control col-start-2 inline-flex min-h-11 w-fit shrink-0 items-center gap-2 rounded-full border border-line-strong px-4 text-base font-semibold text-ink hover:bg-primary-soft focus-visible:ring-4 focus-visible:ring-primary-soft focus-visible:outline-2 focus-visible:outline-primary sm:col-start-auto"
+                    >
+                      <Icon name="edit" size={16} />
+                      {t('vote.review.edit')}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ol>
+            <p className="flex items-center gap-3 bg-status-open-soft px-5 py-3 text-base font-semibold text-status-open">
+              <Icon name="check" size={20} />
+              {t(`vote.review.complete.${pluralForm(locale, list.length)}`, {
+                count: list.length,
+              })}
+            </p>
+            <div className="p-4 sm:p-5">{confirmButton}</div>
+          </section>
+
+          <section className="flex min-w-0 flex-col overflow-hidden rounded-lg border border-line bg-surface shadow-2">
+            <header
+              data-head="figures"
+              className="dash-head relative flex h-16 items-center gap-3 overflow-hidden px-5"
+            >
+              <span
+                aria-hidden="true"
+                className="flex size-10 shrink-0 items-center justify-center rounded-full bg-glass-line"
+              >
+                <Icon name="shield" size={22} />
+              </span>
+              <h2 className="font-display text-xl font-extrabold">{t('vote.review.railTitle')}</h2>
+            </header>
+            <ul className="flex flex-col gap-4 p-5">
+              {(
+                [
+                  ['shield', t('vote.review.rail1')],
+                  ['lock', t('vote.review.rail2')],
+                  ['check', t('vote.review.rail3')],
+                ] as const
+              ).map(([icon, text]) => (
+                <li key={icon} className="flex items-start gap-3 text-md text-ink-2">
+                  <span
+                    aria-hidden="true"
+                    className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary-hover"
                   >
-                    <Icon name="edit" size={16} />
-                    {t('vote.review.edit')}
-                  </Link>
-                </VoteCard>
-              </li>
-            );
-          })}
-        </ol>
+                    <Icon name={icon} size={18} />
+                  </span>
+                  {text}
+                </li>
+              ))}
+            </ul>
+          </section>
+        </div>
       </div>
     </VoteShell>
   );

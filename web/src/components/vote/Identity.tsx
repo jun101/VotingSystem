@@ -11,6 +11,7 @@ import { useI18n } from '@/lib/i18n/client';
 import { VoteCard } from './VoteCard';
 import { useVote, useVoterBallots } from './VoteProvider';
 import { VoteShell } from './VoteShell';
+import { whenText } from './voteTime';
 
 function initials(name: string): string {
   return name
@@ -25,7 +26,7 @@ function initials(name: string): string {
 export function Identity() {
   const { t, tIfAny, locale } = useI18n();
   const router = useRouter();
-  const { election, signOut, leave, setPhase, setBallots } = useVote();
+  const { election, info, signOut, leave, setPhase, setBallots } = useVote();
   const { ballots, failure, retry } = useVoterBallots();
   const [leaving, setLeaving] = useState(false);
 
@@ -87,118 +88,156 @@ export function Identity() {
     await signOut(null);
   }
 
+  const ends = whenText(info.ends_at, locale, info.timezone, t);
+
   const hero = (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-3">
       <p className="flex items-center gap-2 text-sm font-semibold tracking-wide text-hero-ink-soft uppercase">
         <Icon name="user" size={18} />
         {t('vote.identity.kicker')}
       </p>
-      <h1 data-testid="vote-identity-name" className="text-3xl text-surface md:text-4xl">
-        {voter.full_name}
-      </h1>
-      <p
-        data-testid="vote-identity-group"
-        className="flex w-fit items-center gap-2 rounded-full bg-glass px-3 py-1 text-base font-medium"
-      >
-        <Icon name="people" size={16} />
-        {voter.group
-          ? t('vote.identity.group', { group: voter.group })
-          : t('vote.identity.noGroup')}
-      </p>
+      <h1 className="text-2xl text-surface md:text-4xl">{info.title}</h1>
+      <ul className="flex flex-wrap gap-2 text-base font-medium">
+        {(
+          [
+            ['clock', t('vote.identity.closes', { when: ends })],
+            ['lock', t('vote.identity.secret')],
+            ['flag', t('vote.identity.step')],
+          ] as const
+        ).map(([icon, text]) => (
+          <li key={icon} className="flex items-center gap-2 rounded-full bg-glass px-3 py-1">
+            <Icon name={icon} size={16} />
+            {text}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 
   return (
     <VoteShell hero={hero} testId="vote-identity">
-      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
-        <VoteCard tone="getting-started" icon="user" title={t('vote.identity.kicker')}>
-          <div className="flex items-center gap-4">
+      <div className="flex flex-col gap-4">
+        <section className="id-card flex min-w-0 flex-col overflow-hidden rounded-lg border-2 border-primary bg-surface shadow-3">
+          <div className="id-band flex flex-col items-center gap-5 px-5 py-6 text-center sm:flex-row sm:px-8 sm:text-left">
             <span
               aria-hidden="true"
-              className="cand-avatar flex size-20 shrink-0 items-center justify-center rounded-full font-display text-3xl font-extrabold"
+              className="id-avatar cand-avatar relative flex size-28 shrink-0 items-center justify-center rounded-full font-display text-4xl font-extrabold text-surface sm:size-32 sm:text-5xl"
               data-sex="male"
             >
               {initials(voter.full_name)}
+              <span className="id-check absolute -right-0.5 -bottom-0.5 flex size-9 items-center justify-center rounded-full border-4 border-surface bg-status-open text-surface">
+                <Icon name="check" size={16} />
+              </span>
             </span>
-            <p className="min-w-0 text-md text-ink-2">
-              {none
-                ? t('vote.identity.noneText')
-                : t(`vote.identity.count.${pluralForm(locale, list.length)}`, {
-                    count: list.length,
-                  })}
-            </p>
-          </div>
-          <p className="rounded-md bg-warm-softer p-3 text-base text-warm-ink">
-            {t('vote.identity.hint')}
-          </p>
-          <div className="mt-auto flex flex-col gap-3 sm:flex-row-reverse">
-            {none ? null : (
-              <Button
-                variant="primary"
-                size="voter"
-                shimmer
-                disabled={leaving}
-                data-testid="vote-identity-yes"
-                className="w-full sm:flex-1"
-                onClick={() => void proceed()}
+            <div className="flex min-w-0 flex-1 flex-col items-center gap-2 sm:items-start">
+              <h2
+                data-testid="vote-identity-name"
+                className="font-display text-3xl font-extrabold break-words text-ink sm:text-4xl"
               >
-                {t('vote.identity.yes')}
-              </Button>
+                {voter.full_name}
+              </h2>
+              <p
+                data-testid="vote-identity-group"
+                className="flex w-fit items-center gap-2 rounded-full border border-primary-line bg-surface px-3 py-1 text-base font-medium text-ink-2"
+              >
+                <Icon name="people" size={16} />
+                {voter.group
+                  ? t('vote.identity.group', { group: voter.group })
+                  : t('vote.identity.noGroup')}
+              </p>
+            </div>
+            {none ? null : (
+              <div className="flex shrink-0 flex-col items-center rounded-md bg-primary px-5 py-3 text-surface">
+                <span className="font-display text-4xl font-extrabold">{list.length}</span>
+                <span className="text-sm font-medium">
+                  {t(`vote.identity.badge.${pluralForm(locale, list.length)}`)}
+                </span>
+              </div>
             )}
-            <Button
-              variant="secondary"
-              size="voter"
-              loading={leaving}
-              data-testid="vote-identity-no"
-              className="w-full sm:flex-1"
-              onClick={() => void notMe()}
-            >
-              {t('vote.identity.no')}
-            </Button>
           </div>
-        </VoteCard>
 
-        <VoteCard tone="figures" icon="ballot" title={t('vote.identity.ballotsTitle')}>
-          {none ? (
-            <p className="text-md text-ink-2">{t('vote.identity.noneTitle')}</p>
-          ) : (
-            <ol className="flex flex-col gap-3">
-              {list.map((ballot, index) => (
-                <li
-                  key={ballot.id}
-                  data-testid={`vote-identity-ballot-${index + 1}`}
-                  className="flex items-start gap-3 rounded-md border border-line bg-surface-alt p-3"
-                >
-                  <span
-                    aria-hidden="true"
-                    className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary font-display text-base font-extrabold text-surface"
+          <div className="flex flex-col gap-4 p-5 sm:p-8">
+            {none ? (
+              <div>
+                <p className="text-md font-bold text-ink">{t('vote.identity.noneTitle')}</p>
+                <p className="text-md text-ink-2">{t('vote.identity.noneText')}</p>
+              </div>
+            ) : (
+              <ol className="grid gap-3 sm:grid-cols-2">
+                {list.map((ballot, index) => (
+                  <li
+                    key={ballot.id}
+                    data-testid={`vote-identity-ballot-${index + 1}`}
+                    style={{ animationDelay: `${index * 120}ms` }}
+                    className="id-rise flex items-start gap-3 rounded-md border border-line bg-surface-alt p-3"
                   >
-                    {index + 1}
-                  </span>
-                  <span className="flex min-w-0 flex-col gap-1">
-                    <span className="text-md font-bold break-words text-ink">{ballot.title}</span>
-                    <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-soft">
-                      <span className="inline-flex items-center gap-1">
-                        <Icon name="seat" size={14} />
-                        {t(`vote.identity.seats.${pluralForm(locale, ballot.seats)}`, {
-                          count: ballot.seats,
-                        })}
-                      </span>
-                      <span className="inline-flex items-center gap-1">
-                        <Icon name="people" size={14} />
-                        {ballot.scope === 'group' && ballot.group_names.length > 0
-                          ? t('vote.identity.forGroups', {
-                              groups: joinList(locale, ballot.group_names),
-                            })
-                          : t('vote.identity.forAll')}
+                    <span
+                      aria-hidden="true"
+                      className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary font-display text-base font-extrabold text-surface"
+                    >
+                      {index + 1}
+                    </span>
+                    <span className="flex min-w-0 flex-col gap-1">
+                      <span className="text-md font-bold break-words text-ink">{ballot.title}</span>
+                      <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-soft">
+                        <span className="inline-flex items-center gap-1">
+                          <Icon name="seat" size={14} />
+                          {t(`vote.identity.seats.${pluralForm(locale, ballot.seats)}`, {
+                            count: ballot.seats,
+                          })}
+                        </span>
+                        <span className="inline-flex items-center gap-1">
+                          <Icon name="people" size={14} />
+                          {ballot.scope === 'group' && ballot.group_names.length > 0
+                            ? t('vote.identity.forGroups', {
+                                groups: joinList(locale, ballot.group_names),
+                              })
+                            : t('vote.identity.forAll')}
+                        </span>
                       </span>
                     </span>
+                  </li>
+                ))}
+              </ol>
+            )}
+
+            <p className="flex items-start gap-2 rounded-md bg-warm-softer p-3 text-base text-warm-ink">
+              <span className="mt-0.5">
+                <Icon name="warn" size={18} />
+              </span>
+              {t('vote.identity.hint')}
+            </p>
+
+            <div className="flex flex-col gap-3 sm:flex-row-reverse">
+              {none ? null : (
+                <Button
+                  variant="primary"
+                  size="voter"
+                  shimmer
+                  disabled={leaving}
+                  data-testid="vote-identity-yes"
+                  className="min-h-14 w-full text-lg sm:flex-[1.4]"
+                  onClick={() => void proceed()}
+                >
+                  <span className="inline-flex items-center gap-2">
+                    {t('vote.identity.yes')}
+                    <Icon name="check" size={20} />
                   </span>
-                </li>
-              ))}
-            </ol>
-          )}
-        </VoteCard>
+                </Button>
+              )}
+              <Button
+                variant="secondary"
+                size="voter"
+                loading={leaving}
+                data-testid="vote-identity-no"
+                className="min-h-14 w-full text-lg sm:flex-1"
+                onClick={() => void notMe()}
+              >
+                {t('vote.identity.no')}
+              </Button>
+            </div>
+          </div>
+        </section>
       </div>
     </VoteShell>
   );

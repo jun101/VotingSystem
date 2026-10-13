@@ -1,0 +1,288 @@
+#!/usr/bin/env bash
+# votectl: the operator's command for a VoteSystem installation (slice 19c, step B).
+#
+#   votectl status | version | logs [SERVICE] [N]
+#   votectl admin create EMAIL
+#   votectl owner create EMAIL --institution NAME [--name N] [--language fr|en] [--credentials-file FILE]
+#   votectl user reset-password EMAIL [--credentials-file FILE]
+#   votectl user list [--institution UUID]
+#   votectl 2fa reset EMAIL
+#   votectl backup [--out DIR] [--with-config]
+#   votectl restore FILE [--force]
+#   votectl ssh-key create [--out DIR] [--comment TEXT]
+#
+# It reads /etc/votesystem/votectl.conf (or $VOTECTL_CONF): DRIVER=docker or native, and the paths of that driver.
+# The accounts, the audit and the elections are never read by this script: it only calls the application's own commands.
+set -u
+
+CONF="${VOTECTL_CONF:-/etc/votesystem/votectl.conf}"
+# shellcheck disable=SC1090
+[ -f "$CONF" ] && . "$CONF"
+
+DRIVER="${DRIVER:-docker}"
+COMPOSE_FILE="${COMPOSE_FILE:-/opt/votesystem/compose.yaml}"
+ENV_FILE="${ENV_FILE:-/etc/votesystem/env}"
+APP_DIR="${APP_DIR:-/opt/votesystem/current/api}"
+PHP_BIN="${PHP_BIN:-/opt/votesystem/bin/php}"
+SERVICE_USER="${SERVICE_USER:-votesystem}"
+DATA_DIR="${DATA_DIR:-/var/lib/votesystem}"
+BACKUP_DIR="${BACKUP_DIR:-/var/backups/votesystem}"
+VERSION_FILE="${VERSION_FILE:-/opt/votesystem/VERSION}"
+DB_BIN_DIR="${DB_BIN_DIR:-/opt/votesystem/mariadb/bin}"
+DB_SOCKET="${DB_SOCKET:-/run/votesystem/mariadb.sock}"
+DB_NAME="${DB_NAME:-votesystem}"
+SERVICES_NATIVE=(mariadb redis api web proxy queue scheduler)
+
+# The one temporary folder of a run, removed whatever way the command ends.
+TMP_WORK=""
+cleanup() { [ -n "$TMP_WORK" ] && rm -rf "$TMP_WORK"; return 0; }
+trap cleanup EXIT
+
+say() { printf '%s\n' "$*"; }
+die() { printf 'votectl: %s\n' "$*" >&2; exit 1; }
+
+usage() { sed -n '2,16p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
+
+# ---- drivers -----------------------------------------------------------------------------------------------------
+
+# artisan ARGS...: the application's own commands, inside the container or from the installed tree.
+artisan() {
+  case "$DRIVER" in
+    docker)
+      local tty=()
+      [ -t 0 ] || tty=(-T)
+      docker compose -f "$COMPOSE_FILE" exec "${tty[@]}" api php artisan "$@" ;;
+    native)
+      # The application reads its settings from the environment: the installation's file is loaded for this call only.
+      (
+        set -a
+        # shellcheck disable=SC1090
+        [ -f "$ENV_FILE" ] && . "$ENV_FILE"
+        set +a
+        cd "$APP_DIR" || exit 1
+        if [ "$(id -un)" = "$SERVICE_USER" ]; then
+          "$PHP_BIN" artisan "$@"
+        else
+          runuser -u "$SERVICE_USER" -- env HOME="$DATA_DIR" "$PHP_BIN" artisan "$@"
+        fi
+      ) ;;
+    *) die "unknown DRIVER '$DRIVER' in $CONF" ;;
+  esac
+}
+
+env_value() { [ -f "$ENV_FILE" ] && grep -E "^$1=" "$ENV_FILE" | tail -1 | cut -d= -f2- | sed 's/^"\(.*\)"$/\1/'; }
+
+# db_dump: the whole database on standard output.
+db_dump() {
+  case "$DRIVER" in
+    docker) docker compose -f "$COMPOSE_FILE" exec -T db sh -c 'mariadb-dump --single-transaction --routines -uroot -p"$MARIADB_ROOT_PASSWORD" "'"$DB_NAME"'"' ;;
+    native) "$DB_BIN_DIR/mariadb-dump" --socket="$DB_SOCKET" --single-transaction --routines -u"$(env_value DB_MIGRATOR_USERNAME)" -p"$(env_value DB_MIGRATOR_PASSWORD)" "$DB_NAME" ;;
+  esac
+}
+
+# db_restore: a SQL dump on standard input.
+db_restore() {
+  case "$DRIVER" in
+    docker) docker compose -f "$COMPOSE_FILE" exec -T db sh -c 'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" "'"$DB_NAME"'"' ;;
+    native) "$DB_BIN_DIR/mariadb" --socket="$DB_SOCKET" -u"$(env_value DB_MIGRATOR_USERNAME)" -p"$(env_value DB_MIGRATOR_PASSWORD)" "$DB_NAME" ;;
+  esac
+}
+
+# media_pack OUT.tar.gz / media_unpack IN.tar.gz: the re-encoded pictures.
+media_pack() {
+  case "$DRIVER" in
+    docker) docker compose -f "$COMPOSE_FILE" exec -T api tar -C /var/www/media -czf - . >"$1" ;;
+    native) tar -C "$DATA_DIR/media" -czf "$1" . ;;
+  esac
+}
+
+media_unpack() {
+  case "$DRIVER" in
+    docker) docker compose -f "$COMPOSE_FILE" exec -T api tar -C /var/www/media -xzf - <"$1" ;;
+    native) mkdir -p "$DATA_DIR/media" && tar -C "$DATA_DIR/media" -xzf "$1" ;;
+  esac
+}
+
+services() {
+  local action="$1"
+  case "$DRIVER" in
+    docker) docker compose -f "$COMPOSE_FILE" "$action" api web queue scheduler ;;
+    native) for s in api web queue scheduler; do systemctl "$action" "votesystem-$s"; done ;;
+  esac
+}
+
+app_version() { [ -f "$VERSION_FILE" ] && tr -d '\n' <"$VERSION_FILE" || printf 'unknown'; }
+
+# ---- commands ----------------------------------------------------------------------------------------------------
+
+cmd_status() {
+  say "VoteSystem $(app_version) ($DRIVER)"
+  case "$DRIVER" in
+    docker) docker compose -f "$COMPOSE_FILE" ps --format '  {{.Service}}: {{.Status}}' ;;
+    native) for s in "${SERVICES_NATIVE[@]}"; do printf '  %s: %s\n' "$s" "$(systemctl is-active "votesystem-$s" 2>/dev/null || echo unknown)"; done ;;
+  esac
+  local port
+  port="$(env_value WEB_PORT)"
+  [ -n "$port" ] && say "  web port: $port"
+  say "  disk free: $(df -Pk "$BACKUP_DIR" 2>/dev/null | awk 'NR==2 {printf "%d GB", $4/1024/1024}')"
+  local last
+  last="$(ls -1t "$BACKUP_DIR"/votesystem-backup-*.tar 2>/dev/null | head -1)"
+  say "  last backup: ${last:-none}"
+}
+
+cmd_logs() {
+  local service="${1:-api}" lines="${2:-100}"
+  case "$DRIVER" in
+    docker) docker compose -f "$COMPOSE_FILE" logs --tail "$lines" "$service" ;;
+    native) journalctl -u "votesystem-$service" -n "$lines" --no-pager ;;
+  esac
+}
+
+cmd_backup() {
+  local out="$BACKUP_DIR" with_config=0
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --out) shift; out="${1:?--out needs a folder}" ;;
+      --with-config) with_config=1 ;;
+      *) die "unknown option $1" ;;
+    esac
+    shift
+  done
+  mkdir -p "$out" && chmod 700 "$out"
+  local stamp work file
+  stamp="$(date -u +%Y%m%dT%H%M%SZ)"
+  work="$(mktemp -d)"
+  TMP_WORK="$work"
+  umask 077
+
+  db_dump | gzip -9 >"$work/db.sql.gz" || die "the database could not be dumped"
+  [ -s "$work/db.sql.gz" ] || die "the database dump is empty"
+  media_pack "$work/media.tar.gz" || die "the pictures could not be packed"
+  if [ "$with_config" = 1 ] && [ -f "$ENV_FILE" ]; then cp "$ENV_FILE" "$work/env"; fi
+
+  {
+    printf 'app_version=%s\n' "$(app_version)"
+    printf 'created_at=%s\n' "$stamp"
+    printf 'driver=%s\n' "$DRIVER"
+    printf 'database=%s\n' "$DB_NAME"
+    printf 'with_config=%s\n' "$with_config"
+  } >"$work/MANIFEST"
+
+  file="$out/votesystem-backup-$stamp.tar"
+  tar -C "$work" -cf "$file" $(cd "$work" && ls) || die "the archive could not be written"
+  chmod 600 "$file"
+  (cd "$out" && sha256sum "$(basename "$file")" >"$(basename "$file").sha256")
+  say "Backup written: $file"
+  say "Checksum: $file.sha256"
+  [ "$with_config" = 1 ] && say "It holds the configuration with the secrets: keep it as private as the server."
+  return 0
+}
+
+cmd_restore() {
+  local file="" force=0
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --force) force=1 ;;
+      -*) die "unknown option $1" ;;
+      *) file="$1" ;;
+    esac
+    shift
+  done
+  [ -n "$file" ] && [ -f "$file" ] || die "give the backup file to restore"
+
+  if [ -f "$file.sha256" ]; then
+    (cd "$(dirname "$file")" && sha256sum -c --quiet "$(basename "$file").sha256") || die "the checksum does not match: the file is damaged or changed"
+  elif [ "$force" != 1 ]; then
+    die "no checksum file next to the backup; restore with --force only if you trust it"
+  fi
+
+  local work
+  work="$(mktemp -d)"
+  TMP_WORK="$work"
+  tar -C "$work" -xf "$file" MANIFEST db.sql.gz media.tar.gz || die "this is not a VoteSystem backup"
+
+  local from now
+  from="$(grep '^app_version=' "$work/MANIFEST" | cut -d= -f2-)"
+  now="$(app_version)"
+  if [ "$from" != "$now" ] && [ "$force" != 1 ]; then
+    die "the backup is from version $from and this installation is $now; update first, or use --force"
+  fi
+
+  say "Stopping the services..."
+  services stop >/dev/null 2>&1
+  gunzip -c "$work/db.sql.gz" | db_restore || { services start >/dev/null 2>&1; die "the database could not be restored"; }
+  media_unpack "$work/media.tar.gz" || say "Warning: the pictures could not be restored."
+  say "Starting the services..."
+  services start >/dev/null 2>&1
+  artisan migrate --force || say "Warning: the migrations did not run; run 'votectl' again after update."
+  say "Restored from $file (version $from)."
+}
+
+cmd_ssh_key() {
+  [ "${1:-}" = create ] || die "usage: votectl ssh-key create [--out DIR] [--comment TEXT]"
+  shift
+  local out="." comment="votesystem-operator"
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --out) shift; out="${1:?--out needs a folder}" ;;
+      --comment) shift; comment="${1:?--comment needs a text}" ;;
+      *) die "unknown option $1" ;;
+    esac
+    shift
+  done
+  mkdir -p "$out" && chmod 700 "$out"
+  local key="$out/votesystem_ed25519"
+  [ ! -e "$key" ] && [ ! -e "$key.pub" ] || die "$key already exists: it is not overwritten"
+  ssh-keygen -q -t ed25519 -N "" -C "$comment" -f "$key" || die "the key could not be created"
+  chmod 600 "$key"
+  say "Private key: $key (keep it; it is shown nowhere else)"
+  say "Public key:  $key.pub"
+  say "Fingerprint: $(ssh-keygen -lf "$key.pub" | awk '{print $2}')"
+  say "To allow it on a server, append the public key to that user's authorized_keys."
+}
+
+cmd_user() {
+  case "${1:-}" in
+    reset-password) shift; [ $# -ge 1 ] || die "usage: votectl user reset-password EMAIL"; local email="$1"; shift; artisan user:reset-password "$email" "$@" ;;
+    list) shift; artisan user:list "$@" ;;
+    *) die "usage: votectl user reset-password EMAIL | user list [--institution UUID]" ;;
+  esac
+}
+
+main() {
+  local command="${1:-help}"
+  [ $# -gt 0 ] && shift
+  case "$command" in
+    help|-h|--help) usage ;;
+    version) app_version; echo ;;
+    status) cmd_status ;;
+    logs) cmd_logs "$@" ;;
+    admin)
+      [ "${1:-}" = create ] && [ $# -ge 2 ] || die "usage: votectl admin create EMAIL"
+      shift; artisan platform:create-admin "$@" ;;
+    owner)
+      [ "${1:-}" = create ] && [ $# -ge 2 ] || die "usage: votectl owner create EMAIL --institution NAME [--name N]"
+      shift
+      local email="$1"; shift
+      local args=()
+      while [ $# -gt 0 ]; do
+        case "$1" in
+          --institution|--institution-uuid|--name|--language|--credentials-file) args+=("$1=${2:?$1 needs a value}"); shift ;;
+          *) die "unknown option $1" ;;
+        esac
+        shift
+      done
+      artisan owner:create "$email" "${args[@]}" ;;
+    user) cmd_user "$@" ;;
+    2fa)
+      [ "${1:-}" = reset ] && [ $# -eq 2 ] || die "usage: votectl 2fa reset EMAIL"
+      artisan auth:reset-two-factor "$2" ;;
+    backup) cmd_backup "$@" ;;
+    restore) cmd_restore "$@" ;;
+    ssh-key) cmd_ssh_key "$@" ;;
+    *) die "unknown command '$command' (try: votectl help)" ;;
+  esac
+}
+
+# Sourced by the tests with VOTECTL_SOURCE_ONLY=1: the functions, and no command.
+if [ "${VOTECTL_SOURCE_ONLY:-0}" != 1 ]; then main "$@"; fi

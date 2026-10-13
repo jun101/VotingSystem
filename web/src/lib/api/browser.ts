@@ -54,6 +54,7 @@ import type {
   PendingInvitation,
   ProfileChanges,
   RegisterBody,
+  TeamMember,
   TwoFactorRequired,
   TwoFactorSetup,
 } from './user';
@@ -375,6 +376,48 @@ export async function inviteUser(body: {
   const { data } = await send((api) => api.POST('/v1/invitations', { body }));
 
   return data!.data;
+}
+
+/**
+ * `POST /users` (school mode): an owner creates a team member and receives a one-time password, shown once. Asks for the
+ * owner's own password, and the owner's second factor when the owner has one.
+ */
+export async function createTeamMember(
+  body: { name: string; email: string; role: InvitedRole; password: string },
+  factor?: SecondFactor,
+): Promise<{ member: TeamMember; oneTimePassword: string }> {
+  const { data } = await send((api) => api.POST('/v1/users', { body: { ...body, ...factor } }));
+
+  return { member: data!.data, oneTimePassword: data!.one_time_password };
+}
+
+/** `POST /users/{user}/password-reset` (school mode): a new one-time password for a team member, shown once. */
+export async function resetUserPassword(
+  id: string,
+  password: string,
+  factor?: SecondFactor,
+): Promise<string> {
+  const { data } = await send((api) =>
+    api.POST('/v1/users/{user}/password-reset', {
+      params: { path: { user: id } },
+      body: { password, ...factor },
+    }),
+  );
+
+  return data!.one_time_password;
+}
+
+/** `POST /auth/change-password`: the signed-in user's own password (the one-time password at first sign-in). */
+export async function changePassword(
+  current: string,
+  password: string,
+  factor?: SecondFactor,
+): Promise<void> {
+  await send((api) =>
+    api.POST('/v1/auth/change-password', {
+      body: { current_password: current, password, ...factor },
+    }),
+  );
 }
 
 export async function cancelInvitation(id: string): Promise<void> {

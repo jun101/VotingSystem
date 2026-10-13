@@ -1,0 +1,22 @@
+[Unit]
+Description=VoteSystem background jobs
+After=votesystem-mariadb.service votesystem-redis.service
+Requires=votesystem-mariadb.service votesystem-redis.service
+
+[Service]
+Type=simple
+User=votesystem
+Group=votesystem
+WorkingDirectory=@ROOT@/api
+EnvironmentFile=/etc/votesystem/env
+Environment=PATH=@ROOT@/bin:/usr/bin:/bin
+Environment=HOME=/var/lib/votesystem
+ExecStart=@ROOT@/bin/php artisan queue:work --sleep=3 --tries=3 --max-time=3600
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

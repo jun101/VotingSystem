@@ -1,0 +1,4 @@
+# Downloaded upstream files and built bundles: large, reproducible, never committed.
+cache/
+dist/
+stage/

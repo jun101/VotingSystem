@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Credentials;
 
+use App\Support\Deployment;
 use Illuminate\Contracts\Validation\Validator;
 
 /** docs/api/credentials/POST-elections-{election}-credential-runs.md, with the channels of slice 11. */
@@ -27,6 +28,13 @@ class StartCredentialRunRequest extends CredentialScopeRequest
     {
         return array_merge(parent::after(), [function (Validator $validator): void {
             $errors = $validator->errors();
+
+            // School mode sends no email: the channel is not available (docs/api/credentials, School mode).
+            if (Deployment::isSchool() && ($this->wantsEmail() || $this->input('scope') === 'failed_email') && ! $errors->has('email')) {
+                $errors->add('email', 'unavailable');
+
+                return;
+            }
 
             // `confirm_emails` is needed when emails are sent, so the person confirms a count.
             if ($this->wantsEmail() && ! $errors->has('email')) {

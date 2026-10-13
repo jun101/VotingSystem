@@ -1,4 +1,5 @@
 import { LoginForm } from '@/components/auth/LoginForm';
+import { isSchoolMode } from '@/lib/deployment';
 import { AuthPage } from '../authPage';
 
 export const dynamic = 'force-dynamic';
@@ -12,7 +13,7 @@ export default async function LoginPage({
 
   return (
     <AuthPage>
-      <LoginForm reset={reset === '1'} suspended={suspended === '1'} />
+      <LoginForm reset={reset === '1'} suspended={suspended === '1'} school={isSchoolMode()} />
     </AuthPage>
   );
 }

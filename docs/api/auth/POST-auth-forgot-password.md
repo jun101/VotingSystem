@@ -48,3 +48,9 @@ Scenario 1 only: the user's reset token is replaced by a new one (60 minutes) an
 is queued, in the user's language. The link is `{APP_URL}/reset-password?token=<token>`:
 the token only, no email address, no id. Scenario 2 sends and writes nothing. A removed
 user (`deleted_at` set) is treated as nobody.
+
+## School mode
+
+When `DEPLOYMENT_MODE` is `school` this route answers **404 `not_found`**, whatever the body: nothing is sent by email in
+that mode and the account is made by the installer or by an owner
+([POST /users](../users/POST-users.md)). See [API conventions](../README.md) section 7a.

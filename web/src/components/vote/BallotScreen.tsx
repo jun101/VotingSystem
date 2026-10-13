@@ -186,7 +186,7 @@ export function BallotScreen({ n: routeN }: { n: number }) {
             title={t('vote.ballot.cardTitle')}
             bodyClassName="gap-3"
           >
-            <p data-testid="vote-ballot-hint" className="text-md font-medium text-ink">
+            <p data-testid="vote-ballot-hint" className="text-center text-md font-medium text-ink">
               {ballot.seats === 1
                 ? t('vote.ballot.seatsOne')
                 : t('vote.ballot.seatsMany', { seats: ballot.seats })}
@@ -197,16 +197,18 @@ export function BallotScreen({ n: routeN }: { n: number }) {
               ) : null}
             </p>
             {full ? (
-              <p className="text-base font-medium text-warm-ink">{t('vote.ballot.full')}</p>
+              <p className="text-center text-base font-medium text-warm-ink">
+                {t('vote.ballot.full')}
+              </p>
             ) : null}
             {ballot.description ? (
-              <p className="text-base text-ink-soft">{ballot.description}</p>
+              <p className="text-center text-base text-ink-soft">{ballot.description}</p>
             ) : null}
 
             <div
               role="group"
               aria-label={t('vote.ballot.legend', { title: ballot.title })}
-              className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 xl:grid-cols-4"
+              className="flex flex-wrap justify-center gap-3 md:gap-5"
             >
               {ballot.candidates.map((candidate, index) => (
                 <CandidateTile

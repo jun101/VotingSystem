@@ -11,6 +11,7 @@ use App\Http\Resources\PageOf;
 use App\Http\Resources\VoterResource;
 use App\Models\Election;
 use App\Models\Voter;
+use App\Models\Voting\Participation;
 use App\Support\Audit\AuditLog;
 use App\Support\Voters\GroupByName;
 use App\Support\Voters\VoterFilters;
@@ -125,7 +126,8 @@ class VoterController extends Controller
      *
      * Every field is optional; only those sent change. `null` or blank clears the group, the
      * identifier, the email and the phone. A draft, scheduled or open election; an open one
-     * keeps the voter's group (409 `election_voters_locked`). Owner or manager.
+     * moves a voter who has not voted to another existing group (409 `voter_has_voted`
+     * otherwise, `election_voters_locked` for a group that does not exist). Owner or manager.
      * Limited to 240 requests per hour per user.
      *
      * @response array{data: array{id: string, full_name: string, group: array{id: string, name: string}|null, identifier: string|null, email: string|null, phone: string|null, has_code: bool, email_status: 'queued'|'sent'|'failed'|null, has_voted: bool, voted_at: string|null, created_at: string, updated_at: string}}
@@ -153,9 +155,12 @@ class VoterController extends Controller
                 if ($request->hasGroup()) {
                     $group = $groups($locked, $request->groupName());
 
-                    // An open election keeps each voter in the group they have: it decides their ballots.
-                    if ($group?->id !== $row->voter_group_id) {
-                        $locked->assertVotersDeletable();
+                    // An open election moves a voter who has not voted: the group decides their ballots, and
+                    // one who voted keeps the group their vote was counted under. The voter's row is locked,
+                    // and a vote takes that lock first, so the participation read here is the final one.
+                    if ($group?->id !== $row->voter_group_id && ! $locked->isVotersDeletable()
+                        && Participation::query()->where('voter_id', $row->getKey())->exists()) {
+                        throw new ApiException(409, 'voter_has_voted');
                     }
 
                     $row->voter_group_id = $group?->id;

@@ -53,3 +53,9 @@ The shared shapes, with the codes of the table.
 
 The user's existing token is replaced by a new one (24 hours) and the email is queued,
 in the user's language.
+
+## School mode
+
+When `DEPLOYMENT_MODE` is `school` this route answers **404 `not_found`**, whatever the body: nothing is sent by email in
+that mode and the account is made by the installer or by an owner
+([POST /users](../users/POST-users.md)). See [API conventions](../README.md) section 7a.

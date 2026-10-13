@@ -69,7 +69,7 @@ function Moment({
   );
 }
 
-/** Main column of the screen shown while the election is scheduled and not open yet. */
+/** The wide card of the screen shown while the election is scheduled and not open yet: the wait, the dates. */
 export function BeforeMain() {
   const { t, locale } = useI18n();
   const { info, reloadInfo } = useVote();
@@ -77,36 +77,39 @@ export function BeforeMain() {
   const ends = whenText(info.ends_at, locale, info.timezone, t);
 
   return (
-    <div className="flex min-w-0 flex-col gap-4">
-      <VoteCard tone="getting-started" icon="clock" title={t('vote.before.status')}>
-        <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-center">
-          <Medallion />
-          <div className="flex min-w-0 flex-col gap-2 text-center sm:text-left">
-            <p className="flex items-center justify-center gap-2 text-sm font-semibold tracking-wide text-status-scheduled uppercase sm:justify-start">
-              <LiveDot className="text-status-scheduled" />
-              {t('vote.before.countdownTitle')}
-            </p>
-            <h2 className="text-2xl text-ink md:text-3xl">{t('vote.before.heading')}</h2>
-            <p className="text-md text-ink-2">{t('vote.before.text')}</p>
-          </div>
+    <section
+      aria-labelledby="vote-before-heading"
+      className="id-card flex min-w-0 flex-col overflow-hidden rounded-lg border-2 border-primary bg-surface shadow-3"
+    >
+      <div className="id-band flex flex-col items-center gap-5 px-5 py-6 sm:flex-row sm:px-8">
+        <Medallion />
+        <div className="flex min-w-0 flex-col gap-2 text-center sm:text-left">
+          <p className="flex items-center justify-center gap-2 text-sm font-semibold tracking-wide text-status-scheduled uppercase sm:justify-start">
+            <LiveDot className="text-status-scheduled" />
+            {t('vote.before.countdownTitle')}
+          </p>
+          <h2 id="vote-before-heading" className="text-2xl text-ink md:text-3xl">
+            {t('vote.before.heading')}
+          </h2>
+          <p className="text-md text-ink-2">{t('vote.before.text')}</p>
         </div>
+      </div>
+      <div className="flex flex-col gap-4 p-5 sm:p-8">
         <Countdown target={info.starts_at} onDue={reloadInfo} />
-      </VoteCard>
-      <VoteCard tone="latest" icon="calendar" title={t('vote.before.whenTitle')}>
         <div className="grid gap-3 sm:grid-cols-2">
           <Moment icon="rocket" label={t('vote.period.start')} value={starts} tone="open" />
           <Moment icon="flag" label={t('vote.period.end')} value={ends} tone="close" />
         </div>
-        <p className="flex items-center gap-2 text-base text-ink-soft">
+        <p className="flex items-center justify-center gap-2 text-base text-ink-soft sm:justify-start">
           <Icon name="globe" size={18} />
           {t('vote.before.zone', { zone: info.timezone })}
         </p>
-      </VoteCard>
-    </div>
+      </div>
+    </section>
   );
 }
 
-/** Right rail: how voting day goes, the secrecy, the code to keep ready. */
+/** The three notes under it, in a row: how voting day goes, the secrecy, the code to keep ready. */
 export function BeforeRail() {
   const { t } = useI18n();
   const steps: { n: 1 | 2 | 3 | 4; icon: IconName }[] = [
@@ -117,7 +120,7 @@ export function BeforeRail() {
   ];
 
   return (
-    <div className="flex min-w-0 flex-col gap-4">
+    <div className="grid min-w-0 items-stretch gap-4 lg:grid-cols-3">
       <VoteCard tone="activity" icon="list" title={t('vote.before.nextTitle')}>
         <ol className="flex flex-col gap-3">
           {steps.map((step) => (
@@ -143,7 +146,7 @@ export function BeforeRail() {
       <VoteCard tone="figures" icon="eye" title={t('vote.before.secretTitle')}>
         <p className="text-md text-ink-2">{t('vote.before.secretText')}</p>
       </VoteCard>
-      <section className="flex min-w-0 items-start gap-3 rounded-lg border border-warm bg-warm-softer p-4 shadow-1">
+      <section className="flex h-full min-w-0 items-start gap-3 rounded-lg border border-warm bg-warm-softer p-4 shadow-1">
         <span
           aria-hidden="true"
           className="flex size-10 shrink-0 items-center justify-center rounded-full bg-warm text-surface"

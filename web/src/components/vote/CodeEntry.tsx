@@ -3,11 +3,12 @@
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { Icon } from '@/components/admin/Icon';
-import { Button, Input, Notice } from '@/components/ui';
+import { Button, Notice } from '@/components/ui';
 import { ApiError, waitText } from '@/lib/api/errors';
 import { openSession, VoteError, type VotePhase } from '@/lib/api/vote';
 import { useI18n } from '@/lib/i18n/client';
 import { BeforeMain, BeforeRail } from './BeforeOpening';
+import { CodeBoxes } from './CodeBoxes';
 import { VoteCard } from './VoteCard';
 import { useVote } from './VoteProvider';
 import { VoteShell } from './VoteShell';
@@ -130,45 +131,29 @@ export function CodeEntry() {
     </div>
   );
 
-  let main;
-
-  if (info.phase === 'before') {
-    main = <BeforeMain />;
-  } else if (info.phase === 'paused') {
-    // The institution is suspended by the platform: nothing is closed, voting resumes by itself.
-    main = (
-      <VoteCard
-        tone="activity"
-        icon="warn"
-        title={t('vote.paused.heading')}
-        data-testid="vote-paused"
+  const main = (
+    <section
+      aria-labelledby="vote-code-heading"
+      className="code-card flex min-w-0 flex-col overflow-hidden rounded-lg bg-surface"
+    >
+      <header
+        data-head="getting-started"
+        className="dash-head relative flex items-center gap-4 overflow-hidden px-5 py-5 sm:px-8"
       >
-        <p className="text-md text-ink-2">{t('vote.paused.text')}</p>
-        <p className="text-base text-ink-soft">{t('vote.paused.hint')}</p>
-      </VoteCard>
-    );
-  } else if (info.phase === 'closed') {
-    main = (
-      <VoteCard
-        tone="activity"
-        icon="lock"
-        title={t('vote.closed.heading')}
-        data-testid="vote-closed"
-      >
-        <p className="text-md text-ink-2">{t('vote.closed.text')}</p>
-        {info.results ? (
-          <a
-            href={info.results}
-            className="ui-control inline-flex min-h-12 items-center justify-center rounded-full border border-primary bg-primary px-6 text-md font-semibold text-surface shadow-button hover:border-primary-hover hover:bg-primary-hover focus-visible:ring-4 focus-visible:ring-primary-soft focus-visible:outline-2 focus-visible:outline-primary"
-          >
-            {t('vote.closed.results')}
-          </a>
-        ) : null}
-      </VoteCard>
-    );
-  } else {
-    main = (
-      <VoteCard tone="getting-started" icon="lock" title={t('vote.code.heading')}>
+        <span
+          aria-hidden="true"
+          className="code-key flex size-14 shrink-0 items-center justify-center rounded-full bg-glass-line sm:size-16"
+        >
+          <Icon name="key" size={32} />
+        </span>
+        <div className="flex min-w-0 flex-col">
+          <h2 id="vote-code-heading" className="font-display text-2xl font-extrabold sm:text-3xl">
+            {t('vote.code.heading')}
+          </h2>
+          <p className="text-base text-hero-ink-soft">{t('vote.code.stepHint')}</p>
+        </div>
+      </header>
+      <div className="flex flex-col gap-6 px-4 py-6 sm:px-8 sm:py-8">
         {notice ? (
           <Notice
             tone={notice === 'ended' ? 'teal' : 'warm'}
@@ -178,22 +163,16 @@ export function CodeEntry() {
             {t(`vote.code.notice.${notice}`)}
           </Notice>
         ) : null}
-        <p className="text-md text-ink-2">{t('vote.code.lede')}</p>
-        <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
-          <Input
-            data-testid="vote-code-input"
+        <p className="text-center text-md text-ink-2">{t('vote.code.lede')}</p>
+        <form onSubmit={onSubmit} noValidate className="flex flex-col gap-6">
+          <CodeBoxes
+            testId="vote-code-input"
             label={t('vote.code.label')}
             help={t('vote.code.help')}
             value={code}
-            onChange={(event) => setCode(event.target.value)}
-            autoComplete="off"
-            autoCapitalize="characters"
-            autoCorrect="off"
-            spellCheck={false}
-            maxLength={32}
+            onChange={setCode}
             error={problem?.onField ? problem.text : undefined}
             errorTestId="vote-code-error"
-            className="font-mono tracking-widest uppercase"
           />
           {problem && !problem.onField ? (
             <Notice tone="danger" role="alert" data-testid="vote-code-error">
@@ -207,23 +186,101 @@ export function CodeEntry() {
             shimmer
             loading={busy}
             data-testid="vote-code-submit"
-            className="w-full"
+            className="mx-auto min-h-14 w-full max-w-xl text-lg"
           >
-            {t('vote.code.submit')}
+            <span className="code-go inline-flex items-center gap-2">
+              {t('vote.code.submit')}
+              <Icon name="open" size={22} />
+            </span>
           </Button>
         </form>
-      </VoteCard>
-    );
-  }
+      </div>
+    </section>
+  );
 
-  return (
-    <VoteShell hero={hero} live testId="vote-page">
-      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
-        <div className="min-w-0">{main}</div>
-        {info.phase === 'before' ? (
-          <BeforeRail />
-        ) : (
-          <div className="flex min-w-0 flex-col gap-4">
+  const rail = (
+    <>
+      <VoteCard tone="latest" icon="calendar" title={t('vote.code.periodTitle')}>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="flex min-w-0 flex-col gap-1 rounded-md bg-primary-soft p-3">
+            <span className="text-sm font-medium text-ink-2">{t('vote.period.start')}</span>
+            <span className="text-base font-bold text-ink">{starts}</span>
+          </div>
+          <div className="flex min-w-0 flex-col gap-1 rounded-md bg-warm-softer p-3">
+            <span className="text-sm font-medium text-ink-2">{t('vote.period.end')}</span>
+            <span className="text-base font-bold text-ink">{ends}</span>
+          </div>
+        </div>
+      </VoteCard>
+      <VoteCard tone="figures" icon="log" title={t('vote.code.secretTitle')}>
+        <p className="text-md text-ink-2">{t('vote.code.secretText')}</p>
+      </VoteCard>
+      <VoteCard tone="activity" icon="list" title={t('vote.code.howTitle')}>
+        <ol className="flex flex-col gap-3">
+          {([1, 2, 3] as const).map((step) => (
+            <li key={step} className="flex items-start gap-3">
+              <span
+                aria-hidden="true"
+                className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary-soft font-display text-base font-extrabold text-primary-hover"
+              >
+                {step}
+              </span>
+              <span className="flex min-w-0 flex-col">
+                <span className="font-semibold text-ink">{t(`vote.code.step${step}Title`)}</span>
+                <span className="text-base text-ink-soft">{t(`vote.code.step${step}Text`)}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
+      </VoteCard>
+    </>
+  );
+
+  // A paused election: its state alone and wide, what it means in a row beneath.
+  if (info.phase === 'paused') {
+    return (
+      <VoteShell hero={hero} testId="vote-page">
+        <div className="flex flex-col gap-4">
+          <section
+            data-testid="vote-paused"
+            aria-labelledby="vote-paused-heading"
+            className="id-card flex min-w-0 flex-col overflow-hidden rounded-lg border-2 border-warm bg-surface shadow-3"
+          >
+            <div className="flex flex-col items-center gap-5 bg-warm-softer px-5 py-6 text-center sm:flex-row sm:px-8 sm:text-left">
+              <span
+                aria-hidden="true"
+                className="id-avatar relative flex size-24 shrink-0 items-center justify-center rounded-full bg-warm text-surface sm:size-28"
+              >
+                <Icon name="warn" size={44} />
+              </span>
+              <div className="flex min-w-0 flex-1 flex-col items-center gap-2 sm:items-start">
+                <h2
+                  id="vote-paused-heading"
+                  className="font-display text-3xl font-extrabold text-warm-ink sm:text-4xl"
+                >
+                  {t('vote.paused.heading')}
+                </h2>
+                <ul className="flex flex-wrap justify-center gap-2 sm:justify-start">
+                  {(
+                    [
+                      ['check', t('vote.paused.chipSafe')],
+                      ['clock', t('vote.paused.chipEnd')],
+                    ] as const
+                  ).map(([icon, text]) => (
+                    <li
+                      key={icon}
+                      className="flex items-center gap-2 rounded-full border border-warm bg-surface px-3 py-1 text-base font-medium text-warm-ink"
+                    >
+                      <Icon name={icon} size={16} />
+                      {text}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <p className="p-5 text-md text-ink-2 sm:p-8">{t('vote.paused.text')}</p>
+          </section>
+          <div className="grid items-stretch gap-4 lg:grid-cols-3">
             <VoteCard tone="latest" icon="calendar" title={t('vote.code.periodTitle')}>
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex min-w-0 flex-col gap-1 rounded-md bg-primary-soft p-3">
@@ -239,30 +296,134 @@ export function CodeEntry() {
             <VoteCard tone="figures" icon="log" title={t('vote.code.secretTitle')}>
               <p className="text-md text-ink-2">{t('vote.code.secretText')}</p>
             </VoteCard>
-            <VoteCard tone="activity" icon="list" title={t('vote.code.howTitle')}>
-              <ol className="flex flex-col gap-3">
-                {([1, 2, 3] as const).map((step) => (
-                  <li key={step} className="flex items-start gap-3">
-                    <span
-                      aria-hidden="true"
-                      className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary-soft font-display text-base font-extrabold text-primary-hover"
-                    >
-                      {step}
-                    </span>
-                    <span className="flex min-w-0 flex-col">
-                      <span className="font-semibold text-ink">
-                        {t(`vote.code.step${step}Title`)}
-                      </span>
-                      <span className="text-base text-ink-soft">
-                        {t(`vote.code.step${step}Text`)}
-                      </span>
-                    </span>
-                  </li>
-                ))}
-              </ol>
+            <VoteCard tone="activity" icon="clock" title={t('vote.paused.whatTitle')}>
+              <p className="text-md text-ink-2">{t('vote.paused.hint')}</p>
             </VoteCard>
           </div>
-        )}
+        </div>
+      </VoteShell>
+    );
+  }
+
+  // A scheduled election: the wait alone and wide, the notes of the voting day in a row beneath.
+  if (info.phase === 'before') {
+    return (
+      <VoteShell hero={hero} testId="vote-page">
+        <div className="flex flex-col gap-4">
+          <BeforeMain />
+          <BeforeRail />
+        </div>
+      </VoteShell>
+    );
+  }
+
+  // A closed election: its state alone and wide, what it means in a row beneath.
+  if (info.phase === 'closed') {
+    const published = Boolean(info.results);
+
+    return (
+      <VoteShell hero={hero} testId="vote-page">
+        <div className="flex flex-col gap-4">
+          <section
+            data-testid="vote-closed"
+            aria-labelledby="vote-closed-heading"
+            className="id-card flex min-w-0 flex-col overflow-hidden rounded-lg border-2 border-primary bg-surface shadow-3"
+          >
+            <div className="id-band flex flex-col items-center gap-5 px-5 py-6 text-center sm:flex-row sm:px-8 sm:text-left">
+              <span
+                aria-hidden="true"
+                className="id-avatar cand-avatar relative flex size-24 shrink-0 items-center justify-center rounded-full text-surface sm:size-28"
+                data-sex="male"
+              >
+                <Icon name="lock" size={44} />
+              </span>
+              <div className="flex min-w-0 flex-1 flex-col items-center gap-2 sm:items-start">
+                <h2
+                  id="vote-closed-heading"
+                  className="font-display text-3xl font-extrabold text-ink sm:text-4xl"
+                >
+                  {t('vote.closed.heading')}
+                </h2>
+                <p className="text-md text-ink-2">{t('vote.closed.text')}</p>
+                <ul className="flex flex-wrap justify-center gap-2 sm:justify-start">
+                  {(
+                    [
+                      ['calendar', t('vote.closed.at', { when: ends })],
+                      ['shield', t('vote.closed.secret')],
+                    ] as const
+                  ).map(([icon, text]) => (
+                    <li
+                      key={icon}
+                      className="flex items-center gap-2 rounded-full border border-primary-line bg-surface px-3 py-1 text-base font-medium text-ink-2"
+                    >
+                      <Icon name={icon} size={16} />
+                      {text}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <div className="flex flex-col items-center gap-4 p-5 text-center sm:flex-row sm:p-8 sm:text-left">
+              <span
+                aria-hidden="true"
+                className={
+                  published
+                    ? 'flex size-12 shrink-0 items-center justify-center rounded-full bg-status-open-soft text-status-open'
+                    : 'flex size-12 shrink-0 items-center justify-center rounded-full bg-warm-softer text-warm-ink'
+                }
+              >
+                <Icon name={published ? 'chart' : 'clock'} size={24} />
+              </span>
+              <div className="flex min-w-0 flex-1 flex-col">
+                <p className="font-display text-xl font-extrabold text-ink">
+                  {t(published ? 'vote.closed.publishedTitle' : 'vote.closed.pendingTitle')}
+                </p>
+                <p className="text-base text-ink-soft">
+                  {t(published ? 'vote.closed.publishedText' : 'vote.closed.pendingText')}
+                </p>
+              </div>
+              {info.results ? (
+                <a
+                  href={info.results}
+                  className="ui-control inline-flex min-h-14 shrink-0 items-center justify-center gap-2 rounded-full border border-primary bg-primary px-8 text-md font-semibold text-surface shadow-button hover:border-primary-hover hover:bg-primary-hover focus-visible:ring-4 focus-visible:ring-primary-soft focus-visible:outline-2 focus-visible:outline-primary"
+                >
+                  <Icon name="chart" size={20} />
+                  {t('vote.closed.results')}
+                </a>
+              ) : null}
+            </div>
+          </section>
+          <div className="grid items-stretch gap-4 lg:grid-cols-3">
+            <VoteCard tone="latest" icon="calendar" title={t('vote.code.periodTitle')}>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex min-w-0 flex-col gap-1 rounded-md bg-primary-soft p-3">
+                  <span className="text-sm font-medium text-ink-2">{t('vote.period.start')}</span>
+                  <span className="text-base font-bold text-ink">{starts}</span>
+                </div>
+                <div className="flex min-w-0 flex-col gap-1 rounded-md bg-warm-softer p-3">
+                  <span className="text-sm font-medium text-ink-2">{t('vote.period.end')}</span>
+                  <span className="text-base font-bold text-ink">{ends}</span>
+                </div>
+              </div>
+            </VoteCard>
+            <VoteCard tone="figures" icon="log" title={t('vote.closed.secretTitle')}>
+              <p className="text-md text-ink-2">{t('vote.code.secretText')}</p>
+            </VoteCard>
+            <VoteCard tone="activity" icon="phone" title={t('vote.closed.helpTitle')}>
+              <p className="text-md text-ink-2">{t('vote.closed.helpText')}</p>
+            </VoteCard>
+          </div>
+        </div>
+      </VoteShell>
+    );
+  }
+
+  // The open vote gives the page to the code: alone and wide, the three notes in a row beneath it.
+  return (
+    <VoteShell hero={hero} live testId="vote-page">
+      <div className="flex flex-col gap-5">
+        {main}
+        <div className="grid items-stretch gap-4 lg:grid-cols-3">{rail}</div>
       </div>
     </VoteShell>
   );

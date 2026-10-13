@@ -5,11 +5,13 @@ use App\Http\Middleware\AddApiSecurityHeaders;
 use App\Http\Middleware\AssignRequestId;
 use App\Http\Middleware\EndExpiredSession;
 use App\Http\Middleware\EndStaleImpersonation;
+use App\Http\Middleware\EnforcePasswordChange;
 use App\Http\Middleware\EnsureInstitutionActive;
 use App\Http\Middleware\EnsureOwner;
 use App\Http\Middleware\EnsurePlatformAdmin;
 use App\Http\Middleware\RefuseOptions;
 use App\Http\Middleware\RejectMalformedJson;
+use App\Http\Middleware\RequireDeploymentMode;
 use App\Http\Middleware\RequireJsonBody;
 use App\Http\Middleware\ResetAuthState;
 use App\Http\Middleware\ThrottleWithoutCounters;
@@ -75,6 +77,7 @@ return Application::configure(basePath: dirname(__DIR__))
             EndExpiredSession::class,
             AuthenticateSession::class,
             EndStaleImpersonation::class,
+            EnforcePasswordChange::class,
         ]);
         // The voter's pages (slice 12): no session, no CSRF token and no cookie encryption. The voter's
         // token is its own cookie, read and written by the controllers (`SameSite=Strict`, path
@@ -84,6 +87,7 @@ return Application::configure(basePath: dirname(__DIR__))
             RejectMalformedJson::class,
         ]);
         $middleware->alias([
+            'deployment' => RequireDeploymentMode::class,
             'institution.active' => EnsureInstitutionActive::class,
             'owner' => EnsureOwner::class,
             'platform.admin' => EnsurePlatformAdmin::class,

@@ -32,8 +32,10 @@ export function CandidateTile({
       aria-pressed={selected}
       disabled={locked}
       onClick={onToggle}
+      style={{ animationDelay: `${Math.min(index - 1, 8) * 120}ms` }}
       className={cx(
-        'select-ring ui-control lift-sm flex min-w-0 flex-col overflow-hidden rounded-lg bg-surface text-left shadow-2',
+        'select-ring ui-control lift-sm cand-tile flex w-[calc(50%-0.375rem)] min-w-0 flex-col overflow-hidden rounded-lg bg-surface text-left shadow-2 md:w-64 lg:w-72',
+        locked && 'opacity-60 saturate-50',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed',
       )}
     >
@@ -66,14 +68,14 @@ export function CandidateTile({
         {selected ? (
           <span
             aria-hidden="true"
-            className="absolute top-2 right-2 flex size-9 items-center justify-center rounded-full bg-accent text-deep shadow-2"
+            className="cand-check absolute top-2 right-2 flex size-10 items-center justify-center rounded-full bg-accent text-deep shadow-2"
           >
             <Icon name="check" size={20} />
           </span>
         ) : null}
       </span>
-      <span className="flex min-w-0 flex-1 flex-col gap-1.5 p-3">
-        <span className="font-display text-lg leading-tight font-extrabold break-words text-ink">
+      <span className="flex min-w-0 flex-1 flex-col gap-1.5 p-2.5 md:p-3">
+        <span className="font-display text-base leading-tight font-extrabold [overflow-wrap:break-word] break-words text-ink md:text-lg">
           {candidate.first_name} {candidate.last_name}
         </span>
         <span className="flex min-w-0 items-center gap-2 text-sm font-semibold text-ink-2">

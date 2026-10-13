@@ -18,7 +18,16 @@ const FIELDS = ['email', 'password'] as const;
  * is known). A sign-in refused for a suspension (403 `institution_suspended`) shows the reason the
  * platform gave, when the API gives one.
  */
-export function LoginForm({ reset, suspended = false }: { reset: boolean; suspended?: boolean }) {
+export function LoginForm({
+  reset,
+  suspended = false,
+  school = false,
+}: {
+  reset: boolean;
+  suspended?: boolean;
+  /** School mode: no sign-up and no email reset, so no link to them. */
+  school?: boolean;
+}) {
   const { t } = useI18n();
   const router = useRouter();
   const { form, busy, fields, formError, run, idle } = useAuthForm(FIELDS);
@@ -171,28 +180,32 @@ export function LoginForm({ reset, suspended = false }: { reset: boolean; suspen
         errorTestId="field-error-password"
       />
 
-      <Link
-        href="/forgot-password"
-        data-testid="login-forgot"
-        className="w-fit text-base font-semibold text-primary underline"
-      >
-        {t('auth.login.forgot')}
-      </Link>
+      {school ? null : (
+        <Link
+          href="/forgot-password"
+          data-testid="login-forgot"
+          className="w-fit text-base font-semibold text-primary underline"
+        >
+          {t('auth.login.forgot')}
+        </Link>
+      )}
 
       <Button type="submit" shimmer loading={busy} data-testid="login-submit">
         {t('auth.login.submit')}
       </Button>
 
-      <p className="text-center text-base text-ink-soft">
-        {t('auth.login.noAccount')}{' '}
-        <Link
-          href="/register"
-          data-testid="login-register"
-          className="font-semibold text-primary underline"
-        >
-          {t('auth.login.register')}
-        </Link>
-      </p>
+      {school ? null : (
+        <p className="text-center text-base text-ink-soft">
+          {t('auth.login.noAccount')}{' '}
+          <Link
+            href="/register"
+            data-testid="login-register"
+            className="font-semibold text-primary underline"
+          >
+            {t('auth.login.register')}
+          </Link>
+        </p>
+      )}
     </form>
   );
 }

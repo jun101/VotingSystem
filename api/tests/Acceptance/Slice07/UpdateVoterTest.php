@@ -5,6 +5,7 @@
  * Tenant suite, route api/v1/voters/{voter}: another institution's record answers 404, the same as an unknown one.
  */
 
+use Illuminate\Support\Facades\DB;
 use Tests\Support\Accounts;
 use Tests\Support\Team;
 
@@ -115,19 +116,54 @@ it('edits a voter of a scheduled or open election [FR-ELEC-03] (scenario 1)', fu
     $this->browser->patch(voterUpdateUrl($voter), ['full_name' => 'Corrigé'])->assertOk();
 })->with(['scheduled', 'open']);
 
-it('keeps the voter in their group in an open election [FR-SEC-06] (scenario 8)', function (array $body) {
+it('refuses a group that does not exist yet in an open election [FR-SEC-06] (scenario 8)', function () {
+    [$t, $election, $voter, $group] = voterUpdateSignedIn($this, 'open');
+
+    $this->browser->patch(voterUpdateUrl($voter), ['group' => 'Inventé'])->assertStatus(409)->assertJsonPath('error.code', 'election_voters_locked');
+
+    expect(Accounts::groupRows($election))->toHaveCount(1)
+        ->and(Accounts::voterRow($voter)['voter_group_id'] ?? null)->not->toBeNull();
+});
+
+it('moves a voter who has not voted to another existing group, or to none, in an open election [FR-SEC-06] (scenario 8a)', function (?string $name, ?string $expected) {
+    [$t, $election, $voter, $group] = voterUpdateSignedIn($this, 'open');
+    $other = Accounts::plantGroup(['election' => $election, 'name' => 'Autre']);
+
+    $response = $this->browser->patch(voterUpdateUrl($voter), ['group' => $name])->assertOk();
+
+    expect($response->json('data.group.name'))->toBe($expected)
+        ->and(Accounts::groupRows($election))->toHaveCount(2);
+    if ($expected !== null) {
+        expect($response->json('data.group.id'))->toBe($other);
+    }
+})->with([
+    'another group' => ['Autre', 'Autre'],
+    'no group' => [null, null],
+]);
+
+it('keeps a voter who has voted in their group in an open election [FR-SEC-06] (scenario 8b)', function (array $body) {
     [$t, $election, $voter, $group] = voterUpdateSignedIn($this, 'open');
     Accounts::plantGroup(['election' => $election, 'name' => 'Autre']);
+    $db = DB::connection(useMigratorConnection());
+    $row = $db->table('voters')->where('uuid', $voter)->first();
+    $db->table('participations')->insert(['election_id' => $row->election_id, 'voter_id' => $row->id, 'voted_at' => now('UTC')->toDateTimeString()]);
 
-    $this->browser->patch(voterUpdateUrl($voter), $body)->assertStatus(409)->assertJsonPath('error.code', 'election_voters_locked');
+    $this->browser->patch(voterUpdateUrl($voter), $body)->assertStatus(409)->assertJsonPath('error.code', 'voter_has_voted');
 
-    expect(Accounts::groupRows($election))->toHaveCount(2)
-        ->and(Accounts::voterRow($voter)['voter_group_id'] ?? null)->not->toBeNull();
+    expect(Accounts::voterRow($voter)['voter_group_id'])->toBe($row->voter_group_id);
 })->with([
     'another group' => [['group' => 'Autre']],
-    'a new group' => [['group' => 'Inventé']],
     'no group' => [['group' => null]],
 ]);
+
+it('still edits the other fields of a voter who has voted in an open election [FR-SEC-06] (scenario 1)', function () {
+    [$t, $election, $voter, $group] = voterUpdateSignedIn($this, 'open');
+    $db = DB::connection(useMigratorConnection());
+    $row = $db->table('voters')->where('uuid', $voter)->first();
+    $db->table('participations')->insert(['election_id' => $row->election_id, 'voter_id' => $row->id, 'voted_at' => now('UTC')->toDateTimeString()]);
+
+    $this->browser->patch(voterUpdateUrl($voter), ['full_name' => 'Corrigé', 'group' => '4e année'])->assertOk()->assertJsonPath('data.full_name', 'Corrigé');
+});
 
 it('lets an open election repeat the voter\'s own group while other fields change [FR-SEC-06] (scenario 1)', function () {
     [$t, $election, $voter, $group] = voterUpdateSignedIn($this, 'open');

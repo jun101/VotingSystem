@@ -8,6 +8,7 @@ use App\Models\Credential;
 use App\Models\Voter;
 use App\Models\Voting\Participation;
 use App\Support\Credentials\AccessCode;
+use App\Support\Deployment;
 use App\Support\Voting\CodeAttempts;
 use App\Support\Voting\TypedCode;
 use App\Support\Voting\VotePhase;
@@ -162,9 +163,17 @@ class VoteSessionController extends Controller
         throw new ApiException(401, 'invalid_code');
     }
 
-    /** `Secure` outside local development, and whenever the request itself came over TLS. */
+    /**
+     * `Secure` whenever the request itself came over TLS, and outside local development, except in school mode: the
+     * installation there is served over plain HTTP on the school's network (docs/slices/19c-installers.md), so the flag
+     * follows the request.
+     */
     private function secure(Request $request): bool
     {
-        return $request->isSecure() || ! app()->isLocal();
+        if ($request->isSecure()) {
+            return true;
+        }
+
+        return ! app()->isLocal() && ! Deployment::isSchool();
     }
 }

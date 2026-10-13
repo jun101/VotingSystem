@@ -58,3 +58,9 @@ other session of the user stops working (the session carries a hash of the passw
 ended when it no longer matches). The user is **not** signed in; the web
 application sends them to the sign-in page. A person who proves ownership of the address
 this way also has their email marked as verified if it was not.
+
+## School mode
+
+When `DEPLOYMENT_MODE` is `school` this route answers **404 `not_found`**, whatever the body: nothing is sent by email in
+that mode and the account is made by the installer or by an owner
+([POST /users](../users/POST-users.md)). See [API conventions](../README.md) section 7a.

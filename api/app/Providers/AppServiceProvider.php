@@ -22,6 +22,7 @@ use App\Policies\VoterImportPolicy;
 use App\Policies\VoterPolicy;
 use App\Support\Credentials\SlipWriter;
 use App\Support\Credentials\TcpdfSlipWriter;
+use App\Support\Deployment;
 use App\Support\Platform\Impersonation;
 use App\Support\Voting\ClientAddress;
 use Dedoc\Scramble\Scramble;
@@ -35,6 +36,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use RuntimeException;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -53,6 +55,11 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // The edition is one of two words; a typo must not leave an installation half in one mode (docs/slices/19c).
+        if (! in_array(config('deployment.mode'), [Deployment::ONLINE, Deployment::SCHOOL], true)) {
+            throw new RuntimeException('DEPLOYMENT_MODE must be "online" or "school".');
+        }
+
         // Users are found by the guard without the institution scope (see SessionUserProvider).
         Auth::provider('institution-session', fn (Application $app, array $config) => new SessionUserProvider($app->make('hash'), Config::string('auth.providers.users.model')));
 
@@ -196,6 +203,8 @@ class AppServiceProvider extends ServiceProvider
         };
 
         RateLimiter::for('invitations-create', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
+        RateLimiter::for('users-create', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
+        RateLimiter::for('auth-change-password', fn (Request $request) => Limit::perHour($times(10))->by($byUser($request)));
         RateLimiter::for('logo-upload', fn (Request $request) => Limit::perHour($times(10))->by($byUser($request)));
         RateLimiter::for('auth-accept-invitation', fn (Request $request) => Limit::perHour($times(10))->by((string) $request->ip()));
     }

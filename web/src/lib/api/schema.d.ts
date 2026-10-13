@@ -246,6 +246,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/auth/change-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Change my password
+         * @description Asks for the current password again (and the second factor if on), replaces the password, ends the user's other
+         *     sessions and clears a "must change" flag. Limited to 10 requests per hour per user.
+         */
+        post: operations["auth.changePassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/elections/{election}/cover": {
         parameters: {
             query?: never;
@@ -1646,7 +1667,13 @@ export interface paths {
          */
         get: operations["user.index"];
         put?: never;
-        post?: never;
+        /**
+         * Create a team member (school mode)
+         * @description An owner creates an owner or a manager directly: no email is sent, a one-time password is returned once and the
+         *     person must change it at the first sign-in. Asks for the owner's own password (and second factor). 404 in online mode.
+         *     Limited to 20 requests per hour per user.
+         */
+        post: operations["user.store"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1695,6 +1722,27 @@ export interface paths {
          *     Limited to 10 requests per minute per user, shared with the own-settings routes.
          */
         post: operations["user.resetTwoFactor"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/users/{user}/password-reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Give a team member a new one-time password (school mode)
+         * @description Their sessions end and they must change the password at the next sign-in. Not for oneself. Asks for the owner's own
+         *     password (and second factor). 404 in online mode. Limited to 10 requests per minute per user.
+         */
+        post: operations["user.passwordReset"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1885,7 +1933,8 @@ export interface paths {
          * Change a voter
          * @description Every field is optional; only those sent change. `null` or blank clears the group, the
          *     identifier, the email and the phone. A draft, scheduled or open election; an open one
-         *     keeps the voter's group (409 `election_voters_locked`). Owner or manager.
+         *     moves a voter who has not voted to another existing group (409 `voter_has_voted`
+         *     otherwise, `election_voters_locked` for a group that does not exist). Owner or manager.
          *     Limited to 240 requests per hour per user.
          */
         patch: operations["voter.update"];
@@ -2139,6 +2188,14 @@ export interface components {
         /** CandidateResource */
         CandidateResource: unknown[];
         /**
+         * ChangePasswordRequest
+         * @description docs/api/auth/POST-auth-change-password.md
+         */
+        ChangePasswordRequest: {
+            current_password: string;
+            password: string;
+        };
+        /**
          * CloseElectionRequest
          * @description docs/api/elections/POST-elections-{election}-close.md: the typed confirmation. That it equals the title
          *     is judged in the controller, under the row lock, after the status.
@@ -2346,6 +2403,13 @@ export interface components {
             password: string;
         };
         /**
+         * ResetUserPasswordRequest
+         * @description docs/api/users/POST-users-{user}-password-reset.md: the same two factors as the two-factor reset.
+         */
+        ResetUserPasswordRequest: {
+            password: string;
+        };
+        /**
          * ResultNoteRequest
          * @description docs/api/results/PUT-ballots-{ballot}-result-note.md: `note` is a string or null. It is trimmed, its
          *     control characters other than line breaks are removed, and empty clears it; at most 1 000 characters.
@@ -2395,6 +2459,19 @@ export interface components {
             /** @enum {string|null} */
             file?: "xlsx" | "csv" | null;
         };
+        /**
+         * StoreUserRequest
+         * @description docs/api/users/POST-users.md (school mode). The owner's password, and their second factor when they have one.
+         */
+        StoreUserRequest: {
+            name: string;
+            /** Format: email */
+            email: string;
+            role: string;
+            password: string;
+        };
+        /** TeamMemberResource */
+        TeamMemberResource: unknown[];
         /**
          * TwoFactorCodeRequest
          * @description The code of the authenticator application that confirms a setup. Only its presence is judged
@@ -3232,6 +3309,33 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "auth.changePassword": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ChangePasswordRequest"] & {
+                    code?: string;
+                    recovery_code?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
         };
     };
     "cover.update": {
@@ -6497,6 +6601,48 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
+    "user.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["StoreUserRequest"] & {
+                    code?: string;
+                    recovery_code?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description `TeamMemberResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            name: string;
+                            email: string;
+                            /** @enum {string} */
+                            role: "owner" | "manager";
+                            email_verified: boolean;
+                            last_login_at: string | null;
+                            two_factor_enabled: boolean;
+                            is_you: boolean;
+                        };
+                        one_time_password: string;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
     "user.destroy": {
         parameters: {
             query?: never;
@@ -6545,6 +6691,55 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            /** @description An error */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "user.passwordReset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The user UUID */
+                user: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ResetUserPasswordRequest"] & {
+                    code?: string;
+                    recovery_code?: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        one_time_password: string;
+                    };
+                };
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];

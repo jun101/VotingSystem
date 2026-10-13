@@ -1,0 +1,17 @@
+[Unit]
+Description=VoteSystem cache, sessions and queue (Redis)
+After=network.target
+
+[Service]
+Type=simple
+User=votesystem
+Group=votesystem
+ExecStart=@ROOT@/redis/redis-server /etc/votesystem/redis.conf
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

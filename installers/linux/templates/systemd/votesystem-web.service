@@ -1,0 +1,23 @@
+[Unit]
+Description=VoteSystem web application (Next.js)
+After=votesystem-api.service
+
+[Service]
+Type=simple
+User=votesystem
+Group=votesystem
+WorkingDirectory=@ROOT@/web
+EnvironmentFile=/etc/votesystem/env
+Environment=NODE_ENV=production
+Environment=NEXT_TELEMETRY_DISABLED=1
+Environment=HOSTNAME=127.0.0.1
+Environment=HOME=/var/lib/votesystem
+ExecStart=@ROOT@/node/bin/node server.js
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

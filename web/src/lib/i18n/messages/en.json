@@ -533,7 +533,8 @@
       "text": "Signed in by {name} (platform administration). Every action is recorded in the audit log under your name and is visible to the institution’s owners.",
       "end": "Leave the institution",
       "ending": "Leaving…"
-    }
+    },
+    "insecure": "Unencrypted connection (HTTP): passwords and codes cross the school network in clear."
   },
   "errors": {
     "validation_failed": "Some fields need correcting.",
@@ -834,7 +835,9 @@
         "max": "The name must be 150 characters or fewer."
       },
       "group": {
-        "max": "The group name must be 100 characters or fewer."
+        "max": "The group name must be 100 characters or fewer.",
+        "unknown": "This group does not exist. During voting, choose an existing group.",
+        "voted": "This voter has already voted: their group can no longer change."
       },
       "identifier": {
         "max": "The identifier must be 50 characters or fewer.",
@@ -884,6 +887,39 @@
           "min": "The reason must have at least 3 characters.",
           "max": "The reason is too long (500 characters at most)."
         }
+      }
+    },
+    "createMember": {
+      "name": {
+        "required": "Enter the person’s name.",
+        "max": "This name is too long (100 characters at most)."
+      },
+      "email": {
+        "required": "Enter a sign-in address.",
+        "email": "Enter a valid address.",
+        "max": "This address is too long (255 characters at most).",
+        "taken": "This address already has an account."
+      },
+      "role": {
+        "required": "Choose a role.",
+        "in": "Choose a role from the list."
+      },
+      "password": {
+        "required": "Enter your password.",
+        "incorrect": "This is not your password."
+      }
+    },
+    "changePassword": {
+      "current_password": {
+        "required": "Enter your current password.",
+        "incorrect": "This is not your current password."
+      },
+      "password": {
+        "required": "Enter a new password.",
+        "min": "The new password needs at least 12 characters.",
+        "max": "The new password is too long.",
+        "same_as_email": "The password cannot be your address.",
+        "unchanged": "Choose a password different from the current one."
       }
     }
   },
@@ -976,7 +1012,35 @@
       "resetCode": "Your 6-digit code",
       "resetCodeHelp": "Your own code from the authenticator app, to confirm.",
       "resetRecoveryCode": "Your recovery code",
-      "resetRecoveryHelp": "One of your own recovery codes. Each code works only once."
+      "resetRecoveryHelp": "One of your own recovery codes. Each code works only once.",
+      "create": {
+        "open": "Create a member",
+        "title": "Create a team member",
+        "name": "Full name",
+        "email": "Sign-in address",
+        "emailHelp": "No email is sent. Any address works, for example firstname@school.local.",
+        "role": "Role",
+        "password": "Your password",
+        "passwordHelp": "Your own password, to confirm.",
+        "code": "Your two-factor code",
+        "recovery": "One of your recovery codes",
+        "submit": "Create the account",
+        "cancel": "Cancel"
+      },
+      "issued": {
+        "title": "Password to give to {name}",
+        "text": "This password is shown only once. The person must change it at their first sign-in.",
+        "copy": "Copy",
+        "copied": "Copied",
+        "dismiss": "I have noted the password"
+      },
+      "passwordReset": {
+        "action": "New password",
+        "label": "Give {name} a new password",
+        "title": "New password for {name}",
+        "text": "A new one-time password replaces the current one and ends this person’s sessions. Confirm with your own password.",
+        "confirm": "Create the password"
+      }
     }
   },
   "account": {
@@ -1040,6 +1104,22 @@
       "recoveryHelp": "One of your recovery codes. Each code works only once.",
       "useRecovery": "Use a recovery code",
       "useCode": "Use the app code"
+    },
+    "changePassword": {
+      "title": "Password",
+      "text": "Change the password you use to sign in. Your other sessions end.",
+      "current": "Current password",
+      "new": "New password",
+      "newHelp": "At least 12 characters.",
+      "submit": "Change the password",
+      "done": "Your password is changed.",
+      "code": "Two-factor code",
+      "recovery": "Recovery code"
+    },
+    "passwordRequired": {
+      "kicker": "First sign-in",
+      "title": "Choose your own password",
+      "text": "The password you were given is for one use. Choose your own to go on."
     }
   },
   "elections": {
@@ -1656,6 +1736,8 @@
       "nameHelp": "First and last name, as they will be printed on the code slip.",
       "group": "Group",
       "groupHelp": "Choose a group or write a new one.",
+      "groupHelpOpen": "Choose an existing group: new groups are not created during voting.",
+      "groupHelpVoted": "This voter has already voted: their group can no longer change.",
       "identifier": "Identifier",
       "identifierHelp": "Student number, unique in the election.",
       "email": "Email",
@@ -2212,7 +2294,8 @@
       "heading": "Enter your code",
       "lede": "Your personal code is on your slip. It has ten characters.",
       "label": "Your voting code",
-      "help": "Upper or lower case, with or without the hyphen.",
+      "help": "Upper or lower case, with or without the hyphen. Type or paste your code.",
+      "stepHint": "Step 1 of 3: this is where your vote begins.",
       "submit": "Continue",
       "howTitle": "How it works",
       "step1Title": "Your code",
@@ -2269,11 +2352,27 @@
       "readyText": "Keep your slip or your personal link ready. This page updates by itself: you can leave it open."
     },
     "closed": {
+      "at": "Closed: {when}",
+      "secret": "Secret vote",
+      "pendingTitle": "Results are coming",
+      "pendingText": "The organisers publish them after the vote closes. This page will show the button as soon as they are published.",
+      "publishedTitle": "The results are published",
+      "publishedText": "You can read them now.",
+      "secretTitle": "Your vote stayed secret",
+      "helpTitle": "A question?",
+      "helpText": "Ask the organisers of your institution.",
       "heading": "Voting has ended",
       "text": "This election is closed: it is no longer possible to vote.",
       "results": "See the results"
     },
     "identity": {
+      "closes": "Closes: {when}",
+      "secret": "Secret vote",
+      "step": "Step 2 of 3",
+      "badge": {
+        "one": "position to vote on",
+        "other": "positions to vote on"
+      },
       "kicker": "Is this you?",
       "noGroup": "No group",
       "group": "Group: {group}",
@@ -2320,6 +2419,16 @@
       "cardTitle": "The candidates"
     },
     "review": {
+      "slip": "Your ballot",
+      "complete": {
+        "one": "{count} of {count} position completed",
+        "other": "{count} of {count} positions completed"
+      },
+      "blankHint": "No candidate chosen",
+      "railTitle": "Before you confirm",
+      "rail1": "Your vote stays secret: nobody can link it to your name.",
+      "rail2": "It is final: you will not be able to change it.",
+      "rail3": "It can only be confirmed once.",
       "kicker": "Last step",
       "heading": "Review your vote",
       "lede": "Check each choice. Once confirmed, it cannot be changed.",
@@ -2357,6 +2466,9 @@
       "secure": "No vote has been recorded here."
     },
     "paused": {
+      "whatTitle": "What to do?",
+      "chipSafe": "No vote is lost or changed",
+      "chipEnd": "The closing time does not change",
       "heading": "Voting is paused",
       "text": "This institution has been suspended by the platform administrators: voting is paused and will resume when the suspension is lifted. No vote is lost or changed, and the end time does not move.",
       "hint": "Keep your code and come back later: reload this page to check.",

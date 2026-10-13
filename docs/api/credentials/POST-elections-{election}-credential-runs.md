@@ -148,3 +148,8 @@ plus `emails`: the number of messages queued. The status of each message is read
 The run records which voters are to be emailed and at which address; a message is sent only for those, to that
 address, and only while the voter's status is still `queued`. A code written without an email clears the voter's
 email status. The files of a run are matched by an identifier of the run.
+
+## School mode
+
+When `DEPLOYMENT_MODE` is `school`, `email: true` (and a `scope` of `failed_email`) answers 422 `validation_failed`
+(`email: unavailable`): no email is ever sent in that mode. Print and file are the channels.

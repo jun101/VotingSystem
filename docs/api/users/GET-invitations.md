@@ -54,3 +54,9 @@ first.
 ### 403, 401, 422, 405
 
 The shared error shape of [API conventions](../README.md), with the codes of the table.
+
+## School mode
+
+When `DEPLOYMENT_MODE` is `school` this route answers **404 `not_found`**, whatever the body: nothing is sent by email in
+that mode and the account is made by the installer or by an owner
+([POST /users](../users/POST-users.md)). See [API conventions](../README.md) section 7a.

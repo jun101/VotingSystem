@@ -14,6 +14,7 @@ import { useI18n } from '@/lib/i18n/client';
 import { AdminUserProvider } from './AdminUser';
 import { focusRing } from './classes';
 import { ImpersonationBanner } from './ImpersonationBanner';
+import { InsecureNotice } from './InsecureNotice';
 import { SideMenu } from './SideMenu';
 import { TopBar } from './TopBar';
 
@@ -181,6 +182,7 @@ export function AdminShell({
         </div>
 
         <div inert={open} className="flex min-h-screen flex-col lg:pl-[272px]">
+          <InsecureNotice />
           {user.impersonating ? (
             <ImpersonationBanner
               by={user.impersonating.by}

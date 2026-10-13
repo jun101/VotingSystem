@@ -5,16 +5,21 @@ namespace App\Http\Controllers\Users;
 use App\Actions\Auth\ClearTwoFactor;
 use App\Actions\Auth\ConfirmOwnPassword;
 use App\Actions\Auth\VerifySecondFactor;
+use App\Actions\Users\CreateTeamMember;
 use App\Actions\Users\RemoveUser;
+use App\Actions\Users\ResetTeamMemberPassword;
 use App\Enums\Role;
 use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Users\ListRequest;
 use App\Http\Requests\Users\ResetTwoFactorRequest;
+use App\Http\Requests\Users\ResetUserPasswordRequest;
+use App\Http\Requests\Users\StoreUserRequest;
 use App\Http\Resources\PageOf;
 use App\Http\Resources\TeamMemberResource;
 use App\Models\User;
 use App\Support\Platform\Impersonation;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -101,5 +106,59 @@ class UserController extends Controller
         Log::info('users.reset_two_factor', ['outcome' => 'reset']);
 
         return response()->noContent();
+    }
+
+    /**
+     * Create a team member (school mode).
+     *
+     * An owner creates an owner or a manager directly: no email is sent, a one-time password is returned once and the
+     * person must change it at the first sign-in. Asks for the owner's own password (and second factor). 404 in online mode.
+     * Limited to 20 requests per hour per user.
+     */
+    #[\Dedoc\Scramble\Attributes\Response(status: 201, type: "array{data: array{id: string, name: string, email: string, role: 'owner'|'manager', email_verified: bool, last_login_at: string|null, two_factor_enabled: bool, is_you: bool}, one_time_password: string}")]
+    public function store(StoreUserRequest $request, CreateTeamMember $create, ConfirmOwnPassword $confirmPassword, VerifySecondFactor $verifySecondFactor): JsonResponse
+    {
+        $owner = $request->user();
+        assert($owner instanceof User);
+
+        $confirmPassword($request, $owner, $request->string('password')->toString());
+
+        if ($owner->hasTwoFactorEnabled()) {
+            $verifySecondFactor($owner, $request->input('code'), $request->input('recovery_code'));
+        }
+
+        [$user, $password] = $create($owner, $request->string('name')->toString(), $request->string('email')->toString(), Role::from($request->string('role')->toString()));
+        Impersonation::note('user.created', $user);
+
+        return (new TeamMemberResource($user))->additional(['one_time_password' => $password])->response()->setStatusCode(201);
+    }
+
+    /**
+     * Give a team member a new one-time password (school mode).
+     *
+     * Their sessions end and they must change the password at the next sign-in. Not for oneself. Asks for the owner's own
+     * password (and second factor). 404 in online mode. Limited to 10 requests per minute per user.
+     *
+     * @response array{one_time_password: string}
+     */
+    public function passwordReset(ResetUserPasswordRequest $request, User $user, ResetTeamMemberPassword $reset, ConfirmOwnPassword $confirmPassword, VerifySecondFactor $verifySecondFactor): JsonResponse
+    {
+        $owner = $request->user();
+        assert($owner instanceof User);
+
+        $confirmPassword($request, $owner, $request->string('password')->toString());
+
+        if ($owner->is($user)) {
+            throw new ApiException(409, 'cannot_reset_self', messageKey: 'cannot_reset_own_password');
+        }
+
+        if ($owner->hasTwoFactorEnabled()) {
+            $verifySecondFactor($owner, $request->input('code'), $request->input('recovery_code'));
+        }
+
+        $password = $reset($user);
+        Impersonation::note('user.password_reset', $user);
+
+        return response()->json(['one_time_password' => $password]);
     }
 }

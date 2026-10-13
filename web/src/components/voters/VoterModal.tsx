@@ -37,6 +37,7 @@ export function VoterModal({
   voter,
   election,
   groups,
+  groupsFixed,
   onSaved,
   onLocked,
   onClose,
@@ -44,6 +45,11 @@ export function VoterModal({
   voter: Voter | null;
   election: string;
   groups: Pick<VoterGroup, 'id' | 'name'>[];
+  /**
+   * The election is open: groups cannot be created, and a voter who has not voted may move to an existing
+   * group; one who has voted keeps theirs.
+   */
+  groupsFixed: boolean;
   /** A voter was saved: the page reads the list and the groups again. */
   onSaved: () => void;
   /** The election no longer lets voters change (409 `election_voters_locked`). */
@@ -58,6 +64,7 @@ export function VoterModal({
   const [busy, setBusy] = useState(false);
   const name = useRef<HTMLInputElement>(null);
   const suggestions = useId();
+  const groupVoted = groupsFixed && voter?.has_voted === true;
 
   function set(field: VoterField, value: string) {
     setDraft((current) => ({ ...current, [field]: value }));
@@ -80,6 +87,14 @@ export function VoterModal({
 
   async function submit(another: boolean) {
     const found = validateVoter(draft);
+    const typed = draft.group.trim().toLocaleLowerCase();
+
+    // An open election takes existing groups only: said here, beside the field, before the call.
+    if (groupsFixed && !groupVoted && typed !== '' && !found.group) {
+      if (!groups.some((known) => known.name.trim().toLocaleLowerCase() === typed)) {
+        found.group = 'unknown';
+      }
+    }
 
     setProblem(null);
     setAdded(null);
@@ -125,7 +140,14 @@ export function VoterModal({
         return;
       }
 
-      if (failure.code === 'election_voters_locked') onLocked();
+      if (failure.code === 'voter_has_voted') {
+        setErrors({ group: 'voted' });
+
+        return;
+      }
+
+      // An open election still answers 409 for a group that appeared too late: a field's matter, not a locked election.
+      if (failure.code === 'election_voters_locked' && !groupsFixed) onLocked();
 
       setProblem(errorText(failure, tIfAny));
     }
@@ -173,7 +195,14 @@ export function VoterModal({
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Input
             label={t('voters.form.group')}
-            help={t('voters.form.groupHelp')}
+            help={t(
+              groupVoted
+                ? 'voters.form.groupHelpVoted'
+                : groupsFixed
+                  ? 'voters.form.groupHelpOpen'
+                  : 'voters.form.groupHelp',
+            )}
+            disabled={groupVoted}
             value={draft.group}
             onChange={(event) => set('group', event.target.value)}
             list={suggestions}

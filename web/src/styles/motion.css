@@ -1309,3 +1309,236 @@
     background-image: linear-gradient(135deg, var(--color-backdrop-to), var(--color-primary));
   }
 }
+
+/*
+ * The voter's code card (frontend.md, voting flow): the one thing to do on the page, so it is the
+ * largest, with a ring that goes out from the key, a soft glow and one box per character.
+ * Only transform, opacity and box-shadow move; the reduced-motion block above stops all of it.
+ */
+@layer components {
+  .code-card {
+    border-width: 2px;
+    border-color: var(--color-primary);
+    animation: code-glow 2.8s ease-in-out infinite;
+  }
+
+  @keyframes code-glow {
+    0%,
+    100% {
+      box-shadow: var(--shadow-2), 0 0 0 0 rgb(84 104 212 / 0.4);
+    }
+    50% {
+      box-shadow: var(--shadow-2), 0 0 0 10px rgb(84 104 212 / 0);
+    }
+  }
+
+  .code-key {
+    position: relative;
+  }
+
+  .code-key::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    border: 2px solid var(--color-surface);
+    animation: code-ring 1.9s var(--ease-out-soft) infinite;
+    pointer-events: none;
+  }
+
+  .code-key > svg {
+    animation: code-wiggle 3.4s ease-in-out infinite;
+    transform-origin: 50% 50%;
+  }
+
+  @keyframes code-ring {
+    0% {
+      transform: scale(1);
+      opacity: 0.8;
+    }
+    100% {
+      transform: scale(1.7);
+      opacity: 0;
+    }
+  }
+
+  @keyframes code-wiggle {
+    0%,
+    80%,
+    100% {
+      transform: rotate(0);
+    }
+    85% {
+      transform: rotate(-14deg);
+    }
+    92% {
+      transform: rotate(12deg);
+    }
+  }
+
+  .code-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 4rem;
+    height: clamp(3rem, 11vw, 5rem);
+    border-radius: var(--radius-md);
+    border: 2px solid var(--color-line-strong);
+    background-color: var(--color-primary-soft);
+    color: var(--color-ink);
+    font-family: var(--font-mono);
+    font-size: clamp(1.125rem, 5.4vw, 2.25rem);
+    font-weight: 700;
+    transition:
+      border-color 150ms ease,
+      background-color 150ms ease;
+  }
+
+  .code-box[data-filled='true'] {
+    border-color: var(--color-primary);
+    background-color: var(--color-surface);
+  }
+
+  .code-field:focus-within .code-box[data-current='true'] {
+    border-color: var(--color-primary);
+    background-color: var(--color-surface);
+    box-shadow: 0 0 0 4px var(--color-primary-soft);
+  }
+
+  .code-field:focus-within .code-box[data-current='true']::after {
+    content: '';
+    width: 2px;
+    height: 55%;
+    background-color: var(--color-primary);
+    animation: code-caret 1s steps(1) infinite;
+  }
+
+  .code-field[data-invalid='true'] .code-box {
+    border-color: var(--color-danger);
+  }
+
+  @keyframes code-caret {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  .code-go > svg {
+    animation: code-nudge 1.4s ease-in-out infinite;
+  }
+
+  @keyframes code-nudge {
+    50% {
+      transform: translateX(5px);
+    }
+  }
+}
+
+/*
+ * The identity screen: the voter's own card. The avatar sends out two rings, the check pops now
+ * and then, the posts rise one after the other. Transform and opacity only; reduced motion stops all.
+ */
+@layer components {
+  .id-band {
+    background-image: linear-gradient(100deg, var(--color-primary-soft), var(--color-surface-alt));
+  }
+
+  .id-avatar::before,
+  .id-avatar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    border: 3px solid var(--color-primary);
+    animation: id-ring 2.6s var(--ease-out-soft) infinite;
+    pointer-events: none;
+  }
+
+  .id-avatar::after {
+    animation-delay: 1.3s;
+  }
+
+  .id-check {
+    animation: id-pop 3.2s ease-in-out infinite;
+  }
+
+  .id-rise {
+    animation: id-rise 600ms var(--ease-out-soft) both;
+  }
+
+  @keyframes id-ring {
+    0% {
+      transform: scale(1);
+      opacity: 0.7;
+    }
+    100% {
+      transform: scale(1.5);
+      opacity: 0;
+    }
+  }
+
+  @keyframes id-pop {
+    0%,
+    85%,
+    100% {
+      transform: scale(1);
+    }
+    92% {
+      transform: scale(1.25);
+    }
+  }
+
+  @keyframes id-rise {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+/*
+ * The candidates of a ballot: they rise in one after the other, lift under the pointer, and the
+ * chosen one grows with a glow and a check that pops. Transform and opacity only; the
+ * reduced-motion block stops all of it.
+ */
+@layer components {
+  .cand-tile {
+    animation: cand-rise 600ms var(--ease-out-soft) backwards;
+  }
+
+  .cand-tile:hover:not(:disabled) {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-3);
+  }
+
+  .cand-tile[aria-pressed='true'],
+  .cand-tile[aria-pressed='true']:hover:not(:disabled) {
+    transform: translateY(-6px) scale(1.03);
+    box-shadow:
+      0 0 0 5px var(--color-primary-soft),
+      var(--shadow-3);
+  }
+
+  .cand-check {
+    animation: cand-pop 450ms var(--ease-spring) backwards;
+  }
+
+  @keyframes cand-rise {
+    from {
+      opacity: 0;
+      transform: translateY(24px) scale(0.96);
+    }
+  }
+
+  @keyframes cand-pop {
+    from {
+      transform: scale(0) rotate(-40deg);
+    }
+  }
+}

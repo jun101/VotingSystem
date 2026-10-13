@@ -16,6 +16,9 @@ const config: NextConfig = {
   // Compose name; without this Next.js refuses the dev resources (hot reload, and with it
   // the hydration of the page) to any host but localhost.
   allowedDevOrigins: ['proxy'],
+  // Development only. The dev tools badge writes style elements without the page's nonce, which the
+  // policy of src/proxy.ts rightly blocks: it showed up as an unstyled "1 Issue" button over the page.
+  devIndicators: false,
 };
 
 export default config;

@@ -201,3 +201,13 @@ pest()->beforeEach(function () {
     $this->auditPair = Voting::keypair();
     $this->browser = new AuthClient($this);
 })->in('Acceptance/Slice19');
+
+// Slice 19c: installers, school mode (docs/slices/19c-installers.md): the same as slice 12.
+pest()->beforeEach(function () {
+    Accounts::reset();
+    Tenancy::installProbeTables();
+    Team::clearMedia();
+    Voting::forgetCache();
+    $this->auditPair = Voting::keypair();
+    $this->browser = new AuthClient($this);
+})->in('Acceptance/Slice19c');

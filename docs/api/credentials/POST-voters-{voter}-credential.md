@@ -69,3 +69,8 @@ code. A one-slip file counts in the election's files like any other and is delet
 Body (optional): `{ "email": true }`. The new code is also emailed to the voter, in the background; `email_status`
 becomes `queued`. A voter with no address: 422 `validation_failed` (`email: no_address`) and nothing is changed. The
 answer is the same, plus `email`: `queued` or `null`.
+
+## School mode
+
+When `DEPLOYMENT_MODE` is `school`, `email: true` (and a `scope` of `failed_email`) answers 422 `validation_failed`
+(`email: unavailable`): no email is ever sent in that mode. Print and file are the channels.
