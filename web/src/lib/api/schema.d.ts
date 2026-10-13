@@ -1933,7 +1933,8 @@ export interface paths {
          * Change a voter
          * @description Every field is optional; only those sent change. `null` or blank clears the group, the
          *     identifier, the email and the phone. A draft, scheduled or open election; an open one
-         *     keeps the voter's group (409 `election_voters_locked`). Owner or manager.
+         *     moves a voter who has not voted to another existing group (409 `voter_has_voted`
+         *     otherwise, `election_voters_locked` for a group that does not exist). Owner or manager.
          *     Limited to 240 requests per hour per user.
          */
         patch: operations["voter.update"];

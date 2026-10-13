@@ -835,7 +835,9 @@
         "max": "The name must be 150 characters or fewer."
       },
       "group": {
-        "max": "The group name must be 100 characters or fewer."
+        "max": "The group name must be 100 characters or fewer.",
+        "unknown": "This group does not exist. During voting, choose an existing group.",
+        "voted": "This voter has already voted: their group can no longer change."
       },
       "identifier": {
         "max": "The identifier must be 50 characters or fewer.",
@@ -1734,6 +1736,8 @@
       "nameHelp": "First and last name, as they will be printed on the code slip.",
       "group": "Group",
       "groupHelp": "Choose a group or write a new one.",
+      "groupHelpOpen": "Choose an existing group: new groups are not created during voting.",
+      "groupHelpVoted": "This voter has already voted: their group can no longer change.",
       "identifier": "Identifier",
       "identifierHelp": "Student number, unique in the election.",
       "email": "Email",

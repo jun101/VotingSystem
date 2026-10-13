@@ -30,7 +30,9 @@ Body, JSON: any of `full_name`, `group`, `identifier`, `email`, `phone`, with th
 | 5 | An empty object | 200 (nothing changes) | | |
 | 6 | `full_name` blank or too long; `identifier` or `email` used by another voter of the election; `email`, `phone`, `group` invalid | 422 | `validation_failed` (as POST) | |
 | 7 | A new group is needed and the election already has 100 groups | 409 | `group_limit_reached` | |
-| 8 | The election is closed, published or archived; or it is open and `group` would change the voter's group (another group, a new one, or none) | 409 | `election_voters_locked` | |
+| 8 | The election is closed, published or archived; or it is open and `group` names a group that does not exist yet (a new group) | 409 | `election_voters_locked` | |
+| 8a | The election is open, `group` is another existing group of the election (or `null`), and the voter **has not voted** | 200 (the group changes; the voter's ballots follow it) | | |
+| 8b | The election is open, `group` would change the voter's group, and the voter **has voted** | 409 | `voter_has_voted` | |
 | 9 | Not a UUID, unknown, or another institution's voter | 404 | `not_found` | |
 | 10 | Not signed in, or the session has expired | 401 | `unauthenticated` | |
 | 11 | The user's institution was suspended since sign-in | 403 | `institution_suspended` | |
@@ -52,7 +54,11 @@ the state (409). A voter's own identifier or email is not a duplicate of itself.
 
 ## Notes
 
-In an open election the voter keeps their group, which decides their ballots: the other fields may change, `group` may repeat the current group's name.
+In an open election a voter who has **not voted** may be moved to another existing group of the election, or to no group; the group decides their
+ballots, and a voter in the middle of voting is told at confirmation that their ballots changed (`ballots_mismatch`, see
+[POST /vote/{election}/submit](../vote/POST-vote-{election}-submit.md)). A group that does not exist yet is not created in an open election. A voter who **has voted** keeps their group
+(409 `voter_has_voted`): their vote was counted under it, and the per-ballot turnout must not move. The other fields may change, and `group` may repeat the
+current group's name. The check runs under the voter's row lock, the same lock a vote takes first, so a vote and a group change never cross.
 
 
 The election cannot be changed through this endpoint: `election`, `id` and every `*_id` in the body are ignored.

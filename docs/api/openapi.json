@@ -11935,7 +11935,7 @@
         "/v1/voters/{voter}": {
             "patch": {
                 "operationId": "voter.update",
-                "description": "Every field is optional; only those sent change. `null` or blank clears the group, the\nidentifier, the email and the phone. A draft, scheduled or open election; an open one\nkeeps the voter's group (409 `election_voters_locked`). Owner or manager.\nLimited to 240 requests per hour per user.",
+                "description": "Every field is optional; only those sent change. `null` or blank clears the group, the\nidentifier, the email and the phone. A draft, scheduled or open election; an open one\nmoves a voter who has not voted to another existing group (409 `voter_has_voted`\notherwise, `election_voters_locked` for a group that does not exist). Owner or manager.\nLimited to 240 requests per hour per user.",
                 "summary": "Change a voter",
                 "tags": [
                     "Voter"

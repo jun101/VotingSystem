@@ -103,7 +103,7 @@ results on a public page that can be shared on social media.
   |---|---|---|
   | Draft | Created | Everything can be edited. Can be deleted. |
   | Scheduled | Admin confirms the setup | Ballots and candidates are locked. Voters and credentials can still be managed. Can go back to Draft. |
-  | Open | Start time reached (automatic) | Voting. Voters can be added and credentials reissued. End time can be extended, not shortened into the past. |
+  | Open | Start time reached (automatic) | Voting. Voters can be added and edited, a voter who has not voted can be moved to another existing group, and credentials reissued. End time can be extended, not shortened into the past. |
   | Closed | End time reached (automatic) or admin closes early | No voting. Results visible to institution users. |
   | Published | Admin publishes | Results visible to the public. Can be unpublished. |
   | Archived | Admin archives | Read-only, hidden from the default list. |

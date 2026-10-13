@@ -749,6 +749,7 @@ export function VotersPage({
           voter={form.mode === 'edit' ? form.voter : null}
           election={election.id}
           groups={groups.items}
+          groupsFixed={!rules.groups}
           onSaved={() => void refresh()}
           onLocked={() => void locked()}
           onClose={() => setForm(null)}

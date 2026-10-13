@@ -835,7 +835,9 @@
         "max": "Le nom doit avoir 150 caractères au plus."
       },
       "group": {
-        "max": "Le nom du groupe doit avoir 100 caractères au plus."
+        "max": "Le nom du groupe doit avoir 100 caractères au plus.",
+        "unknown": "Ce groupe n’existe pas. Pendant le vote, choisissez un groupe existant.",
+        "voted": "Cet électeur a déjà voté : son groupe ne peut plus changer."
       },
       "identifier": {
         "max": "L’identifiant doit avoir 50 caractères au plus.",
@@ -1734,6 +1736,8 @@
       "nameHelp": "Prénom et nom, tels qu’ils seront imprimés sur le bulletin de code.",
       "group": "Groupe",
       "groupHelp": "Choisissez un groupe ou écrivez-en un nouveau.",
+      "groupHelpOpen": "Choisissez un groupe existant : pendant le vote, on ne crée pas de nouveau groupe.",
+      "groupHelpVoted": "Cet électeur a déjà voté : son groupe ne peut plus changer.",
       "identifier": "Identifiant",
       "identifierHelp": "Numéro d’élève, unique dans l’élection.",
       "email": "Courriel",
