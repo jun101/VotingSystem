@@ -191,6 +191,9 @@ services:
       # The public address of the site: the base of the share links and of the preview image's address.
       SITE_URL: ${SITE_URL:-http://localhost:8080}
       SESSION_COOKIE: ${SESSION_COOKIE:-new_voting_system_session}
+      # Development only, and off by default so the browser tests see the production policy: set it to 1
+      # to let React's development build use eval (see web/src/proxy.ts), which silences its console error.
+      CSP_DEV_UNSAFE_EVAL: ${CSP_DEV_UNSAFE_EVAL:-}
     depends_on:
       api:
         condition: service_healthy
