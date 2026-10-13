@@ -201,17 +201,14 @@ export function ResultsPage({
         </div>
       </section>
 
-      <div className="grid grid-cols-1 gap-4.5 min-[900px]:grid-cols-2 2xl:grid-cols-[minmax(0,1fr)_340px] 2xl:items-start">
+      <div className="grid grid-cols-1 gap-4.5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] xl:items-start">
         <section
           data-testid="results-zone"
           aria-label={t('results.zone')}
-          className="min-w-0 rounded-2xl border border-line bg-surface p-2.5 shadow-1 md:p-3 min-[900px]:col-span-2 2xl:col-span-1 2xl:p-5"
+          className="min-w-0 rounded-2xl border border-line bg-surface p-2.5 shadow-1 md:p-3 xl:col-start-1 xl:row-start-1 xl:p-5"
         >
           {list.length > 0 ? (
-            <Reveal
-              stagger
-              className="grid grid-cols-1 items-start gap-4.5 min-[1100px]:grid-cols-2 2xl:grid-cols-1 min-[2100px]:grid-cols-2"
-            >
+            <Reveal stagger className="grid grid-cols-1 items-start gap-4.5">
               {list.map((ballot, index) => (
                 <BallotResultCard
                   key={ballot.id}
@@ -231,11 +228,11 @@ export function ResultsPage({
           )}
         </section>
 
-        {/* Below 1600 px the cards are cells of the page grid (publication first, above the
-            zone); from 1600 px they are the right rail. */}
+        {/* Below 1280 px the cards are cells of the page grid (publication first, above the
+            zone); from 1280 px they are the right third, the posts keeping the left two thirds. */}
         <aside
           aria-label={t('results.rail.label')}
-          className="contents 2xl:sticky 2xl:top-20 2xl:row-start-1 2xl:flex 2xl:flex-col 2xl:gap-4.5"
+          className="contents xl:sticky xl:top-20 xl:col-start-2 xl:row-start-1 xl:flex xl:flex-col xl:gap-4.5"
         >
           {current.status === 'closed' ||
           current.status === 'published' ||
@@ -245,7 +242,7 @@ export function ResultsPage({
               ballots={list}
               onChanged={setCurrent}
               onStale={() => window.location.reload()}
-              className="order-first min-[900px]:col-span-2 2xl:order-none 2xl:col-span-1"
+              className="order-first xl:order-none"
             />
           ) : null}
           <Panel
@@ -254,7 +251,6 @@ export function ResultsPage({
             title={t('results.rail.election')}
             id="results-election-title"
             testId="results-election-card"
-            className="2xl:col-span-1"
           >
             <p className="font-display text-lg font-extrabold break-words text-ink">
               {election.title}
@@ -283,7 +279,6 @@ export function ResultsPage({
             title={t('results.rail.legend')}
             id="results-legend-title"
             testId="results-legend-card"
-            className="2xl:col-span-1"
           >
             <ul className="flex flex-col gap-2.5 text-base text-ink">
               {(

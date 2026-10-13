@@ -67,7 +67,14 @@ export function Button({
       {...rest}
     >
       {/* The label stays in place (and for screen readers) so the width does not change. */}
-      <span className={cx(loading && 'text-transparent')}>{children}</span>
+      <span
+        className={cx(
+          'inline-flex items-center justify-center gap-2',
+          loading && 'text-transparent',
+        )}
+      >
+        {children}
+      </span>
       {loading ? (
         <span
           aria-hidden="true"

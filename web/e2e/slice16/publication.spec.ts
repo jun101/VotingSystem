@@ -66,6 +66,20 @@ test('shows no public page before publication, and the organiser sees a closed e
   const page = await organiser(browser, `/admin/elections/${data.election}/results`);
   await expect(page.getByTestId('publication-card')).toHaveAttribute('data-status', 'closed');
   await expect(page.getByTestId('report-download')).toBeVisible();
+
+  // Every text of the page is translated: a missing namespace shows the key itself ("publication.title").
+  const text = await page.getByTestId('results-page').innerText();
+  expect(text).not.toMatch(/\b(publication|results|elections|app|admin)\.[a-zA-Z]+(\.[a-zA-Z]+)*\b/);
+
+  // From 1280 px the posts keep two thirds of the width and the publication card the right third.
+  if ((page.viewportSize()?.width ?? 0) >= 1280) {
+    const zone = await page.getByTestId('results-zone').boundingBox();
+    const rail = await page.getByTestId('publication-card').boundingBox();
+
+    expect(zone && rail).toBeTruthy();
+    expect(zone!.x).toBeLessThan(rail!.x);
+    expect(zone!.width).toBeGreaterThan(rail!.width * 1.6);
+  }
 });
 
 test('publishes with the full display and gives the address of the public page [FR-RES-04, FR-RES-08]', async ({ browser }) => {

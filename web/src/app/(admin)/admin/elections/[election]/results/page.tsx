@@ -39,6 +39,7 @@ export default async function ResultsRoute({ params }: { params: Promise<{ elect
         'validation',
         'elections',
         'results',
+        'publication',
       )}
     >
       <ResultsPage
