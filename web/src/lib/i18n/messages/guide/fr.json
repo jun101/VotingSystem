@@ -688,11 +688,21 @@
         },
         "windows": {
           "title": "Installer sur Windows",
-          "lead": "Une installation Windows est prévue ; sa méthode dépend des essais en cours.",
+          "lead": "Une installation native, sans Docker ni WSL : tout est dans l’archive, y compris la base de données. Elle fonctionne hors connexion.",
           "steps": [
-            "Cette section sera complétée avec la méthode retenue, dès que les essais seront terminés.",
-            "En attendant, utilisez le serveur Linux ou la version en ligne."
-          ]
+            "Téléchargez l’archive de la version pour Windows et son fichier de somme de contrôle.",
+            "Vérifiez la somme, puis décompressez l’archive près de la racine du disque (par exemple dans C:\\).",
+            "Ouvrez PowerShell « en tant qu’administrateur » dans le dossier décompressé et lancez l’installateur. Il vérifie la machine, choisit les ports libres, pose ses questions une fois (nom de l’école, adresses de connexion, pare-feu) et installe tout en une minute environ.",
+            "À la fin, lisez le résumé : l’adresse du site, et les deux fichiers écrits sur le Bureau.",
+            "Dans le pare-feu Windows, une règle limitée aux réseaux privés ouvre le port du site : les ordinateurs de l’école peuvent alors joindre le serveur."
+          ],
+          "commands": [
+            "Get-FileHash .\\votesystem-X.Y.Z-windows-x64.zip -Algorithm SHA256",
+            "Expand-Archive .\\votesystem-X.Y.Z-windows-x64.zip -DestinationPath C:\\",
+            "cd C:\\votesystem-X.Y.Z-windows-x64",
+            "powershell -ExecutionPolicy Bypass -File .\\installers\\install.ps1"
+          ],
+          "tip": "Windows 10 (1809 ou plus récent), Windows 11 ou Windows Server 2019 ou plus récent, 64 bits, 4 Go de mémoire et 5 Go libres. Les services démarrent avec l’ordinateur."
         },
         "docker": {
           "title": "Installer en ligne avec Docker",

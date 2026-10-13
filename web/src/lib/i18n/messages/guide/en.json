@@ -676,11 +676,21 @@
         },
         "windows": {
           "title": "Install on Windows",
-          "lead": "A Windows installation is planned; its method depends on the tests under way.",
+          "lead": "A native installation, with no Docker or WSL: everything is in the archive, the database included. It works offline.",
           "steps": [
-            "This section will be completed with the chosen method as soon as the tests are done.",
-            "Meanwhile, use the Linux server or the online version."
-          ]
+            "Download the version’s Windows archive and its checksum file.",
+            "Check the checksum, then unpack the archive near the root of the disk (for example in C:\\).",
+            "Open PowerShell “as administrator” in the unpacked folder and run the installer. It checks the machine, picks free ports, asks its questions once (school name, sign-in addresses, firewall) and installs everything in about a minute.",
+            "At the end, read the summary: the site address, and the two files written on the Desktop.",
+            "In the Windows Firewall, a rule limited to private networks opens the site’s port, so the school’s computers can reach the server."
+          ],
+          "commands": [
+            "Get-FileHash .\\votesystem-X.Y.Z-windows-x64.zip -Algorithm SHA256",
+            "Expand-Archive .\\votesystem-X.Y.Z-windows-x64.zip -DestinationPath C:\\",
+            "cd C:\\votesystem-X.Y.Z-windows-x64",
+            "powershell -ExecutionPolicy Bypass -File .\\installers\\install.ps1"
+          ],
+          "tip": "Windows 10 (1809 or later), Windows 11 or Windows Server 2019 or later, 64-bit, 4 GB of memory and 5 GB free. The services start with the computer."
         },
         "docker": {
           "title": "Install online with Docker",

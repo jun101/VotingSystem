@@ -1,0 +1,55 @@
+# VoteSystem entry point (school edition on Windows, plain HTTP on the school's network). Written by the installer.
+# The same routes and headers as installers/linux/templates/Caddyfile.tmpl; the API runs as php-cgi workers (FastCGI).
+{
+	admin off
+	auto_https off
+}
+
+:@WEB_PORT@ {
+	header {
+		X-Content-Type-Options nosniff
+		?Referrer-Policy strict-origin-when-cross-origin
+		X-Frame-Options DENY
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+		-Server
+		-X-Powered-By
+		-Via
+	}
+
+	# The re-encoded pictures, read-only: only `*.webp` files that exist.
+	handle /media/* {
+		@found {
+			path *.webp
+			file {
+				root @DATA_DIR@
+				try_files {path}
+			}
+		}
+		handle @found {
+			header {
+				Cache-Control "public, max-age=31536000, immutable"
+				X-Content-Type-Options nosniff
+				Content-Security-Policy "default-src 'none'; img-src 'self'; sandbox"
+			}
+			root * @DATA_DIR@
+			file_server
+		}
+		handle {
+			respond 404
+		}
+	}
+
+	handle /api/* {
+		request_body {
+			max_size 8MB
+		}
+		root * @API_PUBLIC@
+		php_fastcgi @UPSTREAMS@ {
+			lb_policy round_robin
+		}
+	}
+
+	handle {
+		reverse_proxy 127.0.0.1:@WEB_INTERNAL_PORT@
+	}
+}

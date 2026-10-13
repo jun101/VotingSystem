@@ -1,0 +1,8 @@
+# The upstream files of the Windows bundle (slice 19c, step F), pinned.
+# name | version | file | url | sha256 (empty for the Microsoft runtime, which is checked by its signature on Windows)
+php | 8.5.11 | php-8.5.11-nts-Win32-vs17-x64.zip | https://windows.php.net/downloads/releases/php-8.5.11-nts-Win32-vs17-x64.zip | 0ea96e0d2b9b737a6036f05cf4e95c49313faa6d0f27bd97edb2742503f0c043
+mariadb | 12.3.3 | mariadb-12.3.3-winx64.zip | https://archive.mariadb.org/mariadb-12.3.3/winx64-packages/mariadb-12.3.3-winx64.zip | 4b5706b47148b47c8f36963c8352d1ddee37a1287b4690428f631a74b09b85a0
+redis | 5.0.14.1 | Redis-x64-5.0.14.1.zip | https://github.com/tporadowski/redis/releases/download/v5.0.14.1/Redis-x64-5.0.14.1.zip | 018ea18a35876383cbb5f4cd0258adfc87747cf9d619bce1cf73a2e36f720ccf
+node | 24.21.0 | node-v24.21.0-win-x64.zip | https://nodejs.org/dist/v24.21.0/node-v24.21.0-win-x64.zip | 158f7685b44de51f6c0df1d153526cbcd3e1bc739a8dfc607721cef75de9e541
+caddy | 2.11.7 | caddy_2.11.7_windows_amd64.zip | https://github.com/caddyserver/caddy/releases/download/v2.11.7/caddy_2.11.7_windows_amd64.zip | 0a1edc0b799512051c57071ce0e798d3f2cf67dc98171366f1d2b326072e3b06
+vc_redist | 14.x | vc_redist.x64.exe | https://aka.ms/vs/17/release/vc_redist.x64.exe | 
