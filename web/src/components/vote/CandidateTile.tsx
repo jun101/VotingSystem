@@ -32,8 +32,10 @@ export function CandidateTile({
       aria-pressed={selected}
       disabled={locked}
       onClick={onToggle}
+      style={{ animationDelay: `${Math.min(index - 1, 8) * 120}ms` }}
       className={cx(
-        'select-ring ui-control lift-sm flex min-w-0 flex-col overflow-hidden rounded-lg bg-surface text-left shadow-2',
+        'select-ring ui-control lift-sm cand-tile flex w-[calc(50%-0.375rem)] min-w-0 flex-col overflow-hidden rounded-lg bg-surface text-left shadow-2 md:w-64 lg:w-72',
+        locked && 'opacity-60 saturate-50',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed',
       )}
     >
@@ -66,7 +68,7 @@ export function CandidateTile({
         {selected ? (
           <span
             aria-hidden="true"
-            className="absolute top-2 right-2 flex size-9 items-center justify-center rounded-full bg-accent text-deep shadow-2"
+            className="cand-check absolute top-2 right-2 flex size-10 items-center justify-center rounded-full bg-accent text-deep shadow-2"
           >
             <Icon name="check" size={20} />
           </span>

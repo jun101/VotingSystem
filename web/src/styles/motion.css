@@ -1501,3 +1501,44 @@
     }
   }
 }
+
+/*
+ * The candidates of a ballot: they rise in one after the other, lift under the pointer, and the
+ * chosen one grows with a glow and a check that pops. Transform and opacity only; the
+ * reduced-motion block stops all of it.
+ */
+@layer components {
+  .cand-tile {
+    animation: cand-rise 600ms var(--ease-out-soft) backwards;
+  }
+
+  .cand-tile:hover:not(:disabled) {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-3);
+  }
+
+  .cand-tile[aria-pressed='true'],
+  .cand-tile[aria-pressed='true']:hover:not(:disabled) {
+    transform: translateY(-6px) scale(1.03);
+    box-shadow:
+      0 0 0 5px var(--color-primary-soft),
+      var(--shadow-3);
+  }
+
+  .cand-check {
+    animation: cand-pop 450ms var(--ease-spring) backwards;
+  }
+
+  @keyframes cand-rise {
+    from {
+      opacity: 0;
+      transform: translateY(24px) scale(0.96);
+    }
+  }
+
+  @keyframes cand-pop {
+    from {
+      transform: scale(0) rotate(-40deg);
+    }
+  }
+}
