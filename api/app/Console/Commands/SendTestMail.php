@@ -3,6 +3,8 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Mail\Message;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Mail;
 use Throwable;
 
@@ -27,14 +29,15 @@ class SendTestMail extends Command
             return self::FAILURE;
         }
 
-        $mailer = (string) config('mail.default');
-        $host = (string) config("mail.mailers.$mailer.host", '');
-        $port = (string) config("mail.mailers.$mailer.port", '');
+        $mailer = Config::string('mail.default');
+        $host = Config::string("mail.mailers.$mailer.host", '');
+        $rawPort = Config::get("mail.mailers.$mailer.port");
+        $port = is_scalar($rawPort) ? (string) $rawPort : '';
 
         try {
             Mail::raw(
                 "This is a test message from your VoteSystem installation.\nIf you read it, the server can send email.",
-                static function ($message) use ($to): void {
+                static function (Message $message) use ($to): void {
                     $message->to($to)->subject('VoteSystem: test message');
                 },
             );
