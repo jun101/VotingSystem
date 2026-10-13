@@ -10,6 +10,8 @@
 #   votectl backup [--out DIR] [--with-config]
 #   votectl restore FILE [--force]
 #   votectl ssh-key create [--out DIR] [--comment TEXT]
+#   votectl mail test EMAIL
+#   votectl update [--version X.Y.Z]          (online edition: the installer's update)
 #
 # It reads /etc/votesystem/votectl.conf (or $VOTECTL_CONF): DRIVER=docker or native, and the paths of that driver.
 # The accounts, the audit and the elections are never read by this script: it only calls the application's own commands.
@@ -41,7 +43,7 @@ trap cleanup EXIT
 say() { printf '%s\n' "$*"; }
 die() { printf 'votectl: %s\n' "$*" >&2; exit 1; }
 
-usage() { sed -n '2,16p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
+usage() { sed -n '2,18p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
 
 # ---- drivers -----------------------------------------------------------------------------------------------------
 
@@ -280,6 +282,16 @@ main() {
     backup) cmd_backup "$@" ;;
     restore) cmd_restore "$@" ;;
     ssh-key) cmd_ssh_key "$@" ;;
+    mail)
+      [ "${1:-}" = test ] && [ $# -eq 2 ] || die "usage: votectl mail test EMAIL"
+      artisan mail:test "$2" ;;
+    update)
+      # The online edition updates through its installer, which also replaces the Compose file and the proxy file.
+      [ "$DRIVER" = docker ] || die "update: this installation is updated with its installer (installers/install.sh update)"
+      local installer
+      installer="$(dirname "$COMPOSE_FILE")/installer/install-online.sh"
+      [ -x "$installer" ] || die "the installer was not found at $installer"
+      exec "$installer" update "$@" ;;
     *) die "unknown command '$command' (try: votectl help)" ;;
   esac
 }

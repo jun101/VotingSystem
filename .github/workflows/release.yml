@@ -13,6 +13,7 @@ on:
 
 permissions:
   contents: write
+  packages: write
 
 concurrency:
   group: release-${{ github.ref }}
@@ -59,3 +60,54 @@ jobs:
           gh release create "${GITHUB_REF_NAME}" installers/bundle/dist/* \
             --draft --title "VoteSystem ${GITHUB_REF_NAME}" \
             --notes "School edition bundle for Linux x86_64. Verify it with the .sha256 file before installing."
+
+  # The online edition (docs/slices/19c-installers.md, step E): the two production images, pushed by version to the
+  # registry of the repository's owner, and the installer archive with its checksum, attached to the same draft release.
+  online:
+    name: Online images and installer
+    runs-on: ubuntu-24.04
+    needs: bundle
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "value=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          fi
+          echo "owner=$(echo "${{ github.repository_owner }}" | tr 'A-Z' 'a-z')" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to the registry
+        env:
+          TOKEN: ${{ github.token }}
+        run: echo "$TOKEN" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Build and push the images
+        env:
+          VERSION: ${{ steps.version.outputs.value }}
+          OWNER: ${{ steps.version.outputs.owner }}
+        run: |
+          label="org.opencontainers.image.source=https://github.com/${{ github.repository }}"
+          docker build -f docker/api/Dockerfile --target prod --label "$label" -t "ghcr.io/$OWNER/votesystem-api:$VERSION" .
+          docker build -f docker/web/Dockerfile --target prod --label "$label" -t "ghcr.io/$OWNER/votesystem-web:$VERSION" .
+          docker push "ghcr.io/$OWNER/votesystem-api:$VERSION"
+          docker push "ghcr.io/$OWNER/votesystem-web:$VERSION"
+
+      - name: Build the installer archive
+        run: installers/online/build.sh --version "${{ steps.version.outputs.value }}" --out installers/online/dist
+
+      - name: Check what was built
+        working-directory: installers/online/dist
+        run: |
+          sha256sum -c ./*.sha256
+          tar -tzf ./*.tar.gz
+
+      - name: Attach to the draft release
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${GITHUB_REF_NAME}" installers/online/dist/* --clobber

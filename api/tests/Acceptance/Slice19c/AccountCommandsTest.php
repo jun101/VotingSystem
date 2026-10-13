@@ -164,3 +164,33 @@ it('lists the users with no id [FR-INST-03] (user:list)', function () {
 
     expect(Artisan::call('user:list', ['--institution' => '3f1c0c1e-8a54-4c5e-9b7b-2d0f0c9a51aa']))->toBe(1);
 });
+
+it('sends a test message to the given address with the installation\'s mail settings [OPS-MAIL] (mail:test 1)', function () {
+    Illuminate\Support\Facades\Mail::fake();
+
+    $exit = Artisan::call('mail:test', ['to' => 'Admin@Example.HT']);
+
+    expect($exit)->toBe(0)->and(Artisan::output())->toContain('admin@example.ht');
+    Illuminate\Support\Facades\Mail::assertSentCount(0);
+});
+
+it('refuses an address that is not valid and sends nothing [OPS-MAIL] (mail:test 2)', function () {
+    Illuminate\Support\Facades\Mail::fake();
+
+    expect(Artisan::call('mail:test', ['to' => 'not-an-address']))->toBe(1);
+});
+
+it('says what failed when the mail server cannot be reached, without a password [OPS-MAIL] (mail:test 3)', function () {
+    config([
+        'mail.default' => 'smtp',
+        'mail.mailers.smtp.host' => '127.0.0.1',
+        'mail.mailers.smtp.port' => 1,
+        'mail.mailers.smtp.password' => 'top-secret-password',
+    ]);
+    app('mail.manager')->purge('smtp');
+
+    $exit = Artisan::call('mail:test', ['to' => 'admin@example.ht']);
+
+    expect($exit)->toBe(1)
+        ->and(Artisan::output())->toContain('could not be sent')->not->toContain('top-secret-password');
+});
