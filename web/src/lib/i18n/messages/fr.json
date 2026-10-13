@@ -2466,6 +2466,9 @@
       "secure": "Aucun vote n’a été enregistré ici."
     },
     "paused": {
+      "whatTitle": "Que faire ?",
+      "chipSafe": "Aucun vote perdu ni modifié",
+      "chipEnd": "L’heure de fin ne change pas",
       "heading": "Le vote est en pause",
       "text": "Cet établissement est suspendu par l’administration de la plateforme : le vote est en pause et reprendra lorsque la suspension sera levée. Aucun vote n’est perdu ni modifié, et l’heure de fin ne change pas.",
       "hint": "Gardez votre code et revenez plus tard : rechargez cette page pour vérifier.",

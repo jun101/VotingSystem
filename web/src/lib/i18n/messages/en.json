@@ -2466,6 +2466,9 @@
       "secure": "No vote has been recorded here."
     },
     "paused": {
+      "whatTitle": "What to do?",
+      "chipSafe": "No vote is lost or changed",
+      "chipEnd": "The closing time does not change",
       "heading": "Voting is paused",
       "text": "This institution has been suspended by the platform administrators: voting is paused and will resume when the suspension is lifted. No vote is lost or changed, and the end time does not move.",
       "hint": "Keep your code and come back later: reload this page to check.",

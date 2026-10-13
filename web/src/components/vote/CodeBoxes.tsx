@@ -45,7 +45,10 @@ export function CodeBoxes({
       <label htmlFor={id} className="text-md font-semibold text-ink">
         {label}
       </label>
-      <div className="code-field relative w-full max-w-2xl" data-invalid={error ? 'true' : undefined}>
+      <div
+        className="code-field relative w-full max-w-2xl"
+        data-invalid={error ? 'true' : undefined}
+      >
         <div aria-hidden="true" className="flex w-full items-center gap-1 sm:gap-2">
           {Array.from({ length: LENGTH }, (_, index) => (
             <span key={index} className="contents">
