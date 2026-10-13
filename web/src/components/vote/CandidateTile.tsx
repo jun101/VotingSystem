@@ -74,8 +74,8 @@ export function CandidateTile({
           </span>
         ) : null}
       </span>
-      <span className="flex min-w-0 flex-1 flex-col gap-1.5 p-3">
-        <span className="font-display text-lg leading-tight font-extrabold break-words text-ink">
+      <span className="flex min-w-0 flex-1 flex-col gap-1.5 p-2.5 md:p-3">
+        <span className="font-display text-base leading-tight font-extrabold [overflow-wrap:break-word] break-words text-ink md:text-lg">
           {candidate.first_name} {candidate.last_name}
         </span>
         <span className="flex min-w-0 items-center gap-2 text-sm font-semibold text-ink-2">
