@@ -2352,6 +2352,15 @@
       "readyText": "Gardez votre fiche ou votre lien personnel prêt. Cette page se met à jour toute seule : vous pouvez la laisser ouverte."
     },
     "closed": {
+      "at": "Fermée : {when}",
+      "secret": "Vote secret",
+      "pendingTitle": "Les résultats arrivent",
+      "pendingText": "Les organisateurs les publient après la fermeture. Cette page affichera le bouton dès qu’ils seront publiés.",
+      "publishedTitle": "Les résultats sont publiés",
+      "publishedText": "Vous pouvez les consulter dès maintenant.",
+      "secretTitle": "Votre vote est resté secret",
+      "helpTitle": "Une question ?",
+      "helpText": "Voyez avec les organisateurs de votre établissement.",
       "heading": "Le vote est terminé",
       "text": "Cette élection est fermée : il n’est plus possible de voter.",
       "results": "Voir les résultats"

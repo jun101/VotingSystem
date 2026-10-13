@@ -2352,6 +2352,15 @@
       "readyText": "Keep your slip or your personal link ready. This page updates by itself: you can leave it open."
     },
     "closed": {
+      "at": "Closed: {when}",
+      "secret": "Secret vote",
+      "pendingTitle": "Results are coming",
+      "pendingText": "The organisers publish them after the vote closes. This page will show the button as soon as they are published.",
+      "publishedTitle": "The results are published",
+      "publishedText": "You can read them now.",
+      "secretTitle": "Your vote stayed secret",
+      "helpTitle": "A question?",
+      "helpText": "Ask the organisers of your institution.",
       "heading": "Voting has ended",
       "text": "This election is closed: it is no longer possible to vote.",
       "results": "See the results"
