@@ -49,8 +49,8 @@ test-web:
 	$(WEB_BARE) npm run test
 
 e2e: ## Browser tests against the running stack
-	@# Empty on purpose: the browser tests check the production policy, without the development 'unsafe-eval'.
-	CSP_DEV_UNSAFE_EVAL= $(COMPOSE) up -d --wait
+	@# 0, not empty (an empty value would not override .env): the browser tests check the production policy, without the development 'unsafe-eval'.
+	CSP_DEV_UNSAFE_EVAL=0 $(COMPOSE) up -d --wait
 	@# The browser tests' platform admin (a known password) is made only on a local or testing stack.
 	@case "$$($(COMPOSE) exec -T api printenv APP_ENV)" in local|testing) $(COMPOSE) exec -T -e PLATFORM_ADMIN_PASSWORD='un mot de passe long et sûr' api php artisan platform:create-admin e2e-admin@platform.test --password-from-env=PLATFORM_ADMIN_PASSWORD || true ;; esac
 	$(COMPOSE) run --rm -T e2e
