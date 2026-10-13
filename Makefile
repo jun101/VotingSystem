@@ -41,7 +41,7 @@ restart-api: ## Reload the API workers after editing PHP code
 test: test-api test-web ## API tests (every suite) and web unit tests
 
 test-api: ## Every API suite, one folder per process (one process of everything exceeds PHP's 256 MB limit)
-	@fail=0; for d in tests/Unit tests/Feature tests/Acceptance/*/; do \
+	@fail=0; for d in tests/Unit tests/Feature $$(cd api && ls -d tests/Acceptance/*/); do \
 		echo "== $$d"; $(TEST_API) vendor/bin/pest $$d || fail=1; \
 	done; exit $$fail
 
