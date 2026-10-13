@@ -2406,6 +2406,16 @@
       "cardTitle": "Les candidats"
     },
     "review": {
+      "slip": "Votre bulletin",
+      "complete": {
+        "one": "{count} poste sur {count} complété",
+        "other": "{count} postes sur {count} complétés"
+      },
+      "blankHint": "Aucun candidat choisi",
+      "railTitle": "Avant de confirmer",
+      "rail1": "Votre vote reste secret : personne ne peut le relier à votre nom.",
+      "rail2": "Il est définitif : vous ne pourrez plus le changer.",
+      "rail3": "Il ne peut être confirmé qu’une seule fois.",
       "kicker": "Dernière étape",
       "heading": "Relisez votre vote",
       "lede": "Vérifiez chaque choix. Après confirmation, il ne pourra plus être changé.",

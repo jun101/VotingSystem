@@ -2406,6 +2406,16 @@
       "cardTitle": "The candidates"
     },
     "review": {
+      "slip": "Your ballot",
+      "complete": {
+        "one": "{count} of {count} position completed",
+        "other": "{count} of {count} positions completed"
+      },
+      "blankHint": "No candidate chosen",
+      "railTitle": "Before you confirm",
+      "rail1": "Your vote stays secret: nobody can link it to your name.",
+      "rail2": "It is final: you will not be able to change it.",
+      "rail3": "It can only be confirmed once.",
       "kicker": "Last step",
       "heading": "Review your vote",
       "lede": "Check each choice. Once confirmed, it cannot be changed.",
