@@ -48,8 +48,8 @@ export function proxy(request: NextRequest) {
  * `style-src-attr` lets React's `style` attributes through (a bar's width, a token's value); the styles
  * written as elements still need the nonce, and scripts never get `'unsafe-inline'`.
  * The development server evaluates code for its error overlay: `'unsafe-eval'` is added only when
- * NODE_ENV is not production and `CSP_DEV_UNSAFE_EVAL=1` (off in Compose, so the browser tests see the same
- * policy as production).
+ * NODE_ENV is not production and `CSP_DEV_UNSAFE_EVAL=1` (set by `.env`; `make e2e` empties it, so the
+ * browser tests see the same policy as production).
  */
 export function contentSecurityPolicy(nonce: string, env: NodeJS.ProcessEnv = process.env): string {
   const devEval =
