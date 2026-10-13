@@ -380,7 +380,8 @@
     "user": {
       "menu": "Menu de {name}",
       "signOut": "Se déconnecter",
-      "account": "Mon compte"
+      "account": "Mon compte",
+      "guide": "Guide d’utilisation"
     },
     "roles": {
       "owner": "Propriétaire",
@@ -2311,7 +2312,8 @@
         "expired": "Votre session a pris fin. Entrez de nouveau votre code pour continuer.",
         "ended": "Session terminée. L’électeur suivant peut entrer son code.",
         "alreadyVoted": "Ce code a déjà servi : le vote est enregistré et ne peut plus être changé."
-      }
+      },
+      "guide": "Voir le guide pas à pas"
     },
     "error": {
       "invalid_code": "Ce code n’est pas valide. Vérifiez-le sur votre fiche, ou demandez-en un nouveau.",
@@ -3013,6 +3015,7 @@
       "text": "Ses utilisateurs pourront se connecter de nouveau et ses élections en pause reprendront. Le propriétaire est prévenu par email.",
       "confirm": "Réactiver"
     },
-    "impersonate": "Se connecter en tant que"
+    "impersonate": "Se connecter en tant que",
+    "guide": "Guide d’utilisation"
   }
 }

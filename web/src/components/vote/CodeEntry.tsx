@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { Icon } from '@/components/admin/Icon';
@@ -232,6 +233,13 @@ export function CodeEntry() {
             </li>
           ))}
         </ol>
+        <Link
+          href="/guide/voter"
+          data-testid="vote-guide-link"
+          className="mt-3 inline-flex min-h-11 items-center font-semibold text-primary underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-primary"
+        >
+          {t('vote.code.guide')}
+        </Link>
       </VoteCard>
     </>
   );

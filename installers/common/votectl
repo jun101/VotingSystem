@@ -100,7 +100,8 @@ media_pack() {
 
 media_unpack() {
   case "$DRIVER" in
-    docker) docker compose -f "$COMPOSE_FILE" exec -T api tar -C /var/www/media -xzf - <"$1" ;;
+    # `run`, not `exec`: a restore stops the services first, and the api container must not be needed to be running.
+    docker) docker compose -f "$COMPOSE_FILE" run --rm -T --no-deps api tar -C /var/www/media -xzf - --exclude=. <"$1" ;;
     native) mkdir -p "$DATA_DIR/media" && tar -C "$DATA_DIR/media" -xzf "$1" ;;
   esac
 }
@@ -216,7 +217,11 @@ cmd_restore() {
   media_unpack "$work/media.tar.gz" || say "Warning: the pictures could not be restored."
   say "Starting the services..."
   services start >/dev/null 2>&1
-  artisan migrate --force || say "Warning: the migrations did not run; run 'votectl' again after update."
+  # The migrations (and the table rights) run with the migrator account: a one-off service on Docker, the installed tree otherwise.
+  case "$DRIVER" in
+    docker) docker compose -f "$COMPOSE_FILE" run --rm -T migrate >/dev/null 2>&1 || say "Warning: the migrations did not run; run 'votectl update' after restoring." ;;
+    native) artisan migrate --force || say "Warning: the migrations did not run; run the installer's update after restoring." ;;
+  esac
   say "Restored from $file (version $from)."
 }
 

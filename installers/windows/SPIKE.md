@@ -30,3 +30,26 @@ Each item is a yes or no with the error message if no.
 | 10 | Windows Firewall rule can be added and removed from the script | `New-NetFirewallRule` then `Remove-NetFirewallRule` |
 
 Anything that fails is written in the result with the exact message. Two failures in items 4 to 6 mean the fallback.
+
+
+## Result (2026-10-13, Windows 11 Enterprise evaluation, 5 GB, 4 CPUs, in a QEMU VM)
+
+**Native Windows works. No WSL2, no Docker.** All ten checks pass, with two differences from the plan:
+
+| # | Check | Result |
+|---|---|---|
+| 1 | PHP 8.5.11 NTS x64 with the needed modules | pass (needs the Visual C++ runtime; bundled) |
+| 2 | MariaDB 12.3.3 (zip, no installer) as a task on a free port | pass |
+| 3 | Our migrations and `db:grant-app` | pass |
+| 4 | A Redis-compatible store | pass with the Windows port of Redis 5.0.14 (cache, session, queue); Garnet was not needed |
+| 5 | Octane with RoadRunner | **not used**: the API runs as php-cgi FastCGI workers behind Caddy (4 processes, round robin). Simpler and no extra Composer package |
+| 6 | Queue worker without `pcntl` | pass (`queue:work` and `schedule:work` run as tasks) |
+| 7 | Next.js standalone with Node 24 | pass |
+| 8 | Caddy routes `/api`, `/media` and the web app on one port | pass |
+| 9 | The vote flow end to end | pass: sign-in with the one-time password, change it, election, ballot, candidates, voter, code, schedule, the scheduler opens it, vote, replay of the same submit answers 200 and counts one vote, close, results with the check OK |
+| 10 | Firewall rule added and removed by script | pass |
+
+Also checked: everything comes back by itself after a reboot of the machine.
+
+Decision: step F is a native `install.ps1` (see README.md). Downloads of the spike: PHP 34 MB, MariaDB 99 MB, Redis 12 MB,
+Node 36 MB, Caddy 18 MB, Visual C++ runtime 24 MB.

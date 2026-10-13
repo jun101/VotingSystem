@@ -1,0 +1,8 @@
+# Redis (the Windows port) of the school edition. Written by the installer.
+bind 127.0.0.1
+port @REDIS_PORT@
+requirepass @REDIS_PASSWORD@
+save ""
+appendonly no
+maxmemory 128mb
+maxmemory-policy volatile-lru

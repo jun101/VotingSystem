@@ -1,0 +1,870 @@
+{
+  "ui": {
+    "kicker": "Guide d’utilisation",
+    "skip": "Aller au contenu",
+    "manuals": "Les guides",
+    "contents": "Sommaire",
+    "tip": "Bon à savoir :",
+    "demo": "Les captures ont été prises sur des données de démonstration, en français.",
+    "mine": "Ouvrir mon guide",
+    "deniedTitle": "Ce guide n’est pas pour votre compte",
+    "denied": "Ce guide décrit des outils que votre compte n’a pas. Ouvrez celui qui correspond à votre rôle."
+  },
+  "roles": {
+    "voter": {
+      "name": "Électeur",
+      "lead": "Voter prend quelques minutes, sur un ordinateur ou un téléphone. Vous n’avez pas de compte : votre fiche de vote porte un code personnel, et c’est tout ce qu’il vous faut.",
+      "sections": {
+        "before": {
+          "title": "Avant l’ouverture",
+          "lead": "Si le scrutin n’a pas encore commencé, la page vous le dit et compte à rebours jusqu’à l’ouverture.",
+          "steps": [
+            "Ouvrez l’adresse de vote écrite sur votre fiche, ou scannez le QR code.",
+            "Lisez le titre de l’élection et le temps qui reste avant l’ouverture.",
+            "Revenez à l’heure indiquée : la page ne demande pas de code tant que le vote n’est pas ouvert."
+          ],
+          "legend": [
+            "Le titre de l’élection et l’établissement.",
+            "Le compte à rebours jusqu’à l’ouverture."
+          ],
+          "tip": "Vous pouvez laisser la page ouverte : elle passe d’elle-même à la saisie du code."
+        },
+        "code": {
+          "title": "Saisir votre code",
+          "lead": "Votre code personnel est sur la fiche remise par l’établissement ou dans le courriel reçu.",
+          "steps": [
+            "Ouvrez la page de vote. Si vous avez scanné le QR code ou cliqué sur le lien reçu, le code est déjà rempli : passez à l’étape suivante.",
+            "Tapez votre code dans les dix cases : cinq caractères, un tiret, cinq caractères. Majuscules ou minuscules, avec ou sans tiret, peu importe.",
+            "Appuyez sur « Continuer »."
+          ],
+          "legend": [
+            "Le titre de l’élection : vérifiez que c’est bien la bonne.",
+            "Les dix cases du code.",
+            "Le bouton pour continuer."
+          ],
+          "tip": "Le code ne contient jamais les caractères 0, O, 1, I ni L : il n’y a pas de confusion possible."
+        },
+        "identity": {
+          "title": "Vérifier que c’est vous",
+          "lead": "Après le code, la page affiche votre nom et votre groupe pour que vous confirmiez que la fiche est bien la vôtre.",
+          "steps": [
+            "Lisez votre nom et votre classe ou groupe.",
+            "Regardez la liste des scrutins sur lesquels vous votez : elle dépend de votre groupe.",
+            "Si tout est correct, appuyez sur « Oui, c’est moi ».",
+            "Si ce n’est pas vous, appuyez sur « Ce n’est pas moi » : la session est fermée et la fiche reste intacte."
+          ],
+          "legend": [
+            "Votre nom.",
+            "Votre classe ou votre groupe.",
+            "Le premier scrutin auquel vous participez.",
+            "Confirmer que c’est vous.",
+            "Dire que ce n’est pas vous."
+          ]
+        },
+        "ballot": {
+          "title": "Choisir un candidat",
+          "lead": "Chaque scrutin a sa propre page. Les candidats sont présentés avec leur photo, leur parti et leur slogan.",
+          "steps": [
+            "Regardez la barre de progression : elle indique à quel scrutin vous êtes.",
+            "Touchez la carte du candidat que vous choisissez. Elle se met en évidence et son nom apparaît en bas.",
+            "Pour changer d’avis, touchez une autre carte.",
+            "Appuyez sur « Suivant ». Le bouton ne s’active qu’après votre choix."
+          ],
+          "legend": [
+            "La progression : le scrutin en cours, parmi tous ceux qui vous concernent.",
+            "Un candidat choisi : son nom est répété en bas de l’écran.",
+            "Un autre candidat.",
+            "Le vote blanc, quand le scrutin l’autorise.",
+            "Passer au scrutin suivant."
+          ],
+          "tip": "Rien n’est enregistré tant que vous n’avez pas confirmé à la toute fin."
+        },
+        "blank": {
+          "title": "Voter blanc",
+          "lead": "Quand le scrutin le permet, vous pouvez ne choisir personne : c’est le vote blanc.",
+          "steps": [
+            "Touchez la case « Vote blanc » sous les candidats. Les candidats se désélectionnent.",
+            "Pour revenir sur votre décision, touchez-la de nouveau ou choisissez un candidat.",
+            "Appuyez sur « Suivant »."
+          ],
+          "legend": [
+            "La case du vote blanc, cochée.",
+            "Le rappel de ce que vous avez choisi.",
+            "Passer au scrutin suivant."
+          ]
+        },
+        "several": {
+          "title": "Choisir plusieurs candidats",
+          "lead": "Certains scrutins élisent plusieurs personnes, par exemple deux membres d’une commission.",
+          "steps": [
+            "Lisez la consigne en haut : « Choisissez 2 candidats », par exemple.",
+            "Touchez chaque candidat voulu. Le compteur indique combien vous en avez choisi.",
+            "Quand vous atteignez le nombre de postes, les autres cartes se verrouillent. Pour changer, retirez d’abord un candidat.",
+            "Appuyez sur « Suivant »."
+          ],
+          "legend": [
+            "La consigne et le compteur de choix.",
+            "Un premier candidat choisi.",
+            "Un deuxième candidat choisi.",
+            "Revenir au scrutin précédent.",
+            "Passer à la suite."
+          ]
+        },
+        "review": {
+          "title": "Relire son bulletin",
+          "lead": "Avant d’enregistrer, une page récapitule votre choix pour chaque scrutin.",
+          "steps": [
+            "Relisez vos choix, scrutin par scrutin.",
+            "Pour en corriger un, appuyez sur « Modifier » à côté de ce scrutin : vous y revenez, puis vous reprenez la suite.",
+            "Quand tout est bon, appuyez sur « Confirmer mon vote »."
+          ],
+          "legend": [
+            "Le récapitulatif d’un scrutin.",
+            "Modifier ce choix.",
+            "Confirmer : tous les scrutins sont enregistrés en une seule fois."
+          ],
+          "tip": "Un vote confirmé est définitif : on ne peut ni le modifier ni voter une seconde fois."
+        },
+        "done": {
+          "title": "Votre vote est enregistré",
+          "lead": "Une page de confirmation donne la date et l’heure. Elle ne montre pas vos choix : le vote est secret.",
+          "steps": [
+            "Vérifiez le message de confirmation et l’heure.",
+            "Vous pouvez fermer la page. Si l’appareil est partagé, elle revient d’elle-même à la saisie du code au bout de quelques secondes, pour la personne suivante."
+          ],
+          "legend": ["Le message de confirmation.", "La date et l’heure de votre vote."]
+        },
+        "phone": {
+          "title": "Sur un téléphone",
+          "lead": "Tout le parcours fonctionne sur un petit écran, y compris avec un téléphone d’entrée de gamme.",
+          "steps": [
+            "Ouvrez le lien ou scannez le QR code avec l’appareil photo du téléphone.",
+            "Suivez les mêmes étapes : code, vérification, scrutins, relecture, confirmation.",
+            "Les cartes des candidats s’empilent ; faites défiler pour toutes les voir. Les boutons « Retour » et « Suivant » restent en bas de l’écran."
+          ],
+          "legend": [
+            "Un candidat.",
+            "Un autre candidat.",
+            "Le bouton pour continuer, toujours visible."
+          ]
+        },
+        "problems": {
+          "title": "Si quelque chose ne va pas",
+          "lead": "Les messages disent ce qui se passe, sans jargon.",
+          "steps": [
+            "« Code non valide » : vérifiez les caractères, en particulier 2/Z, 5/S, 8/B. Retapez-le avec soin.",
+            "Plusieurs essais ratés d’affilée bloquent la saisie quelques minutes : attendez, puis réessayez.",
+            "« Vous avez déjà voté » : votre vote est bien enregistré, vous n’avez rien à refaire.",
+            "Code perdu ou illisible : adressez-vous à la personne qui organise l’élection, elle peut en émettre un nouveau.",
+            "Votre session dure au plus 15 minutes : si elle expire, saisissez de nouveau votre code ; rien n’avait été enregistré."
+          ],
+          "legend": ["La saisie du code.", "Le message d’erreur, en clair."]
+        },
+        "closed": {
+          "title": "Après la fermeture",
+          "lead": "Quand le vote est terminé, la page l’annonce.",
+          "steps": [
+            "Le message « Le vote est terminé » remplace la saisie du code.",
+            "Si l’établissement a publié les résultats, un lien vous y mène sans compte.",
+            "Si le vote est interrompu (par exemple une suspension), la page l’indique : réessayez plus tard, vos votes déjà enregistrés sont conservés."
+          ],
+          "legend": ["L’annonce de fin du vote.", "Le titre de l’élection."]
+        },
+        "already": {
+          "title": "« Vous avez déjà voté »",
+          "lead": "Un code ne sert qu’une fois. Si vous le saisissez de nouveau, la page vous le dit.",
+          "steps": [
+            "Lisez le message : votre vote est déjà enregistré, il n’y a rien à refaire.",
+            "Si ce n’est pas vous qui avez voté, prévenez tout de suite la personne qui organise l’élection : elle peut vérifier et vous donner un nouveau code si besoin.",
+            "Ne cherchez pas à voter une seconde fois : le serveur le refuse, même en cas de double envoi."
+          ],
+          "legend": ["Le message d’erreur."],
+          "tip": "Chaque code est lié à une seule personne et à une seule élection."
+        },
+        "paused": {
+          "title": "Vote suspendu",
+          "lead": "Si l’établissement est suspendu par la plateforme, les votes en cours sont mis en pause.",
+          "steps": [
+            "La page annonce que le vote est suspendu pour le moment.",
+            "Ne saisissez pas votre code plusieurs fois : attendez, puis revenez plus tard.",
+            "Quand l’établissement est réactivé, le vote reprend là où il en était ; les votes déjà enregistrés sont conservés."
+          ],
+          "legend": ["L’annonce de suspension."]
+        }
+      }
+    },
+    "manager": {
+      "name": "Gestionnaire",
+      "lead": "Préparez, ouvrez et suivez une élection : scrutins, candidats, électeurs, codes, participation, résultats. Les captures montrent les écrans réels.",
+      "sections": {
+        "signin": {
+          "title": "Se connecter",
+          "lead": "Vous recevez une invitation par courriel (ou, dans une installation d’école, un mot de passe provisoire).",
+          "steps": [
+            "Ouvrez l’adresse du site de votre établissement.",
+            "Saisissez votre adresse courriel et votre mot de passe.",
+            "Appuyez sur « Se connecter ». Si l’authentification à deux facteurs est activée, saisissez le code de votre application.",
+            "Mot de passe oublié : « Mot de passe oublié ? » envoie un lien de réinitialisation."
+          ],
+          "legend": [
+            "Votre adresse courriel.",
+            "Votre mot de passe.",
+            "Se connecter.",
+            "Réinitialiser le mot de passe.",
+            "Créer un établissement (réservé à un nouvel établissement)."
+          ]
+        },
+        "dashboard": {
+          "title": "Le tableau de bord",
+          "lead": "C’est la page d’arrivée : l’élection ouverte et sa participation, ce qu’il reste à faire, les chiffres clés.",
+          "steps": [
+            "Lisez le bandeau de bienvenue et l’élection en cours.",
+            "Utilisez les raccourcis pour créer une élection ou inviter quelqu’un.",
+            "Ouvrez le menu de gauche pour passer d’une section à l’autre ; la recherche « Aller à » retrouve une page, une élection ou un électeur.",
+            "Le bouton rond en haut à droite ouvre votre compte, le guide et la déconnexion."
+          ],
+          "legend": [
+            "Le bandeau de bienvenue.",
+            "Créer une élection.",
+            "L’élection ouverte, avec sa participation en direct.",
+            "Le menu : Élections, Établissement, Journal.",
+            "Votre menu personnel."
+          ],
+          "tip": "Toute page est à trois clics au plus depuis une autre."
+        },
+        "create": {
+          "title": "Créer une élection",
+          "lead": "Une élection a un titre, des dates et une langue. Le reste (scrutins, candidats, électeurs) vient ensuite.",
+          "steps": [
+            "Dans « Élections », appuyez sur « Nouvelle élection ».",
+            "Donnez un titre clair, par exemple « Élection du conseil des élèves 2026 ».",
+            "Choisissez la date et l’heure de début et de fin. Les heures sont celles du fuseau de l’élection (Haïti par défaut).",
+            "Choisissez la langue des écrans de vote, puis enregistrez : l’élection est un brouillon."
+          ],
+          "legend": [
+            "Le titre.",
+            "La description, visible des électeurs.",
+            "La langue de l’élection.",
+            "Enregistrer le brouillon."
+          ],
+          "tip": "La fin doit être après le début. Un brouillon peut être modifié ou supprimé librement."
+        },
+        "election": {
+          "title": "La page d’une élection",
+          "lead": "Toute l’élection se pilote d’ici : les étapes, la liste de contrôle et les actions.",
+          "steps": [
+            "Lisez le bandeau : titre, état (brouillon, planifiée, ouverte, fermée), dates.",
+            "Suivez les cinq étapes : scrutins, candidats, électeurs, codes, planification.",
+            "La liste de contrôle dit ce qui bloque l’ouverture et ce qui n’est qu’un avertissement.",
+            "Modifiez les dates ou la langue avec « Modifier »."
+          ],
+          "legend": [
+            "Le bandeau de l’élection et son état.",
+            "Les étapes à suivre.",
+            "La liste de contrôle avant planification.",
+            "Modifier l’élection."
+          ]
+        },
+        "ballots": {
+          "title": "Les scrutins",
+          "lead": "Un scrutin est un poste à pourvoir : président, délégué de classe, commission… Une élection peut en avoir plusieurs.",
+          "steps": [
+            "Ouvrez « Scrutins » et appuyez sur « Ajouter un scrutin ».",
+            "Donnez le titre, le nombre de postes et dites si le vote blanc est permis.",
+            "Choisissez la portée : tous les électeurs, ou seulement certains groupes (la 4e année, par exemple).",
+            "Réordonnez les scrutins par glisser-déposer : c’est l’ordre que voit l’électeur."
+          ],
+          "legend": [
+            "Ajouter un scrutin.",
+            "Un scrutin et ses candidats.",
+            "Le nombre de postes à pourvoir.",
+            "La portée : un scrutin réservé à des groupes.",
+            "Modifier le scrutin."
+          ],
+          "tip": "Un scrutin de groupe avec moins de 5 électeurs déclenche un avertissement : le résultat pourrait révéler un vote individuel."
+        },
+        "candidates": {
+          "title": "Les candidats et les partis",
+          "lead": "Chaque scrutin a ses candidats ; un parti est facultatif.",
+          "steps": [
+            "Sur la carte du scrutin, appuyez sur « Ajouter un candidat ».",
+            "Saisissez le prénom, le nom et le sexe (il choisit l’avatar tant qu’il n’y a pas de photo).",
+            "Ajoutez si vous voulez un parti, un slogan, une courte présentation et une photo (JPEG, PNG ou WebP, 5 Mo au plus).",
+            "Regardez l’aperçu : c’est ce que verra l’électeur. Enregistrez, ou « Enregistrer et ajouter un autre »."
+          ],
+          "legend": [
+            "Le prénom.",
+            "Le nom.",
+            "Le slogan, 80 caractères au plus.",
+            "Le parti, facultatif.",
+            "La photo, facultative, recadrée en carré.",
+            "Enregistrer le candidat."
+          ],
+          "tip": "L’ordre peut être manuel ou tiré au sort pour chaque électeur ; choisissez-le dans les réglages de l’élection."
+        },
+        "voters": {
+          "title": "Les électeurs et les groupes",
+          "lead": "Une fiche d’électeur contient un nom, un groupe, et facultativement un identifiant, un courriel, un téléphone. Pas de date de naissance.",
+          "steps": [
+            "Ouvrez « Électeurs ».",
+            "Ajoutez un électeur avec « Ajouter », ou importez un fichier (étape suivante), ou reprenez ceux d’une élection passée avec « Copier d’une élection ».",
+            "Cherchez par nom ; filtrez par groupe, par état du code ou par « a voté ».",
+            "Les groupes se renomment et se fusionnent depuis leur carte."
+          ],
+          "legend": [
+            "Ajouter un électeur.",
+            "Importer un fichier.",
+            "La recherche.",
+            "Les filtres.",
+            "Les groupes de l’élection.",
+            "Reprendre les électeurs d’une élection précédente."
+          ],
+          "tip": "On voit si un électeur a voté et quand, jamais pour qui."
+        },
+        "import": {
+          "title": "Importer un fichier d’électeurs",
+          "lead": "Pour une grande liste, importez un fichier CSV ou Excel (jusqu’à 10 000 lignes).",
+          "steps": [
+            "Téléchargez le modèle (CSV ou Excel) et remplissez-le : nom complet, groupe, identifiant, courriel, téléphone.",
+            "Déposez le fichier dans la zone prévue.",
+            "Vérifiez la correspondance des colonnes, puis l’aperçu : chaque ligne est contrôlée (nom manquant, courriel invalide, doublon).",
+            "Confirmez : les lignes valides sont importées ; les lignes refusées sont rendues dans un fichier d’erreurs."
+          ],
+          "legend": [
+            "Les consignes du fichier.",
+            "Le modèle à télécharger.",
+            "La zone où déposer le fichier.",
+            "Lancer le contrôle."
+          ],
+          "tip": "Rien n’est importé avant votre confirmation."
+        },
+        "codes": {
+          "title": "Les codes de vote",
+          "lead": "Chaque électeur reçoit un code personnel de dix caractères. Il n’est montré qu’une fois : le système n’en garde que l’empreinte.",
+          "steps": [
+            "Ouvrez « Codes ».",
+            "Appuyez sur « Générer les codes » : pour tous les électeurs, un groupe ou une personne.",
+            "Choisissez comment les distribuer : fiches à imprimer (PDF, une page par classe), courriel, ou fichier à distribuer vous-même.",
+            "Téléchargez les fichiers tout de suite : ils sont chiffrés et supprimés à la fermeture."
+          ],
+          "legend": [
+            "Le point : combien d’électeurs ont un code, combien n’en ont pas.",
+            "Générer les codes.",
+            "Envoyer par courriel (le nombre de messages est annoncé et à confirmer).",
+            "Un code perdu : il en est émis un nouveau, l’ancien est annulé."
+          ],
+          "tip": "Un code ne peut pas être réaffiché : seulement réémis. La réémission est refusée si la personne a déjà voté."
+        },
+        "schedule": {
+          "title": "Planifier l’élection",
+          "lead": "Planifier fige les scrutins et les candidats ; l’ouverture se fait ensuite d’elle-même à l’heure de début.",
+          "steps": [
+            "Sur la page de l’élection, lisez la liste de contrôle : les bloquants doivent être corrigés.",
+            "Lisez les avertissements (un groupe sans électeur, un électeur sans scrutin) et décidez.",
+            "Appuyez sur « Planifier l’élection » et acceptez les avertissements si vous les assumez.",
+            "Jusqu’à l’ouverture, vous pouvez repasser en brouillon pour corriger."
+          ],
+          "legend": [
+            "La liste de contrôle.",
+            "Le bouton de planification.",
+            "Les étapes : tout doit être fait."
+          ]
+        },
+        "turnout": {
+          "title": "Suivre la participation",
+          "lead": "Pendant le vote, on voit qui participe, jamais les résultats.",
+          "steps": [
+            "Ouvrez « Participation » depuis la page de l’élection.",
+            "Lisez le pourcentage en direct, le graphique par heure et la répartition par groupe.",
+            "Utilisez la liste des personnes qui n’ont pas voté pour les relancer ; exportez-la en CSV ou Excel.",
+            "Si besoin, reportez la fin du vote avec « Prolonger »."
+          ],
+          "legend": [
+            "Le taux de participation.",
+            "La courbe par heure.",
+            "La participation par groupe.",
+            "Les personnes qui n’ont pas encore voté.",
+            "Exporter la liste."
+          ],
+          "tip": "Aucun nombre de voix n’est visible avant la fermeture, pour personne, pas même la plateforme."
+        },
+        "close": {
+          "title": "Clôturer",
+          "lead": "Le vote se termine seul à l’heure de fin. Vous pouvez aussi le clôturer plus tôt.",
+          "steps": [
+            "Sur la page de l’élection, appuyez sur « Clôturer maintenant ».",
+            "Lisez ce qui va se passer : plus aucun vote ne sera accepté.",
+            "Tapez le titre exact de l’élection pour confirmer.",
+            "Appuyez sur « Clôturer » : les résultats deviennent visibles pour vous."
+          ],
+          "legend": ["La fenêtre de confirmation.", "Le titre à retaper.", "Clôturer.", "Annuler."],
+          "tip": "La clôture est définitive."
+        },
+        "results": {
+          "title": "Lire les résultats",
+          "lead": "Après la clôture, chaque scrutin affiche les voix, les pourcentages, les votes blancs et le ou les élus.",
+          "steps": [
+            "Lisez la participation et, pour chaque scrutin, les élus.",
+            "Contrôlez la vérification : le nombre de bulletins doit être égal au nombre d’électeurs concernés qui ont voté.",
+            "En cas d’égalité pour le dernier poste, le système le signale sans trancher ; vous pouvez ouvrir un second tour avec les candidats à égalité.",
+            "Ajoutez une note publique à un scrutin si nécessaire."
+          ],
+          "legend": [
+            "La participation.",
+            "Le gagnant d’un scrutin.",
+            "La vérification des bulletins.",
+            "La note publique.",
+            "La publication."
+          ],
+          "tip": "Le résultat d’un scrutin général n’est jamais ventilé par groupe."
+        },
+        "publication": {
+          "title": "Publier",
+          "lead": "Publier crée une page publique, lisible sans compte, à une adresse stable.",
+          "steps": [
+            "Dans la carte « Publication », appuyez sur « Publier ».",
+            "Choisissez ce que le public voit : les chiffres complets, ou seulement les élus et la participation.",
+            "Confirmez. La page est en ligne tout de suite et se dépublie quand vous voulez."
+          ],
+          "legend": ["La fenêtre de publication.", "Confirmer.", "Annuler."]
+        },
+        "published": {
+          "title": "Partager et télécharger",
+          "lead": "Une fois publié, vous avez l’adresse publique, le rapport PDF et l’image à partager.",
+          "steps": [
+            "Copiez l’adresse publique ou partagez-la par WhatsApp, Facebook ou X.",
+            "Téléchargez le rapport officiel en PDF.",
+            "Pour retirer la page, appuyez sur « Dépublier » ; vous pouvez ensuite archiver l’élection."
+          ],
+          "legend": ["L’adresse publique.", "Le rapport PDF.", "Retirer la publication."]
+        },
+        "public": {
+          "title": "Ce que voit le public",
+          "lead": "La page publique est faite pour être partagée : un téléphone suffit.",
+          "steps": [
+            "Le visiteur voit la participation et les élus (et les chiffres, si vous l’avez choisi).",
+            "Il peut partager par WhatsApp, Facebook, X ou copier le lien.",
+            "La page de l’établissement liste toutes ses élections publiées."
+          ],
+          "legend": ["La participation.", "Un élu.", "Le partage.", "Le rapport PDF."]
+        },
+        "account": {
+          "title": "Mon compte et la double authentification",
+          "lead": "Votre mot de passe et une protection supplémentaire se règlent dans « Mon compte ».",
+          "steps": [
+            "Ouvrez votre menu (bouton rond en haut à droite), puis « Mon compte ».",
+            "Changez votre mot de passe : l’ancien, puis le nouveau (12 caractères au moins).",
+            "Activez la double authentification : un code de votre application sera demandé à chaque connexion.",
+            "Gardez les huit codes de secours en lieu sûr."
+          ],
+          "legend": [
+            "Changer de mot de passe.",
+            "La carte de sécurité.",
+            "Activer la double authentification."
+          ]
+        },
+        "limits": {
+          "title": "Ce qu’un gestionnaire ne peut pas faire",
+          "lead": "Certaines actions sont réservées au propriétaire de l’établissement.",
+          "steps": [
+            "Gérer les utilisateurs (inviter, retirer, réinitialiser).",
+            "Lire le journal d’audit de l’établissement.",
+            "Supprimer l’établissement.",
+            "Pour tout le reste (élections, scrutins, électeurs, codes, résultats), votre rôle suffit."
+          ],
+          "legend": [
+            "La note qui l’explique sur la page de l’établissement.",
+            "Le profil de l’établissement."
+          ]
+        },
+        "invitation": {
+          "title": "Accepter l’invitation",
+          "lead": "Le propriétaire vous invite par courriel. Le lien ouvre cette page, une seule fois.",
+          "steps": [
+            "Ouvrez le lien reçu dans le courriel.",
+            "Écrivez votre nom, tel qu’il apparaîtra dans le journal.",
+            "Choisissez un mot de passe d’au moins 12 caractères.",
+            "Appuyez sur « Accepter » : vous arrivez au tableau de bord."
+          ],
+          "legend": ["Votre nom.", "Votre mot de passe.", "Accepter l’invitation."],
+          "tip": "Un lien expiré ou déjà utilisé s’affiche comme tel : demandez une nouvelle invitation au propriétaire."
+        },
+        "forgot": {
+          "title": "Mot de passe oublié",
+          "lead": "Un lien de réinitialisation est envoyé à votre adresse.",
+          "steps": [
+            "Sur la page de connexion, appuyez sur « Mot de passe oublié ? ».",
+            "Saisissez votre adresse courriel et envoyez.",
+            "Ouvrez le courriel, suivez le lien et choisissez un nouveau mot de passe.",
+            "Dans l’édition école (sans courriel), demandez à l’administrateur du serveur de le réinitialiser : un mot de passe provisoire vous est remis."
+          ],
+          "legend": ["Votre adresse courriel.", "Envoyer le lien."]
+        }
+      }
+    },
+    "owner": {
+      "name": "Propriétaire",
+      "lead": "Vous êtes responsable de l’établissement : son profil, son équipe, son journal, sa sécurité. Le guide « Gestionnaire » décrit le reste.",
+      "sections": {
+        "register": {
+          "title": "Créer l’établissement",
+          "lead": "Dans une installation en ligne, la première personne crée l’établissement et en devient propriétaire.",
+          "steps": [
+            "Ouvrez la page « Créer un établissement ».",
+            "Saisissez le nom de l’établissement, votre nom, votre courriel et un mot de passe d’au moins 12 caractères.",
+            "Appuyez sur « Créer mon établissement » : vous arrivez au tableau de bord."
+          ],
+          "legend": [
+            "Le nom de l’établissement.",
+            "Votre nom.",
+            "Votre adresse courriel.",
+            "Votre mot de passe, avec un indicateur de force.",
+            "Créer."
+          ],
+          "tip": "Dans l’édition « école » installée sur un serveur local, il n’y a pas de courriel : l’installateur crée votre compte et un mot de passe provisoire à changer à la première connexion."
+        },
+        "verify": {
+          "title": "Vérifier l’adresse courriel",
+          "lead": "Avant de planifier une élection, votre adresse doit être vérifiée.",
+          "steps": [
+            "Un bandeau en haut du tableau de bord vous le rappelle.",
+            "Ouvrez le courriel reçu et cliquez sur le lien.",
+            "Pas de courriel ? « Renvoyer » en envoie un nouveau."
+          ],
+          "legend": [
+            "Le bandeau de vérification.",
+            "Renvoyer le courriel.",
+            "Le bandeau de bienvenue."
+          ]
+        },
+        "institution": {
+          "title": "Le profil de l’établissement",
+          "lead": "Nom, type, logo, adresse, coordonnées, fuseau horaire et langue par défaut.",
+          "steps": [
+            "Ouvrez « Établissement » dans le menu.",
+            "Renseignez le profil : le nom et le logo apparaissent sur les pages de vote et les résultats.",
+            "Choisissez le fuseau horaire (Port-au-Prince par défaut) et la langue.",
+            "Enregistrez."
+          ],
+          "legend": [
+            "Le nom.",
+            "Le type d’établissement.",
+            "Le logo.",
+            "Enregistrer.",
+            "L’adresse publique de la page de l’établissement."
+          ]
+        },
+        "team": {
+          "title": "Inviter une personne",
+          "lead": "Un propriétaire peut inviter d’autres propriétaires et des gestionnaires.",
+          "steps": [
+            "Dans « Établissement », appuyez sur « Inviter ».",
+            "Saisissez le courriel de la personne.",
+            "Choisissez le rôle : gestionnaire (elections, électeurs, codes) ou propriétaire (tout).",
+            "Appuyez sur « Envoyer l’invitation »."
+          ],
+          "legend": ["Le courriel de la personne.", "Le rôle.", "Envoyer l’invitation."],
+          "tip": "Dans l’édition école (sans courriel), vous créez la personne vous-même : un mot de passe provisoire s’affiche une seule fois, à lui transmettre."
+        },
+        "invitation": {
+          "title": "Suivre les invitations et l’équipe",
+          "lead": "Chaque invitation a un état ; chaque membre, un rôle.",
+          "steps": [
+            "Les invitations en attente apparaissent avec leur état et leur date d’expiration.",
+            "Annulez celles qui ne servent plus.",
+            "Pour un membre, vous pouvez changer le rôle, réinitialiser son mot de passe ou sa double authentification, ou le retirer.",
+            "L’établissement garde toujours au moins un propriétaire."
+          ],
+          "legend": [
+            "Une invitation en attente.",
+            "Son état.",
+            "L’annuler.",
+            "La liste des membres de l’équipe."
+          ]
+        },
+        "audit": {
+          "title": "Le journal d’audit",
+          "lead": "Chaque action importante est consignée : qui, quoi, quand, depuis quelle adresse. Personne ne peut l’effacer.",
+          "steps": [
+            "Ouvrez « Journal » dans le menu.",
+            "Filtrez par personne, par élection, par action ou par dates.",
+            "Exportez en CSV ou Excel pour l’archiver ou le montrer."
+          ],
+          "legend": [
+            "Filtrer par personne.",
+            "Filtrer par élection.",
+            "La liste des événements.",
+            "Exporter."
+          ]
+        },
+        "twofactor": {
+          "title": "Activer la double authentification",
+          "lead": "Recommandé pour tous les propriétaires : un mot de passe volé ne suffit plus.",
+          "steps": [
+            "Dans « Mon compte », appuyez sur « Activer ».",
+            "Saisissez votre mot de passe.",
+            "Scannez le QR code avec une application d’authentification, ou saisissez la clé à la main.",
+            "Tapez le code à six chiffres affiché, puis confirmez.",
+            "Notez les huit codes de secours et cochez « Je les ai enregistrés »."
+          ],
+          "legend": [
+            "Le QR code.",
+            "La clé de secours, à saisir à la main.",
+            "Le code à six chiffres.",
+            "Confirmer."
+          ]
+        },
+        "public": {
+          "title": "Votre page publique",
+          "lead": "Votre établissement a une page publique qui liste les élections publiées.",
+          "steps": [
+            "Sur la page « Établissement », l’adresse publique est affichée.",
+            "Copiez-la pour l’afficher sur votre site ou la diffuser.",
+            "Ouvrez-la pour voir ce que voit le public."
+          ],
+          "legend": ["L’adresse publique.", "La copier.", "L’ouvrir."]
+        }
+      }
+    },
+    "platform": {
+      "name": "Administrateur de la plateforme",
+      "lead": "Vous gérez les établissements de la plateforme. Vous ne voyez jamais les votes, les codes ni les contacts des électeurs.",
+      "sections": {
+        "signin": {
+          "title": "Se connecter",
+          "lead": "Le compte est créé par l’opérateur du serveur avec la commande d’administration.",
+          "steps": [
+            "Ouvrez la page de connexion du site.",
+            "Saisissez votre adresse et votre mot de passe.",
+            "Saisissez le code de la double authentification (obligatoire pour ce rôle)."
+          ],
+          "legend": ["Votre adresse.", "Votre mot de passe.", "Se connecter."]
+        },
+        "list": {
+          "title": "La liste des établissements",
+          "lead": "Chaque établissement est une carte : état, nombre d’élections, propriétaire.",
+          "steps": [
+            "Cherchez par nom avec la barre de recherche.",
+            "Filtrez par état : actifs ou suspendus.",
+            "Lisez le nom, l’état et les chiffres de la carte.",
+            "Utilisez « Suspendre » ou « Agir comme le propriétaire » depuis la carte."
+          ],
+          "legend": [
+            "La recherche.",
+            "Le filtre d’état.",
+            "Le nom de l’établissement.",
+            "Suspendre.",
+            "Agir comme le propriétaire, pour aider."
+          ]
+        },
+        "suspend": {
+          "title": "Suspendre un établissement",
+          "lead": "Une suspension interdit la connexion et met en pause les votes en cours.",
+          "steps": [
+            "Appuyez sur « Suspendre » sur la carte.",
+            "Écrivez le motif : il est montré aux utilisateurs et envoyé aux propriétaires.",
+            "Confirmez. Les élections ouvertes passent en pause : les électeurs voient une page « vote suspendu ».",
+            "« Réactiver » rétablit tout ; les élections reprennent là où elles étaient."
+          ],
+          "legend": ["Le motif de la suspension.", "Confirmer la suspension."],
+          "tip": "Les résultats déjà publiés restent visibles."
+        },
+        "impersonate": {
+          "title": "Agir comme le propriétaire",
+          "lead": "Pour aider un établissement, vous pouvez ouvrir sa session de propriétaire.",
+          "steps": [
+            "Appuyez sur « Agir comme le propriétaire » sur la carte.",
+            "Un bandeau rappelle en permanence que vous agissez pour lui.",
+            "Appuyez sur « Terminer » pour revenir à votre écran de plateforme.",
+            "Chaque action est inscrite au journal de l’établissement, avec votre nom."
+          ],
+          "legend": [
+            "Le bandeau qui rappelle que vous agissez pour le propriétaire.",
+            "Terminer et revenir à la plateforme."
+          ]
+        },
+        "twofactor": {
+          "title": "La double authentification",
+          "lead": "Elle est obligatoire pour l’administrateur de la plateforme.",
+          "steps": [
+            "À la première connexion, l’écran vous demande de l’activer.",
+            "Scannez le QR code avec une application d’authentification.",
+            "Conservez les codes de secours hors du serveur.",
+            "En cas de perte, l’opérateur la réinitialise avec « votectl 2fa reset »."
+          ]
+        },
+        "limits": {
+          "title": "Ce que vous ne pouvez pas faire",
+          "lead": "Ces limites sont voulues : elles protègent le secret du vote.",
+          "steps": [
+            "Voir un vote, un code d’accès ou les coordonnées d’un électeur.",
+            "Lire la liste des voix avant la fermeture d’une élection.",
+            "Modifier le contenu d’un établissement sans agir en son nom (et donc sans trace)."
+          ]
+        },
+        "effects": {
+          "title": "Ce que voient les personnes de l’établissement",
+          "lead": "Une suspension a des effets immédiats, avec le motif que vous avez écrit.",
+          "steps": [
+            "Les propriétaires et gestionnaires ne peuvent plus se connecter : la page de connexion affiche le motif.",
+            "Les sessions ouvertes sont terminées.",
+            "Les électeurs d’une élection ouverte voient la page « vote suspendu »."
+          ],
+          "legend": ["Le message de suspension.", "Le motif, tel que vous l’avez écrit."]
+        },
+        "reactivate": {
+          "title": "Réactiver",
+          "lead": "Réactiver rétablit l’établissement tel qu’il était.",
+          "steps": [
+            "Sur la carte d’un établissement suspendu, appuyez sur « Réactiver ».",
+            "Confirmez dans la fenêtre.",
+            "L’état redevient « actif » ; les élections en pause reprennent, les personnes peuvent se connecter."
+          ],
+          "legend": ["L’état « suspendu ».", "Le bouton pour réactiver."]
+        }
+      }
+    },
+    "install": {
+      "name": "Installation",
+      "lead": "Mettre VoteSystem en service sur un ordinateur ou un serveur. Trois façons, selon le matériel et la connexion.",
+      "sections": {
+        "choose": {
+          "title": "Quelle installation choisir ?",
+          "lead": "Une seule application, trois installateurs.",
+          "steps": [
+            "Un serveur Linux dans l’établissement, sans internet : installateur Linux « école » (Debian 12 ou 13, Ubuntu 24.04 ou 26.04). Pas de courriel ; les comptes sont créés par l’installateur.",
+            "Un ordinateur Windows 11 dans l’établissement : installateur Windows (voir la section suivante).",
+            "Un serveur en ligne avec un nom de domaine : installateur Docker « en ligne », avec HTTPS automatique et courriel."
+          ],
+          "tip": "Les trois fournissent la commande « votectl » pour l’exploitation quotidienne."
+        },
+        "linux": {
+          "title": "Installer sur Linux (école)",
+          "lead": "Un seul script, sans Docker : il installe les services, une base de données et le site.",
+          "steps": [
+            "Téléchargez l’archive de la version et son fichier de somme de contrôle.",
+            "Vérifiez la somme, puis décompressez l’archive.",
+            "Lancez l’installateur en administrateur et répondez aux questions (ou ajoutez --yes pour accepter les valeurs proposées).",
+            "À la fin, lisez le résumé : adresse du site, ports, fichiers écrits."
+          ],
+          "commands": [
+            "sha256sum -c votesystem-X.Y.Z.tar.gz.sha256",
+            "tar -xzf votesystem-X.Y.Z.tar.gz && cd votesystem-X.Y.Z",
+            "sudo ./installers/install.sh --school \"Collège Saint-Louis\" --owner-email directeur@ecole.local"
+          ],
+          "tip": "L’installateur teste l’espace, la mémoire et les ports, prend le port libre suivant si le 80 est pris, et propose d’ouvrir le port dans le pare-feu."
+        },
+        "windows": {
+          "title": "Installer sur Windows",
+          "lead": "Une installation native, sans Docker ni WSL : tout est dans l’archive, y compris la base de données. Elle fonctionne hors connexion.",
+          "steps": [
+            "Téléchargez l’archive de la version pour Windows et son fichier de somme de contrôle.",
+            "Vérifiez la somme, puis décompressez l’archive près de la racine du disque (par exemple dans C:\\).",
+            "Ouvrez PowerShell « en tant qu’administrateur » dans le dossier décompressé et lancez l’installateur. Il vérifie la machine, choisit les ports libres, pose ses questions une fois (nom de l’école, adresses de connexion, pare-feu) et installe tout en une minute environ.",
+            "À la fin, lisez le résumé : l’adresse du site, et les deux fichiers écrits sur le Bureau.",
+            "Dans le pare-feu Windows, une règle limitée aux réseaux privés ouvre le port du site : les ordinateurs de l’école peuvent alors joindre le serveur."
+          ],
+          "commands": [
+            "Get-FileHash .\\votesystem-X.Y.Z-windows-x64.zip -Algorithm SHA256",
+            "Expand-Archive .\\votesystem-X.Y.Z-windows-x64.zip -DestinationPath C:\\",
+            "cd C:\\votesystem-X.Y.Z-windows-x64",
+            "powershell -ExecutionPolicy Bypass -File .\\installers\\install.ps1"
+          ],
+          "tip": "Windows 10 (1809 ou plus récent), Windows 11 ou Windows Server 2019 ou plus récent, 64 bits, 4 Go de mémoire et 5 Go libres. Les services démarrent avec l’ordinateur."
+        },
+        "docker": {
+          "title": "Installer en ligne avec Docker",
+          "lead": "Pour un serveur public avec un nom de domaine unique.",
+          "steps": [
+            "Le nom de domaine doit déjà pointer vers le serveur ; les ports 80 et 443 doivent être libres.",
+            "Téléchargez l’archive de la version, vérifiez la somme, décompressez.",
+            "Lancez l’installateur en administrateur : il pose ses questions une seule fois (domaine, courriel SMTP, adresse de l’administrateur de la plateforme).",
+            "Derrière un autre proxy, répondez « oui » à « un autre proxy fera le HTTPS » : VoteSystem écoute alors en local."
+          ],
+          "commands": [
+            "wget https://github.com/jun101/VotingSystem/releases/download/vX.Y.Z/votesystem-online-X.Y.Z.tar.gz",
+            "sha256sum -c votesystem-online-X.Y.Z.tar.gz.sha256",
+            "tar -xzf votesystem-online-X.Y.Z.tar.gz && cd votesystem-online-X.Y.Z",
+            "sudo ./install-online.sh"
+          ]
+        },
+        "first": {
+          "title": "Première connexion",
+          "lead": "L’installateur écrit deux fichiers dans le dossier de la personne qui a lancé sudo.",
+          "steps": [
+            "Ouvrez « votesystem-identifiants.txt » : les adresses et les mots de passe provisoires.",
+            "Copiez « votesystem-cle-audit-A-EMPORTER.txt » sur une clé USB ou un autre ordinateur, puis supprimez-le du serveur : c’est la clé privée de l’audit, elle ne doit pas rester sur la machine.",
+            "Ouvrez l’adresse du site, connectez-vous : on vous demande de changer le mot de passe provisoire avant tout.",
+            "Activez la double authentification du propriétaire et de l’administrateur."
+          ]
+        },
+        "daily": {
+          "title": "L’exploitation avec votectl",
+          "lead": "La commande « votectl » fait le quotidien, sans toucher aux données de vote.",
+          "steps": [
+            "votectl status : l’état des services et de l’espace disque.",
+            "votectl user list, user reset-password, 2fa reset : les comptes.",
+            "votectl owner create et admin create : de nouveaux comptes.",
+            "votectl logs [service] : les journaux."
+          ],
+          "commands": [
+            "sudo votectl status",
+            "sudo votectl user list",
+            "sudo votectl user reset-password directeur@ecole.local"
+          ]
+        },
+        "update": {
+          "title": "Mettre à jour",
+          "lead": "Une mise à jour garde les données et revient en arrière si elle échoue.",
+          "steps": [
+            "Téléchargez la nouvelle version et décompressez-la.",
+            "Lancez la commande de mise à jour : une sauvegarde est faite d’abord.",
+            "Si l’étape des migrations échoue, l’ancienne version est remise en service automatiquement."
+          ],
+          "commands": [
+            "sudo ./installers/install.sh update",
+            "sudo votectl update --version X.Y.Z"
+          ],
+          "tip": "La première commande est celle de l’édition école, la seconde celle de l’édition en ligne."
+        },
+        "backup": {
+          "title": "Sauvegarder et restaurer",
+          "lead": "Une sauvegarde est une archive vérifiée : base de données et images.",
+          "steps": [
+            "Une sauvegarde automatique tourne chaque nuit (édition école).",
+            "Pour en faire une à la demande, lancez la commande ci-dessous.",
+            "Copiez régulièrement les archives sur un disque externe.",
+            "Pour restaurer, utilisez « votectl restore » avec le fichier : essayez-le une fois avant d’en avoir besoin."
+          ],
+          "commands": [
+            "sudo votectl backup",
+            "sudo votectl restore /var/backups/votesystem/votesystem-AAAA-MM-JJ.tar.gz"
+          ],
+          "tip": "La clé privée de l’audit ne fait jamais partie d’une sauvegarde."
+        },
+        "problems": {
+          "title": "En cas de problème",
+          "lead": "Les premiers contrôles.",
+          "steps": [
+            "Le site ne répond pas : « votectl status » montre quel service est arrêté.",
+            "Le port est pris : relancez l’installateur, il choisit le suivant et l’écrit dans le résumé.",
+            "Les électeurs ne joignent pas le site : vérifiez le pare-feu du serveur et que les appareils sont sur le même réseau.",
+            "Mot de passe perdu : « votectl user reset-password » en génère un provisoire."
+          ]
+        },
+        "uninstall": {
+          "title": "Désinstaller",
+          "lead": "La désinstallation retire les services ; les données ne sont supprimées que sur demande.",
+          "steps": [
+            "Lancez la commande de désinstallation : les services et la règle du pare-feu sont retirés, les données restent.",
+            "Avec --purge-data, les données sont aussi supprimées : à n’utiliser qu’après une sauvegarde copiée ailleurs."
+          ],
+          "commands": [
+            "sudo /opt/votesystem/installer/install.sh uninstall",
+            "sudo /opt/votesystem/installer/install.sh uninstall --purge-data"
+          ]
+        }
+      }
+    }
+  }
+}

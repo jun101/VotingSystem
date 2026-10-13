@@ -1325,10 +1325,14 @@
   @keyframes code-glow {
     0%,
     100% {
-      box-shadow: var(--shadow-2), 0 0 0 0 rgb(84 104 212 / 0.4);
+      box-shadow:
+        var(--shadow-2),
+        0 0 0 0 rgb(84 104 212 / 0.4);
     }
     50% {
-      box-shadow: var(--shadow-2), 0 0 0 10px rgb(84 104 212 / 0);
+      box-shadow:
+        var(--shadow-2),
+        0 0 0 10px rgb(84 104 212 / 0);
     }
   }
 
