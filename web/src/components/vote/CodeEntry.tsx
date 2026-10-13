@@ -3,11 +3,12 @@
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { Icon } from '@/components/admin/Icon';
-import { Button, Input, Notice } from '@/components/ui';
+import { Button, Notice } from '@/components/ui';
 import { ApiError, waitText } from '@/lib/api/errors';
 import { openSession, VoteError, type VotePhase } from '@/lib/api/vote';
 import { useI18n } from '@/lib/i18n/client';
 import { BeforeMain, BeforeRail } from './BeforeOpening';
+import { CodeBoxes } from './CodeBoxes';
 import { VoteCard } from './VoteCard';
 import { useVote } from './VoteProvider';
 import { VoteShell } from './VoteShell';
@@ -168,51 +169,120 @@ export function CodeEntry() {
     );
   } else {
     main = (
-      <VoteCard tone="getting-started" icon="lock" title={t('vote.code.heading')}>
-        {notice ? (
-          <Notice
-            tone={notice === 'ended' ? 'teal' : 'warm'}
-            role="status"
-            data-testid="vote-code-notice"
+      <section
+        aria-labelledby="vote-code-heading"
+        className="code-card flex min-w-0 flex-col overflow-hidden rounded-lg bg-surface"
+      >
+        <header
+          data-head="getting-started"
+          className="dash-head relative flex items-center gap-4 overflow-hidden px-5 py-5 sm:px-8"
+        >
+          <span
+            aria-hidden="true"
+            className="code-key flex size-14 shrink-0 items-center justify-center rounded-full bg-glass-line sm:size-16"
           >
-            {t(`vote.code.notice.${notice}`)}
-          </Notice>
-        ) : null}
-        <p className="text-md text-ink-2">{t('vote.code.lede')}</p>
-        <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
-          <Input
-            data-testid="vote-code-input"
-            label={t('vote.code.label')}
-            help={t('vote.code.help')}
-            value={code}
-            onChange={(event) => setCode(event.target.value)}
-            autoComplete="off"
-            autoCapitalize="characters"
-            autoCorrect="off"
-            spellCheck={false}
-            maxLength={32}
-            error={problem?.onField ? problem.text : undefined}
-            errorTestId="vote-code-error"
-            className="font-mono tracking-widest uppercase"
-          />
-          {problem && !problem.onField ? (
-            <Notice tone="danger" role="alert" data-testid="vote-code-error">
-              {problem.text}
+            <Icon name="key" size={32} />
+          </span>
+          <div className="flex min-w-0 flex-col">
+            <h2 id="vote-code-heading" className="font-display text-2xl font-extrabold sm:text-3xl">
+              {t('vote.code.heading')}
+            </h2>
+            <p className="text-base text-hero-ink-soft">{t('vote.code.stepHint')}</p>
+          </div>
+        </header>
+        <div className="flex flex-col gap-6 px-4 py-6 sm:px-8 sm:py-8">
+          {notice ? (
+            <Notice
+              tone={notice === 'ended' ? 'teal' : 'warm'}
+              role="status"
+              data-testid="vote-code-notice"
+            >
+              {t(`vote.code.notice.${notice}`)}
             </Notice>
           ) : null}
-          <Button
-            type="submit"
-            variant="primary"
-            size="voter"
-            shimmer
-            loading={busy}
-            data-testid="vote-code-submit"
-            className="w-full"
-          >
-            {t('vote.code.submit')}
-          </Button>
-        </form>
+          <p className="text-center text-md text-ink-2">{t('vote.code.lede')}</p>
+          <form onSubmit={onSubmit} noValidate className="flex flex-col gap-6">
+            <CodeBoxes
+              testId="vote-code-input"
+              label={t('vote.code.label')}
+              help={t('vote.code.help')}
+              value={code}
+              onChange={setCode}
+              error={problem?.onField ? problem.text : undefined}
+              errorTestId="vote-code-error"
+            />
+            {problem && !problem.onField ? (
+              <Notice tone="danger" role="alert" data-testid="vote-code-error">
+                {problem.text}
+              </Notice>
+            ) : null}
+            <Button
+              type="submit"
+              variant="primary"
+              size="voter"
+              shimmer
+              loading={busy}
+              data-testid="vote-code-submit"
+              className="mx-auto min-h-14 w-full max-w-xl text-lg"
+            >
+              <span className="code-go inline-flex items-center gap-2">
+                {t('vote.code.submit')}
+                <Icon name="open" size={22} />
+              </span>
+            </Button>
+          </form>
+        </div>
+      </section>
+    );
+  }
+
+  const rail = (
+    <>
+      <VoteCard tone="latest" icon="calendar" title={t('vote.code.periodTitle')}>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="flex min-w-0 flex-col gap-1 rounded-md bg-primary-soft p-3">
+            <span className="text-sm font-medium text-ink-2">{t('vote.period.start')}</span>
+            <span className="text-base font-bold text-ink">{starts}</span>
+          </div>
+          <div className="flex min-w-0 flex-col gap-1 rounded-md bg-warm-softer p-3">
+            <span className="text-sm font-medium text-ink-2">{t('vote.period.end')}</span>
+            <span className="text-base font-bold text-ink">{ends}</span>
+          </div>
+        </div>
       </VoteCard>
+      <VoteCard tone="figures" icon="log" title={t('vote.code.secretTitle')}>
+        <p className="text-md text-ink-2">{t('vote.code.secretText')}</p>
+      </VoteCard>
+      <VoteCard tone="activity" icon="list" title={t('vote.code.howTitle')}>
+        <ol className="flex flex-col gap-3">
+          {([1, 2, 3] as const).map((step) => (
+            <li key={step} className="flex items-start gap-3">
+              <span
+                aria-hidden="true"
+                className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary-soft font-display text-base font-extrabold text-primary-hover"
+              >
+                {step}
+              </span>
+              <span className="flex min-w-0 flex-col">
+                <span className="font-semibold text-ink">{t(`vote.code.step${step}Title`)}</span>
+                <span className="text-base text-ink-soft">{t(`vote.code.step${step}Text`)}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
+      </VoteCard>
+    </>
+  );
+
+  // The open vote gives the page to the code: alone and wide, the three notes in a row beneath it.
+  if (info.phase === 'open') {
+    return (
+      <VoteShell hero={hero} live testId="vote-page">
+        <div className="flex flex-col gap-5">
+          {main}
+          <div className="grid items-start gap-4 lg:grid-cols-3">{rail}</div>
+        </div>
+      </VoteShell>
     );
   }
 
@@ -223,45 +293,7 @@ export function CodeEntry() {
         {info.phase === 'before' ? (
           <BeforeRail />
         ) : (
-          <div className="flex min-w-0 flex-col gap-4">
-            <VoteCard tone="latest" icon="calendar" title={t('vote.code.periodTitle')}>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex min-w-0 flex-col gap-1 rounded-md bg-primary-soft p-3">
-                  <span className="text-sm font-medium text-ink-2">{t('vote.period.start')}</span>
-                  <span className="text-base font-bold text-ink">{starts}</span>
-                </div>
-                <div className="flex min-w-0 flex-col gap-1 rounded-md bg-warm-softer p-3">
-                  <span className="text-sm font-medium text-ink-2">{t('vote.period.end')}</span>
-                  <span className="text-base font-bold text-ink">{ends}</span>
-                </div>
-              </div>
-            </VoteCard>
-            <VoteCard tone="figures" icon="log" title={t('vote.code.secretTitle')}>
-              <p className="text-md text-ink-2">{t('vote.code.secretText')}</p>
-            </VoteCard>
-            <VoteCard tone="activity" icon="list" title={t('vote.code.howTitle')}>
-              <ol className="flex flex-col gap-3">
-                {([1, 2, 3] as const).map((step) => (
-                  <li key={step} className="flex items-start gap-3">
-                    <span
-                      aria-hidden="true"
-                      className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary-soft font-display text-base font-extrabold text-primary-hover"
-                    >
-                      {step}
-                    </span>
-                    <span className="flex min-w-0 flex-col">
-                      <span className="font-semibold text-ink">
-                        {t(`vote.code.step${step}Title`)}
-                      </span>
-                      <span className="text-base text-ink-soft">
-                        {t(`vote.code.step${step}Text`)}
-                      </span>
-                    </span>
-                  </li>
-                ))}
-              </ol>
-            </VoteCard>
-          </div>
+          <div className="flex min-w-0 flex-col gap-4">{rail}</div>
         )}
       </div>
     </VoteShell>

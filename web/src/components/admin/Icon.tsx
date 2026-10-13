@@ -162,6 +162,14 @@ const SYMBOLS = {
       </>
     ),
   },
+  key: {
+    shapes: (
+      <>
+        <circle cx="8" cy="15" r="4" />
+        <path d="M11 12l9-9M16 7l3 3M14 9l2 2" />
+      </>
+    ),
+  },
   grip: {
     shapes: (
       <>
