@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Reveal } from '@/components/motion';
 import { Card } from '@/components/ui';
 import { useAdminUser } from '@/components/admin/AdminUser';
+import { useDeployment } from '@/components/admin/Deployment';
 import type { InstitutionProfile, Listing, PendingInvitation, TeamMember } from '@/lib/api/user';
 import { useI18n } from '@/lib/i18n/client';
 import { ProfileCard } from './ProfileCard';
@@ -27,6 +28,7 @@ export function InstitutionPage({
 }) {
   const { t } = useI18n();
   const user = useAdminUser();
+  const { school } = useDeployment();
   const owner = user.role === 'owner';
   const [profile, setProfile] = useState(initialProfile);
 
@@ -43,7 +45,7 @@ export function InstitutionPage({
 
       <div className="min-w-0">
         {owner && members && invitations ? (
-          <UsersCard members={members} invitations={invitations} />
+          <UsersCard members={members} invitations={invitations} schoolMode={school} />
         ) : (
           <Card title={t('institution.users.managerNoteTitle')}>
             <p data-testid="users-manager-note" className="text-base text-ink-soft">

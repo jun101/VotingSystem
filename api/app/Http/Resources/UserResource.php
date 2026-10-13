@@ -29,6 +29,8 @@ final class UserResource extends ApiResource
             'email_verified' => $user->hasVerifiedEmail(),
             'language' => $user->language,
             'institution' => $user->institution === null ? null : new InstitutionResource($user->institution),
-        ] + ($by === null ? [] : ['impersonating' => (object) ['by' => $by['name']]]);
+        ] + ($by === null ? [] : ['impersonating' => (object) ['by' => $by['name']]])
+            // School mode: present (and true) only while the user must change a one-time password.
+            + ($user->must_change_password === true ? ['must_change_password' => true] : []);
     }
 }

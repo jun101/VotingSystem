@@ -231,6 +231,14 @@ Rules for a file:
 - The **Test** column is filled with the test's name when the acceptance tests are
   written, and checked against the real responses before the slice is approved.
 
+## 7a. Deployment mode (slice 19c)
+
+`DEPLOYMENT_MODE` is `online` (default) or `school`. In `school` mode no email is ever sent: sign-up, email
+verification, password reset by link, invitations and the email channel of access codes are closed (404 or 422 as
+their files say), team members are created by an owner with a one-time password, and the `Secure` flag of cookies
+follows the request (HTTPS or not). The error `password_change_required` (403) is raised for a user who must change a
+one-time password. Behaviour in `online` mode is unchanged.
+
 ## 8. Index
 
 Filled slice by slice: each slice adds its endpoints here with a link to their files.
@@ -248,6 +256,9 @@ Filled slice by slice: each slice adds its endpoints here with a link to their f
 | Auth | `PATCH /auth/me` | 03 | [auth/PATCH-auth-me.md](auth/PATCH-auth-me.md) |
 | Auth | `POST /auth/forgot-password` | 02 | [auth/POST-auth-forgot-password.md](auth/POST-auth-forgot-password.md) |
 | Auth | `POST /auth/reset-password` | 02 | [auth/POST-auth-reset-password.md](auth/POST-auth-reset-password.md) |
+| Auth | `POST /auth/change-password` | 19c | [auth/POST-auth-change-password.md](auth/POST-auth-change-password.md) |
+| Users | `POST /users` | 19c | [users/POST-users.md](users/POST-users.md) |
+| Users | `POST /users/{user}/password-reset` | 19c | [users/POST-users-{user}-password-reset.md](users/POST-users-{user}-password-reset.md) |
 | Auth | `POST /auth/accept-invitation` | 04 | [auth/POST-auth-accept-invitation.md](auth/POST-auth-accept-invitation.md) |
 | Institution | `GET /institution` | 04 | [institution/GET-institution.md](institution/GET-institution.md) |
 | Institution | `PATCH /institution` | 04 | [institution/PATCH-institution.md](institution/PATCH-institution.md) |

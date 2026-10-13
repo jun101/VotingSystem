@@ -533,7 +533,8 @@
       "text": "Signed in by {name} (platform administration). Every action is recorded in the audit log under your name and is visible to the institution’s owners.",
       "end": "Leave the institution",
       "ending": "Leaving…"
-    }
+    },
+    "insecure": "Unencrypted connection (HTTP): passwords and codes cross the school network in clear."
   },
   "errors": {
     "validation_failed": "Some fields need correcting.",
@@ -885,6 +886,39 @@
           "max": "The reason is too long (500 characters at most)."
         }
       }
+    },
+    "createMember": {
+      "name": {
+        "required": "Enter the person’s name.",
+        "max": "This name is too long (100 characters at most)."
+      },
+      "email": {
+        "required": "Enter a sign-in address.",
+        "email": "Enter a valid address.",
+        "max": "This address is too long (255 characters at most).",
+        "taken": "This address already has an account."
+      },
+      "role": {
+        "required": "Choose a role.",
+        "in": "Choose a role from the list."
+      },
+      "password": {
+        "required": "Enter your password.",
+        "incorrect": "This is not your password."
+      }
+    },
+    "changePassword": {
+      "current_password": {
+        "required": "Enter your current password.",
+        "incorrect": "This is not your current password."
+      },
+      "password": {
+        "required": "Enter a new password.",
+        "min": "The new password needs at least 12 characters.",
+        "max": "The new password is too long.",
+        "same_as_email": "The password cannot be your address.",
+        "unchanged": "Choose a password different from the current one."
+      }
     }
   },
   "institution": {
@@ -976,7 +1010,35 @@
       "resetCode": "Your 6-digit code",
       "resetCodeHelp": "Your own code from the authenticator app, to confirm.",
       "resetRecoveryCode": "Your recovery code",
-      "resetRecoveryHelp": "One of your own recovery codes. Each code works only once."
+      "resetRecoveryHelp": "One of your own recovery codes. Each code works only once.",
+      "create": {
+        "open": "Create a member",
+        "title": "Create a team member",
+        "name": "Full name",
+        "email": "Sign-in address",
+        "emailHelp": "No email is sent. Any address works, for example firstname@school.local.",
+        "role": "Role",
+        "password": "Your password",
+        "passwordHelp": "Your own password, to confirm.",
+        "code": "Your two-factor code",
+        "recovery": "One of your recovery codes",
+        "submit": "Create the account",
+        "cancel": "Cancel"
+      },
+      "issued": {
+        "title": "Password to give to {name}",
+        "text": "This password is shown only once. The person must change it at their first sign-in.",
+        "copy": "Copy",
+        "copied": "Copied",
+        "dismiss": "I have noted the password"
+      },
+      "passwordReset": {
+        "action": "New password",
+        "label": "Give {name} a new password",
+        "title": "New password for {name}",
+        "text": "A new one-time password replaces the current one and ends this person’s sessions. Confirm with your own password.",
+        "confirm": "Create the password"
+      }
     }
   },
   "account": {
@@ -1040,6 +1102,22 @@
       "recoveryHelp": "One of your recovery codes. Each code works only once.",
       "useRecovery": "Use a recovery code",
       "useCode": "Use the app code"
+    },
+    "changePassword": {
+      "title": "Password",
+      "text": "Change the password you use to sign in. Your other sessions end.",
+      "current": "Current password",
+      "new": "New password",
+      "newHelp": "At least 12 characters.",
+      "submit": "Change the password",
+      "done": "Your password is changed.",
+      "code": "Two-factor code",
+      "recovery": "Recovery code"
+    },
+    "passwordRequired": {
+      "kicker": "First sign-in",
+      "title": "Choose your own password",
+      "text": "The password you were given is for one use. Choose your own to go on."
     }
   },
   "elections": {

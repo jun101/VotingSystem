@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Audit\AuditController;
 use App\Http\Controllers\Auth\AcceptInvitationController;
+use App\Http\Controllers\Auth\ChangePasswordController;
 use App\Http\Controllers\Auth\CsrfController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
@@ -62,16 +63,18 @@ Route::prefix('v1')->group(function (): void {
     // checks the CSRF token of every POST (bootstrap/app.php).
     Route::prefix('auth')->middleware('cookie-session')->group(function (): void {
         Route::get('/csrf', CsrfController::class)->middleware('throttle:auth-csrf');
-        Route::post('/register', RegisterController::class)->middleware('throttle:auth-register');
+        Route::post('/register', RegisterController::class)->middleware(['deployment:online', 'throttle:auth-register']);
         Route::post('/login', LoginController::class)->middleware('throttle:auth-login');
         Route::post('/logout', LogoutController::class)->middleware('auth');
         Route::get('/me', MeController::class)->middleware(['auth', 'institution.active']);
         Route::patch('/me', [MeController::class, 'update'])->middleware(['auth', 'institution.active']);
-        Route::post('/verify-email', VerifyEmailController::class)->middleware('throttle:auth-verify-email');
+        Route::post('/verify-email', VerifyEmailController::class)->middleware(['deployment:online', 'throttle:auth-verify-email']);
         Route::post('/verify-email/resend', ResendVerificationController::class)
-            ->middleware(['auth', 'institution.active', 'throttle:auth-resend']);
-        Route::post('/forgot-password', ForgotPasswordController::class)->middleware('throttle:auth-forgot-password');
-        Route::post('/reset-password', ResetPasswordController::class)->middleware('throttle:auth-reset-password');
+            ->middleware(['auth', 'institution.active', 'deployment:online', 'throttle:auth-resend']);
+        // Change one's own password (slice 19c); in school mode it is also how a one-time password is replaced.
+        Route::post('/change-password', ChangePasswordController::class)->middleware(['auth', 'throttle:auth-change-password']);
+        Route::post('/forgot-password', ForgotPasswordController::class)->middleware(['deployment:online', 'throttle:auth-forgot-password']);
+        Route::post('/reset-password', ResetPasswordController::class)->middleware(['deployment:online', 'throttle:auth-reset-password']);
         // Two-factor authentication (slice 04b). The challenge finishes a sign-in the password
         // step started in this session; the others are the signed-in user's own settings, with
         // one shared limiter.
@@ -83,7 +86,7 @@ Route::prefix('v1')->group(function (): void {
             Route::post('/disable', [TwoFactorController::class, 'disable'])->middleware('throttle:two-factor');
             Route::post('/recovery-codes', [TwoFactorController::class, 'recoveryCodes'])->middleware('throttle:two-factor');
         });
-        Route::post('/accept-invitation', AcceptInvitationController::class)->middleware('throttle.quiet:auth-accept-invitation');
+        Route::post('/accept-invitation', AcceptInvitationController::class)->middleware(['deployment:online', 'throttle.quiet:auth-accept-invitation']);
     });
 
     // The voter's pages (slice 12). No institution user and no cookie session: the code is the credential,
@@ -122,9 +125,12 @@ Route::prefix('v1')->group(function (): void {
             Route::get('/users', [UserController::class, 'index']);
             Route::delete('/users/{user}', [UserController::class, 'destroy']);
             Route::post('/users/{user}/two-factor/reset', [UserController::class, 'resetTwoFactor'])->middleware('throttle:two-factor');
-            Route::get('/invitations', [InvitationController::class, 'index']);
-            Route::post('/invitations', [InvitationController::class, 'store'])->middleware('throttle:invitations-create');
-            Route::delete('/invitations/{invitation}', [InvitationController::class, 'destroy']);
+            // School mode (slice 19c): no invitations (no email); the owner creates the person and hands over a one-time password.
+            Route::post('/users', [UserController::class, 'store'])->middleware(['deployment:school,method', 'throttle:users-create']);
+            Route::post('/users/{user}/password-reset', [UserController::class, 'passwordReset'])->middleware(['deployment:school', 'throttle:two-factor']);
+            Route::get('/invitations', [InvitationController::class, 'index'])->middleware('deployment:online');
+            Route::post('/invitations', [InvitationController::class, 'store'])->middleware(['deployment:online', 'throttle:invitations-create']);
+            Route::delete('/invitations/{invitation}', [InvitationController::class, 'destroy'])->middleware('deployment:online');
         });
     });
 

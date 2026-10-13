@@ -38,6 +38,9 @@ file and the deploy steps are built here.
 
 ## Step A — School mode in the application
 
+Done: see [19c-step-a.done.md](19c-step-a.done.md). Two points differ from the first draft: the account identifier stays the
+email address field (any address works, no email is sent), and in `online` mode `POST /users` answers 405 as before.
+
 `config/deployment.php`: `mode` from `DEPLOYMENT_MODE` (`online` default, `school`); an unknown value is refused at boot.
 
 | Area | `online` | `school` |

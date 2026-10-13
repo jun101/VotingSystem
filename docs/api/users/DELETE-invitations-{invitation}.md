@@ -43,3 +43,9 @@ In scenario 3 every case gives the same body and headers.
 
 A person who opens the link of a cancelled invitation gets the same answer as for an
 unknown token (404 `not_found`, see [accept](../auth/POST-auth-accept-invitation.md)).
+
+## School mode
+
+When `DEPLOYMENT_MODE` is `school` this route answers **404 `not_found`**, whatever the body: nothing is sent by email in
+that mode and the account is made by the installer or by an owner
+([POST /users](../users/POST-users.md)). See [API conventions](../README.md) section 7a.

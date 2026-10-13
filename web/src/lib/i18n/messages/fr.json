@@ -533,7 +533,8 @@
       "text": "Connecté par {name} (administration de la plateforme). Toutes vos actions sont enregistrées dans le journal d’audit, sous votre nom, et visibles par les responsables de l’établissement.",
       "end": "Quitter l’établissement",
       "ending": "Sortie en cours…"
-    }
+    },
+    "insecure": "Connexion non chiffrée (HTTP) : les mots de passe et les codes circulent en clair sur le réseau de l’école."
   },
   "errors": {
     "validation_failed": "Certains champs sont à corriger.",
@@ -885,6 +886,39 @@
           "max": "Le motif est trop long (500 caractères au plus)."
         }
       }
+    },
+    "createMember": {
+      "name": {
+        "required": "Saisissez le nom de la personne.",
+        "max": "Ce nom est trop long (100 caractères au plus)."
+      },
+      "email": {
+        "required": "Saisissez une adresse de connexion.",
+        "email": "Saisissez une adresse valide.",
+        "max": "Cette adresse est trop longue (255 caractères au plus).",
+        "taken": "Cette adresse a déjà un compte."
+      },
+      "role": {
+        "required": "Choisissez un rôle.",
+        "in": "Choisissez un rôle dans la liste."
+      },
+      "password": {
+        "required": "Saisissez votre mot de passe.",
+        "incorrect": "Ce n’est pas votre mot de passe."
+      }
+    },
+    "changePassword": {
+      "current_password": {
+        "required": "Saisissez votre mot de passe actuel.",
+        "incorrect": "Ce n’est pas votre mot de passe actuel."
+      },
+      "password": {
+        "required": "Saisissez un nouveau mot de passe.",
+        "min": "Le nouveau mot de passe doit avoir au moins 12 caractères.",
+        "max": "Le nouveau mot de passe est trop long.",
+        "same_as_email": "Le mot de passe ne peut pas être votre adresse.",
+        "unchanged": "Choisissez un mot de passe différent de l’actuel."
+      }
     }
   },
   "institution": {
@@ -976,7 +1010,35 @@
       "resetCode": "Votre code à 6 chiffres",
       "resetCodeHelp": "Votre propre code de l’application d’authentification, pour confirmer.",
       "resetRecoveryCode": "Votre code de récupération",
-      "resetRecoveryHelp": "Un de vos propres codes de récupération. Chaque code ne sert qu’une fois."
+      "resetRecoveryHelp": "Un de vos propres codes de récupération. Chaque code ne sert qu’une fois.",
+      "create": {
+        "open": "Créer un membre",
+        "title": "Créer un membre de l’équipe",
+        "name": "Nom complet",
+        "email": "Adresse de connexion",
+        "emailHelp": "Aucun courriel n’est envoyé. Toute adresse convient, par exemple prenom@ecole.local.",
+        "role": "Rôle",
+        "password": "Votre mot de passe",
+        "passwordHelp": "Votre propre mot de passe, pour confirmer.",
+        "code": "Votre code à deux facteurs",
+        "recovery": "Un de vos codes de secours",
+        "submit": "Créer le compte",
+        "cancel": "Annuler"
+      },
+      "issued": {
+        "title": "Mot de passe à remettre à {name}",
+        "text": "Ce mot de passe n’est affiché qu’une seule fois. La personne devra le changer à sa première connexion.",
+        "copy": "Copier",
+        "copied": "Copié",
+        "dismiss": "J’ai noté le mot de passe"
+      },
+      "passwordReset": {
+        "action": "Nouveau mot de passe",
+        "label": "Donner un nouveau mot de passe à {name}",
+        "title": "Nouveau mot de passe pour {name}",
+        "text": "Un nouveau mot de passe à usage unique remplace l’actuel et ferme les sessions de cette personne. Confirmez avec votre propre mot de passe.",
+        "confirm": "Créer le mot de passe"
+      }
     }
   },
   "account": {
@@ -1040,6 +1102,22 @@
       "recoveryHelp": "Un de vos codes de récupération. Chaque code ne sert qu’une fois.",
       "useRecovery": "Utiliser un code de récupération",
       "useCode": "Utiliser le code de l’application"
+    },
+    "changePassword": {
+      "title": "Mot de passe",
+      "text": "Changez le mot de passe de votre connexion. Vos autres sessions se ferment.",
+      "current": "Mot de passe actuel",
+      "new": "Nouveau mot de passe",
+      "newHelp": "Au moins 12 caractères.",
+      "submit": "Changer le mot de passe",
+      "done": "Votre mot de passe est changé.",
+      "code": "Code à deux facteurs",
+      "recovery": "Code de secours"
+    },
+    "passwordRequired": {
+      "kicker": "Première connexion",
+      "title": "Choisissez votre mot de passe",
+      "text": "Le mot de passe qu’on vous a remis est à usage unique. Choisissez le vôtre pour continuer."
     }
   },
   "elections": {

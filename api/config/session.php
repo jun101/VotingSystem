@@ -20,7 +20,8 @@ return [
     'cookie' => env('SESSION_COOKIE', Str::slug((string) env('APP_NAME', 'laravel'), '_').'_session'),
     'path' => '/',
     'domain' => env('SESSION_DOMAIN'),
-    'secure' => (bool) env('SESSION_SECURE_COOKIE', env('APP_ENV', 'production') !== 'local'),
+    // School mode is served over plain HTTP (slice 19c): the installer also sets SESSION_SECURE_COOKIE=false there.
+    'secure' => (bool) env('SESSION_SECURE_COOKIE', env('APP_ENV', 'production') !== 'local' && env('DEPLOYMENT_MODE', 'online') !== 'school'),
     'http_only' => true,
     'same_site' => 'lax',
     'partitioned' => false,

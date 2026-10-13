@@ -63,6 +63,8 @@ final class Tenancy
         'GET api/v1/auth/me',
         'PATCH api/v1/auth/me',
         'POST api/v1/auth/verify-email/resend',
+        // Slice 19c: the user's own password; no record is named.
+        'POST api/v1/auth/change-password',
         // Slice 04: the institution is the tenant itself; these routes name no record of it.
         'GET api/v1/institution',
         'PATCH api/v1/institution',
@@ -103,6 +105,9 @@ final class Tenancy
         'POST api/v1/invitations' => 'Slice04/CreateInvitationTest.php',
         'DELETE api/v1/invitations/{invitation}' => 'Slice04/CancelInvitationTest.php',
         'POST api/v1/users/{user}/two-factor/reset' => 'Slice04b/ResetUserTwoFactorTest.php',
+        // Slice 19c (school mode): the person is created in the caller's institution; another institution's user answers 404.
+        'POST api/v1/users' => 'Slice19c/SchoolModeTest.php',
+        'POST api/v1/users/{user}/password-reset' => 'Slice19c/SchoolModeTest.php',
         'GET api/v1/elections' => 'Slice05/ListElectionsTest.php',
         'POST api/v1/elections' => 'Slice05/CreateElectionTest.php',
         'GET api/v1/elections/{election}' => 'Slice05/ShowElectionTest.php',

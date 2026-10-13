@@ -3,6 +3,7 @@ import { InstitutionPage } from '@/components/institution/InstitutionPage';
 import { fetchInstitution, fetchInvitations, fetchSession, fetchTeam } from '@/lib/api/server';
 import { I18nProvider } from '@/lib/i18n/client';
 import { getMessages, pick } from '@/lib/i18n/messages';
+import { isSchoolMode } from '@/lib/deployment';
 import { getI18n } from '@/lib/i18n/server';
 
 export const dynamic = 'force-dynamic';
@@ -18,8 +19,10 @@ export default async function InstitutionRoute() {
   if (!profile) throw new Error('The institution could not be read.');
 
   const owner = session.user.role === 'owner';
+  // School mode has no invitations (no email): the list does not exist there.
+  const noInvitations = { items: [], total: 0 };
   const [members, invitations] = owner
-    ? await Promise.all([fetchTeam(), fetchInvitations()])
+    ? await Promise.all([fetchTeam(), isSchoolMode() ? noInvitations : fetchInvitations()])
     : [null, null];
 
   // An owner whose lists cannot be read gets the error page, not a note about owners.

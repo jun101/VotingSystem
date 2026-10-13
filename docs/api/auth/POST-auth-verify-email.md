@@ -60,3 +60,9 @@ The shared shapes, with the codes of the table.
 
 No sign-in happens here. A person who is already signed in sees the change on their next
 `GET /auth/me`.
+
+## School mode
+
+When `DEPLOYMENT_MODE` is `school` this route answers **404 `not_found`**, whatever the body: nothing is sent by email in
+that mode and the account is made by the installer or by an owner
+([POST /users](../users/POST-users.md)). See [API conventions](../README.md) section 7a.

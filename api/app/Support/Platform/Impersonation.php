@@ -49,7 +49,7 @@ final class Impersonation
     /**
      * One entry for an owner action that writes none of its own, while acting (no effect otherwise).
      *
-     * @param  'user.removed'|'invitation.created'|'institution.updated'|'institution.logo_changed'|'two_factor.changed'  $what
+     * @param  'user.removed'|'user.created'|'user.password_reset'|'invitation.created'|'institution.updated'|'institution.logo_changed'|'two_factor.changed'  $what
      */
     public static function note(string $what, ?Model $subject = null): void
     {

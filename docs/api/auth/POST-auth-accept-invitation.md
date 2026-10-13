@@ -80,3 +80,9 @@ Scenario 6 gives the same body and headers for every cause.
 - The lookup of the token happens before anyone is signed in; it removes the tenant scope
   on purpose, with a comment, like the other pre-sign-in flows.
 - A removed user's address is free again (see [DELETE /users/{user}](../users/DELETE-users-{user}.md)).
+
+## School mode
+
+When `DEPLOYMENT_MODE` is `school` this route answers **404 `not_found`**, whatever the body: nothing is sent by email in
+that mode and the account is made by the installer or by an owner
+([POST /users](../users/POST-users.md)). See [API conventions](../README.md) section 7a.

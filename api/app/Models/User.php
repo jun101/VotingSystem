@@ -58,6 +58,7 @@ class User extends Authenticatable implements HasLocalePreference
             'role' => Role::class,
             'institution_id' => 'integer',
             'email_verified_at' => 'datetime',
+            'must_change_password' => 'boolean',
             'last_login_at' => 'datetime',
             'two_factor_secret' => 'encrypted',
             'two_factor_recovery_codes' => 'encrypted',

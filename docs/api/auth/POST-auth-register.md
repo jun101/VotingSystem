@@ -85,3 +85,9 @@ The shared shapes of [the conventions](../README.md) section 3, with the codes o
 - Scenario 4 tells a visitor that an address has an account. This is accepted for now:
   schools type their own address and need to know; the rate limit slows enumeration.
 - The institution is created with the minimum; the profile is completed in slice 04.
+
+## School mode
+
+When `DEPLOYMENT_MODE` is `school` this route answers **404 `not_found`**, whatever the body: nothing is sent by email in
+that mode and the account is made by the installer or by an owner
+([POST /users](../users/POST-users.md)). See [API conventions](../README.md) section 7a.

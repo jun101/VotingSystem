@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useDeployment } from '@/components/admin/Deployment';
 import { Icon } from '@/components/admin/Icon';
 import { focusRing } from '@/components/admin/classes';
 import { Button, Modal, Notice, Select } from '@/components/ui';
@@ -71,7 +72,9 @@ export function SendDialog({
   onClose: () => void;
 }) {
   const { t, tIfAny, locale } = useI18n();
-  const [draft, setDraft] = useState<SendDraft>(initial);
+  // School mode sends no email: the channel and the "failed email" scope are not offered.
+  const { school } = useDeployment();
+  const [draft, setDraft] = useState<SendDraft>(school ? { ...initial, email: false } : initial);
   // What was read, and for which scope and attempt: a read of another scope is not shown.
   const [read, setRead] = useState<{
     key: string;
@@ -193,29 +196,33 @@ export function SendDialog({
           data-testid="send-scope"
           data-autofocus=""
         >
-          {scopeOptions(state).map((option) => (
-            <option key={option.value} value={option.value}>
-              {'name' in option
-                ? t('codes.send.scopeGroup', { name: option.name })
-                : t(`codes.send.scope.${option.value}`)}
-            </option>
-          ))}
+          {scopeOptions(state)
+            .filter((option) => !(school && option.value === 'failed_email'))
+            .map((option) => (
+              <option key={option.value} value={option.value}>
+                {'name' in option
+                  ? t('codes.send.scopeGroup', { name: option.name })
+                  : t(`codes.send.scope.${option.value}`)}
+              </option>
+            ))}
         </Select>
 
-        <label className="flex min-h-11 cursor-pointer items-start gap-3 text-md text-ink">
-          <input
-            type="checkbox"
-            checked={sending}
-            onChange={(event) => patch({ email: event.target.checked })}
-            disabled={busy || emailForced(draft)}
-            data-testid="send-email"
-            className={`${CHECKBOX} mt-0.5`}
-          />
-          <span className="flex min-w-0 flex-col">
-            <span className="font-medium">{t('codes.send.email')}</span>
-            <span className="text-sm text-ink-soft">{t('codes.send.emailHelp')}</span>
-          </span>
-        </label>
+        {school ? null : (
+          <label className="flex min-h-11 cursor-pointer items-start gap-3 text-md text-ink">
+            <input
+              type="checkbox"
+              checked={sending}
+              onChange={(event) => patch({ email: event.target.checked })}
+              disabled={busy || emailForced(draft)}
+              data-testid="send-email"
+              className={`${CHECKBOX} mt-0.5`}
+            />
+            <span className="flex min-w-0 flex-col">
+              <span className="font-medium">{t('codes.send.email')}</span>
+              <span className="text-sm text-ink-soft">{t('codes.send.emailHelp')}</span>
+            </span>
+          </label>
+        )}
 
         <Select
           label={t('codes.send.file')}
@@ -253,18 +260,22 @@ export function SendDialog({
               label={t('codes.send.countGenerate')}
               tone="bg-canvas text-ink"
             />
-            <Figure
-              testId="send-count-email"
-              value={preview?.with_email ?? null}
-              label={t('codes.send.countEmail')}
-              tone="bg-teal-soft text-teal-ink"
-            />
-            <Figure
-              testId="send-count-no-email"
-              value={preview?.without_email ?? null}
-              label={t('codes.send.countNoEmail')}
-              tone="bg-warm-softer text-warm-ink"
-            />
+            {school ? null : (
+              <Figure
+                testId="send-count-email"
+                value={preview?.with_email ?? null}
+                label={t('codes.send.countEmail')}
+                tone="bg-teal-soft text-teal-ink"
+              />
+            )}
+            {school ? null : (
+              <Figure
+                testId="send-count-no-email"
+                value={preview?.without_email ?? null}
+                label={t('codes.send.countNoEmail')}
+                tone="bg-warm-softer text-warm-ink"
+              />
+            )}
             <Figure
               testId="send-count-skipped"
               value={preview?.skipped ?? null}

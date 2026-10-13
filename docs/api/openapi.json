@@ -2070,6 +2070,51 @@
                 }
             }
         },
+        "/v1/auth/change-password": {
+            "post": {
+                "operationId": "auth.changePassword",
+                "description": "Asks for the current password again (and the second factor if on), replaces the password, ends the user's other\nsessions and clears a \"must change\" flag. Limited to 10 requests per hour per user.",
+                "summary": "Change my password",
+                "tags": [
+                    "ChangePassword"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/ChangePasswordRequest"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "code": {
+                                                "type": "string"
+                                            },
+                                            "recovery_code": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
         "/v1/elections/{election}/cover": {
             "put": {
                 "operationId": "cover.update",
@@ -10522,6 +10567,111 @@
                         "$ref": "#/components/responses/ValidationException"
                     }
                 }
+            },
+            "post": {
+                "operationId": "user.store",
+                "description": "An owner creates an owner or a manager directly: no email is sent, a one-time password is returned once and the\nperson must change it at the first sign-in. Asks for the owner's own password (and second factor). 404 in online mode.\nLimited to 20 requests per hour per user.",
+                "summary": "Create a team member (school mode)",
+                "tags": [
+                    "User"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/StoreUserRequest"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "code": {
+                                                "type": "string"
+                                            },
+                                            "recovery_code": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "`TeamMemberResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "type": "string"
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "owner",
+                                                        "manager"
+                                                    ]
+                                                },
+                                                "email_verified": {
+                                                    "type": "boolean"
+                                                },
+                                                "last_login_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "two_factor_enabled": {
+                                                    "type": "boolean"
+                                                },
+                                                "is_you": {
+                                                    "type": "boolean"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "name",
+                                                "email",
+                                                "role",
+                                                "email_verified",
+                                                "last_login_at",
+                                                "two_factor_enabled",
+                                                "is_you"
+                                            ]
+                                        },
+                                        "one_time_password": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "one_time_password"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
             }
         },
         "/v1/users/{user}": {
@@ -10602,6 +10752,102 @@
                 "responses": {
                     "204": {
                         "description": "No content"
+                    },
+                    "409": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                ""
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/v1/users/{user}/password-reset": {
+            "post": {
+                "operationId": "user.passwordReset",
+                "description": "Their sessions end and they must change the password at the next sign-in. Not for oneself. Asks for the owner's own\npassword (and second factor). 404 in online mode. Limited to 10 requests per minute per user.",
+                "summary": "Give a team member a new one-time password (school mode)",
+                "tags": [
+                    "User"
+                ],
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "required": true,
+                        "description": "The user UUID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/ResetUserPasswordRequest"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "code": {
+                                                "type": "string"
+                                            },
+                                            "recovery_code": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "one_time_password": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "one_time_password"
+                                    ]
+                                }
+                            }
+                        }
                     },
                     "409": {
                         "description": "An error",
@@ -13477,6 +13723,26 @@
                 "items": {},
                 "title": "CandidateResource"
             },
+            "ChangePasswordRequest": {
+                "type": "object",
+                "description": "docs/api/auth/POST-auth-change-password.md",
+                "properties": {
+                    "current_password": {
+                        "type": "string",
+                        "maxLength": 1024
+                    },
+                    "password": {
+                        "type": "string",
+                        "minLength": 12,
+                        "maxLength": 128
+                    }
+                },
+                "required": [
+                    "current_password",
+                    "password"
+                ],
+                "title": "ChangePasswordRequest"
+            },
             "CloseElectionRequest": {
                 "type": "object",
                 "description": "docs/api/elections/POST-elections-{election}-close.md: the typed confirmation. That it equals the title\nis judged in the controller, under the row lock, after the status.",
@@ -14008,6 +14274,20 @@
                 ],
                 "title": "ResetTwoFactorRequest"
             },
+            "ResetUserPasswordRequest": {
+                "type": "object",
+                "description": "docs/api/users/POST-users-{user}-password-reset.md: the same two factors as the two-factor reset.",
+                "properties": {
+                    "password": {
+                        "type": "string",
+                        "maxLength": 1024
+                    }
+                },
+                "required": [
+                    "password"
+                ],
+                "title": "ResetUserPasswordRequest"
+            },
             "ResultNoteRequest": {
                 "type": "object",
                 "description": "docs/api/results/PUT-ballots-{ballot}-result-note.md: `note` is a string or null. It is trimmed, its\ncontrol characters other than line breaks are removed, and empty clears it; at most 1 000 characters.",
@@ -14109,6 +14389,40 @@
                     "scope"
                 ],
                 "title": "StartCredentialRunRequest"
+            },
+            "StoreUserRequest": {
+                "type": "object",
+                "description": "docs/api/users/POST-users.md (school mode). The owner's password, and their second factor when they have one.",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 255
+                    },
+                    "role": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string",
+                        "maxLength": 1024
+                    }
+                },
+                "required": [
+                    "name",
+                    "email",
+                    "role",
+                    "password"
+                ],
+                "title": "StoreUserRequest"
+            },
+            "TeamMemberResource": {
+                "type": "array",
+                "items": {},
+                "title": "TeamMemberResource"
             },
             "TwoFactorCodeRequest": {
                 "type": "object",

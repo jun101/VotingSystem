@@ -34,6 +34,8 @@ return [
     'group_limit_reached' => 'Une élection ne peut pas avoir plus de 100 groupes.',
     'group_in_use' => 'Ce groupe a encore des électeurs ou sert à un poste. Déplacez les électeurs, changez le poste ou fusionnez le groupe.',
     'election_not_deletable' => 'Cette élection ne peut plus être supprimée.',
+    'password_change_required' => 'Vous devez changer votre mot de passe avant de continuer.',
+    'cannot_reset_own_password' => 'Utilisez le formulaire de changement de mot de passe de votre propre compte.',
     'cannot_reset_self' => 'Utilisez votre page « Mon compte » pour désactiver votre propre double authentification.',
     'import_in_progress' => 'Un import est déjà en cours pour cette élection.',
     'import_not_checked' => 'Cet import n’est pas prêt: attendez la fin de la vérification.',
