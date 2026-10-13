@@ -108,7 +108,9 @@ the server), asks the person to copy it to a USB stick and type `copied`, then d
 ## Step E — Docker installer (`install-online.sh`)
 
 Same preflight idea; installs Docker Engine if missing (the person is asked first); asks the domain (or "behind a
-proxy"), the mail settings and the first admin; pulls the pinned images; generates secrets; starts `compose.prod.yaml`
+proxy"), the mail settings and the first admin. **One domain only** (Jun, 2026-10-13: the example is
+`vote.fleuridor.com`): the website calls `/api` on its own host (`web/src/lib/api/client.ts`), so no API name is asked and
+no CORS or cookie change is needed. A separate API name stays a later, optional second site address of the same Caddy file; pulls the pinned images; generates secrets; starts `compose.prod.yaml`
 (no Mailpit, nothing but the proxy port published); installs `votectl`; prints the summary. The same port and firewall
 rules as step D.
 

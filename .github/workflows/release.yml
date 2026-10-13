@@ -1,0 +1,61 @@
+# Builds the Linux bundle of the school edition (docs/slices/19c-installers.md, step C) when a version tag is pushed,
+# and attaches it, with its checksums, to a DRAFT release: nothing is published until a person reads it and publishes it.
+name: Release bundle
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to put in the bundle name (for a manual run)'
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  bundle:
+    name: Linux bundle (x86_64)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "value=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          fi
+
+      # The images Composer and `next build` run in (the project's own).
+      - run: make setup
+
+      - name: Upstream files, checked against their publishers and the pins of sources.lock
+        run: installers/bundle/fetch.sh
+
+      - name: Build the bundle
+        run: installers/bundle/build.sh --version "${{ steps.version.outputs.value }}"
+
+      - name: Check what was built
+        working-directory: installers/bundle/dist
+        run: |
+          sha256sum -c ./*.sha256
+          tar -tzf ./*.tar.gz | head -20
+          ls -la
+
+      - name: Draft release with the bundle and its checksum
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" installers/bundle/dist/* \
+            --draft --title "VoteSystem ${GITHUB_REF_NAME}" \
+            --notes "School edition bundle for Linux x86_64. Verify it with the .sha256 file before installing."
