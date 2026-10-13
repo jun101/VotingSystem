@@ -2353,6 +2353,13 @@
       "results": "See the results"
     },
     "identity": {
+      "closes": "Closes: {when}",
+      "secret": "Secret vote",
+      "step": "Step 2 of 3",
+      "badge": {
+        "one": "position to vote on",
+        "other": "positions to vote on"
+      },
       "kicker": "Is this you?",
       "noGroup": "No group",
       "group": "Group: {group}",

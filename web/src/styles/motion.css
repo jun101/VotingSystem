@@ -1435,3 +1435,69 @@
     }
   }
 }
+
+/*
+ * The identity screen: the voter's own card. The avatar sends out two rings, the check pops now
+ * and then, the posts rise one after the other. Transform and opacity only; reduced motion stops all.
+ */
+@layer components {
+  .id-band {
+    background-image: linear-gradient(100deg, var(--color-primary-soft), var(--color-surface-alt));
+  }
+
+  .id-avatar::before,
+  .id-avatar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    border: 3px solid var(--color-primary);
+    animation: id-ring 2.6s var(--ease-out-soft) infinite;
+    pointer-events: none;
+  }
+
+  .id-avatar::after {
+    animation-delay: 1.3s;
+  }
+
+  .id-check {
+    animation: id-pop 3.2s ease-in-out infinite;
+  }
+
+  .id-rise {
+    animation: id-rise 600ms var(--ease-out-soft) both;
+  }
+
+  @keyframes id-ring {
+    0% {
+      transform: scale(1);
+      opacity: 0.7;
+    }
+    100% {
+      transform: scale(1.5);
+      opacity: 0;
+    }
+  }
+
+  @keyframes id-pop {
+    0%,
+    85%,
+    100% {
+      transform: scale(1);
+    }
+    92% {
+      transform: scale(1.25);
+    }
+  }
+
+  @keyframes id-rise {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
