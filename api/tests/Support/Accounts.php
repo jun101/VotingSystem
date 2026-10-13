@@ -223,7 +223,8 @@ final class Accounts
             'title' => $o['title'] ?? 'Élection '.bin2hex(random_bytes(3)),
             'description' => $o['description'] ?? null,
             'starts_at' => $fmt($o['starts_at'] ?? '2026-10-12 12:00:00'),
-            'ends_at' => $fmt($o['ends_at'] ?? '2026-10-16 19:00:00'),
+            // Far ahead, so that a planted open election does not fall closed with the calendar.
+            'ends_at' => $fmt($o['ends_at'] ?? '2036-10-16 19:00:00'),
             'timezone' => $o['timezone'] ?? 'America/Port-au-Prince',
             'language' => $o['language'] ?? 'fr',
             'status' => $o['status'] ?? 'draft',

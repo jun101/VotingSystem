@@ -64,7 +64,7 @@ With `display` `winners`, each ballot has `id`, `title`, `seats`, `groups`, `can
 candidates, without `votes` or `percentage`), `winners`, `tie`, `note`. `groups` holds the names of a group ballot's
 groups, empty for a general ballot. A general ballot is never split by group (FR-SEC-04). `turnout` is the election's
 voters and those who voted. `logo` is the institution's logo as in [GET institution](../institution/GET-institution.md)
-or `null`. `Cache-Control: no-cache`.
+or `null`. `Cache-Control: no-cache, no-store, private` (every API answer that is not a file carries `no-store`, slice 19).
 
 ## Notes
 

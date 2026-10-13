@@ -8,6 +8,10 @@ return [
 
     'driver' => env('SESSION_DRIVER', 'redis'),
     'lifetime' => (int) env('SESSION_LIFETIME', 120),
+
+    // The longest a signed-in session lives, in minutes from the sign-in, whatever its activity (slice 19,
+    // ASVS 3.3.2). See App\Http\Middleware\EndExpiredSession.
+    'absolute_lifetime' => (int) env('SESSION_ABSOLUTE_LIFETIME', 720),
     'expire_on_close' => false,
     'encrypt' => false,
     'connection' => 'default',

@@ -1,0 +1,61 @@
+# The production proxy (slice 19; slice 20 completes it: the Compose file, the certificate storage, logs).
+# The development file is docker/proxy/Caddyfile (plain HTTP on :8080). Here Caddy gets and renews the
+# certificate by itself for the host named in SITE_ADDRESS, so `auto_https` stays on.
+
+{
+	admin off
+}
+
+{$SITE_ADDRESS} {
+	header {
+		# HTTPS only, for two years, subdomains included.
+		Strict-Transport-Security "max-age=63072000; includeSubDomains"
+		X-Content-Type-Options nosniff
+		# Set only when the answer has none: the API sends its own, `no-referrer`.
+		?Referrer-Policy strict-origin-when-cross-origin
+		# No page of the product is shown inside another site's frame (clickjacking).
+		X-Frame-Options DENY
+		# Nothing of the product needs the camera, the microphone, the position or a payment.
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+		# No header names the software or its version.
+		-Server
+		-X-Powered-By
+		-Via
+	}
+
+	# The web application sends its own Content-Security-Policy (a nonce per request, web/src/proxy.ts) and
+	# the API sends its own; the proxy adds none to them, so that a policy is never sent twice.
+
+	handle /media/* {
+		@found {
+			path *.webp
+			file {
+				root /srv
+				try_files {path}
+			}
+		}
+		handle @found {
+			header {
+				Cache-Control "public, max-age=31536000, immutable"
+				X-Content-Type-Options nosniff
+				Content-Security-Policy "default-src 'none'; img-src 'self'; sandbox"
+			}
+			root * /srv
+			file_server
+		}
+		handle {
+			respond 404
+		}
+	}
+
+	handle /api/* {
+		request_body {
+			max_size 8MB
+		}
+		reverse_proxy api:8000
+	}
+
+	handle {
+		reverse_proxy web:3000
+	}
+}

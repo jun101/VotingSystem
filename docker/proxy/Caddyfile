@@ -4,14 +4,14 @@
 }
 
 :8080 {
-	# The pictures under /media/ carry their own, stricter policy (see below).
-	@notMedia not path /media/*
-
 	header {
 		X-Content-Type-Options nosniff
-		Referrer-Policy strict-origin-when-cross-origin
+		# Set only when the answer has none: the API sends its own, `no-referrer`.
+		?Referrer-Policy strict-origin-when-cross-origin
 		# No page of the product is shown inside another site's frame (clickjacking).
 		X-Frame-Options DENY
+		# Nothing of the product needs the camera, the microphone, the position or a payment.
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
 		# No header names the software or its version.
 		-Server
 		-X-Powered-By
@@ -19,7 +19,8 @@
 		-Via
 	}
 
-	header @notMedia Content-Security-Policy "frame-ancestors 'none'"
+	# The web application sends its own Content-Security-Policy (a nonce per request, web/src/proxy.ts) and
+	# the API sends its own; the proxy adds none to them, so that a policy is never sent twice.
 
 	# The re-encoded pictures, read-only: only `*.webp` files that exist. The file name changes
 	# with every upload, so a file can be cached for good; every other answer (a missing file,

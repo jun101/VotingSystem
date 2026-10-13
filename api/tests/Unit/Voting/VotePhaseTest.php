@@ -25,11 +25,11 @@ it('computes the phase from the status and the clock [FR-ELEC-05]', function (El
     'archived' => [ElectionStatus::Archived, '2026-10-13 00:00:00', 'closed'],
 ]);
 
-it('is closed for a suspended institution whatever the status and the clock [FR-VOTE-02]', function () {
+it('is paused for a suspended institution while the election is open [FR-VOTE-02]', function () {
     $starts = Carbon::parse('2026-10-12 12:00:00', 'UTC');
     $ends = Carbon::parse('2026-10-14 12:00:00', 'UTC');
 
-    expect(VotePhase::of(ElectionStatus::Open, $starts, $ends, Carbon::parse('2026-10-13 00:00:00', 'UTC'), suspended: true))->toBe('closed');
+    expect(VotePhase::of(ElectionStatus::Open, $starts, $ends, Carbon::parse('2026-10-13 00:00:00', 'UTC'), suspended: true))->toBe('paused');
 });
 
 it('reads the code as the voter typed it: case, hyphen and spaces do not matter [FR-VOTE-01]', function (string $typed) {

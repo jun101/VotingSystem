@@ -158,6 +158,8 @@ services:
       - ./web/src/styles:/var/www/web/src/styles:ro
       # The time zone list of the profile form, which a test compares with PHP's.
       - ./web/src/lib/format:/var/www/web/src/lib/format:ro
+      # The proxy files, whose security headers a test reads (slice 19).
+      - ./docker/proxy:/var/www/docker/proxy:ro
     environment:
       <<: *api-environment
       DB_MIGRATOR_USERNAME: migrator

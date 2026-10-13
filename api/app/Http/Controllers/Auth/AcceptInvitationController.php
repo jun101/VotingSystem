@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Actions\Users\AcceptInvitation;
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\EndExpiredSession;
 use App\Http\Requests\Auth\AcceptInvitationRequest;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\JsonResponse;
@@ -35,6 +36,7 @@ class AcceptInvitationController extends Controller
         $user = $accept($data['token'], $request->input('name'), $request->input('password'));
 
         Auth::guard()->login($user);
+        EndExpiredSession::start($request);
         $request->session()->regenerateToken();
 
         // A resource of a record just created answers 201; this answer is a sign-in.

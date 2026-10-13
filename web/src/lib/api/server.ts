@@ -379,15 +379,26 @@ export async function fetchAuditFirstPage(): Promise<AuditPage | null> {
   });
 }
 
-/** The first page of the institutions (a platform admin only), or null when the API does not give it. */
-export async function fetchPlatformFirstPage(): Promise<PlatformPage | null> {
+/**
+ * The first page of the institutions (a platform admin only), `'two-factor-required'` when the API
+ * asks the admin to turn two-factor on first, or null when the API does not give it.
+ */
+export async function fetchPlatformFirstPage(): Promise<
+  PlatformPage | 'two-factor-required' | null
+> {
   return authorizedGet(async (headers) => {
-    const { data, response } = await createApiClient().GET('/v1/platform/institutions', {
+    const { data, error, response } = await createApiClient().GET('/v1/platform/institutions', {
       headers,
       params: { query: { page: 1, per_page: PLATFORM_PER_PAGE } },
       cache: 'no-store',
       signal: AbortSignal.timeout(4000),
     });
+
+    if (response.status === 403) {
+      const code = (error as { error?: { code?: string } } | undefined)?.error?.code;
+
+      return code === 'two_factor_required' ? 'two-factor-required' : null;
+    }
 
     if (!response.ok || !data) return null;
 

@@ -3,6 +3,7 @@
 return [
     'malformed_request' => 'La requête est mal formée.',
     'unauthenticated' => 'Veuillez vous connecter.',
+    'two_factor_required' => 'Activez l’authentification à deux facteurs pour utiliser l’espace de la plateforme.',
     'forbidden' => 'Vous n’avez pas le droit de faire cela.',
     'not_found' => 'Ressource introuvable.',
     'method_not_allowed' => 'Méthode non autorisée.',
