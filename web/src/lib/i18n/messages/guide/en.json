@@ -1,0 +1,780 @@
+{
+  "ui": {
+    "kicker": "User guide",
+    "skip": "Skip to the content",
+    "manuals": "The guides",
+    "contents": "Contents",
+    "tip": "Good to know:",
+    "demo": "The pictures were taken on demonstration data, in French.",
+    "mine": "Open my guide",
+    "deniedTitle": "This guide is not for your account",
+    "denied": "This guide describes tools your account does not have. Open the one that matches your role."
+  },
+  "roles": {
+    "voter": {
+      "name": "Voter",
+      "lead": "Voting takes a few minutes, on a computer or a phone. You have no account: your slip carries a personal code, and that is all you need.",
+      "sections": {
+        "before": {
+          "title": "Before it opens",
+          "lead": "If the election has not started yet, the page says so and counts down to the opening.",
+          "steps": [
+            "Open the voting address written on your slip, or scan the QR code.",
+            "Read the election title and the time left before it opens.",
+            "Come back at the time shown: the page does not ask for a code until voting is open."
+          ],
+          "legend": ["The election title and the institution.", "The countdown to the opening."],
+          "tip": "You can leave the page open: it moves to the code entry by itself."
+        },
+        "code": {
+          "title": "Enter your code",
+          "lead": "Your personal code is on the slip the institution gave you, or in the email you received.",
+          "steps": [
+            "Open the voting page. If you scanned the QR code or clicked the link you received, the code is already filled in: go to the next step.",
+            "Type your code in the ten boxes: five characters, a dash, five characters. Upper or lower case, with or without the dash.",
+            "Press “Continue”."
+          ],
+          "legend": [
+            "The election title: check it is the right one.",
+            "The ten boxes of the code.",
+            "The button to continue."
+          ],
+          "tip": "A code never contains the characters 0, O, 1, I or L: nothing can be mistaken."
+        },
+        "identity": {
+          "title": "Check that it is you",
+          "lead": "After the code, the page shows your name and your group so you can confirm the slip is yours.",
+          "steps": [
+            "Read your name and your class or group.",
+            "Look at the list of elections you vote in: it depends on your group.",
+            "If all is right, press “Yes, it is me”.",
+            "If it is not you, press “It is not me”: the session is closed and the slip stays untouched."
+          ],
+          "legend": [
+            "Your name.",
+            "Your class or group.",
+            "The first ballot you take part in.",
+            "Confirm it is you.",
+            "Say it is not you."
+          ]
+        },
+        "ballot": {
+          "title": "Choose a candidate",
+          "lead": "Each ballot has its own page. Candidates are shown with their photo, party and slogan.",
+          "steps": [
+            "Look at the progress bar: it shows which ballot you are on.",
+            "Touch the card of the candidate you choose. It is highlighted and the name appears at the bottom.",
+            "To change your mind, touch another card.",
+            "Press “Next”. The button only turns on after you choose."
+          ],
+          "legend": [
+            "The progress: the current ballot among all those that concern you.",
+            "A chosen candidate: the name is repeated at the bottom of the screen.",
+            "Another candidate.",
+            "The blank vote, when the ballot allows it.",
+            "Go to the next ballot."
+          ],
+          "tip": "Nothing is recorded until you confirm at the very end."
+        },
+        "blank": {
+          "title": "Vote blank",
+          "lead": "When the ballot allows it, you may choose nobody: that is the blank vote.",
+          "steps": [
+            "Touch the “Blank vote” box under the candidates. The candidates are deselected.",
+            "To undo it, touch it again or choose a candidate.",
+            "Press “Next”."
+          ],
+          "legend": [
+            "The blank vote box, ticked.",
+            "The reminder of what you chose.",
+            "Go to the next ballot."
+          ]
+        },
+        "several": {
+          "title": "Choose several candidates",
+          "lead": "Some ballots elect several people, for example two members of a committee.",
+          "steps": [
+            "Read the instruction at the top: “Choose 2 candidates”, for example.",
+            "Touch each candidate you want. The counter shows how many you have chosen.",
+            "When you reach the number of seats, the other cards lock. To change, first remove a candidate.",
+            "Press “Next”."
+          ],
+          "legend": [
+            "The instruction and the counter.",
+            "A first chosen candidate.",
+            "A second chosen candidate.",
+            "Go back to the previous ballot.",
+            "Go on."
+          ]
+        },
+        "review": {
+          "title": "Read your ballot again",
+          "lead": "Before recording, a page sums up your choice for each ballot.",
+          "steps": [
+            "Read your choices, ballot by ballot.",
+            "To fix one, press “Edit” next to that ballot: you go back to it, then continue.",
+            "When all is right, press “Confirm my vote”."
+          ],
+          "legend": [
+            "The summary of one ballot.",
+            "Edit this choice.",
+            "Confirm: all ballots are recorded in one go."
+          ],
+          "tip": "A confirmed vote is final: it can be neither changed nor cast again."
+        },
+        "done": {
+          "title": "Your vote is recorded",
+          "lead": "A confirmation page gives the date and time. It does not show your choices: the vote is secret.",
+          "steps": [
+            "Check the confirmation message and the time.",
+            "You can close the page. On a shared device it returns to the code entry by itself after a few seconds, for the next person."
+          ],
+          "legend": ["The confirmation message.", "The date and time of your vote."]
+        },
+        "phone": {
+          "title": "On a phone",
+          "lead": "The whole path works on a small screen, including an entry-level phone.",
+          "steps": [
+            "Open the link or scan the QR code with the phone’s camera.",
+            "Follow the same steps: code, check, ballots, review, confirmation.",
+            "Candidate cards stack up; scroll to see them all. The “Back” and “Next” buttons stay at the bottom of the screen."
+          ],
+          "legend": [
+            "A candidate.",
+            "Another candidate.",
+            "The button to continue, always visible."
+          ]
+        },
+        "problems": {
+          "title": "If something goes wrong",
+          "lead": "The messages say what is happening, without jargon.",
+          "steps": [
+            "“Invalid code”: check the characters, especially 2/Z, 5/S, 8/B. Type it again carefully.",
+            "Several failed tries in a row block entry for a few minutes: wait, then try again.",
+            "“You have already voted”: your vote is recorded, there is nothing to redo.",
+            "Lost or unreadable code: ask the person who runs the election, they can issue a new one.",
+            "Your session lasts 15 minutes at most: if it expires, enter your code again; nothing had been recorded."
+          ],
+          "legend": ["The code entry.", "The error message, in plain words."]
+        },
+        "closed": {
+          "title": "After it closes",
+          "lead": "When voting is over, the page says so.",
+          "steps": [
+            "The message “Voting has ended” replaces the code entry.",
+            "If the institution published the results, a link takes you there without an account.",
+            "If voting is interrupted (a suspension, for example), the page says so: try again later, votes already recorded are kept."
+          ],
+          "legend": ["The end-of-voting notice.", "The election title."]
+        }
+      }
+    },
+    "manager": {
+      "name": "Manager",
+      "lead": "Prepare, open and follow an election: ballots, candidates, voters, codes, turnout, results. The pictures show the real screens.",
+      "sections": {
+        "signin": {
+          "title": "Sign in",
+          "lead": "You get an invitation by email (or, on a school installation, a temporary password).",
+          "steps": [
+            "Open your institution’s site address.",
+            "Type your email address and your password.",
+            "Press “Sign in”. If two-factor authentication is on, type the code from your app.",
+            "Forgot your password: “Forgot your password?” sends a reset link."
+          ],
+          "legend": [
+            "Your email address.",
+            "Your password.",
+            "Sign in.",
+            "Reset the password.",
+            "Create an institution (for a new institution only)."
+          ]
+        },
+        "dashboard": {
+          "title": "The dashboard",
+          "lead": "This is the landing page: the open election and its turnout, what is left to do, key figures.",
+          "steps": [
+            "Read the welcome banner and the current election.",
+            "Use the shortcuts to create an election or invite someone.",
+            "Open the menu on the left to move between sections; the “Go to” search finds a page, an election or a voter.",
+            "The round button at the top right opens your account, the guide and sign out."
+          ],
+          "legend": [
+            "The welcome banner.",
+            "Create an election.",
+            "The open election, with live turnout.",
+            "The menu: Elections, Institution, Log.",
+            "Your personal menu."
+          ],
+          "tip": "Any page is at most three clicks from another."
+        },
+        "create": {
+          "title": "Create an election",
+          "lead": "An election has a title, dates and a language. The rest (ballots, candidates, voters) comes next.",
+          "steps": [
+            "In “Elections”, press “New election”.",
+            "Give a clear title, for example “Student council election 2026”.",
+            "Choose the start and end date and time. Times are in the election’s time zone (Haiti by default).",
+            "Choose the language of the voting screens, then save: the election is a draft."
+          ],
+          "legend": [
+            "The title.",
+            "The description, shown to voters.",
+            "The election’s language.",
+            "Save the draft."
+          ],
+          "tip": "The end must be after the start. A draft can be edited or deleted freely."
+        },
+        "election": {
+          "title": "An election’s page",
+          "lead": "The whole election is run from here: the steps, the checklist and the actions.",
+          "steps": [
+            "Read the banner: title, status (draft, scheduled, open, closed), dates.",
+            "Follow the five steps: ballots, candidates, voters, codes, scheduling.",
+            "The checklist says what blocks opening and what is only a warning.",
+            "Change dates or language with “Edit”."
+          ],
+          "legend": [
+            "The election banner and its status.",
+            "The steps to follow.",
+            "The checklist before scheduling.",
+            "Edit the election."
+          ]
+        },
+        "ballots": {
+          "title": "Ballots",
+          "lead": "A ballot is a seat to fill: president, class delegate, committee… An election can have several.",
+          "steps": [
+            "Open “Ballots” and press “Add a ballot”.",
+            "Give the title, the number of seats and say whether the blank vote is allowed.",
+            "Choose the scope: all voters, or only some groups (the 4th grade, for example).",
+            "Reorder ballots by dragging: this is the order the voter sees."
+          ],
+          "legend": [
+            "Add a ballot.",
+            "A ballot and its candidates.",
+            "The number of seats to fill.",
+            "The scope: a ballot reserved for groups.",
+            "Edit the ballot."
+          ],
+          "tip": "A group ballot with fewer than 5 voters triggers a warning: the result could reveal an individual vote."
+        },
+        "candidates": {
+          "title": "Candidates and parties",
+          "lead": "Each ballot has its candidates; a party is optional.",
+          "steps": [
+            "On the ballot card, press “Add a candidate”.",
+            "Type the first name, the last name and the sex (it picks the avatar while there is no photo).",
+            "Add a party, a slogan, a short presentation and a photo if you wish (JPEG, PNG or WebP, 5 MB at most).",
+            "Look at the preview: it is what the voter will see. Save, or “Save and add another”."
+          ],
+          "legend": [
+            "The first name.",
+            "The last name.",
+            "The slogan, 80 characters at most.",
+            "The party, optional.",
+            "The photo, optional, cropped square.",
+            "Save the candidate."
+          ],
+          "tip": "The order can be manual or shuffled for each voter; choose it in the election settings."
+        },
+        "voters": {
+          "title": "Voters and groups",
+          "lead": "A voter record holds a name, a group, and optionally an identifier, an email, a phone. No date of birth.",
+          "steps": [
+            "Open “Voters”.",
+            "Add a voter with “Add”, or import a file (next step), or take those of a past election with “Copy from an election”.",
+            "Search by name; filter by group, code status or “has voted”.",
+            "Groups can be renamed and merged from their card."
+          ],
+          "legend": [
+            "Add a voter.",
+            "Import a file.",
+            "The search.",
+            "The filters.",
+            "The election’s groups.",
+            "Take the voters of an earlier election."
+          ],
+          "tip": "You can see whether a voter has voted and when, never for whom."
+        },
+        "import": {
+          "title": "Import a voter file",
+          "lead": "For a long list, import a CSV or Excel file (up to 10,000 rows).",
+          "steps": [
+            "Download the template (CSV or Excel) and fill it in: full name, group, identifier, email, phone.",
+            "Drop the file in the area provided.",
+            "Check the column mapping, then the preview: each row is checked (missing name, invalid email, duplicate).",
+            "Confirm: valid rows are imported; refused rows are returned in an error file."
+          ],
+          "legend": [
+            "The file instructions.",
+            "The template to download.",
+            "The area to drop the file in.",
+            "Start the check."
+          ],
+          "tip": "Nothing is imported before you confirm."
+        },
+        "codes": {
+          "title": "Voting codes",
+          "lead": "Each voter gets a personal ten-character code. It is shown once: the system keeps only its fingerprint.",
+          "steps": [
+            "Open “Codes”.",
+            "Press “Generate codes”: for all voters, a group or one person.",
+            "Choose how to hand them out: slips to print (PDF, one page per class), email, or a file you distribute yourself.",
+            "Download the files right away: they are encrypted and deleted when the election closes."
+          ],
+          "legend": [
+            "The summary: how many voters have a code, how many do not.",
+            "Generate the codes.",
+            "Send by email (the number of messages is announced and must be confirmed).",
+            "A lost code: a new one is issued, the old one is cancelled."
+          ],
+          "tip": "A code cannot be shown again: only reissued. Reissuing is refused if the person has already voted."
+        },
+        "schedule": {
+          "title": "Schedule the election",
+          "lead": "Scheduling freezes ballots and candidates; opening then happens by itself at the start time.",
+          "steps": [
+            "On the election page, read the checklist: blockers must be fixed.",
+            "Read the warnings (a group with no voter, a voter with no ballot) and decide.",
+            "Press “Schedule the election” and accept the warnings if you stand by them.",
+            "Until it opens, you can go back to draft to fix things."
+          ],
+          "legend": [
+            "The checklist.",
+            "The scheduling button.",
+            "The steps: everything must be done."
+          ]
+        },
+        "turnout": {
+          "title": "Follow turnout",
+          "lead": "While voting runs, you see who takes part, never the results.",
+          "steps": [
+            "Open “Turnout” from the election page.",
+            "Read the live percentage, the chart by hour and the breakdown by group.",
+            "Use the list of people who have not voted to remind them; export it as CSV or Excel.",
+            "If needed, push back the end of voting with “Extend”."
+          ],
+          "legend": [
+            "The turnout rate.",
+            "The curve by hour.",
+            "Turnout by group.",
+            "The people who have not voted yet.",
+            "Export the list."
+          ],
+          "tip": "No vote count is visible before closing, to anyone, not even the platform."
+        },
+        "close": {
+          "title": "Close",
+          "lead": "Voting ends by itself at the end time. You can also close it earlier.",
+          "steps": [
+            "On the election page, press “Close now”.",
+            "Read what will happen: no more votes will be accepted.",
+            "Type the exact election title to confirm.",
+            "Press “Close”: the results become visible to you."
+          ],
+          "legend": ["The confirmation window.", "The title to retype.", "Close.", "Cancel."],
+          "tip": "Closing is final."
+        },
+        "results": {
+          "title": "Read the results",
+          "lead": "After closing, each ballot shows votes, percentages, blank votes and the winner or winners.",
+          "steps": [
+            "Read the turnout and, for each ballot, the winners.",
+            "Check the verification: the number of ballots must equal the number of eligible voters who voted.",
+            "In case of a tie for the last seat, the system reports it without deciding; you can open a second round with the tied candidates.",
+            "Add a public note to a ballot if needed."
+          ],
+          "legend": [
+            "The turnout.",
+            "A ballot’s winner.",
+            "The ballot verification.",
+            "The public note.",
+            "The publication."
+          ],
+          "tip": "The result of a general ballot is never broken down by group."
+        },
+        "publication": {
+          "title": "Publish",
+          "lead": "Publishing creates a public page, readable without an account, at a stable address.",
+          "steps": [
+            "In the “Publication” card, press “Publish”.",
+            "Choose what the public sees: the full figures, or only the winners and turnout.",
+            "Confirm. The page is online at once and can be unpublished whenever you want."
+          ],
+          "legend": ["The publication window.", "Confirm.", "Cancel."]
+        },
+        "published": {
+          "title": "Share and download",
+          "lead": "Once published, you have the public address, the PDF report and the image to share.",
+          "steps": [
+            "Copy the public address or share it on WhatsApp, Facebook or X.",
+            "Download the official report as a PDF.",
+            "To take the page down, press “Unpublish”; you can then archive the election."
+          ],
+          "legend": ["The public address.", "The PDF report.", "Take the publication down."]
+        },
+        "public": {
+          "title": "What the public sees",
+          "lead": "The public page is made to be shared: a phone is enough.",
+          "steps": [
+            "The visitor sees the turnout and the winners (and the figures, if you chose so).",
+            "They can share on WhatsApp, Facebook, X or copy the link.",
+            "The institution’s page lists all its published elections."
+          ],
+          "legend": ["The turnout.", "A winner.", "Sharing.", "The PDF report."]
+        },
+        "account": {
+          "title": "My account and two-factor authentication",
+          "lead": "Your password and an extra protection are set in “My account”.",
+          "steps": [
+            "Open your menu (round button at the top right), then “My account”.",
+            "Change your password: the old one, then the new one (at least 12 characters).",
+            "Turn on two-factor authentication: a code from your app will be asked at each sign-in.",
+            "Keep the eight recovery codes somewhere safe."
+          ],
+          "legend": [
+            "Change the password.",
+            "The security card.",
+            "Turn on two-factor authentication."
+          ]
+        },
+        "limits": {
+          "title": "What a manager cannot do",
+          "lead": "Some actions are reserved for the institution’s owner.",
+          "steps": [
+            "Manage users (invite, remove, reset).",
+            "Read the institution’s audit log.",
+            "Delete the institution.",
+            "For everything else (elections, ballots, voters, codes, results), your role is enough."
+          ],
+          "legend": [
+            "The note that explains it on the institution page.",
+            "The institution profile."
+          ]
+        }
+      }
+    },
+    "owner": {
+      "name": "Owner",
+      "lead": "You are responsible for the institution: its profile, its team, its log, its security. The “Manager” guide describes the rest.",
+      "sections": {
+        "register": {
+          "title": "Create the institution",
+          "lead": "On an online installation, the first person creates the institution and becomes its owner.",
+          "steps": [
+            "Open the “Create an institution” page.",
+            "Type the institution’s name, your name, your email and a password of at least 12 characters.",
+            "Press “Create my institution”: you land on the dashboard."
+          ],
+          "legend": [
+            "The institution’s name.",
+            "Your name.",
+            "Your email address.",
+            "Your password, with a strength indicator.",
+            "Create."
+          ],
+          "tip": "On the “school” edition installed on a local server, there is no email: the installer creates your account and a temporary password to change at first sign-in."
+        },
+        "verify": {
+          "title": "Verify the email address",
+          "lead": "Before scheduling an election, your address must be verified.",
+          "steps": [
+            "A banner at the top of the dashboard reminds you.",
+            "Open the email you received and click the link.",
+            "No email? “Resend” sends a new one."
+          ],
+          "legend": ["The verification banner.", "Resend the email.", "The welcome banner."]
+        },
+        "institution": {
+          "title": "The institution profile",
+          "lead": "Name, type, logo, address, contact details, time zone and default language.",
+          "steps": [
+            "Open “Institution” in the menu.",
+            "Fill in the profile: the name and logo appear on voting pages and results.",
+            "Choose the time zone (Port-au-Prince by default) and the language.",
+            "Save."
+          ],
+          "legend": [
+            "The name.",
+            "The type of institution.",
+            "The logo.",
+            "Save.",
+            "The public address of the institution page."
+          ]
+        },
+        "team": {
+          "title": "Invite someone",
+          "lead": "An owner can invite other owners and managers.",
+          "steps": [
+            "In “Institution”, press “Invite”.",
+            "Type the person’s email.",
+            "Choose the role: manager (elections, voters, codes) or owner (everything).",
+            "Press “Send the invitation”."
+          ],
+          "legend": ["The person’s email.", "The role.", "Send the invitation."],
+          "tip": "On the school edition (no email), you create the person yourself: a temporary password is shown once, to hand to them."
+        },
+        "invitation": {
+          "title": "Follow invitations and the team",
+          "lead": "Each invitation has a status; each member a role.",
+          "steps": [
+            "Pending invitations appear with their status and expiry date.",
+            "Cancel those that are no longer needed.",
+            "For a member, you can change the role, reset their password or two-factor authentication, or remove them.",
+            "The institution always keeps at least one owner."
+          ],
+          "legend": [
+            "A pending invitation.",
+            "Its status.",
+            "Cancel it.",
+            "The list of team members."
+          ]
+        },
+        "audit": {
+          "title": "The audit log",
+          "lead": "Every important action is recorded: who, what, when, from which address. Nobody can erase it.",
+          "steps": [
+            "Open “Log” in the menu.",
+            "Filter by person, election, action or dates.",
+            "Export as CSV or Excel to archive it or show it."
+          ],
+          "legend": ["Filter by person.", "Filter by election.", "The list of events.", "Export."]
+        },
+        "twofactor": {
+          "title": "Turn on two-factor authentication",
+          "lead": "Recommended for every owner: a stolen password is no longer enough.",
+          "steps": [
+            "In “My account”, press “Turn on”.",
+            "Type your password.",
+            "Scan the QR code with an authenticator app, or type the key by hand.",
+            "Type the six-digit code shown, then confirm.",
+            "Note the eight recovery codes and tick “I have saved them”."
+          ],
+          "legend": [
+            "The QR code.",
+            "The backup key, to type by hand.",
+            "The six-digit code.",
+            "Confirm."
+          ]
+        },
+        "public": {
+          "title": "Your public page",
+          "lead": "Your institution has a public page that lists published elections.",
+          "steps": [
+            "On the “Institution” page, the public address is shown.",
+            "Copy it to put on your site or share it.",
+            "Open it to see what the public sees."
+          ],
+          "legend": ["The public address.", "Copy it.", "Open it."]
+        }
+      }
+    },
+    "platform": {
+      "name": "Platform administrator",
+      "lead": "You manage the platform’s institutions. You never see votes, codes or voters’ contact details.",
+      "sections": {
+        "signin": {
+          "title": "Sign in",
+          "lead": "The account is created by the server operator with the administration command.",
+          "steps": [
+            "Open the site’s sign-in page.",
+            "Type your address and your password.",
+            "Type the two-factor code (required for this role)."
+          ],
+          "legend": ["Your address.", "Your password.", "Sign in."]
+        },
+        "list": {
+          "title": "The list of institutions",
+          "lead": "Each institution is a card: status, number of elections, owner.",
+          "steps": [
+            "Search by name with the search bar.",
+            "Filter by status: active or suspended.",
+            "Read the card’s name, status and figures.",
+            "Use “Suspend” or “Act as the owner” from the card."
+          ],
+          "legend": [
+            "The search.",
+            "The status filter.",
+            "The institution’s name.",
+            "Suspend.",
+            "Act as the owner, to help."
+          ]
+        },
+        "suspend": {
+          "title": "Suspend an institution",
+          "lead": "A suspension blocks sign-in and pauses the votes in progress.",
+          "steps": [
+            "Press “Suspend” on the card.",
+            "Write the reason: it is shown to users and sent to owners.",
+            "Confirm. Open elections are paused: voters see a “voting suspended” page.",
+            "“Reactivate” restores everything; elections resume where they were."
+          ],
+          "legend": ["The reason for the suspension.", "The institution’s status."],
+          "tip": "Results already published stay visible."
+        },
+        "impersonate": {
+          "title": "Act as the owner",
+          "lead": "To help an institution, you can open its owner session.",
+          "steps": [
+            "Press “Act as the owner” on the card.",
+            "A banner reminds you at all times that you act for them.",
+            "Press “End” to go back to your platform screen.",
+            "Every action is written to the institution’s log, with your name."
+          ]
+        },
+        "twofactor": {
+          "title": "Two-factor authentication",
+          "lead": "It is required for the platform administrator.",
+          "steps": [
+            "At first sign-in, the screen asks you to turn it on.",
+            "Scan the QR code with an authenticator app.",
+            "Keep the recovery codes away from the server.",
+            "If lost, the operator resets it with “votectl 2fa reset”."
+          ]
+        },
+        "limits": {
+          "title": "What you cannot do",
+          "lead": "These limits are deliberate: they protect the secrecy of the vote.",
+          "steps": [
+            "See a vote, an access code or a voter’s contact details.",
+            "Read the vote counts before an election is closed.",
+            "Change an institution’s content without acting in its name (and so without a trace)."
+          ]
+        }
+      }
+    },
+    "install": {
+      "name": "Installation",
+      "lead": "Put VoteSystem into service on a computer or a server. Three ways, depending on hardware and connection.",
+      "sections": {
+        "choose": {
+          "title": "Which installation to choose?",
+          "lead": "One application, three installers.",
+          "steps": [
+            "A Linux server in the institution, with no internet: the Linux “school” installer (Debian 12 or 13, Ubuntu 24.04 or 26.04). No email; accounts are created by the installer.",
+            "A Windows 11 computer in the institution: the Windows installer (see the next section).",
+            "An online server with a domain name: the Docker “online” installer, with automatic HTTPS and email."
+          ],
+          "tip": "All three provide the “votectl” command for daily operation."
+        },
+        "linux": {
+          "title": "Install on Linux (school)",
+          "lead": "One script, no Docker: it installs the services, a database and the site.",
+          "steps": [
+            "Download the version’s archive and its checksum file.",
+            "Check the checksum, then unpack the archive.",
+            "Run the installer as an administrator and answer the questions (or add --yes to accept the proposed values).",
+            "At the end, read the summary: site address, ports, files written."
+          ],
+          "commands": [
+            "sha256sum -c votesystem-X.Y.Z.tar.gz.sha256",
+            "tar -xzf votesystem-X.Y.Z.tar.gz && cd votesystem-X.Y.Z",
+            "sudo ./installers/install.sh --school \"Saint-Louis School\" --owner-email director@school.local"
+          ],
+          "tip": "The installer tests space, memory and ports, takes the next free port if 80 is busy, and offers to open the port in the firewall."
+        },
+        "windows": {
+          "title": "Install on Windows",
+          "lead": "A Windows installation is planned; its method depends on the tests under way.",
+          "steps": [
+            "This section will be completed with the chosen method as soon as the tests are done.",
+            "Meanwhile, use the Linux server or the online version."
+          ]
+        },
+        "docker": {
+          "title": "Install online with Docker",
+          "lead": "For a public server with a single domain name.",
+          "steps": [
+            "The domain name must already point to the server; ports 80 and 443 must be free.",
+            "Download the version’s archive, check the checksum, unpack.",
+            "Run the installer as an administrator: it asks its questions once (domain, SMTP email, platform administrator’s address).",
+            "Behind another proxy, answer “yes” to “another proxy will do the HTTPS”: VoteSystem then listens locally."
+          ],
+          "commands": [
+            "wget https://github.com/jun101/VotingSystem/releases/download/vX.Y.Z/votesystem-online-X.Y.Z.tar.gz",
+            "sha256sum -c votesystem-online-X.Y.Z.tar.gz.sha256",
+            "tar -xzf votesystem-online-X.Y.Z.tar.gz && cd votesystem-online-X.Y.Z",
+            "sudo ./install-online.sh"
+          ]
+        },
+        "first": {
+          "title": "First sign-in",
+          "lead": "The installer writes two files in the folder of the person who ran sudo.",
+          "steps": [
+            "Open “votesystem-identifiants.txt”: the addresses and the temporary passwords.",
+            "Copy “votesystem-cle-audit-A-EMPORTER.txt” to a USB key or another computer, then delete it from the server: it is the audit private key and must not stay on the machine.",
+            "Open the site address and sign in: you are asked to change the temporary password before anything else.",
+            "Turn on two-factor authentication for the owner and the administrator."
+          ]
+        },
+        "daily": {
+          "title": "Daily operation with votectl",
+          "lead": "The “votectl” command does the day-to-day work, without touching vote data.",
+          "steps": [
+            "votectl status: the state of the services and of the disk.",
+            "votectl user list, user reset-password, 2fa reset: the accounts.",
+            "votectl owner create and admin create: new accounts.",
+            "votectl logs [service]: the logs."
+          ],
+          "commands": [
+            "sudo votectl status",
+            "sudo votectl user list",
+            "sudo votectl user reset-password director@school.local"
+          ]
+        },
+        "update": {
+          "title": "Update",
+          "lead": "An update keeps the data and goes back if it fails.",
+          "steps": [
+            "Download the new version and unpack it.",
+            "Run the update command: a backup is made first.",
+            "If the migration step fails, the previous version is put back in service automatically."
+          ],
+          "commands": [
+            "sudo ./installers/install.sh update",
+            "sudo votectl update --version X.Y.Z"
+          ],
+          "tip": "The first command is for the school edition, the second for the online edition."
+        },
+        "backup": {
+          "title": "Back up and restore",
+          "lead": "A backup is a checked archive: database and pictures.",
+          "steps": [
+            "An automatic backup runs every night (school edition).",
+            "To make one on demand, run the command below.",
+            "Regularly copy the archives to an external disk.",
+            "To restore, use “votectl restore” with the file: try it once before you need it."
+          ],
+          "commands": [
+            "sudo votectl backup",
+            "sudo votectl restore /var/backups/votesystem/votesystem-YYYY-MM-DD.tar.gz"
+          ],
+          "tip": "The audit private key is never part of a backup."
+        },
+        "problems": {
+          "title": "If there is a problem",
+          "lead": "The first checks.",
+          "steps": [
+            "The site does not answer: “votectl status” shows which service is stopped.",
+            "The port is taken: run the installer again, it picks the next one and writes it in the summary.",
+            "Voters cannot reach the site: check the server firewall and that devices are on the same network.",
+            "Lost password: “votectl user reset-password” generates a temporary one."
+          ]
+        },
+        "uninstall": {
+          "title": "Uninstall",
+          "lead": "Uninstalling removes the services; the data is deleted only on request.",
+          "steps": [
+            "Run the uninstall command: services and the firewall rule are removed, the data stays.",
+            "With --purge-data, the data is deleted too: use it only after a backup copied elsewhere."
+          ],
+          "commands": [
+            "sudo /opt/votesystem/installer/install.sh uninstall",
+            "sudo /opt/votesystem/installer/install.sh uninstall --purge-data"
+          ]
+        }
+      }
+    }
+  }
+}

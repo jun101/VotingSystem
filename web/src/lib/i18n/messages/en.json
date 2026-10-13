@@ -380,7 +380,8 @@
     "user": {
       "menu": "{name}'s menu",
       "signOut": "Sign out",
-      "account": "My account"
+      "account": "My account",
+      "guide": "User guide"
     },
     "roles": {
       "owner": "Owner",
@@ -2311,7 +2312,8 @@
         "expired": "Your session has ended. Enter your code again to continue.",
         "ended": "Session ended. The next voter can enter their code.",
         "alreadyVoted": "This code has already been used: the vote is recorded and cannot be changed."
-      }
+      },
+      "guide": "See the step-by-step guide"
     },
     "error": {
       "invalid_code": "This code is not valid. Check it on your slip, or ask for a new one.",
@@ -3013,6 +3015,7 @@
       "text": "Its users will be able to sign in again and its paused elections will resume. The owner is told by email.",
       "confirm": "Reactivate"
     },
-    "impersonate": "Sign in as"
+    "impersonate": "Sign in as",
+    "guide": "User guide"
   }
 }

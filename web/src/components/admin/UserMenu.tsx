@@ -9,6 +9,7 @@ import { ApiError, errorText } from '@/lib/api/errors';
 import { useI18n } from '@/lib/i18n/client';
 import { useAdminUser } from './AdminUser';
 import { focusRing, linkSecondary } from './classes';
+import { guideRoleFor } from '@/components/guide/guide-data';
 import { ACCOUNT_PATH, initials } from './menu';
 import { ROLE_KEYS } from './SideMenu';
 
@@ -108,6 +109,14 @@ export function UserMenu() {
             className={linkSecondary}
           >
             {t('admin.user.account')}
+          </Link>
+          <Link
+            href={`/guide/${guideRoleFor(user)}`}
+            data-testid="user-menu-guide"
+            onClick={() => setOpen(false)}
+            className={linkSecondary}
+          >
+            {t('admin.user.guide')}
           </Link>
           <Button
             variant="secondary"

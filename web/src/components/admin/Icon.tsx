@@ -77,6 +77,22 @@ const SYMBOLS = {
   trash: { shapes: <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" /> },
   chart: { shapes: <path d="M4 20V10M10 20V4M16 20v-8M22 20H2" /> },
   flag: { shapes: <path d="M5 21V4M5 4h11l-2 4 2 4H5" /> },
+  book: {
+    shapes: (
+      <>
+        <path d="M4 5.5A2.5 2.5 0 016.5 3H20v15H6.5A2.5 2.5 0 004 20.5z" />
+        <path d="M4 20.5A2.5 2.5 0 006.5 23H20v-5M9 8h7M9 12h5" />
+      </>
+    ),
+  },
+  info: {
+    shapes: (
+      <>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 11v6M12 7.5v.01" />
+      </>
+    ),
+  },
   draft: {
     shapes: (
       <>

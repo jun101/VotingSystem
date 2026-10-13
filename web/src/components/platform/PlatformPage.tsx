@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { LanguageSwitch } from '@/components/admin/LanguageSwitch';
@@ -297,6 +298,14 @@ export function PlatformPage({ initial }: { initial: Page }) {
               <div className="w-44">
                 <LanguageSwitch />
               </div>
+              <Link
+                href="/guide/platform"
+                data-testid="platform-guide"
+                className="ui-control inline-flex min-h-11 items-center gap-2 rounded-full border border-surface px-4 text-base font-medium text-surface hover:bg-deep/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-light"
+              >
+                <Icon name="book" size={18} />
+                {t('platform.guide')}
+              </Link>
               <button
                 type="button"
                 data-testid="platform-signout"
