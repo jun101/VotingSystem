@@ -21,3 +21,16 @@ the one part that needs Jun and his approval to connect.
 - `installers/linux/lib/setup.sh`: the health wait needs a 2xx, not any answer (a proxy answers 502 while the API starts).
 - `installers/linux/tests/vm-*`: an unattended test of the Linux installer in a fresh cloud-image VM (cloud-init, serial
   console), run on Debian 12, Ubuntu 24.04 and Ubuntu 26.04.
+
+## Test results of the night run (2026-10-13)
+
+| Suite | Result |
+|---|---|
+| API, folder by folder (one process of everything hits PHP's 256 MB limit) | **2 531 passed**: Unit 130, Feature 200, Architecture 2, Slices 01 to 19c 2 199 |
+| Web unit (vitest) | passed (see `make test-web`: 683 tests + the guide tests) |
+| `make lint` (Pint, PHPStan, ESLint, Prettier, tsc) | green after fixing the `mail:test` types and the formatting of `motion.css` |
+| `make generate-check` | green: `openapi.json` and `schema.d.ts` unchanged |
+| Browser, both projects (`make e2e`), the machine also running the API tests, a VM and a stack | 915 passed, 32 skipped, 7 failed; 6 passed again alone on a quiet machine (load: ballots delete, candidates drag, users re-invite, axe checks on phone); the 7th, `slice03/shell.spec.ts:115`, is the known one: the development error overlay puts a `data-nextjs-dialog-error-index="0"` on the page (it is a development-server artefact; the production build has none, see the CSP check) |
+| On demand (not in `make e2e`): guide pictures, production CSP, school edition | capture 47 pictures; CSP 0 violations; school edition 4 of 4 |
+| Linux installer in fresh VMs | Debian 12, Ubuntu 24.04.5, Ubuntu 26.04.1: PASS |
+| Windows installer in a VM | install, flow, update, rollback, backup, restore, uninstall, reboot: PASS |
