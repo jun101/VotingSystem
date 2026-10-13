@@ -27,7 +27,7 @@ the one part that needs Jun and his approval to connect.
 | Suite | Result |
 |---|---|
 | API, folder by folder (one process of everything hits PHP's 256 MB limit) | **2 531 passed**: Unit 130, Feature 200, Architecture 2, Slices 01 to 19c 2 199 |
-| Web unit (vitest) | passed (see `make test-web`: 683 tests + the guide tests) |
+| Web unit (vitest) | passed: 87 files, 684 tests |
 | `make lint` (Pint, PHPStan, ESLint, Prettier, tsc) | green after fixing the `mail:test` types and the formatting of `motion.css` |
 | `make generate-check` | green: `openapi.json` and `schema.d.ts` unchanged |
 | Browser, both projects (`make e2e`), the machine also running the API tests, a VM and a stack | 915 passed, 32 skipped, 7 failed; 6 passed again alone on a quiet machine (load: ballots delete, candidates drag, users re-invite, axe checks on phone); the 7th, `slice03/shell.spec.ts:115`, is the known one: the development error overlay puts a `data-nextjs-dialog-error-index="0"` on the page (it is a development-server artefact; the production build has none, see the CSP check) |
