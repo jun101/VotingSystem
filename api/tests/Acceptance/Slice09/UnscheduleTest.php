@@ -19,7 +19,13 @@ function unscheduleUrl(string $uuid): string
 function unscheduleSignedIn($test, string $status = 'scheduled'): array
 {
     $t = Team::two();
-    $election = Accounts::plantElection(['institution' => $t['a']['owner']['institution'], 'status' => $status]);
+    // A scheduled election has not started yet: unscheduling is refused after the start time (slice 13).
+    $election = Accounts::plantElection([
+        'institution' => $t['a']['owner']['institution'],
+        'status' => $status,
+        'starts_at' => now('UTC')->addDay(),
+        'ends_at' => now('UTC')->addDays(4),
+    ]);
     $group = Accounts::plantGroup(['election' => $election, 'name' => '4e année']);
     $ballot = Accounts::plantBallot(['election' => $election, 'title' => 'Délégué', 'groups' => [$group]]);
     Team::signIn($test, $t['a']['owner']);

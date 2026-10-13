@@ -41,7 +41,7 @@ it('shows an election of the institution, in any status, with the shape of the f
             'description' => 'Élection annuelle.',
             'status' => $status,
             'starts_at' => '2026-10-12T12:00:00Z',
-            'ends_at' => '2026-10-16T19:00:00Z',
+            'ends_at' => '2036-10-16T19:00:00Z',
             'timezone' => 'America/Port-au-Prince',
             'language' => 'fr',
             'candidate_order' => 'shuffled',
