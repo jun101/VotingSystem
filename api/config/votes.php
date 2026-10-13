@@ -20,8 +20,11 @@ return [
     // Submissions per session per minute.
     'submit_per_minute' => 10,
 
-    // The public reads (election information, ballots, end of session) per address and election per minute.
-    // High on purpose: a whole class sits behind one address. Multiplied by `auth.rate_limit_factor`.
-    'public_per_minute' => 600,
+    // The voters' routes (election information, session, ballots, submit, end of session) per address and election per
+    // minute. High on purpose: a whole school can sit behind one address. A voter's visit is about 4 of these, so 3 000
+    // is some 700 voters a minute from one address (load test, tools/loadtest/vote_load.py: 500 voters in a minute
+    // passed from a single address at this value, and were refused beyond 150 voters at the former 600). It guards the
+    // servers, not the codes: wrong codes are counted apart, above. Multiplied by `auth.rate_limit_factor`.
+    'public_per_minute' => 3000,
 
 ];

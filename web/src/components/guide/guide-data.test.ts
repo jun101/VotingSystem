@@ -69,6 +69,15 @@ describe('the manuals', () => {
     }
   });
 
+  it('has a picture, taken by the capture spec, for every section that names one', () => {
+    for (const role of GUIDE_ROLES) {
+      for (const section of GUIDE_SECTIONS[role]) {
+        if (section.shot)
+          expect(shotOf(section.shot), `${role}.${section.id}: ${section.shot}`).not.toBeNull();
+      }
+    }
+  });
+
   it('has one legend line for every marker of a picture, so no marker is unexplained', () => {
     const fr = getGuide('fr');
 

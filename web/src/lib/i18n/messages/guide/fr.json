@@ -169,6 +169,27 @@
             "Si le vote est interrompu (par exemple une suspension), la page l’indique : réessayez plus tard, vos votes déjà enregistrés sont conservés."
           ],
           "legend": ["L’annonce de fin du vote.", "Le titre de l’élection."]
+        },
+        "already": {
+          "title": "« Vous avez déjà voté »",
+          "lead": "Un code ne sert qu’une fois. Si vous le saisissez de nouveau, la page vous le dit.",
+          "steps": [
+            "Lisez le message : votre vote est déjà enregistré, il n’y a rien à refaire.",
+            "Si ce n’est pas vous qui avez voté, prévenez tout de suite la personne qui organise l’élection : elle peut vérifier et vous donner un nouveau code si besoin.",
+            "Ne cherchez pas à voter une seconde fois : le serveur le refuse, même en cas de double envoi."
+          ],
+          "legend": ["Le message d’erreur."],
+          "tip": "Chaque code est lié à une seule personne et à une seule élection."
+        },
+        "paused": {
+          "title": "Vote suspendu",
+          "lead": "Si l’établissement est suspendu par la plateforme, les votes en cours sont mis en pause.",
+          "steps": [
+            "La page annonce que le vote est suspendu pour le moment.",
+            "Ne saisissez pas votre code plusieurs fois : attendez, puis revenez plus tard.",
+            "Quand l’établissement est réactivé, le vote reprend là où il en était ; les votes déjà enregistrés sont conservés."
+          ],
+          "legend": ["L’annonce de suspension."]
         }
       }
     },
@@ -455,6 +476,29 @@
             "La note qui l’explique sur la page de l’établissement.",
             "Le profil de l’établissement."
           ]
+        },
+        "invitation": {
+          "title": "Accepter l’invitation",
+          "lead": "Le propriétaire vous invite par courriel. Le lien ouvre cette page, une seule fois.",
+          "steps": [
+            "Ouvrez le lien reçu dans le courriel.",
+            "Écrivez votre nom, tel qu’il apparaîtra dans le journal.",
+            "Choisissez un mot de passe d’au moins 12 caractères.",
+            "Appuyez sur « Accepter » : vous arrivez au tableau de bord."
+          ],
+          "legend": ["Votre nom.", "Votre mot de passe.", "Accepter l’invitation."],
+          "tip": "Un lien expiré ou déjà utilisé s’affiche comme tel : demandez une nouvelle invitation au propriétaire."
+        },
+        "forgot": {
+          "title": "Mot de passe oublié",
+          "lead": "Un lien de réinitialisation est envoyé à votre adresse.",
+          "steps": [
+            "Sur la page de connexion, appuyez sur « Mot de passe oublié ? ».",
+            "Saisissez votre adresse courriel et envoyez.",
+            "Ouvrez le courriel, suivez le lien et choisissez un nouveau mot de passe.",
+            "Dans l’édition école (sans courriel), demandez à l’administrateur du serveur de le réinitialiser : un mot de passe provisoire vous est remis."
+          ],
+          "legend": ["Votre adresse courriel.", "Envoyer le lien."]
         }
       }
     },
@@ -622,7 +666,7 @@
             "Confirmez. Les élections ouvertes passent en pause : les électeurs voient une page « vote suspendu ».",
             "« Réactiver » rétablit tout ; les élections reprennent là où elles étaient."
           ],
-          "legend": ["Le motif de la suspension.", "L’état de l’établissement."],
+          "legend": ["Le motif de la suspension.", "Confirmer la suspension."],
           "tip": "Les résultats déjà publiés restent visibles."
         },
         "impersonate": {
@@ -633,6 +677,10 @@
             "Un bandeau rappelle en permanence que vous agissez pour lui.",
             "Appuyez sur « Terminer » pour revenir à votre écran de plateforme.",
             "Chaque action est inscrite au journal de l’établissement, avec votre nom."
+          ],
+          "legend": [
+            "Le bandeau qui rappelle que vous agissez pour le propriétaire.",
+            "Terminer et revenir à la plateforme."
           ]
         },
         "twofactor": {
@@ -653,6 +701,26 @@
             "Lire la liste des voix avant la fermeture d’une élection.",
             "Modifier le contenu d’un établissement sans agir en son nom (et donc sans trace)."
           ]
+        },
+        "effects": {
+          "title": "Ce que voient les personnes de l’établissement",
+          "lead": "Une suspension a des effets immédiats, avec le motif que vous avez écrit.",
+          "steps": [
+            "Les propriétaires et gestionnaires ne peuvent plus se connecter : la page de connexion affiche le motif.",
+            "Les sessions ouvertes sont terminées.",
+            "Les électeurs d’une élection ouverte voient la page « vote suspendu »."
+          ],
+          "legend": ["Le message de suspension.", "Le motif, tel que vous l’avez écrit."]
+        },
+        "reactivate": {
+          "title": "Réactiver",
+          "lead": "Réactiver rétablit l’établissement tel qu’il était.",
+          "steps": [
+            "Sur la carte d’un établissement suspendu, appuyez sur « Réactiver ».",
+            "Confirmez dans la fenêtre.",
+            "L’état redevient « actif » ; les élections en pause reprennent, les personnes peuvent se connecter."
+          ],
+          "legend": ["L’état « suspendu ».", "Le bouton pour réactiver."]
         }
       }
     },

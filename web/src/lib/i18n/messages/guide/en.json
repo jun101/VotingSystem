@@ -166,6 +166,27 @@
             "If voting is interrupted (a suspension, for example), the page says so: try again later, votes already recorded are kept."
           ],
           "legend": ["The end-of-voting notice.", "The election title."]
+        },
+        "already": {
+          "title": "“You have already voted”",
+          "lead": "A code can be used once. If you enter it again, the page says so.",
+          "steps": [
+            "Read the message: your vote is already recorded, there is nothing to redo.",
+            "If it was not you who voted, tell the person running the election right away: they can check and give you a new code if needed.",
+            "Do not try to vote a second time: the server refuses it, even on a double send."
+          ],
+          "legend": ["The error message."],
+          "tip": "Each code is tied to one person and one election."
+        },
+        "paused": {
+          "title": "Voting paused",
+          "lead": "If the platform suspends the institution, votes in progress are paused.",
+          "steps": [
+            "The page says voting is suspended for now.",
+            "Do not enter your code again and again: wait, then come back later.",
+            "When the institution is reactivated, voting resumes where it was; votes already recorded are kept."
+          ],
+          "legend": ["The suspension notice."]
         }
       }
     },
@@ -452,6 +473,29 @@
             "The note that explains it on the institution page.",
             "The institution profile."
           ]
+        },
+        "invitation": {
+          "title": "Accept the invitation",
+          "lead": "The owner invites you by email. The link opens this page, once.",
+          "steps": [
+            "Open the link in the email you received.",
+            "Write your name, as it will appear in the log.",
+            "Choose a password of at least 12 characters.",
+            "Press “Accept”: you land on the dashboard."
+          ],
+          "legend": ["Your name.", "Your password.", "Accept the invitation."],
+          "tip": "An expired or used link is shown as such: ask the owner for a new invitation."
+        },
+        "forgot": {
+          "title": "Forgot your password",
+          "lead": "A reset link is sent to your address.",
+          "steps": [
+            "On the sign-in page, press “Forgot your password?”.",
+            "Type your email address and send.",
+            "Open the email, follow the link and choose a new password.",
+            "On the school edition (no email), ask the server administrator to reset it: a temporary password is handed to you."
+          ],
+          "legend": ["Your email address.", "Send the link."]
         }
       }
     },
@@ -610,7 +654,7 @@
             "Confirm. Open elections are paused: voters see a “voting suspended” page.",
             "“Reactivate” restores everything; elections resume where they were."
           ],
-          "legend": ["The reason for the suspension.", "The institution’s status."],
+          "legend": ["The reason for the suspension.", "Confirm the suspension."],
           "tip": "Results already published stay visible."
         },
         "impersonate": {
@@ -621,6 +665,10 @@
             "A banner reminds you at all times that you act for them.",
             "Press “End” to go back to your platform screen.",
             "Every action is written to the institution’s log, with your name."
+          ],
+          "legend": [
+            "The banner that reminds you that you act for the owner.",
+            "End and go back to the platform."
           ]
         },
         "twofactor": {
@@ -641,6 +689,26 @@
             "Read the vote counts before an election is closed.",
             "Change an institution’s content without acting in its name (and so without a trace)."
           ]
+        },
+        "effects": {
+          "title": "What the institution’s people see",
+          "lead": "A suspension takes effect at once, with the reason you wrote.",
+          "steps": [
+            "Owners and managers can no longer sign in: the sign-in page shows the reason.",
+            "Open sessions are ended.",
+            "Voters of an open election see the “voting paused” page."
+          ],
+          "legend": ["The suspension notice.", "The reason, as you wrote it."]
+        },
+        "reactivate": {
+          "title": "Reactivate",
+          "lead": "Reactivating puts the institution back as it was.",
+          "steps": [
+            "On the card of a suspended institution, press “Reactivate”.",
+            "Confirm in the window.",
+            "The status goes back to “active”; paused elections resume, people can sign in."
+          ],
+          "legend": ["The “suspended” status.", "The button to reactivate."]
         }
       }
     },

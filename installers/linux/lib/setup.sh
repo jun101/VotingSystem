@@ -197,7 +197,8 @@ audit_keypair() {
 wait_for_http() {
   local url="$1" tries="${2:-60}" i
   for i in $(seq 1 "$tries"); do
-    curl -s -o /dev/null --max-time 3 "$url" && return 0
+    # -f: an answer is a 2xx; the proxy answers 502 while the API is still starting, which is not "up".
+    curl -fs -o /dev/null --max-time 3 "$url" && return 0
     sleep 1
   done
   return 1

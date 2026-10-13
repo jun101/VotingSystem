@@ -115,6 +115,28 @@ async function api(page: Page, method: 'post' | 'patch' | 'put', path: string, d
   return (await response.json().catch(() => ({}))) as unknown;
 }
 
+/** Clicks until the thing it opens is there: a click before the page is interactive does nothing. */
+async function openWithRetry(page: Page, clickId: string, shownId: string): Promise<void> {
+  await expect(async () => {
+    await page.getByTestId(clickId).click();
+    await expect(page.getByTestId(shownId)).toBeVisible({ timeout: 3_000 });
+  }).toPass({ timeout: 30_000 });
+}
+
+/** A navigation that another one interrupts (a client redirect) is tried again. */
+async function go(page: Page, url: string): Promise<void> {
+  for (let attempt = 1; ; attempt += 1) {
+    try {
+      await page.goto(url);
+
+      return;
+    } catch (error) {
+      if (attempt >= 3 || !/ERR_ABORTED|interrupted/i.test(String(error))) throw error;
+      await page.waitForTimeout(700);
+    }
+  }
+}
+
 async function newPage(browser: Browser, viewport = { width: 1280, height: 800 }): Promise<Page> {
   const context = await browser.newContext({
     locale: 'fr-FR',
@@ -133,7 +155,7 @@ test('walks every role through every screen and takes the pictures of the manual
 
   // ---------------------------------------------------------------- Owner: register, verify, institution, team
   const owner = await newPage(browser);
-  await owner.goto('/register');
+  await go(owner, '/register');
   await owner.getByTestId('register-institution-name').fill(INSTITUTION);
   await owner.getByTestId('register-name').fill('Marie Joseph');
   const ownerEmail = uniqueEmail('directrice');
@@ -151,13 +173,13 @@ test('walks every role through every screen and takes the pictures of the manual
   await shoot(owner, 'owner-verify', ['verify-banner', 'resend-button', 'dashboard-welcome']);
   await verifyEmail(owner, ownerEmail);
 
-  await owner.goto('/admin/institution');
+  await go(owner, '/admin/institution');
   await expect(owner.getByTestId('institution-page')).toBeVisible();
   await shoot(owner, 'owner-institution', ['profile-name', 'profile-type', 'logo-change', 'profile-save', 'public-address']);
 
   // The team: an invitation, the pending card, and the manager who accepts.
   const managerEmail = uniqueEmail('secretaire');
-  await owner.goto('/admin/institution');
+  await go(owner, '/admin/institution');
   await owner.getByTestId('invite-open').click();
   await owner.getByTestId('invite-email').fill(managerEmail);
   await owner.getByTestId('invite-role').selectOption('manager');
@@ -171,15 +193,18 @@ test('walks every role through every screen and takes the pictures of the manual
 
   // ---------------------------------------------------------------- The sign-in page, seen by a visitor
   const visitor = await newPage(browser);
-  await visitor.goto('/login');
+  await go(visitor, '/login');
   await shoot(visitor, 'admin-login', ['login-email', 'login-password', 'login-submit', 'login-forgot', 'login-register']);
+  await go(visitor, '/forgot-password');
+  await expect(visitor.getByTestId('forgot-form')).toBeVisible();
+  await shoot(visitor, 'admin-forgot', ['forgot-email', 'forgot-submit']);
   await visitor.close();
 
   // ---------------------------------------------------------------- An election, set up the way a person does it
   const startsLater = new Date(Date.now() + 3 * 3600_000).toISOString();
   const ends = new Date(Date.now() + 2 * 24 * 3600_000).toISOString();
 
-  await owner.goto('/admin/elections/new');
+  await go(owner, '/admin/elections/new');
   await shoot(owner, 'admin-election-new', [
     'election-title',
     'election-description',
@@ -188,7 +213,7 @@ test('walks every role through every screen and takes the pictures of the manual
   ]);
 
   const election = await createElection(owner, 'Élection du conseil des élèves', startsLater, ends);
-  await owner.goto(`/admin/elections/${election.id}`);
+  await go(owner, `/admin/elections/${election.id}`);
   await expect(owner.getByTestId('election-page')).toBeVisible();
   await shoot(owner, 'admin-election', ['election-hero', 'election-card-steps', 'election-checklist', 'election-edit']);
 
@@ -216,12 +241,11 @@ test('walks every role through every screen and takes the pictures of the manual
     await createCandidate(owner, commission.id, first, last);
   }
 
-  await owner.goto(`/admin/elections/${election.id}/ballots`);
+  await go(owner, `/admin/elections/${election.id}/ballots`);
   await expect(owner.getByTestId('ballots-page')).toBeVisible();
   await shoot(owner, 'admin-ballots', ['ballots-add', 'ballot-card-1', 'ballot-seats-1', 'ballot-scope-2', 'ballot-edit-1']);
 
-  await owner.getByTestId('candidate-add-1').click();
-  await expect(owner.getByTestId('candidate-modal')).toBeVisible();
+  await openWithRetry(owner, 'candidate-add-1', 'candidate-modal');
   await owner.getByTestId('candidate-form-first-name').fill('Fabienne');
   await owner.getByTestId('candidate-form-last-name').fill('Jean-Baptiste');
   await owner.getByTestId('candidate-form-slogan').fill('Ensemble, plus loin');
@@ -250,16 +274,16 @@ test('walks every role through every screen and takes the pictures of the manual
   for (const [name, group] of names) {
     voters.push(await createVoter(owner, election.id, name, group ? { group } : {}));
   }
-  await owner.goto(`/admin/elections/${election.id}/voters`);
+  await go(owner, `/admin/elections/${election.id}/voters`);
   await expect(owner.getByTestId('voters-page')).toBeVisible();
   await shoot(owner, 'admin-voters', ['voter-add', 'voters-import', 'voters-search', 'voters-filter-all', 'groups-card', 'voters-copy']);
 
-  await owner.goto(`/admin/elections/${election.id}/voters/import`);
+  await go(owner, `/admin/elections/${election.id}/voters/import`);
   await expect(owner.getByTestId('import-page')).toBeVisible();
   await shoot(owner, 'admin-import', ['import-instructions', 'import-template-csv', 'import-dropzone', 'import-upload']);
 
   // Codes
-  await owner.goto(`/admin/elections/${election.id}/codes`);
+  await go(owner, `/admin/elections/${election.id}/codes`);
   await expect(owner.getByTestId('codes-page')).toBeVisible();
   await shoot(owner, 'admin-codes', ['codes-totals', 'codes-generate-all', 'codes-send', 'codes-lost']);
 
@@ -272,7 +296,7 @@ test('walks every role through every screen and takes the pictures of the manual
   // Schedule: the checklist, then the election starts in 30 seconds so the scheduler opens it.
   const startsSoon = new Date(Date.now() + 40_000).toISOString();
   await api(owner, 'patch', `/elections/${election.id}`, { starts_at: startsSoon });
-  await owner.goto(`/admin/elections/${election.id}`);
+  await go(owner, `/admin/elections/${election.id}`);
   await expect(owner.getByTestId('election-schedule-button')).toBeVisible();
   await shoot(owner, 'admin-schedule', ['election-checklist', 'election-schedule-button', 'election-card-steps']);
   await api(owner, 'post', `/elections/${election.id}/schedule`, { accept_warnings: true });
@@ -280,12 +304,12 @@ test('walks every role through every screen and takes the pictures of the manual
   // ---------------------------------------------------------------- The voter, before and during the vote
   const voter = await newPage(browser);
   if ((await phaseOf(voter, election.id)) === 'before') {
-    await voter.goto(`/vote/${election.id}`);
+    await go(voter, `/vote/${election.id}`);
     await shoot(voter, 'voter-before', ['vote-election-title', 'vote-countdown']);
   }
   await waitUntilOpen(voter, election.id);
 
-  await voter.goto(`/vote/${election.id}`);
+  await go(voter, `/vote/${election.id}`);
   await expect(voter.getByTestId('vote-code-input')).toBeVisible();
   await shoot(voter, 'voter-code', ['vote-election-title', 'vote-code-input', 'vote-code-submit']);
 
@@ -294,7 +318,7 @@ test('walks every role through every screen and takes the pictures of the manual
   await expect(voter.getByTestId('vote-code-error')).toBeVisible();
   await shoot(voter, 'voter-code-error', ['vote-code-input', 'vote-code-error']);
 
-  await voter.goto(`/vote/${election.id}`);
+  await go(voter, `/vote/${election.id}`);
   await voter.getByTestId('vote-code-input').fill(codes[0]!);
   await voter.getByTestId('vote-code-submit').click();
   await expect(voter.getByTestId('vote-identity-name')).toBeVisible();
@@ -333,9 +357,18 @@ test('walks every role through every screen and takes the pictures of the manual
   await shoot(voter, 'voter-done', ['vote-done', 'vote-done-time']);
   await voter.close();
 
+  // The same code again.
+  const again = await newPage(browser);
+  await go(again, `/vote/${election.id}`);
+  await again.getByTestId('vote-code-input').fill(codes[0]!);
+  await again.getByTestId('vote-code-submit').click();
+  await expect(again.getByTestId('vote-code-error')).toBeVisible();
+  await shoot(again, 'voter-already', ['vote-code-error']);
+  await again.close();
+
   // A voter on a phone.
   const phone = await newPage(browser, { width: 390, height: 844 });
-  await phone.goto(`/vote/${election.id}#${codes[3]}`);
+  await go(phone, `/vote/${election.id}#${codes[3]}`);
   await expect(phone.getByTestId('vote-identity-name')).toBeVisible();
   await phone.getByTestId('vote-identity-yes').click();
   await expect(phone.getByTestId('vote-ballot-title')).toBeVisible();
@@ -349,8 +382,13 @@ test('walks every role through every screen and takes the pictures of the manual
   await castVoteFor(browser, election.id, codes[5]!, 0);
 
   // ---------------------------------------------------------------- Manager: the same screens, with fewer powers
+  const invitee = await newPage(browser);
+  await go(invitee, managerLink);
+  await expect(invitee.getByTestId('accept-form')).toBeVisible();
+  await shoot(invitee, 'admin-accept', ['accept-name', 'accept-password', 'accept-submit']);
+  await invitee.context().close();
   const manager = await acceptInNewBrowser(browser, managerLink, 'Jean Pierre');
-  await manager.goto('/admin');
+  await go(manager, '/admin');
   await shoot(manager, 'admin-dashboard', [
     'dashboard-welcome',
     'dashboard-quick-new-election',
@@ -358,12 +396,12 @@ test('walks every role through every screen and takes the pictures of the manual
     'menu-link-elections',
     'user-menu',
   ]).catch(() => undefined);
-  await manager.goto('/admin/institution');
+  await go(manager, '/admin/institution');
   await shoot(manager, 'manager-institution', ['users-manager-note', 'profile-card']);
   await manager.context().close();
 
   // ---------------------------------------------------------------- Turnout while open
-  await owner.goto(`/admin/elections/${election.id}/turnout`);
+  await go(owner, `/admin/elections/${election.id}/turnout`);
   await expect(owner.getByTestId('turnout-page')).toBeVisible();
   await shoot(owner, 'admin-turnout', [
     'turnout-percentage',
@@ -375,7 +413,7 @@ test('walks every role through every screen and takes the pictures of the manual
 
   // ---------------------------------------------------------------- Platform admin: list, suspend, voter sees "paused"
   const platform = await newPage(browser);
-  await platform.goto('/login');
+  await go(platform, '/login');
   await shoot(platform, 'platform-login', ['login-email', 'login-password', 'login-submit']);
   await signInAs(platform, ADMIN_EMAIL, ADMIN_PASSWORD);
   await expect(platform).toHaveURL(/\/platform$/);
@@ -389,28 +427,52 @@ test('walks every role through every screen and takes the pictures of the manual
   ]);
   await platform.getByTestId('platform-suspend-1').click();
   await platform.getByTestId('suspend-reason').fill('Vérification demandée par l’établissement.');
-  await shoot(platform, 'platform-suspend', ['suspend-reason', 'platform-status-1']);
+  await shoot(platform, 'platform-suspend', ['suspend-reason', 'suspend-confirm']);
+  await platform.getByTestId('suspend-confirm').click();
+  await expect(platform.getByTestId('platform-status-1')).toHaveAttribute('data-status', 'suspended');
+  await shoot(platform, 'platform-suspended', ['platform-status-1', 'platform-reactivate-1']);
 
-  // Leave the suspension form without suspending: the election must stay open.
-  await platform.keyboard.press('Escape');
-  await platform.getByTestId('platform-two-factor-required').count();
+  // What the institution's people and its voters see meanwhile.
+  const paused = await newPage(browser);
+  await go(paused, `/vote/${election.id}`);
+  await expect(paused.getByTestId('vote-paused')).toBeVisible();
+  await shoot(paused, 'voter-paused', ['vote-paused']);
+  await paused.close();
+  const refused = await newPage(browser);
+  await signInAs(refused, ownerEmail, PASSWORD);
+  await expect(refused.getByTestId('login-suspended')).toBeVisible();
+  await shoot(refused, 'login-suspended', ['login-suspended', 'login-suspended-reason']);
+  await refused.context().close();
+
+  await platform.getByTestId('platform-reactivate-1').click();
+  await platform.getByTestId('reactivate-confirm').click();
+  await expect(platform.getByTestId('platform-status-1')).toHaveAttribute('data-status', 'active');
+
+  // Act as the owner, to help.
+  await platform.getByTestId('platform-impersonate-1').click();
+  await expect(platform.getByTestId('impersonation-banner')).toBeVisible();
+  await shoot(platform, 'platform-impersonate', ['impersonation-banner', 'impersonation-end']);
+  await platform.getByTestId('impersonation-end').click();
   await platform.close();
 
+  // A suspension ends the open sessions: the owner signs in again.
+  await signInAs(owner, ownerEmail, PASSWORD);
+  await expect(owner).toHaveURL(/\/admin$/);
+
   // ---------------------------------------------------------------- Close, results, publication
-  await owner.goto(`/admin/elections/${election.id}`);
-  await owner.getByTestId('election-close-button').click();
-  await expect(owner.getByTestId('close-dialog')).toBeVisible();
+  await go(owner, `/admin/elections/${election.id}`);
+  await openWithRetry(owner, 'election-close-button', 'close-dialog');
   await owner.getByTestId('close-confirmation').fill('Élection du conseil des élèves');
   await shoot(owner, 'admin-close', ['close-dialog', 'close-confirmation', 'close-confirm', 'close-cancel']);
   await owner.keyboard.press('Escape');
   await closeNow(owner, election.id, 'Élection du conseil des élèves');
 
   const afterClose = await newPage(browser);
-  await afterClose.goto(`/vote/${election.id}`);
+  await go(afterClose, `/vote/${election.id}`);
   await shoot(afterClose, 'voter-closed', ['vote-closed', 'vote-election-title']);
   await afterClose.close();
 
-  await owner.goto(`/admin/elections/${election.id}/results`);
+  await go(owner, `/admin/elections/${election.id}/results`);
   await expect(owner.getByTestId('results-page')).toBeVisible();
   await shoot(
     owner,
@@ -419,8 +481,7 @@ test('walks every role through every screen and takes the pictures of the manual
     { full: true },
   );
 
-  await owner.getByTestId('publish-button').click();
-  await expect(owner.getByTestId('publish-dialog')).toBeVisible();
+  await openWithRetry(owner, 'publish-button', 'publish-dialog');
   await shoot(owner, 'admin-publication', ['publish-dialog', 'publish-confirm', 'publish-cancel']);
   await owner.getByTestId('publish-confirm').click();
   await expect(owner.getByTestId('public-link')).toBeVisible();
@@ -428,20 +489,20 @@ test('walks every role through every screen and takes the pictures of the manual
 
   // Public pages, as a visitor
   const publicVisitor = await newPage(browser);
-  await publicVisitor.goto(`/results/${election.id}`);
+  await go(publicVisitor, `/results/${election.id}`);
   await expect(publicVisitor.getByTestId('public-results-page')).toBeVisible();
   await shoot(publicVisitor, 'public-results', ['public-turnout', 'public-winner-1-1', 'public-share', 'public-report-download'], { full: true });
   await publicVisitor.close();
 
   // ---------------------------------------------------------------- Audit log, account, two-factor
-  await owner.goto('/admin/audit');
+  await go(owner, '/admin/audit');
   await expect(owner.getByTestId('audit-page')).toBeVisible();
   await shoot(owner, 'owner-audit', ['audit-filter-user', 'audit-filter-election', 'audit-list', 'audit-export-csv']);
 
-  await owner.goto('/admin/institution');
+  await go(owner, '/admin/institution');
   await shoot(owner, 'owner-public', ['public-address', 'public-address-copy', 'public-address-open']);
 
-  await owner.goto('/admin/account');
+  await go(owner, '/admin/account');
   await expect(owner.getByTestId('account-page')).toBeVisible();
   await shoot(owner, 'admin-account', ['change-password-card', 'security-card', 'two-factor-setup-open']);
   await owner.getByTestId('two-factor-setup-open').click();
