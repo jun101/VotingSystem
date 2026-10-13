@@ -256,6 +256,14 @@ it('needs a session [NFR-SEC-01] (change-password 8)', function () {
     $this->browser->post('/api/v1/auth/change-password', ['current_password' => 'a', 'password' => 'b'])->assertUnauthorized();
 });
 
+it('is refused to a user of a suspended institution [FR-INST-06] (change-password 8a)', function () {
+    $t = schoolOwner($this);
+    Accounts::suspend($t['a']['owner']['institution']);
+
+    $this->browser->post('/api/v1/auth/change-password', ['current_password' => $t['a']['owner']['password'], 'password' => 'un mot de passe tout neuf'])
+        ->assertForbidden()->assertJsonPath('error.code', 'institution_suspended');
+});
+
 it('is available in online mode too [NFR-SEC-01] (change-password)', function () {
     config(['deployment.mode' => 'online']);
     $t = schoolOwner($this);

@@ -30,6 +30,7 @@ account is replaced at first sign-in.
 | 6 | `password` equals the email or the current password | 422 | `validation_failed` (`password: same_as_email`, `password: unchanged`) | |
 | 7 | Two-factor on and the second factor missing or wrong | 422 | `validation_failed` (`code: required` or `invalid`) | |
 | 8 | Not signed in | 401 | `unauthenticated` | |
+| 8a | The user's institution was suspended since sign-in | 403 | `institution_suspended` | |
 | 9 | CSRF; too many requests; method | 419, 429, 405 | the shared codes | |
 
 ## Side effects

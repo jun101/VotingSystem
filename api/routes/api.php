@@ -72,7 +72,7 @@ Route::prefix('v1')->group(function (): void {
         Route::post('/verify-email/resend', ResendVerificationController::class)
             ->middleware(['auth', 'institution.active', 'deployment:online', 'throttle:auth-resend']);
         // Change one's own password (slice 19c); in school mode it is also how a one-time password is replaced.
-        Route::post('/change-password', ChangePasswordController::class)->middleware(['auth', 'throttle:auth-change-password']);
+        Route::post('/change-password', ChangePasswordController::class)->middleware(['auth', 'institution.active', 'throttle:auth-change-password']);
         Route::post('/forgot-password', ForgotPasswordController::class)->middleware(['deployment:online', 'throttle:auth-forgot-password']);
         Route::post('/reset-password', ResetPasswordController::class)->middleware(['deployment:online', 'throttle:auth-reset-password']);
         // Two-factor authentication (slice 04b). The challenge finishes a sign-in the password

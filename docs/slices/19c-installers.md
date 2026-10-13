@@ -58,6 +58,8 @@ rule); acceptance tests run in both modes.
 
 ## Step B — `votectl` and the commands
 
+Done: see [19c-step-b.done.md](19c-step-b.done.md) (`update` moves to steps D and E, which hold the bundles).
+
 Artisan commands (the code), and a bash wrapper `votectl` that calls them (inside the container for Docker, from
 `/opt/votesystem/current` for the native bundle):
 

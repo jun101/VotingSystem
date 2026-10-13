@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { AccountPage } from '@/components/account/AccountPage';
+import { PasswordChangeRequired } from '@/components/account/PasswordChangeRequired';
 import { PlatformPage } from '@/components/platform/PlatformPage';
 import { TwoFactorRequired } from '@/components/platform/TwoFactorRequired';
 import { fetchPlatformFirstPage, fetchSession, fetchTwoFactor } from '@/lib/api/server';
@@ -19,9 +20,31 @@ export default async function PlatformRoute() {
   if (session.status !== 'signed-in') redirect('/login');
   if (session.user.role !== 'platform_admin') redirect('/admin');
 
-  const first = await fetchPlatformFirstPage();
-
   const { locale } = await getI18n();
+
+  // A one-time password (reset by the operator) must be replaced before anything else.
+  if (session.user.must_change_password) {
+    const twoFactor = await fetchTwoFactor();
+
+    return (
+      <I18nProvider
+        locale={locale}
+        messages={pick(
+          getMessages(locale),
+          'app',
+          'admin',
+          'errors',
+          'validation',
+          'account',
+          'institution',
+        )}
+      >
+        <PasswordChangeRequired twoFactorEnabled={twoFactor?.enabled === true} />
+      </I18nProvider>
+    );
+  }
+
+  const first = await fetchPlatformFirstPage();
 
   // The platform rule (production): no `/platform` data before two-factor is on. The admin sets it up here.
   if (first === 'two-factor-required') {
