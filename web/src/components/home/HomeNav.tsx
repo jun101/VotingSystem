@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Icon } from '@/components/admin/Icon';
 import { LogoMark } from '@/components/ui';
 import { LanguageToggle } from '@/components/vote/LanguageToggle';
 import type { Translate } from '@/lib/i18n/messages';
@@ -59,13 +60,23 @@ export function HomeNav({ t, onHome = true }: { t: Translate; onHome?: boolean }
         >
           {signIn.label}
         </Link>
-        <Link
-          href={create.href}
-          data-testid="home-nav-create"
-          className={`${linkStyles.primary} max-lg:hidden`}
-        >
-          {create.label}
-        </Link>
+        <span className="group relative max-lg:hidden">
+          <Link
+            href={create.href}
+            data-testid="home-nav-create"
+            aria-label={create.label}
+            className="ui-control inline-flex size-11 items-center justify-center rounded-full border border-primary bg-primary text-surface shadow-button hover:border-primary-hover hover:bg-primary-hover focus-visible:ring-4 focus-visible:ring-primary-soft focus-visible:outline-2 focus-visible:outline-primary"
+          >
+            <Icon name="plus" size={22} />
+          </Link>
+          <span
+            role="tooltip"
+            aria-hidden="true"
+            className="pointer-events-none absolute top-full right-0 mt-2 rounded-md bg-night px-3 py-1.5 text-sm font-semibold whitespace-nowrap text-surface opacity-0 shadow-3 transition-opacity duration-150 group-focus-within:opacity-100 group-hover:opacity-100"
+          >
+            {create.label}
+          </span>
+        </span>
 
         <HomeMenu
           items={items}

@@ -67,3 +67,18 @@ test('the home page links to the developer page from its menu [NFR-UX-02]', asyn
   await page.getByRole('navigation', { name: /Navigation principale|Main navigation/ }).getByRole('link', { name: /développeur|developer/i }).click();
   await expect(page).toHaveURL(/\/developer$/);
 });
+
+test('the create button in the top line is an icon with a tooltip [NFR-UX-02]', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === 'phone', 'the button moves into the menu on a phone');
+  await page.goto('/');
+
+  const button = page.getByTestId('home-nav-create');
+  await expect(button).toHaveAccessibleName(/Créer une élection/);
+  expect((await button.textContent())?.trim()).toBe('');
+
+  const tooltip = page.getByRole('tooltip', { includeHidden: true });
+  await expect(tooltip).toHaveCSS('opacity', '0');
+  await button.hover();
+  await expect(tooltip).toHaveCSS('opacity', '1');
+  await expect(tooltip).toHaveText('Créer une élection');
+});
