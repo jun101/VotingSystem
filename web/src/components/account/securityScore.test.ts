@@ -5,7 +5,7 @@ import { securitySteps } from './SecurityScoreCard';
 describe('initials', () => {
   it('takes the first letters of the first and the last word', () => {
     expect(initials('Marie Joseph')).toBe('MJ');
-    expect(initials('  jean   claude  baptiste ')).toBe('JB');
+    expect(initials('  jean   luc  baptiste ')).toBe('JB');
   });
 
   it('works with one word, accents and an empty name', () => {
