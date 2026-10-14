@@ -65,9 +65,15 @@ export function HomeNav({ t, onHome = true }: { t: Translate; onHome?: boolean }
             href={create.href}
             data-testid="home-nav-create"
             aria-label={create.label}
-            className="ui-control inline-flex size-11 items-center justify-center rounded-full border border-primary bg-primary text-surface shadow-button hover:border-primary-hover hover:bg-primary-hover focus-visible:ring-4 focus-visible:ring-primary-soft focus-visible:outline-2 focus-visible:outline-primary"
+            className="ui-control relative inline-flex size-11 items-center justify-center rounded-full border border-primary bg-primary text-surface shadow-button hover:border-primary-hover hover:bg-primary-hover focus-visible:ring-4 focus-visible:ring-primary-soft focus-visible:outline-2 focus-visible:outline-primary"
           >
-            <Icon name="plus" size={22} />
+            <Icon name="ballot" size={24} />
+            <span
+              aria-hidden="true"
+              className="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full bg-accent text-deep ring-2 ring-surface"
+            >
+              <Icon name="plus" size={12} />
+            </span>
           </Link>
           <span
             role="tooltip"
