@@ -14,7 +14,7 @@ TEST_API     := $(COMPOSE) run --rm -T test
 WEB_BARE := $(COMPOSE) run --rm -T --no-deps web
 
 .DEFAULT_GOAL := help
-.PHONY: restart-api help setup up down test test-api test-web e2e lint lint-api lint-web generate generate-check build audit check
+.PHONY: restart-api help setup up down test test-api test-web e2e lint lint-api lint-web generate generate-check build audit security check
 
 help: ## List the commands
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | sed -E 's/:.*## /\t/' | sort
@@ -87,5 +87,8 @@ build: ## Build the production web image
 audit: ## Known vulnerabilities in every dependency; accepted advisories are listed, dated, in web/audit-accepted.json
 	$(API_BARE) composer audit
 	$(WEB_BARE) node scripts/audit.mjs
+
+security: ## Local security scans in containers: secrets, static analysis, images, ZAP (not part of CI)
+	sh tools/security/run.sh all
 
 check: lint test generate-check build audit e2e ## Everything CI runs

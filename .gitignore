@@ -11,3 +11,5 @@ docs/PLAN.md
 
 # The api's test settings file holds no secret
 !api/.env.testing
+
+tools/security/reports/

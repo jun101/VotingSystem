@@ -7,6 +7,7 @@ ENV NEXT_TELEMETRY_DISABLED=1 \
 WORKDIR /app
 
 FROM base AS dev
+USER node
 EXPOSE 3000
 CMD ["npm", "run", "dev"]
 
@@ -24,6 +25,8 @@ ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     HOSTNAME=0.0.0.0 \
     PORT=3000
+# The runtime is `node server.js`: npm, npx and corepack (their bundled packages carry advisories) are not needed.
+RUN rm -rf /usr/local/lib/node_modules /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack /opt/yarn* /usr/local/bin/yarn*
 WORKDIR /app
 COPY --from=build --chown=node:node /app/.next/standalone ./
 COPY --from=build --chown=node:node /app/.next/static ./.next/static
