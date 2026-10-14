@@ -1,20 +1,41 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { headers } from 'next/headers';
 import { Icon, type IconName } from '@/components/admin/Icon';
 import { HomeNav } from '@/components/home/HomeNav';
+import { HeroSphere } from '@/components/home/HeroSphere';
 import { LiveBallot } from '@/components/home/LiveBallot';
+import { SiteFooter } from '@/components/home/SiteFooter';
 import { linkStyles } from '@/components/home/links';
 import { VoterDoor } from '@/components/home/VoterDoor';
-import { LiveDot, Reveal } from '@/components/motion';
-import { LogoMark, Pill } from '@/components/ui';
+import { InstallTerminal } from '@/components/home/InstallTerminal';
+import { CountUp, LiveDot, Reveal } from '@/components/motion';
 import { fetchHealthCached } from '@/lib/api/health';
-import { formatDateTime } from '@/lib/format/dateTime';
 import { I18nProvider } from '@/lib/i18n/client';
 import { getI18n } from '@/lib/i18n/server';
 import { getMessages, type Messages } from '@/lib/i18n/messages';
 
 // Read at each visit: the page shows the state of the system now.
 export const dynamic = 'force-dynamic';
+
+// Heights of the five bars of the turnout card, and the delay of each.
+const BARS = [
+  { height: 40, delay: 0 },
+  { height: 70, delay: 0.2 },
+  { height: 55, delay: 0.4 },
+  { height: 95, delay: 0.6 },
+  { height: 35, delay: 0.8 },
+];
+
+// What follows each figure: symbols and the abbreviation "min", the same in both languages.
+const FIGURE_SUFFIX = { a: '+', b: ' %', c: '', d: ' min' } as const;
+
+// File names of the audience pictures, in `public/home/`.
+const AUDIENCE_FILES = {
+  school: 'ecole',
+  association: 'association',
+  institution: 'institution',
+} as const;
 
 const SECTION = 'mx-auto w-full max-w-6xl px-4 pt-16 md:pt-20';
 const EYEBROW = 'text-xs font-bold tracking-wide text-primary-hover uppercase';
@@ -37,12 +58,6 @@ export default async function HomePage() {
     { id: 'redis', label: t('home.status.redis'), state: health.redis },
   ] as const;
 
-  const pill = {
-    ok: { tone: 'teal', text: t('home.status.online') },
-    down: { tone: 'danger', text: t('home.status.offline') },
-    unknown: { tone: 'neutral', text: t('home.status.unknown') },
-  } as const;
-
   const overall = rows.every((row) => row.state === 'ok')
     ? 'overallOk'
     : rows.some((row) => row.state === 'down')
@@ -55,21 +70,9 @@ export default async function HomePage() {
     { key: 'phone', icon: 'phone' },
   ];
 
-  const steps = [
-    { key: 'import', badge: 'bg-hero-mid text-surface' },
-    { key: 'codes', badge: 'bg-teal text-surface' },
-    { key: 'vote', badge: 'bg-primary text-surface' },
-    { key: 'results', badge: 'bg-accent text-deep' },
-  ] as const;
+  const steps = ['prepare', 'distribute', 'publish'] as const;
 
-  const why: { key: 'secret' | 'slips' | 'live' | 'results'; icon: IconName; tone: string }[] = [
-    { key: 'secret', icon: 'eye', tone: 'bg-primary-soft text-primary-hover' },
-    { key: 'slips', icon: 'qr', tone: 'bg-teal-soft text-teal-ink' },
-    { key: 'live', icon: 'chart', tone: 'bg-warm-soft text-warm-ink' },
-    { key: 'results', icon: 'flag', tone: 'bg-status-published-soft text-status-published' },
-  ];
-
-  const figures = ['one', 'zero', 'two', 'full'] as const;
+  const figures = ['a', 'b', 'c', 'd'] as const;
   const faq = ['account', 'phone', 'tie', 'results'] as const;
 
   return (
@@ -78,19 +81,19 @@ export default async function HomePage() {
         <HomeNav t={t} />
 
         <main>
-          {/* ---- Hero: light, one live ballot ---- */}
+          {/* ---- Hero: a turning sphere of ballots with three floating cards ---- */}
           <section
             data-testid="home-hero"
             data-live="true"
-            className="relative overflow-hidden pt-12 pb-20 md:pt-16 md:pb-24"
+            className="relative overflow-hidden pt-12 pb-24 md:pt-16 md:pb-28"
           >
             <div
               aria-hidden="true"
-              className="hero-light-a absolute -top-24 -right-20 size-96 rounded-full bg-backdrop-from/20 blur-3xl"
+              className="hero-light-a absolute -top-24 -right-20 hidden size-96 rounded-full bg-backdrop-from/20 blur-3xl md:block"
             />
             <div
               aria-hidden="true"
-              className="hero-light-b absolute -bottom-28 -left-24 size-96 rounded-full bg-primary/20 blur-3xl"
+              className="hero-light-b absolute -bottom-28 -left-24 hidden size-96 rounded-full bg-primary/20 blur-3xl md:block"
             />
 
             <div className="relative mx-auto grid w-full max-w-6xl items-center gap-10 px-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-14">
@@ -117,8 +120,8 @@ export default async function HomePage() {
                     {t('home.hero.create')}
                     <Icon name="open" size={18} />
                   </Link>
-                  <a href="#how" className={linkStyles.outline}>
-                    {t('home.hero.how')}
+                  <a href="#try" className={linkStyles.outline}>
+                    {t('home.hero.try')}
                   </a>
                 </div>
                 <ul className="mt-2 flex flex-wrap gap-x-6 gap-y-2 text-base font-semibold text-ink-soft">
@@ -133,8 +136,49 @@ export default async function HomePage() {
                 </ul>
               </div>
 
-              <div className="mx-auto w-full max-w-md">
-                <LiveBallot />
+              <div
+                aria-hidden="true"
+                className="relative mx-auto hidden h-[460px] w-full max-w-lg md:block"
+              >
+                <HeroSphere className="pointer-events-none absolute top-1/2 left-1/2 h-[760px] w-[760px] max-w-none -translate-x-1/2 -translate-y-1/2" />
+                <div className="home-float absolute top-4 right-0 w-64 rounded-lg bg-surface p-3.5 shadow-3">
+                  <p className="bg-hero flex justify-between rounded-md px-3 py-2 font-display text-base font-extrabold text-surface">
+                    <span>{t('home.heroCards.ballot')}</span>
+                    <span>{t('home.heroCards.ballotStep')}</span>
+                  </p>
+                  <div className="mt-2.5 grid grid-cols-3 gap-2">
+                    {[0, 1, 2].map((index) => (
+                      <span
+                        key={index}
+                        className={`relative flex h-14 items-center justify-center rounded-md bg-primary-soft ${index === 1 ? 'outline-[3px] outline-primary' : ''}`}
+                      >
+                        <span className="size-8 rounded-full bg-primary-line" />
+                        {index === 1 ? (
+                          <span className="absolute -top-2 -right-1 flex size-5 items-center justify-center rounded-full bg-teal text-surface ring-2 ring-surface">
+                            <Icon name="check" size={12} />
+                          </span>
+                        ) : null}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="home-float absolute bottom-10 left-2 w-44 rounded-lg bg-primary p-4 text-surface shadow-3">
+                  <p className="text-xs font-bold tracking-wide uppercase">
+                    {t('home.heroCards.turnout')}
+                  </p>
+                  <p className="font-display text-4xl font-extrabold">
+                    {t('home.heroCards.turnoutValue')}
+                  </p>
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-glass-line">
+                    <div className="home-turn-bar h-full w-full rounded-full bg-surface" />
+                  </div>
+                </div>
+                <div className="home-float absolute right-4 bottom-20 flex items-center gap-2.5 rounded-lg bg-surface px-4 py-3 text-base font-semibold text-ink shadow-3">
+                  <span className="flex size-7 items-center justify-center rounded-full bg-teal-soft text-teal">
+                    <Icon name="check" size={16} />
+                  </span>
+                  {t('home.heroCards.toast')}
+                </div>
               </div>
             </div>
           </section>
@@ -189,81 +233,7 @@ export default async function HomePage() {
             </div>
           </section>
 
-          {/* ---- Four steps: a path, not cards ---- */}
-          <section id="how" aria-labelledby="home-how-title" className={`${SECTION} scroll-mt-20`}>
-            <div className="text-center">
-              <p className={EYEBROW}>{t('home.steps.eyebrow')}</p>
-              <h2 id="home-how-title" className={TITLE}>
-                {t('home.steps.title')}
-              </h2>
-            </div>
-            <Reveal
-              stagger
-              className="relative mt-10 grid gap-8 md:grid-cols-2 lg:grid-cols-4 lg:gap-6"
-            >
-              <div
-                aria-hidden="true"
-                className="absolute top-7 right-[12.5%] left-[12.5%] hidden border-t-2 border-dashed border-primary-line lg:block"
-              />
-              {steps.map((step, index) => (
-                <div key={step.key} className="relative min-w-0 px-2 text-center">
-                  <span
-                    aria-hidden="true"
-                    className={`mx-auto mb-3.5 flex size-14 items-center justify-center rounded-full font-display text-2xl font-extrabold ring-[6px] ring-canvas ${step.badge}`}
-                  >
-                    {index + 1}
-                  </span>
-                  <h3 className="font-display text-xl font-extrabold text-ink">
-                    {t(`home.steps.${step.key}.title`)}
-                  </h3>
-                  <p className="mt-1 text-md text-ink-soft">{t(`home.steps.${step.key}.text`)}</p>
-                </div>
-              ))}
-            </Reveal>
-          </section>
-
-          {/* ---- Why us: a split, an open list ---- */}
-          <section
-            id="security"
-            aria-labelledby="home-why-title"
-            className={`${SECTION} scroll-mt-20`}
-          >
-            <Reveal className="grid items-start gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
-              <div className="flex flex-col items-start">
-                <p className={EYEBROW}>{t('home.why.eyebrow')}</p>
-                <h2 id="home-why-title" className={TITLE}>
-                  {t('home.why.title')}
-                </h2>
-                <p className="mt-3 max-w-md text-lg text-ink-soft">{t('home.why.lead')}</p>
-                <Link href="/register" className={`${linkStyles.primary} mt-6`}>
-                  {t('home.hero.create')}
-                </Link>
-              </div>
-
-              <ul className="grid gap-7 sm:grid-cols-2 sm:gap-x-9">
-                {why.map((item) => (
-                  <li key={item.key} className="flex min-w-0 items-start gap-3.5">
-                    <span
-                      aria-hidden="true"
-                      className={`flex size-11 shrink-0 items-center justify-center rounded-md ${item.tone}`}
-                    >
-                      <Icon name={item.icon} size={22} />
-                    </span>
-                    <div className="min-w-0">
-                      <h3 className="font-display text-lg font-extrabold text-ink">
-                        {t(`home.why.${item.key}.title`)}
-                      </h3>
-                      <p className="mt-0.5 text-md text-ink-soft">
-                        {t(`home.why.${item.key}.text`)}
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </Reveal>
-          </section>
-
-          {/* ---- Four true figures, separated by lines, not tiles ---- */}
+          {/* ---- Four figures, counting up, on the hero gradient ---- */}
           <section
             aria-labelledby="home-figures-title"
             className="bg-hero relative mt-16 overflow-hidden py-12 text-surface md:mt-20 md:py-14"
@@ -281,13 +251,239 @@ export default async function HomePage() {
                   <span
                     className={`block font-display text-4xl font-extrabold md:text-[52px] md:leading-[58px] ${index === 0 ? 'text-accent-light' : 'text-surface'}`}
                   >
-                    {t(`home.figures.${key}.value`)}
+                    <CountUp
+                      value={all.home.figures[key].value}
+                      suffix={FIGURE_SUFFIX[key]}
+                      locale={locale}
+                    />
                   </span>
                   <span className="mt-1 block text-md font-semibold text-surface">
                     {t(`home.figures.${key}.label`)}
                   </span>
                 </p>
               ))}
+            </Reveal>
+          </section>
+
+          {/* ---- Bento: five cards, each with its own small animation ---- */}
+          <section
+            id="security"
+            aria-labelledby="home-bento-title"
+            className={`${SECTION} scroll-mt-20`}
+          >
+            <Reveal>
+              <p className={EYEBROW}>{t('home.bento.eyebrow')}</p>
+              <h2 id="home-bento-title" className={`${TITLE} max-w-2xl`}>
+                {t('home.bento.title')}
+              </h2>
+              <p className="mt-3 max-w-xl text-lg text-ink-soft">{t('home.bento.lead')}</p>
+            </Reveal>
+            <Reveal stagger className="mt-10 grid gap-5 md:grid-cols-6">
+              <article className="dev-lift relative min-h-56 overflow-hidden rounded-xl bg-surface p-6 shadow-1 md:col-span-2">
+                <h3 className="font-display text-xl font-extrabold text-ink">
+                  {t('home.bento.secret.title')}
+                </h3>
+                <p className="mt-1.5 max-w-xs text-md text-ink-soft">
+                  {t('home.bento.secret.text')}
+                </p>
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  className="absolute right-4 bottom-4 size-20 text-primary"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect
+                    x="4"
+                    y="10"
+                    width="16"
+                    height="11"
+                    rx="2.5"
+                    className="fill-primary-soft"
+                  />
+                  <g className="home-lock-shackle">
+                    <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+                  </g>
+                  <circle cx="12" cy="15.5" r="1.4" fill="currentColor" />
+                </svg>
+              </article>
+
+              <article className="dev-lift relative min-h-56 overflow-hidden rounded-xl bg-surface p-6 shadow-1 md:col-span-2">
+                <h3 className="font-display text-xl font-extrabold text-ink">
+                  {t('home.bento.live.title')}
+                </h3>
+                <p className="mt-1.5 max-w-xs text-md text-ink-soft">{t('home.bento.live.text')}</p>
+                <div
+                  aria-hidden="true"
+                  className="absolute right-5 bottom-4 flex h-24 items-end gap-2"
+                >
+                  {BARS.map((bar) => (
+                    <i
+                      key={bar.delay}
+                      className="home-bar w-5 rounded-t-md rounded-b-sm bg-primary"
+                      style={{ height: `${bar.height}%`, animationDelay: `${bar.delay}s` }}
+                    />
+                  ))}
+                </div>
+              </article>
+
+              <article className="dev-lift bg-hero relative min-h-56 overflow-hidden rounded-xl p-6 text-surface shadow-1 md:col-span-2">
+                <h3 className="font-display text-xl font-extrabold">
+                  {t('home.bento.slips.title')}
+                </h3>
+                <p className="mt-1.5 max-w-xs text-md text-hero-ink-soft">
+                  {t('home.bento.slips.text')}
+                </p>
+                <div
+                  aria-hidden="true"
+                  className="home-slip absolute right-5 -bottom-3 w-28 rotate-6 rounded-md bg-surface p-3 text-xs text-ink shadow-3"
+                >
+                  <p className="font-bold uppercase">{t('home.bento.slips.label')}</p>
+                  <p className="font-mono">{t('home.bento.slips.code')}</p>
+                  <span className="mt-2 block size-12 rounded-sm bg-ink" />
+                </div>
+              </article>
+
+              <article className="dev-lift bg-band relative min-h-56 overflow-hidden rounded-xl p-6 text-surface shadow-1 md:col-span-3">
+                <h3 className="font-display text-xl font-extrabold">
+                  {t('home.bento.audit.title')}
+                </h3>
+                <p className="mt-1.5 max-w-sm text-md text-hero-ink-soft">
+                  {t('home.bento.audit.text')}
+                </p>
+                <ul className="mt-4 font-mono text-base leading-7 text-accent-light">
+                  {(['l1', 'l2', 'l3', 'l4'] as const).map((key) => (
+                    <li key={key}>{t(`home.bento.audit.${key}`)}</li>
+                  ))}
+                </ul>
+              </article>
+
+              <article className="dev-lift relative min-h-56 overflow-hidden rounded-xl bg-surface p-6 shadow-1 md:col-span-3">
+                <h3 className="font-display text-xl font-extrabold text-ink">
+                  {t('home.bento.school.title')}
+                </h3>
+                <p className="mt-1.5 max-w-sm text-md text-ink-soft">
+                  {t('home.bento.school.text')}
+                </p>
+                <div
+                  aria-hidden="true"
+                  className="absolute right-6 bottom-6 flex items-center gap-2.5"
+                >
+                  {[0, 0.3, 0.6].map((delay) => (
+                    <span
+                      key={delay}
+                      className="home-ring size-5 rounded-full border-[3px] border-primary"
+                      style={{ animationDelay: `${delay}s` }}
+                    />
+                  ))}
+                </div>
+              </article>
+            </Reveal>
+          </section>
+
+          {/* ---- Audience: three photo cards ---- */}
+          <section aria-labelledby="home-audience-title" className={`${SECTION} scroll-mt-20`}>
+            <Reveal>
+              <p className={EYEBROW}>{t('home.audience.eyebrow')}</p>
+              <h2 id="home-audience-title" className={TITLE}>
+                {t('home.audience.title')}
+              </h2>
+            </Reveal>
+            <Reveal stagger className="mt-8 grid gap-5 md:grid-cols-3">
+              {(['school', 'association', 'institution'] as const).map((key, index) => (
+                <figure
+                  key={key}
+                  className="home-photo relative aspect-[4/5] overflow-hidden rounded-xl bg-primary-soft shadow-1 max-md:aspect-[16/10]"
+                >
+                  <Image
+                    src={`/home/${AUDIENCE_FILES[key]}.webp`}
+                    alt={t(`home.audience.${key}.alt`)}
+                    fill
+                    unoptimized
+                    sizes="(min-width: 768px) 33vw, 100vw"
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                    className="object-cover"
+                  />
+                  <figcaption className="absolute inset-x-0 bottom-0 bg-deep/80 px-5 pt-12 pb-4 font-display text-lg font-extrabold tracking-wide text-surface uppercase">
+                    {t(`home.audience.${key}.title`)}
+                  </figcaption>
+                </figure>
+              ))}
+            </Reveal>
+          </section>
+
+          {/* ---- Try a vote: the live ballot on a dark band ---- */}
+          <section id="try" aria-labelledby="home-try-title" className={`${SECTION} scroll-mt-20`}>
+            <Reveal className="bg-band grid items-center gap-10 overflow-hidden rounded-2xl p-8 text-surface md:p-12 lg:grid-cols-[1fr_1.1fr]">
+              <div>
+                <p className="text-xs font-bold tracking-wide text-accent-light uppercase">
+                  {t('home.try.eyebrow')}
+                </p>
+                <h2 id="home-try-title" className="mt-2 text-2xl text-surface md:text-3xl">
+                  {t('home.try.title')}
+                </h2>
+                <p className="mt-3 max-w-md text-lg text-hero-ink-soft">{t('home.try.text')}</p>
+              </div>
+              <div className="mx-auto w-full max-w-md">
+                <LiveBallot />
+              </div>
+            </Reveal>
+          </section>
+
+          {/* ---- Three steps ---- */}
+          <section id="how" aria-labelledby="home-how-title" className={`${SECTION} scroll-mt-20`}>
+            <Reveal>
+              <p className={EYEBROW}>{t('home.steps.eyebrow')}</p>
+              <h2 id="home-how-title" className={TITLE}>
+                {t('home.steps.title')}
+              </h2>
+            </Reveal>
+            <Reveal stagger className="mt-8 grid gap-5 md:grid-cols-3">
+              {steps.map((step, index) => (
+                <div key={step} className="dev-lift rounded-xl bg-surface p-6 shadow-1">
+                  <span
+                    aria-hidden="true"
+                    className="block font-display text-[54px] leading-none font-extrabold text-primary-line"
+                  >
+                    {index + 1}
+                  </span>
+                  <h3 className="mt-3 font-display text-xl font-extrabold text-ink">
+                    {t(`home.steps.${step}.title`)}
+                  </h3>
+                  <p className="mt-1.5 text-md text-ink-soft">{t(`home.steps.${step}.text`)}</p>
+                </div>
+              ))}
+            </Reveal>
+          </section>
+
+          {/* ---- Install: the terminal and the editions ---- */}
+          <section
+            id="install"
+            aria-labelledby="home-install-title"
+            className={`${SECTION} scroll-mt-20`}
+          >
+            <Reveal>
+              <p className={EYEBROW}>{t('home.install.eyebrow')}</p>
+              <h2 id="home-install-title" className={TITLE}>
+                {t('home.install.title')}
+              </h2>
+              <p className="mt-3 max-w-xl text-lg text-ink-soft">{t('home.install.lead')}</p>
+            </Reveal>
+            <Reveal stagger className="mt-8 grid items-start gap-5 md:grid-cols-2">
+              <InstallTerminal />
+              <ul className="flex flex-col gap-4 rounded-xl bg-surface p-5 shadow-1">
+                {(['school', 'online', 'backup'] as const).map((key) => (
+                  <li key={key} className="rounded-lg bg-primary-soft p-4">
+                    <h3 className="font-display text-lg font-extrabold text-ink">
+                      {t(`home.install.${key}.title`)}
+                    </h3>
+                    <p className="mt-0.5 text-md text-ink-soft">{t(`home.install.${key}.text`)}</p>
+                  </li>
+                ))}
+              </ul>
             </Reveal>
           </section>
 
@@ -335,15 +531,36 @@ export default async function HomePage() {
 
           {/* ---- Closing ---- */}
           <section aria-labelledby="home-closing-title" className={`${SECTION} pb-16 md:pb-20`}>
-            <Reveal className="text-center">
-              <h2 id="home-closing-title" className="text-2xl text-ink md:text-3xl">
+            <Reveal className="bg-hero relative overflow-hidden rounded-2xl px-6 py-14 text-center text-surface md:py-16">
+              <span
+                aria-hidden="true"
+                className="home-float absolute -top-16 -left-14 size-56 rounded-full bg-hero-light"
+              />
+              <span
+                aria-hidden="true"
+                className="home-float absolute -right-6 -bottom-12 size-36 rounded-full bg-hero-light"
+              />
+              <h2
+                id="home-closing-title"
+                className="relative mx-auto max-w-2xl text-3xl text-surface md:text-4xl"
+              >
                 {t('home.closing.title')}
               </h2>
-              <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <Link href="/register" className={linkStyles.primary}>
+              <p className="relative mx-auto mt-3 max-w-lg text-lg text-hero-ink-soft">
+                {t('home.closing.text')}
+              </p>
+              <div className="relative mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                <Link
+                  href="/register"
+                  className={`${linkStyles.outline} border-surface text-primary-hover`}
+                >
                   {t('home.closing.create')}
+                  <Icon name="open" size={18} />
                 </Link>
-                <Link href="/login" className={linkStyles.outline}>
+                <Link
+                  href="/login"
+                  className="ui-control inline-flex min-h-11 items-center justify-center rounded-full border border-glass-line bg-glass px-5 text-md font-semibold text-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-light"
+                >
                   {t('home.closing.signIn')}
                 </Link>
               </div>
@@ -351,125 +568,12 @@ export default async function HomePage() {
           </section>
         </main>
 
-        {/* ---- Footer: the product, the links, the contact and the state of the system. Not behind a reveal. ---- */}
-        <footer className="bg-deep text-surface">
-          <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 pt-10 pb-6 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
-            <div className="flex flex-col items-start gap-3">
-              <p className="flex items-center gap-2.5 font-display text-lg font-extrabold text-surface">
-                <LogoMark size={32} />
-                {t('app.name')}
-              </p>
-              <p className="max-w-xs text-base text-hero-ink-soft">{t('home.footer.tagline')}</p>
-              <p
-                data-testid="home-status-chip"
-                data-state={overall}
-                className="inline-flex items-center gap-2 rounded-full border border-glass-line bg-glass px-3 py-1.5 text-sm font-semibold"
-              >
-                <LiveDot
-                  className={overall === 'overallOk' ? 'text-accent-light' : 'text-accent'}
-                />
-                {t(`home.status.${overall}`)}
-              </p>
-            </div>
-
-            <nav aria-labelledby="home-footer-product">
-              <h3 id="home-footer-product" className="text-base text-surface">
-                {t('home.footer.product')}
-              </h3>
-              <ul className="mt-2 flex flex-col gap-2">
-                <li>
-                  <a href="#how" className={linkStyles.footer}>
-                    {t('home.nav.how')}
-                  </a>
-                </li>
-                <li>
-                  <a href="#security" className={linkStyles.footer}>
-                    {t('home.nav.security')}
-                  </a>
-                </li>
-                <li>
-                  <a href="#faq" className={linkStyles.footer}>
-                    {t('home.nav.faq')}
-                  </a>
-                </li>
-              </ul>
-            </nav>
-
-            <nav aria-labelledby="home-footer-account">
-              <h3 id="home-footer-account" className="text-base text-surface">
-                {t('home.footer.account')}
-              </h3>
-              <ul className="mt-2 flex flex-col gap-2">
-                <li>
-                  <Link href="/login" className={linkStyles.footer}>
-                    {t('home.organiser.signIn')}
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/register" className={linkStyles.footer}>
-                    {t('home.organiser.register')}
-                  </Link>
-                </li>
-              </ul>
-            </nav>
-
-            <div>
-              <h3 className="text-base text-surface">{t('home.footer.contact')}</h3>
-              <ul className="mt-2 flex flex-col gap-2">
-                <li>
-                  <a href={`mailto:${t('home.footer.email')}`} className={linkStyles.footer}>
-                    {t('home.footer.email')}
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="mx-auto w-full max-w-6xl px-4">
-            <section
-              aria-labelledby="home-status-title"
-              className="flex flex-col gap-3 border-t border-glass-line py-4 md:flex-row md:items-center md:justify-between"
-            >
-              <h2
-                id="home-status-title"
-                className="text-sm font-bold tracking-wide text-hero-ink-soft uppercase"
-              >
-                {t('home.status.title')}
-              </h2>
-              <dl className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-5">
-                {rows.map((row) => (
-                  <div
-                    key={row.id}
-                    data-testid={`status-${row.id}`}
-                    data-state={row.state}
-                    className="flex items-center justify-between gap-3"
-                  >
-                    <dt className="text-base text-hero-ink-soft">{row.label}</dt>
-                    <dd>
-                      <Pill tone={pill[row.state].tone}>{pill[row.state].text}</Pill>
-                    </dd>
-                  </div>
-                ))}
-                <div className="flex items-center justify-between gap-3">
-                  <dt className="text-base text-hero-ink-soft">{t('home.status.time')}</dt>
-                  <dd className="text-base font-semibold text-surface">
-                    {health.time ? (
-                      <time data-testid="status-time" dateTime={health.time}>
-                        {formatDateTime(health.time, locale)}
-                      </time>
-                    ) : (
-                      <span>—</span>
-                    )}
-                  </dd>
-                </div>
-              </dl>
-            </section>
-
-            <p className="border-t border-glass-line py-4 text-sm text-hero-ink-soft">
-              {t('home.footer.copy', { year: new Date().getFullYear() })}
-            </p>
-          </div>
-        </footer>
+        <SiteFooter
+          t={t}
+          locale={locale}
+          onHome
+          status={{ rows: [...rows], overall, time: health.time }}
+        />
       </div>
     </I18nProvider>
   );

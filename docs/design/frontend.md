@@ -31,6 +31,7 @@ A UUID is the only kind of identifier in an address (NFR-SEC-08).
 | `/vote/{election}/done` | Vote recorded, then back to code entry | M5 |
 | `/results/{election}` | Public results | M-results |
 | `/institutions/{institution}` | Public profile and published elections | |
+| `/developer` | The developer: portrait, story, stack, path, contact (public, FR and EN) | `material-developer.html` |
 
 ### Sign-in
 
@@ -135,6 +136,7 @@ AA contrast.
 | `danger` | `#9A2A0A` | Destructive actions, required mark |
 | `danger-line` | `#E9B8A8` | Border of a destructive button |
 | `deep` | `#1E2A5A` | Darkest indigo: text on `accent`, drawings |
+| `night` | `#0B0F19` | Near-black of the site footer (home and developer pages), with white text at 50 to 60 % |
 | `hero-from`, `hero-mid`, `hero-to` | `#A8349A`, `#7C5BD0`, `#5468D4` | Gradient of a surface that carries white text, at 135°, middle stop at 45 % |
 | `backdrop-from`, `backdrop-mid`, `backdrop-to` | `#C944B6`, `#A66EDC`, `#7A92EE` | Page background behind the sign-in card and the public pages; never behind text |
 | `accent` | `#F29A76` | The main call to action on a gradient surface, highlights, the badge |

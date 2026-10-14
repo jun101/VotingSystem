@@ -26,20 +26,22 @@
       "signIn": "Se connecter",
       "create": "Créer une élection",
       "menu": "Menu",
-      "close": "Fermer le menu"
+      "close": "Fermer le menu",
+      "developer": "Le développeur"
     },
     "hero": {
       "pill": "Élections en ligne pour les écoles",
-      "title": "Votez simplement,",
-      "accent": "en secret.",
-      "lede": "Importez vos électeurs, remettez un code à chacun, et suivez la participation en direct. Le vote reste secret, les résultats sont publiés à la clôture.",
+      "title": "Chaque voix compte,",
+      "accent": "aucune ne se voit.",
+      "lede": "Organisez une élection pour votre école, votre association ou votre institution en quelques minutes : vote secret, un électeur une voix, résultats justes et vérifiables.",
       "create": "Créer une élection",
       "how": "Comment ça marche",
       "assure": {
         "secret": "Bulletin secret",
         "once": "Un vote par électeur",
         "phone": "Sur téléphone"
-      }
+      },
+      "try": "Essayer un vote"
     },
     "art": {
       "label": "Démonstration",
@@ -70,64 +72,39 @@
       "signIn": "Se connecter",
       "register": "Créer un compte"
     },
-    "why": {
-      "eyebrow": "Pourquoi nous",
-      "title": "Des élections en lesquelles on peut avoir confiance",
-      "lead": "Conçu pour les écoles et les institutions : simple pour l’organisateur, clair pour l’électeur, vérifiable par tous.",
-      "secret": {
-        "title": "Personne ne voit votre choix",
-        "text": "Aucun lien entre un électeur et son vote."
-      },
-      "slips": {
-        "title": "Un code par électeur",
-        "text": "Fiches PDF, courriel ou fichier Excel."
-      },
-      "live": {
-        "title": "Qui a voté, pas pour qui",
-        "text": "Suivez la participation par groupe."
-      },
-      "results": {
-        "title": "Publiés à la clôture",
-        "text": "Égalités signalées, second tour possible."
-      }
-    },
     "figures": {
       "title": "En bref",
-      "one": {
-        "value": "1",
-        "label": "code par électeur, un seul vote"
+      "a": {
+        "value": 1000,
+        "label": "votes par minute testés"
       },
-      "zero": {
-        "value": "0",
-        "label": "vote lié à un électeur"
+      "b": {
+        "value": 100,
+        "label": "bulletins secrets"
       },
-      "two": {
-        "value": "2",
+      "c": {
+        "value": 2,
         "label": "langues : français et anglais"
       },
-      "full": {
-        "value": "100 %",
-        "label": "en ligne, sur téléphone"
+      "d": {
+        "value": 4,
+        "label": "pour installer"
       }
     },
     "steps": {
       "eyebrow": "Comment ça marche",
-      "title": "Quatre étapes, du fichier aux résultats",
-      "import": {
-        "title": "Importer",
-        "text": "Déposez la liste des électeurs."
+      "title": "Trois étapes, pas une de plus",
+      "prepare": {
+        "title": "Préparez",
+        "text": "Créez l’élection, les bulletins, les candidats, importez les électeurs depuis Excel."
       },
-      "codes": {
-        "title": "Remettre les codes",
-        "text": "Imprimez les fiches ou envoyez par courriel."
+      "distribute": {
+        "title": "Distribuez",
+        "text": "Imprimez les codes ou envoyez-les par courriel. Planifiez l’ouverture et la fermeture."
       },
-      "vote": {
-        "title": "Voter",
-        "text": "Chacun vote une fois, en secret."
-      },
-      "results": {
-        "title": "Résultats",
-        "text": "Publiés à la clôture du scrutin."
+      "publish": {
+        "title": "Publiez",
+        "text": "À la clôture, résultats, procès-verbal PDF et journal d’audit, en un clic."
       }
     },
     "faq": {
@@ -152,9 +129,10 @@
       }
     },
     "closing": {
-      "title": "Prêt à organiser votre élection ?",
+      "title": "Votre première élection commence ici",
       "create": "Créer une élection",
-      "signIn": "Se connecter"
+      "signIn": "Se connecter",
+      "text": "Ouvrez un compte, créez un scrutin et invitez vos électeurs aujourd’hui."
     },
     "footer": {
       "tagline": "Élections en ligne, simples et secrètes, pour les écoles et les institutions.",
@@ -162,7 +140,105 @@
       "account": "Compte",
       "contact": "Contact",
       "email": "contact@exemple.ht",
-      "copy": "© {year} New Voting System"
+      "copy": "© {year} New Voting System",
+      "resources": "Ressources",
+      "guide": "Guides par rôle",
+      "about": "À propos",
+      "developer": "Le développeur",
+      "location": "Cap-Haïtien, Haïti",
+      "social": {
+        "label": "Réseaux",
+        "linkedin": "LinkedIn",
+        "github": "GitHub",
+        "x": "X"
+      },
+      "legal": "Fait en Haïti, pour les écoles et les institutions."
+    },
+    "heroCards": {
+      "ballot": "Élection du conseil",
+      "ballotStep": "1 / 3",
+      "turnout": "Participation",
+      "toast": "Vote enregistré, merci",
+      "turnoutValue": "86 %"
+    },
+    "bento": {
+      "eyebrow": "Tout pour une élection juste",
+      "title": "Des outils simples pour un vote de confiance",
+      "lead": "De la liste des électeurs au procès-verbal, chaque étape tient en trois clics.",
+      "secret": {
+        "title": "Secret par conception",
+        "text": "Aucun vote n’est lié à un électeur, même pour nous."
+      },
+      "live": {
+        "title": "Participation en direct",
+        "text": "Qui a voté, pas pour qui. Les résultats viennent à la clôture."
+      },
+      "slips": {
+        "title": "Codes imprimés",
+        "text": "Un code par électeur, sur papier, par courriel ou en fichier.",
+        "label": "Votre code",
+        "code": "K7M-4QX-92"
+      },
+      "audit": {
+        "title": "Journal d’audit",
+        "text": "Chaque action est tracée, rien n’est effacé en silence.",
+        "l1": "10:02 élection ouverte",
+        "l2": "10:03 premier vote enregistré",
+        "l3": "10:41 code réémis",
+        "l4": "16:00 élection close"
+      },
+      "school": {
+        "title": "Sans internet, dans l’école",
+        "text": "Une édition qui tourne sur un seul ordinateur, en réseau local, sans courriel."
+      }
+    },
+    "audience": {
+      "eyebrow": "Pour qui",
+      "title": "Une élection pour chaque communauté",
+      "school": {
+        "title": "Écoles",
+        "alt": "Élèves qui votent dans une salle de classe"
+      },
+      "association": {
+        "title": "Associations",
+        "alt": "Membres d’une association réunis autour d’une table"
+      },
+      "institution": {
+        "title": "Institutions",
+        "alt": "Équipe d’une institution devant un écran de résultats"
+      }
+    },
+    "try": {
+      "eyebrow": "Essayez, c’est le vrai écran",
+      "title": "Votez en dix secondes",
+      "text": "Touchez un candidat : le bulletin tombe dans l’urne et plus personne ne peut le relier à vous."
+    },
+    "install": {
+      "eyebrow": "Installation",
+      "title": "Chez vous, ou en ligne",
+      "lead": "Un installateur pour Linux, Windows ou Docker. Quelques minutes, un mot de passe, c’est prêt.",
+      "terminal": {
+        "label": "Exemple d’installation",
+        "l1": "$ sudo ./install.sh",
+        "l2": "Vérification de la machine…",
+        "l3": "✓ Ports libres : 80",
+        "l4": "✓ Base de données et cache démarrés",
+        "l5": "✓ Comptes créés (identifiants.txt)",
+        "l6": "✓ Le site répond",
+        "l7": "Installation terminée."
+      },
+      "school": {
+        "title": "Édition école",
+        "text": "Sans internet ni courriel. Un ordinateur suffit, les comptes sont créés à l’installation."
+      },
+      "online": {
+        "title": "Édition en ligne",
+        "text": "Un nom de domaine, HTTPS automatique, courriels aux électeurs, mises à jour avec retour arrière."
+      },
+      "backup": {
+        "title": "Sauvegarde intégrée",
+        "text": "Une commande pour sauvegarder et restaurer toute l’élection."
+      }
     }
   },
   "notFound": {
@@ -3017,5 +3093,113 @@
     },
     "impersonate": "Se connecter en tant que",
     "guide": "Guide d’utilisation"
+  },
+  "developer": {
+    "meta": {
+      "title": "Le développeur",
+      "description": "Josué Junior Fleuridor, ingénieur DevOps, a conçu ce système de vote pour les écoles et les institutions."
+    },
+    "eyebrow": "Le développeur",
+    "name": "Josué Junior Fleuridor",
+    "role": "Ingénieur DevOps · Spécialiste Data Science",
+    "lede": "Je construis et sécurise l’infrastructure derrière des produits pilotés par la donnée, et je forme la prochaine génération d’ingénieurs en Haïti. Ce système de vote est né d’une idée simple : une élection juste ne devrait dépendre ni d’internet, ni de la confiance aveugle.",
+    "linkedin": "LinkedIn",
+    "github": "GitHub",
+    "site": "Mon site",
+    "avatarAlt": "Portrait de Josué Junior Fleuridor",
+    "badgePlace": "Cap-Haïtien · Jacksonville",
+    "badgeUptime": "4 serveurs · 99,98 %",
+    "stackLabel": "Technologies utilisées",
+    "figures": {
+      "title": "En chiffres",
+      "years": "années en production",
+      "uptime": "disponibilité de 4 serveurs",
+      "certs": "certifications vérifiées",
+      "students": "étudiants formés"
+    },
+    "story": {
+      "eyebrow": "Pourquoi ce système",
+      "quote": "« Dans une élection, la technique doit disparaître. Il ne reste que la confiance. »",
+      "p1": "Dans beaucoup d’écoles en Haïti, voter veut dire des bulletins à compter à la main, de longues files et des doutes. Les solutions existantes supposent une connexion fiable et un budget que ces écoles n’ont pas.",
+      "p2": "J’ai donc conçu ce système avec deux éditions : l’une tourne sur un seul ordinateur, sans internet ni courriel ; l’autre est en ligne pour les institutions. Les mêmes règles partout : un vote secret, un électeur une voix, des résultats qu’on peut vérifier."
+    },
+    "promises": {
+      "secret": {
+        "title": "Le secret d’abord",
+        "text": "Aucun vote n’est lié à un électeur. Ni numéro, ni heure lisible."
+      },
+      "tested": {
+        "title": "Testé sans pitié",
+        "text": "Plus de 2 500 tests côté serveur, plus de 900 en navigateur, 500 votes par minute en charge."
+      },
+      "install": {
+        "title": "Installable partout",
+        "text": "Linux, Windows ou Docker : quelques minutes, un mot de passe, c’est prêt."
+      }
+    },
+    "stack": {
+      "eyebrow": "Sous le capot",
+      "title": "Une pile choisie pour durer",
+      "api": {
+        "title": "Laravel et Octane",
+        "text": "Une API en mémoire sur FrankenPHP."
+      },
+      "web": {
+        "title": "Next.js",
+        "text": "Une interface rapide, en français et en anglais."
+      },
+      "data": {
+        "title": "MariaDB et Redis",
+        "text": "Les données, les sessions et les files d’attente."
+      },
+      "ops": {
+        "title": "Docker et systemd",
+        "text": "Trois installateurs, des sauvegardes, des mises à jour avec retour arrière."
+      }
+    },
+    "path": {
+      "eyebrow": "Parcours",
+      "title": "Huit ans à faire tourner des systèmes",
+      "now": {
+        "when": "Depuis 2025",
+        "title": "Ingénieur DevOps, Devora",
+        "text": "Mise en production et exploitation de 4 serveurs 24 h/24, VPN WireGuard, PostgreSQL, MinIO, durcissement CrowdSec et fail2ban."
+      },
+      "cert": {
+        "when": "2026",
+        "title": "Certificat FinTech, Data Analytics",
+        "text": "Florida State College at Jacksonville."
+      },
+      "work": {
+        "when": "2017 – 2025",
+        "title": "Administrateur Linux et développeur web, Alpha Group",
+        "text": "Serveurs, applications web et supervision."
+      },
+      "teach": {
+        "when": "Université",
+        "title": "Enseignant en Haïti",
+        "text": "Java, PHP/Laravel et administration de serveurs Linux."
+      }
+    },
+    "langs": {
+      "title": "Langues",
+      "creole": {
+        "name": "Créole haïtien",
+        "level": "Langue maternelle"
+      },
+      "french": {
+        "name": "Français",
+        "level": "Bilingue"
+      },
+      "english": {
+        "name": "Anglais",
+        "level": "Professionnel"
+      }
+    },
+    "contact": {
+      "title": "Parlons de votre élection",
+      "text": "Une école, une association, une institution : écrivez-moi, je vous aide à démarrer.",
+      "email": "juniorfleuridor93@gmail.com"
+    }
   }
 }
