@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { dropOn, moveBy, moveItem, orderOf, sameOrder } from './ballotMove';
+import { dropOn, mergeOrder, moveBy, moveItem, orderOf, sameOrder } from './ballotMove';
 
 const list = ['a', 'b', 'c', 'd'].map((id) => ({ id }));
 const ids = (items: { id: string }[]) => items.map((item) => item.id).join('');
@@ -65,5 +65,38 @@ describe('orderOf and sameOrder', () => {
     expect(sameOrder(list, [...list])).toBe(true);
     expect(sameOrder(list, moveBy(list, 'a', 1))).toBe(false);
     expect(sameOrder(list, list.slice(0, 3))).toBe(false);
+  });
+});
+
+describe('mergeOrder', () => {
+  const item = (id: string, position: number, extra = '') => ({ id, position, extra });
+
+  it('takes the order and positions of the answer', () => {
+    const merged = mergeOrder(
+      [item('a', 1), item('b', 2), item('c', 3)],
+      [{ id: 'c' }, { id: 'a' }, { id: 'b' }],
+    );
+
+    expect(merged.map((i) => [i.id, i.position])).toEqual([
+      ['c', 1],
+      ['a', 2],
+      ['b', 3],
+    ]);
+  });
+
+  it('keeps an item added meanwhile at the end, with its own data', () => {
+    const merged = mergeOrder(
+      [item('a', 1), item('b', 2), item('n', 3, 'new')],
+      [{ id: 'b' }, { id: 'a' }],
+    );
+
+    expect(merged.map((i) => i.id)).toEqual(['b', 'a', 'n']);
+    expect(merged[2]).toMatchObject({ extra: 'new', position: 3 });
+  });
+
+  it('keeps the current data of an item edited meanwhile and drops one that is gone', () => {
+    const merged = mergeOrder([item('a', 1, 'edited')], [{ id: 'z' }, { id: 'a' }]);
+
+    expect(merged).toEqual([{ id: 'a', position: 1, extra: 'edited' }]);
   });
 });

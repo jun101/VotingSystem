@@ -1,3 +1,6 @@
+/** One item of `error.items`: a checklist blocker or warning. */
+export type ErrorItem = { code: string; ballot?: { id: string; title: string }; count?: number };
+
 /** What an API error tells (docs/api/README.md section 3). */
 export class ApiError extends Error {
   constructor(
@@ -10,6 +13,12 @@ export class ApiError extends Error {
     readonly reference: string | null = null,
     /** Seconds to wait (`Retry-After`) after a 429. */
     readonly retryAfter: number | null = null,
+    /** The checklist items of a `checklist_blocked` or `checklist_warnings` (`error.items`). */
+    readonly items: ErrorItem[] = [],
+    /** The UUIDs of the ballots a `results_check_failed` names (`error.ballots`). */
+    readonly ballots: string[] = [],
+    /** The reason an `institution_suspended` sign-in refusal carries (`error.reason`). */
+    readonly reason: string | null = null,
   ) {
     super(code);
     this.name = 'ApiError';
@@ -31,6 +40,24 @@ export function parseApiError(status: number, body: unknown, retryAfter: string 
     }
   }
 
+  const items: ErrorItem[] = [];
+
+  if (Array.isArray(error.items)) {
+    for (const item of error.items) {
+      if (isRecord(item) && typeof item.code === 'string') {
+        const ballot = item.ballot;
+
+        items.push({
+          code: item.code,
+          ...(isRecord(ballot) && typeof ballot.id === 'string' && typeof ballot.title === 'string'
+            ? { ballot: { id: ballot.id, title: ballot.title } }
+            : {}),
+          ...(typeof item.count === 'number' ? { count: item.count } : {}),
+        });
+      }
+    }
+  }
+
   const seconds = retryAfter === null ? Number.NaN : Number.parseInt(retryAfter, 10);
 
   return new ApiError(
@@ -39,6 +66,11 @@ export function parseApiError(status: number, body: unknown, retryAfter: string 
     fields,
     typeof error.reference === 'string' ? error.reference : null,
     Number.isFinite(seconds) ? seconds : null,
+    items,
+    Array.isArray(error.ballots)
+      ? error.ballots.filter((ballot): ballot is string => typeof ballot === 'string')
+      : [],
+    typeof error.reason === 'string' && error.reason.trim() !== '' ? error.reason : null,
   );
 }
 

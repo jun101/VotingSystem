@@ -7,7 +7,13 @@ import { UsersCard } from './UsersCard';
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }));
-vi.mock('@/lib/api/browser', () => ({ cancelInvitation: vi.fn(), removeUser: vi.fn() }));
+vi.mock('@/lib/api/browser', () => ({
+  cancelInvitation: vi.fn(),
+  removeUser: vi.fn(),
+  resetUserTwoFactor: vi.fn(),
+  resetUserPassword: vi.fn(),
+  createTeamMember: vi.fn(),
+}));
 
 function member(n: number): TeamMember {
   return {
@@ -62,5 +68,32 @@ describe('UsersCard', () => {
 
     expect(screen.queryByTestId('users-truncated')).not.toBeInTheDocument();
     expect(screen.queryByTestId('invitations-truncated')).not.toBeInTheDocument();
+  });
+
+  it('offers to create a member and reset a password, and no invitation, in school mode (en)', () => {
+    renderIn(
+      'en',
+      <UsersCard
+        members={listing(member, 2, 2)}
+        invitations={listing(invitation, 0, 0)}
+        schoolMode
+      />,
+    );
+
+    expect(screen.getByTestId('create-member-open')).toHaveTextContent('Create a member');
+    expect(screen.queryByTestId('invite-open')).not.toBeInTheDocument();
+    expect(screen.queryByText('Pending invitations')).not.toBeInTheDocument();
+    expect(screen.getByTestId('user-reset-password-1')).toHaveTextContent('New password');
+  });
+
+  it('keeps the invitation button in online mode (fr)', () => {
+    renderIn(
+      'fr',
+      <UsersCard members={listing(member, 1, 1)} invitations={listing(invitation, 0, 0)} />,
+    );
+
+    expect(screen.getByTestId('invite-open')).toBeInTheDocument();
+    expect(screen.queryByTestId('create-member-open')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('user-reset-password-1')).not.toBeInTheDocument();
   });
 });

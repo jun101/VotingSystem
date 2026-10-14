@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Ballots;
 
+use App\Enums\BallotScope;
 use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Ballots\CreateBallotRequest;
@@ -13,6 +14,7 @@ use App\Http\Resources\PageOf;
 use App\Models\Ballot;
 use App\Models\Candidate;
 use App\Models\Election;
+use App\Models\VoterGroup;
 use App\Support\Media\ImageReEncoder;
 use Dedoc\Scramble\Attributes\Response;
 use Illuminate\Http\JsonResponse;
@@ -33,7 +35,7 @@ class BallotController extends Controller
      * In display order (position, then creation), in any status of the election. An election
      * holds at most 50, so `per_page=100` returns them all. Owner or manager.
      *
-     * @response array{data: list<array{id: string, title: string, description: string|null, position: int, seats: int, allow_blank: bool, candidates_count: int, candidates: list<array{id: string, ballot: string, party: string|null, first_name: string, last_name: string, sex: string, slogan: string|null, biography: string|null, photo: array{sm: string, md: string}|null, position: int, created_at: string, updated_at: string}>, created_at: string, updated_at: string}>, meta: array{page: int, per_page: int, total: int}}
+     * @response array{data: list<array{id: string, title: string, description: string|null, position: int, seats: int, allow_blank: bool, scope: "general"|"group", groups: list<array{id: string, name: string, voters_count: int}>, eligible_voters: int, warnings: list<string>, candidates_count: int, candidates: list<array{id: string, ballot: string, party: string|null, first_name: string, last_name: string, sex: string, slogan: string|null, biography: string|null, photo: array{sm: string, md: string}|null, position: int, created_at: string, updated_at: string}>, created_at: string, updated_at: string}>, meta: array{page: int, per_page: int, total: int}}
      */
     public function index(ListBallotsRequest $request, Election $election): PageOf
     {
@@ -48,7 +50,7 @@ class BallotController extends Controller
      * At the end of a draft election, at most 50 per election (409 `ballot_limit_reached`).
      * Owner or manager. Limited to 120 requests per hour per user.
      */
-    #[Response(status: 201, type: 'array{data: array{id: string, title: string, description: string|null, position: int, seats: int, allow_blank: bool, candidates_count: int, candidates: list<array{id: string, ballot: string, party: string|null, first_name: string, last_name: string, sex: string, slogan: string|null, biography: string|null, photo: array{sm: string, md: string}|null, position: int, created_at: string, updated_at: string}>, created_at: string, updated_at: string}}')]
+    #[Response(status: 201, type: 'array{data: array{id: string, title: string, description: string|null, position: int, seats: int, allow_blank: bool, scope: "general"|"group", groups: list<array{id: string, name: string, voters_count: int}>, eligible_voters: int, warnings: list<string>, candidates_count: int, candidates: list<array{id: string, ballot: string, party: string|null, first_name: string, last_name: string, sex: string, slogan: string|null, biography: string|null, photo: array{sm: string, md: string}|null, position: int, created_at: string, updated_at: string}>, created_at: string, updated_at: string}}')]
     public function store(CreateBallotRequest $request, Election $election): JsonResponse
     {
         $this->allow('create', [Ballot::class, $election]);
@@ -66,7 +68,10 @@ class BallotController extends Controller
             $ballot->election_id = $locked->id;
             $last = $locked->ballots()->max('position');
             $ballot->position = (is_numeric($last) ? (int) $last : 0) + 1;
+            $ballot->scope = $request->scopeToWrite() ?? BallotScope::General;
             $ballot->save();
+
+            $this->writeGroups($ballot, $request->groupsToWrite(), $locked->id);
 
             return $ballot;
         });
@@ -84,7 +89,7 @@ class BallotController extends Controller
      * Every field is optional; only those sent change. Not the position (see the order
      * endpoint). A draft election only. Owner or manager. Limited to 120 requests per hour per user.
      *
-     * @response array{data: array{id: string, title: string, description: string|null, position: int, seats: int, allow_blank: bool, candidates_count: int, candidates: list<array{id: string, ballot: string, party: string|null, first_name: string, last_name: string, sex: string, slogan: string|null, biography: string|null, photo: array{sm: string, md: string}|null, position: int, created_at: string, updated_at: string}>, created_at: string, updated_at: string}}
+     * @response array{data: array{id: string, title: string, description: string|null, position: int, seats: int, allow_blank: bool, scope: "general"|"group", groups: list<array{id: string, name: string, voters_count: int}>, eligible_voters: int, warnings: list<string>, candidates_count: int, candidates: list<array{id: string, ballot: string, party: string|null, first_name: string, last_name: string, sex: string, slogan: string|null, biography: string|null, photo: array{sm: string, md: string}|null, position: int, created_at: string, updated_at: string}>, created_at: string, updated_at: string}}
      */
     public function update(UpdateBallotRequest $request, Ballot $ballot): BallotResource
     {
@@ -101,7 +106,15 @@ class BallotController extends Controller
                 throw new ApiException(404, 'not_found');
             }
 
-            $locked->fill($request->attributesToWrite())->save();
+            $locked->fill($request->attributesToWrite());
+
+            if ($request->scopeToWrite() !== null) {
+                $locked->scope = $request->scopeToWrite();
+            }
+
+            $locked->save();
+
+            $this->writeGroups($locked, $request->groupsToWrite(), $locked->election_id);
 
             return $locked;
         });
@@ -163,18 +176,17 @@ class BallotController extends Controller
      * order (422 `ballots: set_mismatch` otherwise). A draft election only. Answers the list,
      * in the new order. Owner or manager. Limited to 240 requests per hour per user.
      *
-     * @response array{data: list<array{id: string, title: string, description: string|null, position: int, seats: int, allow_blank: bool, candidates_count: int, candidates: list<array{id: string, ballot: string, party: string|null, first_name: string, last_name: string, sex: string, slogan: string|null, biography: string|null, photo: array{sm: string, md: string}|null, position: int, created_at: string, updated_at: string}>, created_at: string, updated_at: string}>, meta: array{page: int, per_page: int, total: int}}
+     * @response array{data: list<array{id: string, title: string, description: string|null, position: int, seats: int, allow_blank: bool, scope: "general"|"group", groups: list<array{id: string, name: string, voters_count: int}>, eligible_voters: int, warnings: list<string>, candidates_count: int, candidates: list<array{id: string, ballot: string, party: string|null, first_name: string, last_name: string, sex: string, slogan: string|null, biography: string|null, photo: array{sm: string, md: string}|null, position: int, created_at: string, updated_at: string}>, created_at: string, updated_at: string}>, meta: array{page: int, per_page: int, total: int}}
      */
     public function reorder(ReorderBallotsRequest $request, Election $election): PageOf
     {
         $this->allow('reorder', [Ballot::class, $election]);
 
-        $election->assertEditable();
-
+        // Order of the answers: record 404, body 422, state 409. The state is judged after the set.
         $wanted = $request->order();
 
         DB::transaction(function () use ($election, $wanted): void {
-            $locked = $this->lockElection($election);
+            $locked = $this->lockElection($election, judge: false);
 
             $ballots = Ballot::query()->where('election_id', $locked->id)->orderBy('id')->lockForUpdate()->get();
             $stored = $ballots->map(fn (Ballot $ballot): string => $ballot->uuid)->all();
@@ -183,6 +195,9 @@ class BallotController extends Controller
             if (count($wanted) !== count($stored) || array_diff($wanted, $stored) !== [] || count(array_unique($wanted)) !== count($wanted)) {
                 throw ValidationException::withMessages(['ballots' => ['set_mismatch']]);
             }
+
+            // Judged under the lock, once the set is known to be right.
+            $locked->assertEditable();
 
             $byUuid = $ballots->keyBy('uuid');
 
@@ -201,6 +216,39 @@ class BallotController extends Controller
         return $this->pageOf($election, 100, 1);
     }
 
+    /**
+     * Stores the groups of a ballot (null: leave them), inside the transaction that holds the
+     * election row. The UUIDs were checked against the election by the request; the rows are
+     * looked up again here, so a group deleted meanwhile is a 422 and not a dangling row.
+     *
+     * @param  list<string>|null  $uuids
+     */
+    private function writeGroups(Ballot $ballot, ?array $uuids, int $electionId): void
+    {
+        if ($uuids === null) {
+            return;
+        }
+
+        if ($ballot->scope === BallotScope::General) {
+            // The locked ballot is general after the change: nothing is written, and none is kept.
+            $uuids = [];
+        }
+
+        $keys = $uuids === [] ? [] : VoterGroup::query()
+            ->where('election_id', $electionId)
+            ->whereIn('uuid', $uuids)
+            ->lockForUpdate()
+            ->pluck('id')
+            ->all();
+
+        if (count($keys) !== count($uuids)) {
+            throw ValidationException::withMessages(['groups' => ['invalid']]);
+        }
+
+        $ballot->groups()->sync($keys);
+        $ballot->unsetRelation('groups');
+    }
+
     private function electionOf(Ballot $ballot): Election
     {
         return $ballot->election ?? throw new ApiException(404, 'not_found');
@@ -208,7 +256,7 @@ class BallotController extends Controller
 
     private function pageOf(Election $election, int $perPage, int $page): PageOf
     {
-        return PageOf::from($election->ballots()->with('candidates.party')->paginate($perPage, page: $page), BallotResource::class);
+        return PageOf::from($election->ballots()->withScopeData()->with('candidates.party')->paginate($perPage, page: $page), BallotResource::class);
     }
 
     /**
@@ -216,7 +264,7 @@ class BallotController extends Controller
      *
      * @throws ApiException 404, or 409 `election_not_editable`
      */
-    private function lockElection(Election $election): Election
+    private function lockElection(Election $election, bool $judge = true): Election
     {
         $locked = Election::query()->whereKey($election->getKey())->lockForUpdate()->first();
 
@@ -224,7 +272,9 @@ class BallotController extends Controller
             throw new ApiException(404, 'not_found');
         }
 
-        $locked->assertEditable();
+        if ($judge) {
+            $locked->assertEditable();
+        }
 
         return $locked;
     }

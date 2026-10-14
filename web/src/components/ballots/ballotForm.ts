@@ -10,6 +10,10 @@ export const SEATS_MIN = 1;
 export const SEATS_MAX = 20;
 
 export type BallotDraft = {
+  /** Who the position is for; the groups only count for `group`. */
+  scope: 'general' | 'group';
+  /** The UUIDs of the chosen groups. */
+  groups: string[];
   title: string;
   description: string;
   /** What is in the field: a number is read from it. */
@@ -17,9 +21,13 @@ export type BallotDraft = {
   allowBlank: boolean;
 };
 
-export type BallotFieldErrors = Partial<Record<'title' | 'description' | 'seats', string>>;
+export type BallotFieldErrors = Partial<
+  Record<'title' | 'description' | 'seats' | 'groups', string>
+>;
 
 export const EMPTY_DRAFT: BallotDraft = {
+  scope: 'general',
+  groups: [],
   title: '',
   description: '',
   seats: '1',
@@ -41,6 +49,8 @@ export function validateBallot(draft: BallotDraft): BallotFieldErrors {
   else if (Number(seats) < SEATS_MIN) errors.seats = 'min';
   else if (Number(seats) > SEATS_MAX) errors.seats = 'max';
 
+  if (draft.scope === 'group' && draft.groups.length === 0) errors.groups = 'required';
+
   return errors;
 }
 
@@ -50,6 +60,8 @@ export function bodyOf(draft: BallotDraft): {
   description: string | null;
   seats: number;
   allow_blank: boolean;
+  scope: 'general' | 'group';
+  groups?: string[];
 } {
   const description = draft.description.trim();
 
@@ -58,6 +70,9 @@ export function bodyOf(draft: BallotDraft): {
     description: description === '' ? null : description,
     seats: Number(draft.seats.trim()),
     allow_blank: draft.allowBlank,
+    scope: draft.scope,
+    // The groups only go with the group scope: a general position keeps none.
+    ...(draft.scope === 'group' ? { groups: draft.groups } : {}),
   };
 }
 
@@ -65,7 +80,7 @@ export function bodyOf(draft: BallotDraft): {
 export function apiFieldErrors(fields: Record<string, string[]>): BallotFieldErrors {
   const errors: BallotFieldErrors = {};
 
-  for (const name of ['title', 'description', 'seats'] as const) {
+  for (const name of ['title', 'description', 'seats', 'groups'] as const) {
     const code = fields[name]?.[0];
 
     if (code) errors[name] = code;

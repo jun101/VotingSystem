@@ -5,7 +5,17 @@ import { expect, type Page } from '@playwright/test';
  * Part of the acceptance harness.
  */
 
-export type Ballot = { id: string; title: string; position: number; seats: number; allow_blank: boolean };
+export type Ballot = {
+  id: string;
+  title: string;
+  position: number;
+  seats: number;
+  allow_blank: boolean;
+  scope?: 'general' | 'group';
+  groups?: { id: string; name: string; voters_count: number }[];
+  eligible_voters?: number;
+  warnings?: string[];
+};
 
 async function headers(page: Page): Promise<Record<string, string>> {
   const token = (await page.context().cookies()).find((cookie) => cookie.name === 'XSRF-TOKEN')?.value ?? '';

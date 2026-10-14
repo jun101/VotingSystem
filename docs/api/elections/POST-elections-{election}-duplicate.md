@@ -60,6 +60,8 @@ and headers for every cause.
 - **Not** copied: the cover (its files are not shared, to keep deleting one election from touching another's), the
   status and its dates (`opened_at`, `closed_at`, `published_at`, `archived_at`), the link to a first round, and in
   every slice votes, credentials and anything a voter produced.
+- Slice 09: a copied ballot is always general (`scope` `general`, no group): the copy has no voters and no groups, so a
+  group ballot has to be given its groups again.
 - Slice 06a: every ballot is copied (title, description, `seats`, `allow_blank`, `position`) in the same transaction;
   each copy has its own new UUID. Slice 06b: every party is copied the same way (logo excluded: files are not shared). Slice 06c adds the optional `copy_candidates` flag above, and
   slice 07 the voters; their endpoint files add the options then.

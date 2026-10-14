@@ -1,0 +1,40 @@
+{
+  "voters": 500,
+  "mode": "spread over 60 s",
+  "threads": 150,
+  "wall_seconds": 59.8,
+  "votes_accepted": 500,
+  "errors": 0,
+  "first_errors": [],
+  "results": {
+    "cast": 500,
+    "eligible": 500,
+    "blank": 0,
+    "check_ok": true,
+    "tally_mismatch": {}
+  },
+  "latency": {
+    "session": {
+      "n": 500,
+      "p50_ms": 4,
+      "p95_ms": 6,
+      "p99_ms": 7,
+      "max_ms": 8
+    },
+    "ballots": {
+      "n": 500,
+      "p50_ms": 5,
+      "p95_ms": 6,
+      "p99_ms": 7,
+      "max_ms": 8
+    },
+    "submit": {
+      "n": 500,
+      "p50_ms": 10,
+      "p95_ms": 18,
+      "p99_ms": 25,
+      "max_ms": 33
+    }
+  },
+  "verdict": "PASS"
+}

@@ -3,6 +3,11 @@
 @import '../styles/motion.css';
 
 @layer base {
+  /* The links of the home page's menu glide to their section (stopped by "reduce motion"). */
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     background-color: var(--color-canvas);
     color: var(--color-ink);

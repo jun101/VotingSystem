@@ -1,0 +1,12 @@
+[Unit]
+Description=VoteSystem daily backup
+After=votesystem-mariadb.service
+
+[Service]
+Type=oneshot
+User=votesystem
+Group=votesystem
+Environment=VOTECTL_CONF=/etc/votesystem/votectl.conf
+ExecStart=@ROOT@/bin/votectl backup
+# A backup older than two weeks is removed.
+ExecStartPost=/usr/bin/find /var/backups/votesystem -maxdepth 1 -name 'votesystem-backup-*' -mtime +14 -delete

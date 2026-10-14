@@ -2,20 +2,27 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Icon, type IconName } from '@/components/admin/Icon';
 import { focusRing } from '@/components/admin/classes';
 import { LiveDot } from '@/components/motion';
 import { Notice } from '@/components/ui';
 import { cx } from '@/components/ui/cx';
-import { duplicateElection } from '@/lib/api/browser';
-import type { Election, ElectionStatus } from '@/lib/api/elections';
+import { duplicateElection, fetchChecklist, fetchTurnout } from '@/lib/api/browser';
+import type { Checklist, Election, ElectionStatus } from '@/lib/api/elections';
 import { ApiError, errorText } from '@/lib/api/errors';
 import { clock, longDay } from '@/lib/format/electionDates';
 import { useI18n } from '@/lib/i18n/client';
+import { ChecklistCard } from './ChecklistCard';
+import { schedulingControls } from './checklist';
+import { CloseDialog } from './CloseDialog';
 import { DeleteElectionDialog } from './DeleteElectionDialog';
+import { ExtendDialog } from './ExtendDialog';
 import { NextSteps } from './NextSteps';
+import { OpenCard } from './OpenCard';
 import { Panel } from './Panel';
+import { ScheduleDialog } from './ScheduleDialog';
+import { UnscheduleDialog } from './UnscheduleDialog';
 import { durationText, momentText } from './scheduleText';
 import { dayBadge, sameYear, shortDay } from './summaryText';
 import { COVER_ICONS, STATUS_ICONS } from './statusIcon';
@@ -114,13 +121,85 @@ function Day({ which, instant, zone }: { which: 'start' | 'end'; instant: Date; 
  * white zone of cards: the calendar, the settings, the cover, the figures and the next steps.
  * Only data that exists is shown.
  */
-export function ElectionSummary({ election }: { election: Election }) {
+export function ElectionSummary({ election: given }: { election: Election }) {
   const { t, tIfAny, locale } = useI18n();
   const router = useRouter();
+  // The election as the last answer of the API gave it (scheduling changes the status), or as the
+  // page was rendered.
+  const [election, setElection] = useState<Election>(given);
+  const [voted, setVoted] = useState(0);
+  const counting = ['open', 'closed', 'published', 'archived'].includes(election.status);
+
+  // The number of voters who have voted, read once (the turnout page follows it live).
+  useEffect(() => {
+    if (!counting) return;
+
+    let alive = true;
+
+    void fetchTurnout(election.id).then(
+      (turnout) => {
+        if (alive) setVoted(turnout.voted);
+      },
+      () => undefined,
+    );
+
+    return () => {
+      alive = false;
+    };
+  }, [counting, election.id]);
+
   const draft = election.status === 'draft';
   const [asking, setAsking] = useState(false);
+  const [scheduling, setScheduling] = useState(false);
+  const [unscheduling, setUnscheduling] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const [extending, setExtending] = useState(false);
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
+  const [checklist, setChecklist] = useState<Checklist | null>(null);
+  const [checklistFailed, setChecklistFailed] = useState(false);
+  // Bumped to read the checklist again (a refusal showed it is stale).
+  const [checklistRun, setChecklistRun] = useState(0);
+
+  // A new render of the page (after `router.refresh()`) brings the election the server holds.
+  const [seen, setSeen] = useState<Election>(given);
+
+  if (seen !== given) {
+    setSeen(given);
+    setElection(given);
+  }
+
+  // The checklist of a draft, read from the API (it is computed there, not here).
+  useEffect(() => {
+    if (election.status !== 'draft') return;
+
+    let current = true;
+
+    void fetchChecklist(election.id).then(
+      (fresh) => {
+        if (!current) return;
+
+        setChecklist(fresh);
+        setChecklistFailed(false);
+      },
+      () => {
+        if (!current) return;
+
+        // The old list is not shown nor trusted: the schedule button waits for a valid one.
+        setChecklist(null);
+        setChecklistFailed(true);
+      },
+    );
+
+    return () => {
+      current = false;
+    };
+  }, [election.id, election.status, checklistRun]);
+
+  const controls = schedulingControls(
+    election.status,
+    checklist ? checklist.blockers.length : null,
+  );
 
   const start = new Date(election.starts_at);
   const end = new Date(election.ends_at);
@@ -131,6 +210,23 @@ export function ElectionSummary({ election }: { election: Election }) {
     end: momentText(end, locale, zone, t),
   });
   const yearsDiffer = !sameYear(start, end, zone);
+
+  /**
+   * The "Planifier" step: when the checklist is read and has no blocker the schedule dialog opens, as
+   * from the button of the band; otherwise the page goes to the checklist card, where the blockers are
+   * (the dialog would have nothing to confirm).
+   */
+  function openSchedule() {
+    if (!controls.scheduleDisabled && !busy) {
+      setScheduling(true);
+
+      return;
+    }
+
+    document
+      .getElementById('election-checklist-title')
+      ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
 
   async function duplicate() {
     setProblem(null);
@@ -238,6 +334,39 @@ export function ElectionSummary({ election }: { election: Election }) {
               {t('elections.summary.edit')}
             </Link>
           ) : null}
+          {election.status === 'open' ||
+          election.status === 'closed' ||
+          election.status === 'published' ||
+          election.status === 'archived' ? (
+            <Link
+              href={`/admin/elections/${election.id}/turnout`}
+              data-testid="election-turnout-link"
+              className={cx(
+                ACTION,
+                election.status === 'open'
+                  ? 'border border-accent bg-accent font-bold text-deep shadow-button'
+                  : 'border border-glass-line bg-glass text-surface hover:bg-glass-line',
+              )}
+            >
+              <Icon name="chart" size={20} />
+              {t('elections.summary.turnout')}
+            </Link>
+          ) : null}
+          {election.status === 'closed' ||
+          election.status === 'published' ||
+          election.status === 'archived' ? (
+            <Link
+              href={`/admin/elections/${election.id}/results`}
+              data-testid="election-results-link"
+              className={cx(
+                ACTION,
+                'border border-accent bg-accent font-bold text-deep shadow-button',
+              )}
+            >
+              <Icon name="check" size={20} />
+              {t('elections.summary.results')}
+            </Link>
+          ) : null}
           <button
             type="button"
             disabled={busy}
@@ -252,6 +381,35 @@ export function ElectionSummary({ election }: { election: Election }) {
             <Icon name="copy" size={20} />
             {t('elections.summary.duplicate')}
           </button>
+          {controls.showSchedule ? (
+            <button
+              type="button"
+              disabled={busy || controls.scheduleDisabled}
+              // Firefox gives a button back the state it had before a reload (enabled, once the checklist
+              // had loaded) before React hydrates: `autoComplete` off stops that, and the warning is
+              // silenced for the case where it still happens (the next render sets the right state).
+              {...{ autoComplete: 'off' }}
+              suppressHydrationWarning
+              onClick={() => setScheduling(true)}
+              data-testid="election-schedule-button"
+              className={cx(ACTION, 'border border-surface bg-surface font-bold text-deep')}
+            >
+              <Icon name="lock" size={20} />
+              {t('elections.checklist.schedule.button')}
+            </button>
+          ) : null}
+          {controls.showUnschedule ? (
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => setUnscheduling(true)}
+              data-testid="election-unschedule-button"
+              className={cx(ACTION, 'border border-surface bg-surface font-bold text-deep')}
+            >
+              <Icon name="left" size={20} />
+              {t('elections.checklist.unschedule.button')}
+            </button>
+          ) : null}
           {draft ? (
             <button
               type="button"
@@ -278,9 +436,36 @@ export function ElectionSummary({ election }: { election: Election }) {
         aria-label={t('elections.summary.zone')}
         className="flex flex-col gap-4.5 rounded-2xl border border-line bg-surface p-5 shadow-1"
       >
-        {draft ? null : <Notice tone="info">{t('elections.summary.locked')}</Notice>}
+        {election.status === 'closed' ? (
+          <Notice tone="teal" tabIndex={-1} data-testid="election-closed-note">
+            {t('elections.close.note')}
+          </Notice>
+        ) : draft ? null : (
+          <Notice tone="info">{t('elections.summary.locked')}</Notice>
+        )}
 
         <div className="grid grid-cols-1 gap-4.5 min-[900px]:grid-cols-12">
+          {election.status === 'open' ? (
+            <OpenCard
+              election={election}
+              onClose={() => setClosing(true)}
+              onExtend={() => setExtending(true)}
+              className="min-[900px]:col-span-12"
+            />
+          ) : null}
+
+          {draft ? (
+            <ChecklistCard
+              checklist={checklist}
+              failed={checklistFailed}
+              onRetry={() => {
+                setChecklistFailed(false);
+                setChecklistRun((n) => n + 1);
+              }}
+              className="min-[900px]:col-span-12"
+            />
+          ) : null}
+
           <Panel
             tone="calendar"
             icon="calendar"
@@ -402,8 +587,8 @@ export function ElectionSummary({ election }: { election: Election }) {
                 [
                   ['positions', 'flag', election.ballots_count],
                   ['voters', 'people', election.voters_count],
-                  // No vote count is ever shown before an election is closed (rule 6).
-                  ['ballots', 'ballot', 0],
+                  // Voters who have voted (participations): never a count of votes before closing (rule 6).
+                  ['ballots', 'ballot', voted],
                 ] as const
               ).map(([name, icon, value]) => (
                 <div
@@ -423,10 +608,6 @@ export function ElectionSummary({ election }: { election: Election }) {
                 </div>
               ))}
             </div>
-            <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-line-soft px-3 py-1 text-xs font-bold text-status-draft">
-              <Icon name="clock" size={15} />
-              {t('elections.summary.factsSoon')}
-            </span>
           </Panel>
 
           <div
@@ -438,10 +619,93 @@ export function ElectionSummary({ election }: { election: Election }) {
               title={t('elections.summary.nextTitle')}
               headerTestId="election-card-header-steps"
               ballotsHref={`/admin/elections/${election.id}/ballots`}
+              votersHref={`/admin/elections/${election.id}/voters`}
+              onSchedule={election.status === 'draft' ? openSchedule : undefined}
+              codesHref={`/admin/elections/${election.id}/codes`}
+              done={[
+                ...(election.ballots_count > 0 ? ['ballots'] : []),
+                ...(election.voters_count > 0 ? ['voters'] : []),
+                ...(election.status !== 'draft' ? ['schedule'] : []),
+              ]}
             />
           </div>
         </div>
       </section>
+
+      {scheduling && checklist ? (
+        <ScheduleDialog
+          election={election}
+          warnings={checklist.warnings}
+          onCancel={() => setScheduling(false)}
+          onStale={(code) => {
+            setChecklistRun((n) => n + 1);
+
+            // A blocker appeared or the status changed elsewhere: the page shows it.
+            if (code !== 'checklist_warnings') {
+              setScheduling(false);
+              setProblem(tIfAny(`errors.${code}`));
+            }
+
+            if (code === 'election_not_editable') router.refresh();
+          }}
+          onScheduled={(saved) => {
+            setElection(saved);
+            setScheduling(false);
+            setProblem(null);
+            router.refresh();
+          }}
+        />
+      ) : null}
+
+      {unscheduling ? (
+        <UnscheduleDialog
+          election={election}
+          onCancel={() => setUnscheduling(false)}
+          onUnscheduled={(saved) => {
+            setElection(saved);
+            setUnscheduling(false);
+            setProblem(null);
+            setChecklistRun((n) => n + 1);
+            router.refresh();
+          }}
+        />
+      ) : null}
+
+      {closing ? (
+        <CloseDialog
+          election={election}
+          onCancel={() => setClosing(false)}
+          onStale={() => router.refresh()}
+          onClosed={(saved) => {
+            setElection(saved);
+            setClosing(false);
+            setProblem(null);
+            router.refresh();
+            // The button that opened the dialog is gone: keep the keyboard on the page's news.
+            setTimeout(
+              () =>
+                document
+                  .querySelector<HTMLElement>('[data-testid="election-closed-note"]')
+                  ?.focus(),
+              0,
+            );
+          }}
+        />
+      ) : null}
+
+      {extending ? (
+        <ExtendDialog
+          election={election}
+          onCancel={() => setExtending(false)}
+          onStale={() => router.refresh()}
+          onExtended={(saved) => {
+            setElection(saved);
+            setExtending(false);
+            setProblem(null);
+            router.refresh();
+          }}
+        />
+      ) : null}
 
       {asking ? (
         <DeleteElectionDialog

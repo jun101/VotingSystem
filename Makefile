@@ -40,14 +40,21 @@ restart-api: ## Reload the API workers after editing PHP code
 
 test: test-api test-web ## API tests (every suite) and web unit tests
 
-test-api:
-	$(TEST_API)
+test-api: ## Every API suite, one folder per process (one process of everything exceeds PHP's 256 MB limit)
+	@fail=0; for d in tests/Unit tests/Feature $$(cd api && ls -d tests/Acceptance/*/); do \
+		echo "== $$d"; $(TEST_API) vendor/bin/pest $$d || fail=1; \
+	done; exit $$fail
 
 test-web:
 	$(WEB_BARE) npm run test
 
+e2e: export CSP_DEV_UNSAFE_EVAL = 0
 e2e: ## Browser tests against the running stack
+	@# Exported for the whole target (`up` and `run` both read it, or `run` recreates the web container with .env's value):
+	@# 0, not empty (an empty value would not override .env). The browser tests check the production policy.
 	$(COMPOSE) up -d --wait
+	@# The browser tests' platform admin (a known password) is made only on a local or testing stack.
+	@case "$$($(COMPOSE) exec -T api printenv APP_ENV)" in local|testing) $(COMPOSE) exec -T -e PLATFORM_ADMIN_PASSWORD='un mot de passe long et sûr' api php artisan platform:create-admin e2e-admin@platform.test --password-from-env=PLATFORM_ADMIN_PASSWORD || true ;; esac
 	$(COMPOSE) run --rm -T e2e
 
 lint: lint-api lint-web ## Pint, PHPStan, ESLint, Prettier, tsc

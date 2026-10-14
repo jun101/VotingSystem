@@ -179,7 +179,7 @@ it('ignores position, id, election and candidates_count in the body [FR-INST-05]
 
     $this->browser->patch(patchBallotUrl($id), [
         'title' => 'Après', 'position' => 7, 'id' => '7c9e6679-7425-40de-944b-e07fc1f90ae7',
-        'election' => $t['b']['owner']['institution'], 'election_id' => 99, 'candidates_count' => 5, 'scope' => 'group',
+        'election' => $t['b']['owner']['institution'], 'election_id' => 99, 'candidates_count' => 5, 'result_note' => 'Une note',
     ])->assertOk();
 
     $after = Accounts::ballotRow($id);

@@ -41,4 +41,43 @@ return [
             'manager' => 'a manager',
         ],
     ],
+
+    'credentials' => [
+        'subject' => 'Your access code to vote',
+        'title' => 'Your access code to vote',
+        'line' => 'Your personal link and code are below.',
+        'preheader' => 'Your code and personal link to vote in the election “:election”.',
+        'intro' => ':name, you are invited to vote in the election “:election” of “:institution”. Use the button below, or enter your code on the voting page.',
+        'code_label' => 'Your access code',
+        'election' => 'Election',
+        'institution' => 'Institution',
+        'period_label' => 'Voting period',
+        'period' => 'From :from to :to (:zone)',
+        'button' => 'Vote now',
+        'validity' => 'You can vote only once, during the period shown.',
+        'ignore' => 'Keep this message to yourself: anyone who has your code can vote in your place. If you did not expect it, ignore it.',
+    ],
+
+    'suspended' => [
+        'subject' => 'Your institution has been suspended',
+        'title' => 'Your institution has been suspended',
+        'line' => 'Sign-in and voting are paused.',
+        'preheader' => 'Your institution has been suspended by the platform.',
+        'intro' => 'Your institution has been suspended by the platform. Nobody can sign in and its open elections are paused until it is reactivated; nothing has been deleted.',
+        'reason' => 'Reason given',
+        'button' => 'Go to the sign-in page',
+        'validity' => 'Elections resume when the suspension is lifted; their end time does not change.',
+        'ignore' => 'If you think this is a mistake, contact the platform operator.',
+    ],
+
+    'reactivated' => [
+        'subject' => 'Your institution has been reactivated',
+        'title' => 'Your institution has been reactivated',
+        'line' => 'You can sign in again.',
+        'preheader' => 'The suspension of your institution has been lifted.',
+        'intro' => 'The suspension of your institution has been lifted. Your team can sign in again and open elections take votes again.',
+        'button' => 'Go to the sign-in page',
+        'validity' => 'The end time of an election did not move while it was paused: check it.',
+        'ignore' => 'If you have a question, contact the platform operator.',
+    ],
 ];

@@ -140,9 +140,11 @@ docs/api/
   ballots/
   parties/
   candidates/
+  voters/
+  groups/
   voter-groups/
   voters/
-  imports/
+  imports/                          (listed as voter-imports/ since slice 08)
   credentials/
   vote/
   turnout/
@@ -229,6 +231,14 @@ Rules for a file:
 - The **Test** column is filled with the test's name when the acceptance tests are
   written, and checked against the real responses before the slice is approved.
 
+## 7a. Deployment mode (slice 19c)
+
+`DEPLOYMENT_MODE` is `online` (default) or `school`. In `school` mode no email is ever sent: sign-up, email
+verification, password reset by link, invitations and the email channel of access codes are closed (404 or 422 as
+their files say), team members are created by an owner with a one-time password, and the `Secure` flag of cookies
+follows the request (HTTPS or not). The error `password_change_required` (403) is raised for a user who must change a
+one-time password. Behaviour in `online` mode is unchanged.
+
 ## 8. Index
 
 Filled slice by slice: each slice adds its endpoints here with a link to their files.
@@ -246,6 +256,9 @@ Filled slice by slice: each slice adds its endpoints here with a link to their f
 | Auth | `PATCH /auth/me` | 03 | [auth/PATCH-auth-me.md](auth/PATCH-auth-me.md) |
 | Auth | `POST /auth/forgot-password` | 02 | [auth/POST-auth-forgot-password.md](auth/POST-auth-forgot-password.md) |
 | Auth | `POST /auth/reset-password` | 02 | [auth/POST-auth-reset-password.md](auth/POST-auth-reset-password.md) |
+| Auth | `POST /auth/change-password` | 19c | [auth/POST-auth-change-password.md](auth/POST-auth-change-password.md) |
+| Users | `POST /users` | 19c | [users/POST-users.md](users/POST-users.md) |
+| Users | `POST /users/{user}/password-reset` | 19c | [users/POST-users-{user}-password-reset.md](users/POST-users-{user}-password-reset.md) |
 | Auth | `POST /auth/accept-invitation` | 04 | [auth/POST-auth-accept-invitation.md](auth/POST-auth-accept-invitation.md) |
 | Institution | `GET /institution` | 04 | [institution/GET-institution.md](institution/GET-institution.md) |
 | Institution | `PATCH /institution` | 04 | [institution/PATCH-institution.md](institution/PATCH-institution.md) |
@@ -288,3 +301,59 @@ Filled slice by slice: each slice adds its endpoints here with a link to their f
 | Candidates | `DELETE /candidates/{candidate}` | 06c | [candidates/DELETE-candidates-{candidate}.md](candidates/DELETE-candidates-{candidate}.md) |
 | Candidates | `PUT /candidates/{candidate}/photo` | 06d | [candidates/PUT-candidates-{candidate}-photo.md](candidates/PUT-candidates-{candidate}-photo.md) |
 | Candidates | `DELETE /candidates/{candidate}/photo` | 06d | [candidates/DELETE-candidates-{candidate}-photo.md](candidates/DELETE-candidates-{candidate}-photo.md) |
+| Voters | `GET /elections/{election}/voters` | 07 | [voters/GET-elections-{election}-voters.md](voters/GET-elections-{election}-voters.md) |
+| Voters | `POST /elections/{election}/voters` | 07 | [voters/POST-elections-{election}-voters.md](voters/POST-elections-{election}-voters.md) |
+| Voters | `PATCH /voters/{voter}` | 07 | [voters/PATCH-voters-{voter}.md](voters/PATCH-voters-{voter}.md) |
+| Voters | `DELETE /voters/{voter}` | 07 | [voters/DELETE-voters-{voter}.md](voters/DELETE-voters-{voter}.md) |
+| Groups | `GET /elections/{election}/groups` | 07 | [groups/GET-elections-{election}-groups.md](groups/GET-elections-{election}-groups.md) |
+| Groups | `POST /elections/{election}/groups` | 07 | [groups/POST-elections-{election}-groups.md](groups/POST-elections-{election}-groups.md) |
+| Groups | `PATCH /groups/{group}` | 07 | [groups/PATCH-groups-{group}.md](groups/PATCH-groups-{group}.md) |
+| Groups | `DELETE /groups/{group}` | 07 | [groups/DELETE-groups-{group}.md](groups/DELETE-groups-{group}.md) |
+| Groups | `POST /groups/{group}/merge` | 07 | [groups/POST-groups-{group}-merge.md](groups/POST-groups-{group}-merge.md) |
+| Voter imports | `GET /elections/{election}/voter-imports/template` | 08 | [voter-imports/GET-elections-{election}-voter-imports-template.md](voter-imports/GET-elections-{election}-voter-imports-template.md) |
+| Voter imports | `POST /elections/{election}/voter-imports` | 08 | [voter-imports/POST-elections-{election}-voter-imports.md](voter-imports/POST-elections-{election}-voter-imports.md) |
+| Voter imports | `GET /voter-imports/{import}` | 08 | [voter-imports/GET-voter-imports-{import}.md](voter-imports/GET-voter-imports-{import}.md) |
+| Voter imports | `PATCH /voter-imports/{import}` | 08 | [voter-imports/PATCH-voter-imports-{import}.md](voter-imports/PATCH-voter-imports-{import}.md) |
+| Voter imports | `GET /voter-imports/{import}/rows` | 08 | [voter-imports/GET-voter-imports-{import}-rows.md](voter-imports/GET-voter-imports-{import}-rows.md) |
+| Voter imports | `POST /voter-imports/{import}/confirm` | 08 | [voter-imports/POST-voter-imports-{import}-confirm.md](voter-imports/POST-voter-imports-{import}-confirm.md) |
+| Voter imports | `GET /voter-imports/{import}/errors` | 08 | [voter-imports/GET-voter-imports-{import}-errors.md](voter-imports/GET-voter-imports-{import}-errors.md) |
+| Voter imports | `DELETE /voter-imports/{import}` | 08 | [voter-imports/DELETE-voter-imports-{import}.md](voter-imports/DELETE-voter-imports-{import}.md) |
+| Voters | `POST /elections/{election}/voter-copies` | 09 | [voters/POST-elections-{election}-voter-copies.md](voters/POST-elections-{election}-voter-copies.md) |
+| Elections | `GET /elections/{election}/checklist` | 09 | [elections/GET-elections-{election}-checklist.md](elections/GET-elections-{election}-checklist.md) |
+| Elections | `POST /elections/{election}/schedule` | 09 | [elections/POST-elections-{election}-schedule.md](elections/POST-elections-{election}-schedule.md) |
+| Elections | `POST /elections/{election}/unschedule` | 09 | [elections/POST-elections-{election}-unschedule.md](elections/POST-elections-{election}-unschedule.md) |
+| Credentials | `GET /elections/{election}/credentials` | 10 | [credentials/GET-elections-{election}-credentials.md](credentials/GET-elections-{election}-credentials.md) |
+| Credentials | `POST /elections/{election}/credential-runs` | 10 | [credentials/POST-elections-{election}-credential-runs.md](credentials/POST-elections-{election}-credential-runs.md) |
+| Credentials | `GET /elections/{election}/generated-files` | 10 | [credentials/GET-elections-{election}-generated-files.md](credentials/GET-elections-{election}-generated-files.md) |
+| Credentials | `GET /generated-files/{file}` | 10 | [credentials/GET-generated-files-{file}.md](credentials/GET-generated-files-{file}.md) |
+| Credentials | `GET /generated-files/{file}/download` | 10 | [credentials/GET-generated-files-{file}-download.md](credentials/GET-generated-files-{file}-download.md) |
+| Credentials | `POST /voters/{voter}/credential` | 10 | [credentials/POST-voters-{voter}-credential.md](credentials/POST-voters-{voter}-credential.md) |
+| Voting | `GET /vote/{election}` | 12 | [vote/GET-vote-{election}.md](vote/GET-vote-{election}.md) |
+| Voting | `POST /vote/{election}/session` | 12 | [vote/POST-vote-{election}-session.md](vote/POST-vote-{election}-session.md) |
+| Voting | `DELETE /vote/{election}/session` | 12 | [vote/DELETE-vote-{election}-session.md](vote/DELETE-vote-{election}-session.md) |
+| Voting | `GET /vote/{election}/ballots` | 12 | [vote/GET-vote-{election}-ballots.md](vote/GET-vote-{election}-ballots.md) |
+| Voting | `POST /vote/{election}/submit` | 12 | [vote/POST-vote-{election}-submit.md](vote/POST-vote-{election}-submit.md) |
+| Elections | `POST /elections/{election}/close` | 13 | [elections/POST-elections-{election}-close.md](elections/POST-elections-{election}-close.md) |
+| Elections | `POST /elections/{election}/extend` | 13 | [elections/POST-elections-{election}-extend.md](elections/POST-elections-{election}-extend.md) |
+| Turnout | `GET /elections/{election}/turnout` | 14 | [turnout/GET-elections-{election}-turnout.md](turnout/GET-elections-{election}-turnout.md) |
+| Turnout | `GET /elections/{election}/voters/export` | 14 | [turnout/GET-elections-{election}-voters-export.md](turnout/GET-elections-{election}-voters-export.md) |
+| Turnout | `GET /dashboard` | 14 | [turnout/GET-dashboard.md](turnout/GET-dashboard.md) |
+| Results | `GET /elections/{election}/results` | 15 | [results/GET-elections-{election}-results.md](results/GET-elections-{election}-results.md) |
+| Results | `PUT /ballots/{ballot}/result-note` | 15 | [results/PUT-ballots-{ballot}-result-note.md](results/PUT-ballots-{ballot}-result-note.md) |
+| Results | `POST /elections/{election}/second-round` | 15 | [results/POST-elections-{election}-second-round.md](results/POST-elections-{election}-second-round.md) |
+| Publication | `POST /elections/{election}/publish` | 16 | [publication/POST-elections-{election}-publish.md](publication/POST-elections-{election}-publish.md) |
+| Publication | `POST /elections/{election}/unpublish` | 16 | [publication/POST-elections-{election}-unpublish.md](publication/POST-elections-{election}-unpublish.md) |
+| Publication | `POST /elections/{election}/archive`, `/unarchive` | 16 | [publication/POST-elections-{election}-archive.md](publication/POST-elections-{election}-archive.md) |
+| Publication | `GET /elections/{election}/report` | 16 | [publication/GET-elections-{election}-report.md](publication/GET-elections-{election}-report.md) |
+| Public | `GET /public/elections/{election}/results` | 16 | [publication/GET-public-elections-{election}-results.md](publication/GET-public-elections-{election}-results.md) |
+| Public | `GET /public/elections/{election}/report` | 16 | [publication/GET-public-elections-{election}-report.md](publication/GET-public-elections-{election}-report.md) |
+| Public | `GET /public/institutions/{institution}` | 16 | [publication/GET-public-institutions-{institution}.md](publication/GET-public-institutions-{institution}.md) |
+| Audit | `GET /audit` | 17 | [audit/GET-audit.md](audit/GET-audit.md) |
+| Audit | `GET /audit/export` | 17 | [audit/GET-audit-export.md](audit/GET-audit-export.md) |
+| Platform | `GET /platform/institutions` | 18 | [platform/GET-platform-institutions.md](platform/GET-platform-institutions.md) |
+| Platform | `POST /platform/institutions/{institution}/suspend` | 18 | [platform/POST-platform-institutions-{institution}-suspend.md](platform/POST-platform-institutions-{institution}-suspend.md) |
+| Platform | `POST /platform/institutions/{institution}/reactivate` | 18 | [platform/POST-platform-institutions-{institution}-reactivate.md](platform/POST-platform-institutions-{institution}-reactivate.md) |
+| Platform | `POST /platform/institutions/{institution}/impersonate` | 18c | [platform/POST-platform-institutions-{institution}-impersonate.md](platform/POST-platform-institutions-{institution}-impersonate.md) |
+| Platform | `DELETE /platform/impersonation` | 18c | [platform/DELETE-platform-impersonation.md](platform/DELETE-platform-impersonation.md) |
+| System | `php artisan vote-audit:read` (command, operator's machine) | 19 | [system/COMMAND-vote-audit-read.md](system/COMMAND-vote-audit-read.md) |
+| Platform | `php artisan platform:create-admin` (command) | 18 | [platform/COMMAND-platform-create-admin.md](platform/COMMAND-platform-create-admin.md) |

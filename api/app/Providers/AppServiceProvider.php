@@ -6,26 +6,45 @@ use App\Auth\SessionUserProvider;
 use App\Models\Ballot;
 use App\Models\Candidate;
 use App\Models\Election;
+use App\Models\GeneratedFile;
 use App\Models\Party;
 use App\Models\User;
+use App\Models\Voter;
+use App\Models\VoterGroup;
+use App\Models\VoterImport;
 use App\Policies\BallotPolicy;
 use App\Policies\CandidatePolicy;
 use App\Policies\ElectionPolicy;
+use App\Policies\GeneratedFilePolicy;
 use App\Policies\PartyPolicy;
+use App\Policies\VoterGroupPolicy;
+use App\Policies\VoterImportPolicy;
+use App\Policies\VoterPolicy;
+use App\Support\Credentials\SlipWriter;
+use App\Support\Credentials\TcpdfSlipWriter;
+use App\Support\Deployment;
+use App\Support\Platform\Impersonation;
+use App\Support\Voting\ClientAddress;
 use Dedoc\Scramble\Scramble;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use RuntimeException;
 
 class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        // The slip layout (slice 10): run 10b swaps this binding for the TCPDF writer.
+        $this->app->bind(SlipWriter::class, TcpdfSlipWriter::class);
+
         // The OpenAPI file is exported by `make generate`; no documentation page is served.
         // Scramble is a development package: without it (an install made with
         // `--no-dev`) the application starts all the same.
@@ -36,13 +55,27 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // The edition is one of two words; a typo must not leave an installation half in one mode (docs/slices/19c).
+        if (! in_array(config('deployment.mode'), [Deployment::ONLINE, Deployment::SCHOOL], true)) {
+            throw new RuntimeException('DEPLOYMENT_MODE must be "online" or "school".');
+        }
+
         // Users are found by the guard without the institution scope (see SessionUserProvider).
         Auth::provider('institution-session', fn (Application $app, array $config) => new SessionUserProvider($app->make('hash'), Config::string('auth.providers.users.model')));
+
+        // Every sign-in, registration and invitation acceptance (a Login event) drops an acting-as state left in the
+        // session (slice 18c): a person who signs in in the same browser is never the admin's puppet. The start of an
+        // impersonation puts its keys after its own login, so it is not affected.
+        Event::listen(Login::class, fn () => Impersonation::clear());
 
         Gate::policy(Election::class, ElectionPolicy::class);
         Gate::policy(Ballot::class, BallotPolicy::class);
         Gate::policy(Party::class, PartyPolicy::class);
+        Gate::policy(Voter::class, VoterPolicy::class);
+        Gate::policy(VoterGroup::class, VoterGroupPolicy::class);
+        Gate::policy(VoterImport::class, VoterImportPolicy::class);
         Gate::policy(Candidate::class, CandidatePolicy::class);
+        Gate::policy(GeneratedFile::class, GeneratedFilePolicy::class);
 
         $this->configureRateLimiters();
     }
@@ -58,6 +91,49 @@ class AppServiceProvider extends ServiceProvider
         $this->configureAuthRateLimiters();
         $this->configureTeamRateLimiters();
         $this->configureElectionRateLimiters();
+        $this->configureVoteRateLimiters();
+        $this->configurePublicationRateLimiters();
+    }
+
+    /**
+     * The public reads of the voting routes (docs/api/vote/): per address and election, high
+     * because a class sits behind one address. The wrong-code and submit limits are counted by the
+     * controllers (failures only, per session): see config/votes.php.
+     */
+    private function configureVoteRateLimiters(): void
+    {
+        RateLimiter::for('vote-public', function (Request $request) {
+            $election = $request->route('election');
+
+            return Limit::perMinute(Config::integer('votes.public_per_minute') * Config::integer('auth.rate_limit_factor'))
+                ->by('vote-public:'.(is_string($election) ? strtolower($election) : '-').':'.ClientAddress::bucket((string) $request->ip()));
+        });
+    }
+
+    /**
+     * Publication (docs/api/publication/): publish, unpublish, archive and unarchive share 20 an hour per user,
+     * and so does the admin report; the public pages are counted per address (and election): 120 a minute for
+     * the results and the institution page, 30 a minute for the report.
+     */
+    private function configurePublicationRateLimiters(): void
+    {
+        $times = static fn (int $limit): int => $limit * Config::integer('auth.rate_limit_factor');
+        $byUser = static function (Request $request): string {
+            $user = $request->user();
+
+            return $user instanceof User ? 'user:'.$user->uuid : 'ip:'.(string) $request->ip();
+        };
+        $byElection = static function (Request $request, string $name): string {
+            $election = $request->route('election');
+
+            return $name.':'.(is_string($election) ? strtolower($election) : '-').':'.ClientAddress::bucket((string) $request->ip());
+        };
+
+        RateLimiter::for('publication', fn (Request $request) => Limit::perHour($times(20))->by('publication:'.$byUser($request)));
+        RateLimiter::for('report', fn (Request $request) => Limit::perHour($times(20))->by('report:'.$byUser($request)));
+        RateLimiter::for('public-results', fn (Request $request) => Limit::perMinute($times(120))->by($byElection($request, 'public-results')));
+        RateLimiter::for('public-report', fn (Request $request) => Limit::perMinute($times(30))->by($byElection($request, 'public-report')));
+        RateLimiter::for('public-institution', fn (Request $request) => Limit::perMinute($times(120))->by('public-institution:'.ClientAddress::bucket((string) $request->ip())));
     }
 
     /**
@@ -127,6 +203,8 @@ class AppServiceProvider extends ServiceProvider
         };
 
         RateLimiter::for('invitations-create', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
+        RateLimiter::for('users-create', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
+        RateLimiter::for('auth-change-password', fn (Request $request) => Limit::perHour($times(10))->by($byUser($request)));
         RateLimiter::for('logo-upload', fn (Request $request) => Limit::perHour($times(10))->by($byUser($request)));
         RateLimiter::for('auth-accept-invitation', fn (Request $request) => Limit::perHour($times(10))->by((string) $request->ip()));
     }
@@ -147,6 +225,10 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('elections-write', fn (Request $request) => Limit::perHour($times(60))->by($byUser($request)));
         RateLimiter::for('elections-edit', fn (Request $request) => Limit::perHour($times(120))->by($byUser($request)));
+        // Scheduling and unscheduling share 120 an hour per user (docs/api/elections/POST-elections-{election}-schedule.md).
+        RateLimiter::for('election-schedule', fn (Request $request) => Limit::perHour($times(120))->by($byUser($request)));
+        // Closing early and extending share 20 an hour per user (docs/api/elections/POST-elections-{election}-close.md).
+        RateLimiter::for('election-close', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
         RateLimiter::for('election-cover', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
 
         // The ballots (docs/api/ballots/): 120 an hour per user to add, change and delete, 240 to put in order.
@@ -155,14 +237,48 @@ class AppServiceProvider extends ServiceProvider
 
         // The parties (docs/api/parties/): 120 an hour per user to add, change and delete.
         RateLimiter::for('parties-write', fn (Request $request) => Limit::perHour($times(120))->by($byUser($request)));
+        // The voters (docs/api/voters/): 240 an hour per user to add, change and delete; the groups
+        // (docs/api/groups/): 120 an hour per user to add, rename, merge and delete.
+        RateLimiter::for('voters-write', fn (Request $request) => Limit::perHour($times(240))->by($byUser($request)));
+        RateLimiter::for('groups-write', fn (Request $request) => Limit::perHour($times(120))->by($byUser($request)));
+        // Voters loaded from another election (docs/api/voters/): 20 an hour per user.
+        RateLimiter::for('voter-copies', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
         // The candidates (docs/api/candidates/): 120 an hour per user to add, change and delete, 240 to put in order.
         RateLimiter::for('candidates-write', fn (Request $request) => Limit::perHour($times(120))->by($byUser($request)));
         RateLimiter::for('candidates-order', fn (Request $request) => Limit::perHour($times(240))->by($byUser($request)));
+
+        // The voter import (docs/api/voter-imports/): 20 uploads an hour per user; every other import
+        // route (template, summary, mapping, rows, confirm, errors, cancel) shares 240 an hour.
+        RateLimiter::for('voter-imports-upload', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
+        RateLimiter::for('voter-imports', fn (Request $request) => Limit::perHour($times(240))->by($byUser($request)));
+
+        // The access codes (docs/api/credentials/): 20 runs an hour per user, 120 previews, 60 reissues, 120 downloads.
+        RateLimiter::for('credential-runs', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
+        RateLimiter::for('credential-previews', fn (Request $request) => Limit::perHour($times(120))->by($byUser($request)));
+        RateLimiter::for('credential-reissue', fn (Request $request) => Limit::perHour($times(60))->by($byUser($request)));
+        RateLimiter::for('file-download', fn (Request $request) => Limit::perHour($times(120))->by($byUser($request)));
+
+        // The turnout and the dashboard (docs/api/turnout/): 120 reads a minute per user, one shared counter.
+        RateLimiter::for('turnout-read', fn (Request $request) => Limit::perMinute($times(120))->by($byUser($request)));
+
+        // The voters file (docs/api/turnout/GET-elections-{election}-voters-export.md): 20 an hour per user.
+        RateLimiter::for('voters-export', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
+
+        // The audit log file (docs/api/audit/GET-audit-export.md): 20 an hour per user.
+        RateLimiter::for('audit-export', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
 
         // The logo of a party: 20 an hour per user, as a cover (the removal counts with the writes).
         RateLimiter::for('party-logo', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
 
         // The photo of a candidate: 20 an hour per user (the removal counts with the candidate writes).
         RateLimiter::for('candidate-photo', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
+
+        // The results (docs/api/results/): the note 60 an hour, the second round 20 an hour, per user.
+        RateLimiter::for('result-note', fn (Request $request) => Limit::perHour($times(60))->by($byUser($request)));
+        RateLimiter::for('second-round', fn (Request $request) => Limit::perHour($times(20))->by($byUser($request)));
+
+        // The platform admin's writes (docs/api/platform/): suspend and reactivate share 60 an hour per admin.
+        // While acting as an owner (slice 18c) the session user is the owner: the allowance stays the real admin's.
+        RateLimiter::for('platform-write', fn (Request $request) => Limit::perHour($times(60))->by('platform-write:'.(($by = Impersonation::by($request)) !== null ? 'user:'.$by['uuid'] : $byUser($request))));
     }
 }

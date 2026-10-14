@@ -1,0 +1,71 @@
+import type { components, operations } from './schema';
+
+type VoterIndex = operations['voter.index']['responses'][200]['content']['application/json'];
+type GroupIndex = operations['group.index']['responses'][200]['content']['application/json'];
+
+/** One voter: an item of `GET /elections/{election}/voters`. `group` is `{ id, name }` or `null`. */
+export type Voter = VoterIndex['data'][number];
+
+/** One group of voters: an item of `GET /elections/{election}/groups`. */
+export type VoterGroup = GroupIndex['data'][number];
+
+/** One page of voters. */
+export type VoterList = { items: Voter[]; total: number; page: number };
+
+/** The groups of an election with the two counts of the list meta. */
+export type GroupList = {
+  items: VoterGroup[];
+  votersTotal: number;
+  ungrouped: number;
+};
+
+/** The credential filter: `''` all, a voter with a current code, or one without. */
+export type CredentialFilter = '' | 'issued' | 'none';
+
+/** The email filter: `''` all, or the status of the last email (`none`: never emailed). */
+export type EmailFilter = '' | 'queued' | 'sent' | 'failed' | 'none';
+
+/** The has-voted filter (slice 14): `''` all, `yes` who has voted, `no` who has not. */
+export type VotedFilter = '' | 'yes' | 'no';
+
+/**
+ * What the list is asked for: the page, the search text, the group (`''` all, `none`, or a UUID),
+ * the credential status, the email status and, optionally, whether the voter has voted.
+ */
+export type VoterFilters = {
+  page: number;
+  q: string;
+  group: string;
+  credential: CredentialFilter;
+  email: EmailFilter;
+  voted?: VotedFilter;
+};
+
+/** The body of `POST /elections/{election}/voters`. */
+export type NewVoter = components['schemas']['CreateVoterRequest'];
+
+/** The body of `PATCH /voters/{voter}`: every field optional. */
+export type VoterChanges = components['schemas']['UpdateVoterRequest'];
+
+/**
+ * The body of `POST /elections/{election}/voter-copies`. The generated schema lists the fields
+ * the validator names by rule; `groups` and `rename` are judged by hand on the server.
+ */
+export type VoterCopyBody = components['schemas']['CopyVotersRequest'] & {
+  groups?: string[] | null;
+  rename?: Record<string, string>;
+};
+
+/** What a copy did: the voters written, the voters skipped and the groups created. */
+export type VoterCopyResult = {
+  copied: number;
+  skipped: number;
+  groups_created: number;
+};
+
+/** 24 voters a page. */
+export const VOTERS_PER_PAGE = 24;
+
+/** An election holds at most 10 000 voters and 100 groups. */
+export const VOTER_LIMIT = 10000;
+export const GROUP_LIMIT = 100;

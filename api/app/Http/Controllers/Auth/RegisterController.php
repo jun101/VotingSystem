@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Actions\Auth\RegisterInstitution;
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\EndExpiredSession;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\UserResource;
 use Dedoc\Scramble\Attributes\Response;
@@ -34,6 +35,7 @@ class RegisterController extends Controller
         );
 
         Auth::guard()->login($user);
+        EndExpiredSession::start($request);
         $request->session()->regenerateToken();
 
         return (new UserResource($user))->response()->setStatusCode(201);

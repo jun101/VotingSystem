@@ -2,27 +2,40 @@
 
 namespace App\Http\Controllers\Elections;
 
+use App\Actions\Elections\ComputeChecklist;
 use App\Actions\Elections\DuplicateElection;
 use App\Actions\Elections\ListElections;
+use App\Enums\ElectionStatus;
 use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Elections\CloseElectionRequest;
 use App\Http\Requests\Elections\CreateElectionRequest;
 use App\Http\Requests\Elections\DuplicateElectionRequest;
+use App\Http\Requests\Elections\ExtendElectionRequest;
 use App\Http\Requests\Elections\ListElectionsRequest;
+use App\Http\Requests\Elections\ScheduleElectionRequest;
 use App\Http\Requests\Elections\UpdateElectionRequest;
 use App\Http\Resources\ElectionResource;
 use App\Http\Resources\PageOf;
+use App\Models\Ballot;
 use App\Models\Candidate;
 use App\Models\Election;
+use App\Models\GeneratedFile;
 use App\Models\Party;
 use App\Models\User;
+use App\Models\Voter;
+use App\Models\VoterImport;
+use App\Support\Audit\AuditLog;
 use App\Support\Media\ImageReEncoder;
 use Dedoc\Scramble\Attributes\Response;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response as HttpResponse;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class ElectionController extends Controller
@@ -69,7 +82,11 @@ class ElectionController extends Controller
 
         // The time zone and the language of the institution, unless the request names its own.
         $election = new Election($request->attributesToWrite() + ['timezone' => $institution->timezone, 'language' => $institution->language]);
-        $election->save();
+
+        DB::transaction(function () use ($election): void {
+            $election->save();
+            AuditLog::record('election.created', $election, ['title' => $election->title]);
+        });
 
         Log::info('election.create', ['outcome' => 'created']);
 
@@ -123,7 +140,20 @@ class ElectionController extends Controller
                 throw ValidationException::withMessages(['ends_at' => ['after_start']]);
             }
 
+            $dirty = array_keys($locked->getDirty());
+            $times = ['starts_at', 'ends_at', 'timezone'];
+            $before = $this->timesOf($locked, original: true);
+            $fields = array_values(array_diff($dirty, $times));
+
             $locked->save();
+
+            if ($fields !== []) {
+                AuditLog::record('election.updated', $locked, ['fields' => $fields]);
+            }
+
+            if (array_intersect($dirty, $times) !== []) {
+                AuditLog::record('election.times_changed', $locked, ['from' => $before, 'to' => $this->timesOf($locked)]);
+            }
 
             return $locked;
         });
@@ -146,23 +176,47 @@ class ElectionController extends Controller
         $cover = null;
         $photos = [];
         $logos = [];
+        $imports = [];
+        $slips = [];
 
-        DB::transaction(function () use ($election, &$cover, &$photos, &$logos): void {
-            // The state is read again under the lock: a change that landed meanwhile counts.
-            $locked = Election::query()->whereKey($election->getKey())->lockForUpdate()->first();
+        try {
+            DB::transaction(function () use ($election, &$cover, &$photos, &$logos, &$imports, &$slips): void {
+                // The state is read again under the lock: a change that landed meanwhile counts.
+                $locked = Election::query()->whereKey($election->getKey())->lockForUpdate()->first();
 
-            if ($locked === null) {
-                throw new ApiException(404, 'not_found');
+                if ($locked === null) {
+                    throw new ApiException(404, 'not_found');
+                }
+
+                $locked->assertEditable('election_not_deletable');
+                $cover = $locked->cover_file;
+                // Candidate photos and party logos go with the election (the rows by cascade, the
+                // files after the commit).
+                $photos = Candidate::query()->where('election_id', $locked->id)->whereNotNull('photo_file')->pluck('photo_file')->all();
+                $logos = Party::query()->where('election_id', $locked->id)->whereNotNull('logo_file')->pluck('logo_file')->all();
+                // The uploaded voter files go with it (the import rows by cascade, the files after the commit).
+                $imports = VoterImport::query()->where('election_id', $locked->id)->pluck('stored_file')->all();
+                // The slip files go with it (the rows by cascade, the stored copies after the commit).
+                $slips = GeneratedFile::query()->where('election_id', $locked->id)->whereNotNull('stored_file')->pluck('stored_file')->all();
+                // The voters go before the election: a group with voters is restricted, and the cascade
+                // from the election may reach the groups first.
+                // The ballots' group links go first too: the link restricts the deletion of a group.
+                DB::table('ballot_voter_group')
+                    ->whereIn('ballot_id', Ballot::query()->where('election_id', $locked->id)->select('id'))
+                    ->delete();
+                Voter::query()->where('election_id', $locked->id)->delete();
+                $locked->delete();
+                // The uuid and the title are kept in the entry: the election itself is gone.
+                AuditLog::record('election.deleted', $locked, ['title' => $locked->title]);
+            });
+        } catch (QueryException $e) {
+            // An election that holds votes, or a voter who voted, is held by the database (1451): a refusal, not a fault.
+            if (($e->errorInfo[1] ?? null) === 1451) {
+                throw new ApiException(409, 'election_not_deletable');
             }
 
-            $locked->assertEditable('election_not_deletable');
-            $cover = $locked->cover_file;
-            // Candidate photos and party logos go with the election (the rows by cascade, the
-            // files after the commit).
-            $photos = Candidate::query()->where('election_id', $locked->id)->whereNotNull('photo_file')->pluck('photo_file')->all();
-            $logos = Party::query()->where('election_id', $locked->id)->whereNotNull('logo_file')->pluck('logo_file')->all();
-            $locked->delete();
-        });
+            throw $e;
+        }
 
         $images->delete($cover, ImageReEncoder::COVER_SIZES);
 
@@ -173,6 +227,9 @@ class ElectionController extends Controller
         foreach ($logos as $logo) {
             $images->delete(is_string($logo) ? $logo : null, ImageReEncoder::PARTY_LOGO_SIZES);
         }
+
+        Storage::disk('imports')->delete(array_values(array_filter($imports, is_string(...))));
+        Storage::disk('credentials')->delete(array_values(array_filter($slips, is_string(...))));
 
         Log::info('election.delete', ['outcome' => 'deleted']);
 
@@ -198,6 +255,231 @@ class ElectionController extends Controller
         Log::info('election.duplicate', ['outcome' => 'created']);
 
         return (new ElectionResource($copy))->response()->setStatusCode(201);
+    }
+
+    /**
+     * The checklist of an election.
+     *
+     * What stops the election from being scheduled (`blockers`) and what to look at first
+     * (`warnings`), in any status. `can_schedule` is true for a draft with no blocker. Owner or
+     * manager.
+     *
+     * @response array{data: array{status: 'draft'|'scheduled'|'open'|'closed'|'published'|'archived', can_schedule: bool, counts: array{ballots: int, candidates: int, voters: int, groups: int}, blockers: list<array{code: 'no_ballots'|'ballot_without_candidates'|'no_voters', ballot?: array{id: string, title: string}}>, warnings: list<array{code: 'ballot_single_candidate'|'group_ballot_no_voters'|'group_ballot_few_voters'|'voters_without_ballot', ballot?: array{id: string, title: string}, count?: int}>}}
+     */
+    public function checklist(Election $election, ComputeChecklist $checklist): JsonResponse
+    {
+        $this->allow('view', $election);
+
+        return response()->json(['data' => $checklist($election)]);
+    }
+
+    /**
+     * Schedule an election.
+     *
+     * A draft becomes scheduled: ballots, candidates and parties are locked; voters and groups stay
+     * editable. 409 `checklist_blocked` with the blockers in `error.items`; 409 `checklist_warnings`
+     * with the warnings unless `accept_warnings` is true; 409 `election_period_over` when the end is
+     * not in the future. The checklist is computed again under the row lock. Owner or manager.
+     * Limited to 120 requests per hour per user.
+     *
+     * @response array{data: array{id: string, title: string, description: string|null, status: 'draft'|'scheduled'|'open'|'closed'|'published'|'archived', starts_at: string, ends_at: string, timezone: string, language: 'fr'|'en', candidate_order: 'manual'|'shuffled', results_display: 'full'|'winners', cover: array{sm: string, md: string}|null, ballots_count: int, voters_count: int, created_at: string}}
+     */
+    public function schedule(ScheduleElectionRequest $request, Election $election, ComputeChecklist $checklist): ElectionResource
+    {
+        $this->allow('update', $election);
+
+        $accept = $request->acceptsWarnings();
+
+        $saved = DB::transaction(function () use ($election, $accept, $checklist): Election {
+            // The row is read again under the lock: a change that landed meanwhile counts.
+            $locked = Election::query()->whereKey($election->getKey())->lockForUpdate()->first();
+
+            if ($locked === null) {
+                throw new ApiException(404, 'not_found');
+            }
+
+            $locked->assertEditable();
+
+            if (! $locked->ends_at->isFuture()) {
+                throw new ApiException(409, 'election_period_over');
+            }
+
+            $list = $checklist($locked);
+
+            if ($list['blockers'] !== []) {
+                throw new ApiException(409, 'checklist_blocked', items: $list['blockers']);
+            }
+
+            if ($list['warnings'] !== [] && ! $accept) {
+                throw new ApiException(409, 'checklist_warnings', items: $list['warnings']);
+            }
+
+            $locked->status = ElectionStatus::Scheduled;
+            $locked->save();
+            AuditLog::record('election.scheduled', $locked);
+
+            return $locked;
+        });
+
+        Log::info('election.schedule', ['outcome' => 'scheduled']);
+
+        return new ElectionResource($saved);
+    }
+
+    /**
+     * Unschedule an election.
+     *
+     * A scheduled election goes back to draft, so ballots and candidates can be edited again.
+     * Voters, groups and the groups of the ballots are not touched. Owner or manager. Limited to
+     * 120 requests per hour per user. 409 `election_started` when the start has passed.
+     *
+     * @response array{data: array{id: string, title: string, description: string|null, status: 'draft'|'scheduled'|'open'|'closed'|'published'|'archived', starts_at: string, ends_at: string, timezone: string, language: 'fr'|'en', candidate_order: 'manual'|'shuffled', results_display: 'full'|'winners', cover: array{sm: string, md: string}|null, ballots_count: int, voters_count: int, created_at: string}}
+     */
+    public function unschedule(Election $election): ElectionResource
+    {
+        $this->allow('update', $election);
+
+        $saved = DB::transaction(function () use ($election): Election {
+            $locked = Election::query()->whereKey($election->getKey())->lockForUpdate()->first();
+
+            if ($locked === null) {
+                throw new ApiException(404, 'not_found');
+            }
+
+            if ($locked->status !== ElectionStatus::Scheduled) {
+                throw new ApiException(409, 'election_not_scheduled');
+            }
+
+            // The scheduler has not run yet but the start has passed: the election is as good as open.
+            if (! $locked->starts_at->isFuture()) {
+                throw new ApiException(409, 'election_started');
+            }
+
+            $locked->status = ElectionStatus::Draft;
+            $locked->save();
+            AuditLog::record('election.unscheduled', $locked);
+
+            return $locked;
+        });
+
+        Log::info('election.unschedule', ['outcome' => 'unscheduled']);
+
+        return new ElectionResource($saved);
+    }
+
+    /**
+     * Close an election now.
+     *
+     * An open election is closed before its end, for good. `confirmation` must be the election's
+     * title (case and surrounding spaces ignored, accents counted): 422 `confirmation: mismatch`.
+     * 409 `election_not_open` for any other status. The status is read again under the row lock.
+     * Nothing about votes is read or written. Owner or manager. Limited to 20 requests per hour
+     * per user, shared with extend.
+     *
+     * @response array{data: array{id: string, title: string, description: string|null, status: 'draft'|'scheduled'|'open'|'closed'|'published'|'archived', starts_at: string, ends_at: string, timezone: string, language: 'fr'|'en', candidate_order: 'manual'|'shuffled', results_display: 'full'|'winners', cover: array{sm: string, md: string}|null, ballots_count: int, voters_count: int, created_at: string}}
+     */
+    public function close(CloseElectionRequest $request, Election $election): ElectionResource
+    {
+        $this->allow('update', $election);
+
+        $confirmation = $request->confirmation();
+
+        $saved = DB::transaction(function () use ($election, $confirmation): Election {
+            $locked = Election::query()->whereKey($election->getKey())->lockForUpdate()->first();
+
+            if ($locked === null) {
+                throw new ApiException(404, 'not_found');
+            }
+
+            if ($locked->status !== ElectionStatus::Open) {
+                throw new ApiException(409, 'election_not_open');
+            }
+
+            if (mb_strtolower(trim($locked->title)) !== mb_strtolower($confirmation)) {
+                throw ValidationException::withMessages(['confirmation' => ['mismatch']]);
+            }
+
+            $locked->status = ElectionStatus::Closed;
+            $locked->closed_at = now('UTC');
+            $locked->save();
+            AuditLog::record('election.closed', $locked, ['by' => 'user']);
+
+            return $locked;
+        });
+
+        Log::info('election.close', ['outcome' => 'closed']);
+
+        return new ElectionResource($saved);
+    }
+
+    /**
+     * Extend an election.
+     *
+     * Moves the end of a scheduled or open election later; the status stays. The new end must be
+     * after the current one (422 `ends_at: not_after`) and at most 30 days after it (`too_far`).
+     * 409 `election_not_extendable` for another status, or when the end has passed. Owner or
+     * manager. Limited to 20 requests per hour per user, shared with close.
+     *
+     * @response array{data: array{id: string, title: string, description: string|null, status: 'draft'|'scheduled'|'open'|'closed'|'published'|'archived', starts_at: string, ends_at: string, timezone: string, language: 'fr'|'en', candidate_order: 'manual'|'shuffled', results_display: 'full'|'winners', cover: array{sm: string, md: string}|null, ballots_count: int, voters_count: int, created_at: string}}
+     */
+    public function extend(ExtendElectionRequest $request, Election $election): ElectionResource
+    {
+        $this->allow('update', $election);
+
+        $end = $request->newEnd();
+
+        $saved = DB::transaction(function () use ($election, $end): Election {
+            $locked = Election::query()->whereKey($election->getKey())->lockForUpdate()->first();
+
+            if ($locked === null) {
+                throw new ApiException(404, 'not_found');
+            }
+
+            if (! in_array($locked->status, [ElectionStatus::Scheduled, ElectionStatus::Open], true) || ! $locked->ends_at->isFuture()) {
+                throw new ApiException(409, 'election_not_extendable');
+            }
+
+            $current = $locked->ends_at->copy()->utc();
+
+            if (! $end->greaterThan($current)) {
+                throw ValidationException::withMessages(['ends_at' => ['not_after']]);
+            }
+
+            if ($end->greaterThan($current->copy()->addDays(30))) {
+                throw ValidationException::withMessages(['ends_at' => ['too_far']]);
+            }
+
+            $locked->ends_at = Carbon::createFromInterface($end);
+            $locked->save();
+            AuditLog::record('election.extended', $locked, [
+                'from' => $current->format('Y-m-d\TH:i:s\Z'),
+                'to' => $end->format('Y-m-d\TH:i:s\Z'),
+            ]);
+
+            return $locked;
+        });
+
+        Log::info('election.extend', ['outcome' => 'extended']);
+
+        return new ElectionResource($saved);
+    }
+
+    /**
+     * The start, the end and the time zone as the audit log writes them (UTC, ISO 8601), of the row as it is or as it was.
+     *
+     * @return array{starts_at: string, ends_at: string, timezone: string}
+     */
+    private function timesOf(Election $election, bool $original = false): array
+    {
+        $at = static function (mixed $value): string {
+            return Carbon::parse($value instanceof \DateTimeInterface || is_string($value) ? $value : 'now', 'UTC')->utc()->format('Y-m-d\TH:i:s\Z');
+        };
+
+        return [
+            'starts_at' => $at($original ? $election->getRawOriginal('starts_at') : $election->starts_at),
+            'ends_at' => $at($original ? $election->getRawOriginal('ends_at') : $election->ends_at),
+            'timezone' => $original ? (is_string($raw = $election->getRawOriginal('timezone')) ? $raw : $election->timezone) : $election->timezone,
+        ];
     }
 
     /**

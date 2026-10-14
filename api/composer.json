@@ -8,8 +8,10 @@
         "php": "^8.4",
         "laravel/framework": "^13.34",
         "laravel/octane": "^2.20",
+        "openspout/openspout": "^5.12",
         "predis/predis": "^3.6",
-        "spomky-labs/otphp": "^11.5"
+        "spomky-labs/otphp": "^11.5",
+        "tecnickcom/tcpdf": "^7.0"
     },
     "require-dev": {
         "dedoc/scramble": "^0.13",

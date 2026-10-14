@@ -12,12 +12,157 @@
       "online": "En ligne",
       "offline": "Hors ligne",
       "unavailable": "Indisponible",
-      "unknown": "Inconnu"
+      "unknown": "Inconnu",
+      "overallOk": "Système en ligne",
+      "overallDown": "Système partiellement hors ligne",
+      "overallUnknown": "État du système inconnu"
+    },
+    "nav": {
+      "label": "Navigation principale",
+      "home": "Accueil",
+      "how": "Comment ça marche",
+      "security": "Sécurité",
+      "faq": "Questions",
+      "signIn": "Se connecter",
+      "create": "Créer une élection",
+      "menu": "Menu",
+      "close": "Fermer le menu"
     },
     "hero": {
-      "pill": "Élections en ligne",
-      "accent": "Voting",
-      "lede": "Des élections sûres pour les écoles et les institutions, en français et en anglais."
+      "pill": "Élections en ligne pour les écoles",
+      "title": "Votez simplement,",
+      "accent": "en secret.",
+      "lede": "Importez vos électeurs, remettez un code à chacun, et suivez la participation en direct. Le vote reste secret, les résultats sont publiés à la clôture.",
+      "create": "Créer une élection",
+      "how": "Comment ça marche",
+      "assure": {
+        "secret": "Bulletin secret",
+        "once": "Un vote par électeur",
+        "phone": "Sur téléphone"
+      }
+    },
+    "art": {
+      "label": "Démonstration",
+      "ballot": "Président(e) du conseil des élèves",
+      "one": "Marie-Claire Pierre",
+      "oneRole": "Candidate, 3e année",
+      "two": "Jean Baptiste",
+      "twoRole": "Candidat, 4e année",
+      "blank": "Vote blanc",
+      "blankRole": "Aucun candidat",
+      "vote": "Voter",
+      "slot": "Touchez un candidat pour voter",
+      "slotDone": "Bulletin déposé dans l’urne",
+      "idle": "Aucun vote réel : c’est un essai.",
+      "voted": "Essai : « {name} », bulletin déposé."
+    },
+    "voter": {
+      "title": "Je suis électeur",
+      "text": "Collez le lien de vote reçu sur votre fiche ou par courriel.",
+      "label": "Lien de vote ou adresse de l’élection",
+      "placeholder": "https://…/vote/…",
+      "button": "Voter",
+      "error": "Ce lien n’est pas valide. Collez le lien complet reçu sur votre fiche ou dans votre courriel."
+    },
+    "organiser": {
+      "title": "J’organise une élection",
+      "text": "Créez l’élection, importez les électeurs, imprimez les codes.",
+      "signIn": "Se connecter",
+      "register": "Créer un compte"
+    },
+    "why": {
+      "eyebrow": "Pourquoi nous",
+      "title": "Des élections en lesquelles on peut avoir confiance",
+      "lead": "Conçu pour les écoles et les institutions : simple pour l’organisateur, clair pour l’électeur, vérifiable par tous.",
+      "secret": {
+        "title": "Personne ne voit votre choix",
+        "text": "Aucun lien entre un électeur et son vote."
+      },
+      "slips": {
+        "title": "Un code par électeur",
+        "text": "Fiches PDF, courriel ou fichier Excel."
+      },
+      "live": {
+        "title": "Qui a voté, pas pour qui",
+        "text": "Suivez la participation par groupe."
+      },
+      "results": {
+        "title": "Publiés à la clôture",
+        "text": "Égalités signalées, second tour possible."
+      }
+    },
+    "figures": {
+      "title": "En bref",
+      "one": {
+        "value": "1",
+        "label": "code par électeur, un seul vote"
+      },
+      "zero": {
+        "value": "0",
+        "label": "vote lié à un électeur"
+      },
+      "two": {
+        "value": "2",
+        "label": "langues : français et anglais"
+      },
+      "full": {
+        "value": "100 %",
+        "label": "en ligne, sur téléphone"
+      }
+    },
+    "steps": {
+      "eyebrow": "Comment ça marche",
+      "title": "Quatre étapes, du fichier aux résultats",
+      "import": {
+        "title": "Importer",
+        "text": "Déposez la liste des électeurs."
+      },
+      "codes": {
+        "title": "Remettre les codes",
+        "text": "Imprimez les fiches ou envoyez par courriel."
+      },
+      "vote": {
+        "title": "Voter",
+        "text": "Chacun vote une fois, en secret."
+      },
+      "results": {
+        "title": "Résultats",
+        "text": "Publiés à la clôture du scrutin."
+      }
+    },
+    "faq": {
+      "eyebrow": "Questions",
+      "title": "Vous vous demandez peut-être",
+      "lead": "Une autre question ? Écrivez-nous.",
+      "account": {
+        "q": "Mes électeurs ont-ils besoin d’un compte ?",
+        "a": "Non. Un code personnel suffit."
+      },
+      "phone": {
+        "q": "Peut-on voter depuis un téléphone ?",
+        "a": "Oui, la page est pensée pour le téléphone."
+      },
+      "tie": {
+        "q": "Que se passe-t-il en cas d’égalité ?",
+        "a": "Elle est signalée ; un second tour est possible."
+      },
+      "results": {
+        "q": "Qui voit les résultats ?",
+        "a": "Personne avant la clôture, puis la page publique."
+      }
+    },
+    "closing": {
+      "title": "Prêt à organiser votre élection ?",
+      "create": "Créer une élection",
+      "signIn": "Se connecter"
+    },
+    "footer": {
+      "tagline": "Élections en ligne, simples et secrètes, pour les écoles et les institutions.",
+      "product": "Produit",
+      "account": "Compte",
+      "contact": "Contact",
+      "email": "contact@exemple.ht",
+      "copy": "© {year} New Voting System"
     }
   },
   "notFound": {
@@ -146,7 +291,7 @@
       "register": "Inscrire mon établissement",
       "notice": "Votre mot de passe a été changé. Vous pouvez vous connecter.",
       "suspended": "Cet établissement est suspendu. Vous avez été déconnecté.",
-      "platformAdmin": "L’espace des administrateurs de la plateforme n’est pas encore disponible. Vous avez été déconnecté."
+      "suspendedReason": "Cet établissement est suspendu. Motif donné par l’administration de la plateforme :"
     },
     "forgot": {
       "title": "Mot de passe oublié",
@@ -235,7 +380,8 @@
     "user": {
       "menu": "Menu de {name}",
       "signOut": "Se déconnecter",
-      "account": "Mon compte"
+      "account": "Mon compte",
+      "guide": "Guide d’utilisation"
     },
     "roles": {
       "owner": "Propriétaire",
@@ -343,6 +489,39 @@
         "twoFactorOn": "Activée pour votre compte",
         "twoFactorOff": "Pas encore activée pour votre compte",
         "invite": "Inviter un collègue"
+      },
+      "live": {
+        "left": "Il reste {time}",
+        "leftDays": "{days} j {hours} h",
+        "leftHours": "{hours} h {minutes} min",
+        "leftMinutes": "{minutes} min",
+        "over": "Le vote est terminé, la clôture est en cours",
+        "turnout": "Participation",
+        "percent": "{percent} %",
+        "votedOf": "{voted} / {eligible} ont voté",
+        "viewTurnout": "Voir la participation",
+        "viewElection": "Ouvrir l’élection",
+        "more": "Voir toutes les élections ouvertes ({count})",
+        "todoKinds": {
+          "voters_not_voted": {
+            "one": "{count} électeur n’a pas encore voté",
+            "other": "{count} électeurs n’ont pas encore voté"
+          },
+          "draft_blockers": {
+            "one": "{count} point à régler avant de programmer",
+            "other": "{count} points à régler avant de programmer"
+          },
+          "codes_missing": {
+            "one": "{count} électeur sans code d’accès",
+            "other": "{count} électeurs sans code d’accès"
+          }
+        },
+        "counts": "Par statut",
+        "upcoming": {
+          "title": "À venir",
+          "empty": "Aucune élection programmée.",
+          "starts": "Début le {day} à {time}"
+        }
       }
     },
     "comingSoon": {
@@ -350,16 +529,20 @@
       "text": "Cette page arrive avec une prochaine étape du produit. Le reste de l’espace est déjà utilisable.",
       "back": "Retour au tableau de bord"
     },
-    "turnedAway": {
-      "title": "Espace non disponible",
-      "text": "Ce compte n’a pas d’établissement. Vous êtes déconnecté."
-    }
+    "impersonation": {
+      "title": "Vous agissez en tant que responsable de {institution}",
+      "text": "Connecté par {name} (administration de la plateforme). Toutes vos actions sont enregistrées dans le journal d’audit, sous votre nom, et visibles par les responsables de l’établissement.",
+      "end": "Quitter l’établissement",
+      "ending": "Sortie en cours…"
+    },
+    "insecure": "Connexion non chiffrée (HTTP) : les mots de passe et les codes circulent en clair sur le réseau de l’école."
   },
   "errors": {
     "validation_failed": "Certains champs sont à corriger.",
     "invalid_credentials": "Courriel ou mot de passe incorrect.",
     "institution_suspended": "Cet établissement est suspendu.",
     "unauthenticated": "Votre session a pris fin. Connectez-vous de nouveau.",
+    "two_factor_required": "L’administration de la plateforme exige l’authentification à deux facteurs. Activez-la ci-dessous, puis rechargez cette page.",
     "csrf_mismatch": "La session a expiré. Rechargez la page, puis réessayez.",
     "too_many_attempts": "Trop de tentatives. Réessayez dans un instant.",
     "expired": "Ce lien a expiré. Demandez-en un nouveau.",
@@ -384,10 +567,46 @@
     "cannot_reset_self": "Pour votre propre compte, utilisez la page « Mon compte ».",
     "too_many_attempts_wait_one": "Trop de tentatives. Réessayez dans 1 minute.",
     "too_many_attempts_wait_many": "Trop de tentatives. Réessayez dans {minutes} minutes.",
-    "election_not_editable": "Cette élection n’est plus un brouillon : elle ne peut plus être modifiée ni supprimée.",
+    "election_not_editable": "Cette élection n’est plus un brouillon : elle ne peut pas être modifiée ni supprimée. Si elle est programmée, annulez d’abord sa programmation.",
     "ballot_limit_reached": "Une élection ne peut pas avoir plus de 50 postes.",
     "party_limit_reached": "Une élection ne peut pas avoir plus de 30 partis.",
-    "candidate_limit_reached": "Un poste ne peut pas avoir plus de 50 candidats."
+    "candidate_limit_reached": "Un poste ne peut pas avoir plus de 50 candidats.",
+    "election_voters_locked": "Les électeurs et les groupes de cette élection ne peuvent plus être modifiés.",
+    "voter_limit_reached": "Une élection ne peut pas avoir plus de 10 000 électeurs.",
+    "group_limit_reached": "Une élection ne peut pas avoir plus de 100 groupes.",
+    "group_in_use": "Ce groupe a encore des électeurs ou sert à un poste. Déplacez les électeurs, changez le poste ou fusionnez le groupe.",
+    "import_in_progress": "Un import est déjà en cours pour cette élection. Attendez qu’il se termine, ou annulez-le.",
+    "import_not_checked": "Ce fichier n’est plus à l’étape de vérification. Rechargez la page.",
+    "nothing_to_import": "Aucune ligne n’est prête à être importée.",
+    "no_error_file": "Il n’y a pas de ligne rejetée à télécharger.",
+    "checklist_blocked": "L’élection n’est pas prête : des points bloquants restent. Rechargez la page.",
+    "checklist_warnings": "Des avertissements restent : lisez-les et confirmez pour planifier quand même.",
+    "election_period_over": "La fin de l’élection est passée : changez les dates avant de planifier.",
+    "election_not_open": "Cette élection n’est pas ouverte : elle ne peut pas être clôturée. Rechargez la page.",
+    "election_not_extendable": "La fin de cette élection ne peut plus être repoussée. Rechargez la page.",
+    "election_started": "Cette élection a déjà commencé : elle ne peut plus revenir à l’état de brouillon. Rechargez la page.",
+    "election_not_scheduled": "Cette élection n’est pas planifiée. Rechargez la page.",
+    "election_codes_locked": "Les codes ne peuvent plus être créés ni remplacés : l’élection est terminée.",
+    "run_in_progress": "Une génération est déjà en cours pour cette élection. Attendez qu’elle se termine.",
+    "nothing_to_generate": "Tous les électeurs concernés ont déjà un code.",
+    "file_not_ready": "Ce fichier n’est pas encore prêt ou a échoué.",
+    "voter_has_voted": "Cet électeur a déjà voté : son code ne peut pas être remplacé.",
+    "email_count_changed": "Le nombre de courriels a changé. Vérifiez les nouveaux nombres, puis confirmez de nouveau.",
+    "nothing_to_email": "Aucun de ces électeurs n’a d’adresse : aucun courriel à envoyer.",
+    "email_not_verified": "Confirmez d’abord votre adresse courriel pour envoyer des codes par courriel. Vous pouvez toujours imprimer les coupons.",
+    "email_quota_exceeded": "La limite de courriels de l’institution pour 24 heures est atteinte ou le serait : envoyez moins de courriels, ou imprimez les coupons.",
+    "results_not_available": "Les résultats ne sont pas disponibles : l’élection n’est pas clôturée.",
+    "second_round_exists": "Un second tour existe déjà pour ce poste.",
+    "ballot_not_tied": "Ce poste n’est pas à égalité : aucun second tour n’est possible.",
+    "results_check_failed": "Publication refusée : le nombre de bulletins ne correspond pas au nombre d’électeurs qui ont voté.",
+    "election_not_closed": "Cette élection n’est plus au stade de la clôture : rechargez la page pour voir son état actuel.",
+    "election_not_published": "Les résultats ne sont plus publiés : rechargez la page pour voir l’état actuel.",
+    "election_not_archivable": "Cette élection ne peut pas être archivée dans son état actuel.",
+    "election_not_archived": "Cette élection n’est pas archivée.",
+    "already_suspended": "Cet établissement est déjà suspendu. Rechargez la page.",
+    "not_suspended": "Cet établissement n’est pas suspendu. Rechargez la page.",
+    "already_impersonating": "Vous agissez déjà en tant que responsable d’un établissement. Quittez-le d’abord.",
+    "not_impersonating": "Vous n’agissez pas en tant que responsable d’un établissement. Rechargez la page."
   },
   "validation": {
     "required": "Ce champ est obligatoire.",
@@ -505,7 +724,10 @@
       "ends_at": {
         "required": "Choisissez la fin du vote.",
         "date": "Cette date et cette heure ne sont pas valables.",
-        "after_start": "La fin du vote doit être après son début."
+        "after_start": "La fin du vote doit être après son début.",
+        "not_after": "La nouvelle fin doit être après la fin actuelle. Pour terminer plus tôt, clôturez l’élection.",
+        "too_far": "La fin ne peut être repoussée que de 30 jours au plus à la fois.",
+        "invalid": "Cette date et cette heure ne sont pas valides."
       },
       "timezone": {
         "required": "Choisissez un fuseau horaire.",
@@ -519,6 +741,12 @@
       },
       "results_display": {
         "in": "Choisissez un affichage dans la liste."
+      }
+    },
+    "closing": {
+      "confirmation": {
+        "required": "Saisissez le titre de l’élection pour confirmer.",
+        "mismatch": "Ce n’est pas le titre de l’élection."
       }
     },
     "cover": {
@@ -540,6 +768,13 @@
         "integer": "Indiquez un nombre entier de sièges.",
         "min": "Il faut au moins 1 siège.",
         "max": "Un poste a 20 sièges au plus."
+      },
+      "groups": {
+        "required": "Choisissez au moins un groupe.",
+        "invalid": "Un des groupes n’existe plus. Rechargez la page."
+      },
+      "scope": {
+        "invalid": "Choisissez qui peut voter pour ce poste."
       }
     },
     "party": {
@@ -594,6 +829,99 @@
         "required": "Choisissez une image.",
         "invalid": "Ce fichier ne peut pas être utilisé."
       }
+    },
+    "voter": {
+      "full_name": {
+        "required": "Saisissez le nom de l’électeur.",
+        "max": "Le nom doit avoir 150 caractères au plus."
+      },
+      "group": {
+        "max": "Le nom du groupe doit avoir 100 caractères au plus.",
+        "unknown": "Ce groupe n’existe pas. Pendant le vote, choisissez un groupe existant.",
+        "voted": "Cet électeur a déjà voté : son groupe ne peut plus changer."
+      },
+      "identifier": {
+        "max": "L’identifiant doit avoir 50 caractères au plus.",
+        "unique": "Un électeur de cette élection a déjà cet identifiant."
+      },
+      "email": {
+        "email": "Saisissez une adresse courriel valide.",
+        "max": "Cette adresse est trop longue (255 caractères au plus).",
+        "unique": "Un électeur de cette élection a déjà cette adresse."
+      },
+      "phone": {
+        "max": "Le téléphone doit avoir 30 caractères au plus.",
+        "invalid": "Utilisez seulement des chiffres, des espaces et les signes + ( ) . -"
+      }
+    },
+    "group": {
+      "name": {
+        "required": "Donnez un nom au groupe.",
+        "max": "Le nom doit avoir 100 caractères au plus.",
+        "unique": "Un groupe de cette élection porte déjà ce nom."
+      },
+      "into": {
+        "required": "Choisissez le groupe qui reçoit les électeurs.",
+        "uuid": "Choisissez un groupe dans la liste.",
+        "same": "Choisissez un autre groupe que celui-ci.",
+        "invalid": "Ce groupe n’existe plus. Rechargez la page."
+      }
+    },
+    "copy": {
+      "source": {
+        "required": "Choisissez l’élection d’origine.",
+        "uuid": "Choisissez une élection dans la liste.",
+        "same": "Choisissez une autre élection que celle-ci.",
+        "invalid": "Cette élection n’existe plus. Rechargez la page."
+      },
+      "groups": {
+        "invalid": "Un des groupes choisis n’existe plus. Choisissez de nouveau l’élection."
+      },
+      "rename": {
+        "invalid": "Un nouveau nom est vide, trop long (100 caractères au plus) ou ne correspond pas à un groupe chargé."
+      }
+    },
+    "platform": {
+      "suspend": {
+        "reason": {
+          "required": "Indiquez le motif de la suspension.",
+          "min": "Le motif doit avoir au moins 3 caractères.",
+          "max": "Le motif est trop long (500 caractères au plus)."
+        }
+      }
+    },
+    "createMember": {
+      "name": {
+        "required": "Saisissez le nom de la personne.",
+        "max": "Ce nom est trop long (100 caractères au plus)."
+      },
+      "email": {
+        "required": "Saisissez une adresse de connexion.",
+        "email": "Saisissez une adresse valide.",
+        "max": "Cette adresse est trop longue (255 caractères au plus).",
+        "taken": "Cette adresse a déjà un compte."
+      },
+      "role": {
+        "required": "Choisissez un rôle.",
+        "in": "Choisissez un rôle dans la liste."
+      },
+      "password": {
+        "required": "Saisissez votre mot de passe.",
+        "incorrect": "Ce n’est pas votre mot de passe."
+      }
+    },
+    "changePassword": {
+      "current_password": {
+        "required": "Saisissez votre mot de passe actuel.",
+        "incorrect": "Ce n’est pas votre mot de passe actuel."
+      },
+      "password": {
+        "required": "Saisissez un nouveau mot de passe.",
+        "min": "Le nouveau mot de passe doit avoir au moins 12 caractères.",
+        "max": "Le nouveau mot de passe est trop long.",
+        "same_as_email": "Le mot de passe ne peut pas être votre adresse.",
+        "unchanged": "Choisissez un mot de passe différent de l’actuel."
+      }
     }
   },
   "institution": {
@@ -636,7 +964,7 @@
       "label": "Adresse publique de l’établissement",
       "copy": "Copier l’adresse",
       "copied": "Adresse copiée.",
-      "soon": "Cette page sera disponible bientôt."
+      "open": "Ouvrir la page publique"
     },
     "users": {
       "title": "Utilisateurs",
@@ -685,7 +1013,35 @@
       "resetCode": "Votre code à 6 chiffres",
       "resetCodeHelp": "Votre propre code de l’application d’authentification, pour confirmer.",
       "resetRecoveryCode": "Votre code de récupération",
-      "resetRecoveryHelp": "Un de vos propres codes de récupération. Chaque code ne sert qu’une fois."
+      "resetRecoveryHelp": "Un de vos propres codes de récupération. Chaque code ne sert qu’une fois.",
+      "create": {
+        "open": "Créer un membre",
+        "title": "Créer un membre de l’équipe",
+        "name": "Nom complet",
+        "email": "Adresse de connexion",
+        "emailHelp": "Aucun courriel n’est envoyé. Toute adresse convient, par exemple prenom@ecole.local.",
+        "role": "Rôle",
+        "password": "Votre mot de passe",
+        "passwordHelp": "Votre propre mot de passe, pour confirmer.",
+        "code": "Votre code à deux facteurs",
+        "recovery": "Un de vos codes de secours",
+        "submit": "Créer le compte",
+        "cancel": "Annuler"
+      },
+      "issued": {
+        "title": "Mot de passe à remettre à {name}",
+        "text": "Ce mot de passe n’est affiché qu’une seule fois. La personne devra le changer à sa première connexion.",
+        "copy": "Copier",
+        "copied": "Copié",
+        "dismiss": "J’ai noté le mot de passe"
+      },
+      "passwordReset": {
+        "action": "Nouveau mot de passe",
+        "label": "Donner un nouveau mot de passe à {name}",
+        "title": "Nouveau mot de passe pour {name}",
+        "text": "Un nouveau mot de passe à usage unique remplace l’actuel et ferme les sessions de cette personne. Confirmez avec votre propre mot de passe.",
+        "confirm": "Créer le mot de passe"
+      }
     }
   },
   "account": {
@@ -749,6 +1105,22 @@
       "recoveryHelp": "Un de vos codes de récupération. Chaque code ne sert qu’une fois.",
       "useRecovery": "Utiliser un code de récupération",
       "useCode": "Utiliser le code de l’application"
+    },
+    "changePassword": {
+      "title": "Mot de passe",
+      "text": "Changez le mot de passe de votre connexion. Vos autres sessions se ferment.",
+      "current": "Mot de passe actuel",
+      "new": "Nouveau mot de passe",
+      "newHelp": "Au moins 12 caractères.",
+      "submit": "Changer le mot de passe",
+      "done": "Votre mot de passe est changé.",
+      "code": "Code à deux facteurs",
+      "recovery": "Code de secours"
+    },
+    "passwordRequired": {
+      "kicker": "Première connexion",
+      "title": "Choisissez votre mot de passe",
+      "text": "Le mot de passe qu’on vous a remis est à usage unique. Choisissez le vôtre pour continuer."
     }
   },
   "elections": {
@@ -896,17 +1268,50 @@
       },
       "codes": {
         "title": "Codes d’accès",
-        "text": "coupons, courriel ou fichier"
+        "text": "coupons imprimés par groupe"
       },
       "footer": "Tout reste modifiable tant que l’élection est un brouillon.",
-      "separator": " : "
+      "separator": " : ",
+      "done": "Fait"
+    },
+    "open": {
+      "title": "Vote en cours",
+      "left": "Temps restant",
+      "days": "jours",
+      "hours": "heures",
+      "minutes": "minutes",
+      "seconds": "secondes",
+      "countdown": "Il reste {days} j {hours} h {minutes} min {seconds} s",
+      "over": "La fin est atteinte : l’élection se clôture dans la minute.",
+      "ends": "Fin du vote",
+      "extend": "Repousser la fin",
+      "close": "Clôturer maintenant"
+    },
+    "close": {
+      "title": "Clôturer l’élection maintenant ?",
+      "closeLabel": "Fermer cette fenêtre",
+      "warning": "Cette action est définitive. Plus personne ne pourra voter et l’élection ne pourra pas être rouverte.",
+      "text": "Pour confirmer, saisissez le titre de l’élection : {title}",
+      "label": "Titre de l’élection",
+      "cancel": "Annuler",
+      "confirm": "Clôturer l’élection",
+      "note": "Cette élection est clôturée. Le vote est terminé et ne peut pas être rouvert."
+    },
+    "extend": {
+      "title": "Repousser la fin",
+      "closeLabel": "Fermer cette fenêtre",
+      "text": "Choisissez une fin plus tardive. Les électeurs en train de voter ne sont pas interrompus. La fin peut être repoussée de 30 jours au plus.",
+      "label": "Nouvelle fin",
+      "help": "Heure en {zone}",
+      "cancel": "Annuler",
+      "confirm": "Repousser"
     },
     "summary": {
       "dates": "Dates",
       "timezone": "Fuseau horaire",
       "language": "Langue du vote",
       "order": "Ordre des candidats",
-      "results": "Page publique des résultats",
+      "results": "Voir les résultats",
       "ballots": "Postes et électeurs",
       "edit": "Modifier",
       "duplicate": "Dupliquer",
@@ -925,9 +1330,9 @@
       "facts": {
         "positions": "Postes",
         "voters": "Électeurs",
-        "ballots": "Bulletins"
+        "ballots": "Ont voté"
       },
-      "factsSoon": "Disponible avec les prochaines étapes"
+      "turnout": "Voir la participation"
     },
     "rail": {
       "label": "Calendrier et tâches",
@@ -978,6 +1383,56 @@
       "zone": "Fuseau horaire : {zone}",
       "cancel": "Annuler",
       "apply": "Valider les dates"
+    },
+    "checklist": {
+      "title": "Avant de planifier",
+      "loading": "Vérification en cours…",
+      "failed": "La liste de vérification n’a pas pu être chargée.",
+      "retry": "Réessayer",
+      "ok": "Tout est prêt : vous pouvez planifier l’élection.",
+      "blockers": "À corriger avant de planifier",
+      "warnings": "À regarder",
+      "blockersCount": {
+        "one": "{count} point bloquant",
+        "other": "{count} points bloquants"
+      },
+      "warningsCount": {
+        "one": "{count} avertissement",
+        "other": "{count} avertissements"
+      },
+      "items": {
+        "no_ballots": "L’élection n’a aucun poste.",
+        "ballot_without_candidates": "Le poste « {title} » n’a aucun candidat.",
+        "no_voters": "L’élection n’a aucun électeur.",
+        "ballot_single_candidate": "Le poste « {title} » n’a qu’un seul candidat.",
+        "group_ballot_no_voters": "Le poste « {title} » ne couvre aucun électeur.",
+        "group_ballot_few_voters": "Le poste « {title} » ne couvre que {voters}.",
+        "voters_without_ballot": {
+          "one": "{count} électeur ne peut voter à aucun poste.",
+          "other": "{count} électeurs ne peuvent voter à aucun poste."
+        },
+        "unknown": "Un point reste à vérifier."
+      },
+      "schedule": {
+        "button": "Planifier l’élection",
+        "title": "Planifier cette élection ?",
+        "text": "Les postes, les candidats et les partis seront verrouillés. Les électeurs et les groupes restent modifiables, et vous pourrez revenir au brouillon.",
+        "warnings": "Des avertissements restent :",
+        "accept": "Je comprends ces avertissements et je veux planifier quand même.",
+        "confirm": "Planifier",
+        "cancel": "Annuler"
+      },
+      "unschedule": {
+        "button": "Revenir au brouillon",
+        "title": "Revenir au brouillon ?",
+        "text": "L’élection ne sera plus planifiée et ses postes pourront de nouveau être modifiés. Les électeurs et les groupes ne changent pas.",
+        "confirm": "Revenir au brouillon",
+        "cancel": "Annuler"
+      },
+      "voters": {
+        "one": "{count} électeur",
+        "other": "{count} électeurs"
+      }
     }
   },
   "ballots": {
@@ -1015,7 +1470,10 @@
       "addCandidate": "Ajouter un candidat",
       "addCandidateTo": "Ajouter un candidat au poste {title}",
       "candidatesLabel": "Candidats du poste {title}",
-      "oneCandidate": "Un seul candidat : ajoutez-en un autre pour que les électeurs aient un choix."
+      "oneCandidate": "Un seul candidat : ajoutez-en un autre pour que les électeurs aient un choix.",
+      "groups": "Groupes : {names}",
+      "noVoters": "Aucun électeur ne peut encore voter pour ce poste : ses groupes n’ont pas d’électeur.",
+      "fewVoters": "Peu d’électeurs pour ce poste : {voters} (moins de {limit})."
     },
     "form": {
       "titleNew": "Nouveau poste",
@@ -1028,7 +1486,15 @@
       "save": "Enregistrer",
       "add": "Ajouter le poste",
       "cancel": "Annuler",
-      "error": "Le poste n’a pas pu être enregistré."
+      "error": "Le poste n’a pas pu être enregistré.",
+      "scope": "Qui peut voter pour ce poste",
+      "scopeGeneral": "Tous les électeurs de l’élection",
+      "scopeGroup": "Seulement certains groupes",
+      "groups": "Groupes d’électeurs",
+      "groupsHelp": "Choisissez les groupes dont les électeurs votent pour ce poste.",
+      "groupsLoading": "Chargement des groupes…",
+      "groupsFailed": "Les groupes n’ont pas pu être chargés. Fermez le formulaire et réessayez.",
+      "groupsNone": "Cette élection n’a pas encore de groupe. Créez d’abord des groupes sur la page des électeurs."
     },
     "delete": {
       "title": "Supprimer ce poste ?",
@@ -1039,6 +1505,7 @@
     "notEditable": "Cette élection ne peut plus être modifiée.",
     "locked": "Cette élection n’est plus un brouillon : ses postes ne peuvent plus être modifiés.",
     "reorderFailed": "L’ordre n’a pas pu être enregistré : l’ancien ordre est rétabli.",
+    "listChanged": "La liste des scrutins a changé ailleurs : elle a été rechargée, vérifiez l’ordre.",
     "actionFailed": "L’action n’a pas pu être faite.",
     "rail": {
       "label": "Partis et points à vérifier"
@@ -1051,6 +1518,10 @@
       "one": "{title} : un seul candidat",
       "add": "Ajouter un candidat",
       "addTo": "Ajouter un candidat au poste {title}"
+    },
+    "scope": {
+      "general": "Tous les électeurs : {voters}",
+      "group": "Groupes choisis seulement : {voters}"
     }
   },
   "parties": {
@@ -1131,6 +1602,7 @@
       "moved": "{name} : rang {position} sur {total}."
     },
     "reorderFailed": "L’ordre des candidats n’a pas pu être enregistré : l’ancien ordre est rétabli.",
+    "listChanged": "Les candidats de ce scrutin ont changé ailleurs : ils ont été rechargés, vérifiez l’ordre.",
     "form": {
       "titleNew": "Ajouter un candidat",
       "titleEdit": "Modifier le candidat",
@@ -1181,5 +1653,1369 @@
       "confirm": "Supprimer",
       "cancel": "Annuler"
     }
+  },
+  "voters": {
+    "back": "Retour à l’élection",
+    "title": "Électeurs",
+    "badgeDraft": "Brouillon · modifiable jusqu’à la planification",
+    "count": {
+      "one": "{count} électeur",
+      "other": "{count} électeurs"
+    },
+    "ungrouped": "{count} sans groupe",
+    "range": {
+      "one": "{from} sur {total} électeur",
+      "other": "{from} à {to} sur {total} électeurs"
+    },
+    "add": "Ajouter un électeur",
+    "zone": {
+      "label": "Liste des électeurs",
+      "title": "Électeurs"
+    },
+    "search": "Chercher un nom, un identifiant, un courriel…",
+    "filter": {
+      "label": "Filtrer par groupe",
+      "all": "Tous",
+      "none": "Sans groupe",
+      "credential": {
+        "label": "Code d’accès",
+        "all": "Tous les électeurs",
+        "issued": "Avec un code",
+        "none": "Sans code"
+      },
+      "emailStatus": {
+        "label": "Courriel du code",
+        "all": "Tous les états",
+        "queued": "En attente d’envoi",
+        "sent": "Envoyé",
+        "failed": "Échec d’envoi",
+        "none": "Aucun envoi"
+      },
+      "voted": {
+        "label": "Participation",
+        "all": "Tous les électeurs",
+        "yes": "Ont voté",
+        "no": "N’ont pas voté"
+      }
+    },
+    "card": {
+      "noGroup": "Sans groupe",
+      "edit": "Modifier l’électeur {name}",
+      "delete": "Supprimer l’électeur {name}",
+      "email": "Courriel : {value}",
+      "phone": "Téléphone : {value}",
+      "hasCode": "Code d’accès créé",
+      "emailStatus": {
+        "queued": "Courriel en attente d’envoi",
+        "sent": "Courriel envoyé",
+        "failed": "Échec d’envoi du courriel"
+      },
+      "voted": "A voté",
+      "notVoted": "N’a pas voté"
+    },
+    "empty": {
+      "title": "Aucun électeur pour l’instant",
+      "text": "Ajoutez les électeurs un à un. Vous pourrez les ranger par groupe : une classe, un niveau, un bureau.",
+      "locked": "Aucun électeur n’a été ajouté à cette élection."
+    },
+    "noMatch": {
+      "text": "Aucun électeur ne correspond à cette recherche.",
+      "reset": "Tout afficher"
+    },
+    "pager": {
+      "label": "Pages de la liste",
+      "prev": "Page précédente",
+      "next": "Page suivante",
+      "page": "Page {page}"
+    },
+    "locked": "Les électeurs et les groupes de cette élection ne peuvent plus être modifiés.",
+    "loadFailed": "La liste n’a pas pu être lue. Réessayez dans un instant.",
+    "form": {
+      "titleNew": "Ajouter un électeur",
+      "titleEdit": "Modifier l’électeur",
+      "name": "Nom complet",
+      "nameHelp": "Prénom et nom, tels qu’ils seront imprimés sur le bulletin de code.",
+      "group": "Groupe",
+      "groupHelp": "Choisissez un groupe ou écrivez-en un nouveau.",
+      "groupHelpOpen": "Choisissez un groupe existant : pendant le vote, on ne crée pas de nouveau groupe.",
+      "groupHelpVoted": "Cet électeur a déjà voté : son groupe ne peut plus changer.",
+      "identifier": "Identifiant",
+      "identifierHelp": "Numéro d’élève, unique dans l’élection.",
+      "email": "Courriel",
+      "emailHelp": "Pour envoyer le code. Facultatif.",
+      "phone": "Téléphone",
+      "phoneHelp": "Facultatif.",
+      "privacy": "Aucune date de naissance n’est demandée : beaucoup d’électeurs sont mineurs.",
+      "save": "Enregistrer",
+      "saveAnother": "Enregistrer et ajouter un autre",
+      "cancel": "Annuler",
+      "close": "Fermer",
+      "added": "L’électeur « {name} » est ajouté. Saisissez le suivant.",
+      "error": "L’électeur n’a pas pu être enregistré."
+    },
+    "delete": {
+      "title": "Supprimer cet électeur ?",
+      "text": "L’électeur « {name} » sera supprimé de l’élection. Son groupe est conservé.",
+      "confirm": "Supprimer",
+      "cancel": "Annuler"
+    },
+    "copy": {
+      "open": "Charger depuis une élection",
+      "title": "Charger des électeurs",
+      "text": "Copie les électeurs d’une autre élection de l’établissement, avec leurs groupes. Les codes ne sont pas copiés.",
+      "source": "Élection d’origine",
+      "choose": "Choisir une élection",
+      "sourcesLoading": "Lecture des élections…",
+      "sourcesNone": "L’établissement n’a pas d’autre élection.",
+      "sourcesFailed": "Les élections n’ont pas pu être lues. Fermez et réessayez dans un instant.",
+      "groupsLoading": "Lecture des groupes…",
+      "groupsFailed": "Les groupes de cette élection n’ont pas pu être lus. Choisissez-la de nouveau.",
+      "scope": "Électeurs à charger",
+      "all": "Tous les électeurs, avec ceux sans groupe",
+      "some": "Seulement certains groupes",
+      "noGroups": "Cette élection n’a aucun groupe.",
+      "ungrouped": "Électeurs sans groupe",
+      "rename": "Nouveau nom pour « {name} »",
+      "renameHelp": "Laissez vide pour garder le nom.",
+      "submit": {
+        "one": "Charger {count} électeur",
+        "other": "Charger {count} électeurs"
+      },
+      "submitPlain": "Charger les électeurs",
+      "cancel": "Annuler",
+      "close": "Fermer",
+      "error": "Les électeurs n’ont pas pu être chargés.",
+      "resultTitle": "Les électeurs sont chargés.",
+      "copied": {
+        "one": "{count} électeur chargé",
+        "other": "{count} électeurs chargés"
+      },
+      "skipped": {
+        "one": "{count} électeur ignoré (identifiant ou courriel déjà présent)",
+        "other": "{count} électeurs ignorés (identifiant ou courriel déjà présent)"
+      },
+      "created": {
+        "one": "{count} groupe créé",
+        "other": "{count} groupes créés"
+      }
+    },
+    "rail": {
+      "label": "Groupes et codes"
+    },
+    "codes": {
+      "title": "Codes d’accès",
+      "text": "Créez les codes et téléchargez les coupons de chaque groupe, ou remplacez un coupon perdu.",
+      "open": "Ouvrir les codes"
+    },
+    "import": "Importer un fichier"
+  },
+  "groups": {
+    "title": "Groupes",
+    "new": "Nouveau groupe",
+    "count": {
+      "one": "{count} groupe",
+      "other": "{count} groupes"
+    },
+    "empty": "Aucun groupe pour l’instant : un groupe se crée ici, ou en écrivant son nom dans la fiche d’un électeur.",
+    "note": "Un groupe ne peut être supprimé que s’il n’a aucun électeur et qu’aucun poste ne l’utilise.",
+    "row": {
+      "filter": "Voir les électeurs du groupe {name}",
+      "rename": "Renommer le groupe {name}",
+      "merge": "Fusionner le groupe {name}",
+      "delete": "Supprimer le groupe {name}",
+      "ballots": "Utilisé par {ballots}"
+    },
+    "form": {
+      "titleNew": "Nouveau groupe",
+      "titleEdit": "Renommer le groupe",
+      "name": "Nom du groupe",
+      "save": "Enregistrer",
+      "add": "Ajouter le groupe",
+      "cancel": "Annuler",
+      "close": "Fermer",
+      "error": "Le groupe n’a pas pu être enregistré."
+    },
+    "merge": {
+      "title": "Fusionner ce groupe",
+      "text": "Les électeurs du groupe « {name} » passent dans le groupe choisi, puis « {name} » est supprimé.",
+      "into": "Groupe qui reçoit les électeurs",
+      "choose": "Choisir un groupe",
+      "missing": "Choisissez le groupe qui reçoit les électeurs.",
+      "confirm": "Fusionner",
+      "cancel": "Annuler",
+      "ballots": "Ces postes couvrent ce groupe et couvriront le groupe qui reçoit les électeurs : {titles}."
+    },
+    "delete": {
+      "title": "Supprimer ce groupe ?",
+      "text": "Le groupe « {name} » sera supprimé. Il n’a aucun électeur.",
+      "confirm": "Supprimer",
+      "cancel": "Annuler"
+    }
+  },
+  "voterImport": {
+    "back": "Retour aux électeurs",
+    "title": "Importer des électeurs",
+    "text": "Ajoutez beaucoup d’électeurs d’un coup à partir d’un fichier Excel ou CSV.",
+    "badgeDraft": "Brouillon · électeurs",
+    "chips": {
+      "rows": "10 000 lignes au plus",
+      "formats": ".xlsx ou .csv",
+      "nothing": "Rien d’importé avant confirmation"
+    },
+    "steps": {
+      "label": "Étapes",
+      "template": "Modèle",
+      "file": "Fichier",
+      "check": "Vérifier",
+      "done": "Terminé"
+    },
+    "template": {
+      "title": "Le modèle",
+      "zone": "Le modèle",
+      "text": "Voici exactement ce que contient le fichier à télécharger. Remplissez une ligne par électeur.",
+      "xlsx": "Télécharger (Excel)",
+      "csv": "CSV",
+      "previewLabel": "Aperçu du modèle",
+      "required": "obligatoire",
+      "instructionsTitle": "Les colonnes",
+      "english": "Les noms de colonnes en anglais (full_name, group, email…) sont acceptés aussi. Aucune date de naissance n’est demandée.",
+      "columns": {
+        "nom_complet": {
+          "label": "Nom complet",
+          "help": "Nom et prénom de l’électeur ou de l’électrice. Obligatoire."
+        },
+        "groupe": {
+          "label": "Groupe",
+          "help": "Par exemple 4e année, Terminale A. Créé s’il n’existe pas."
+        },
+        "identifiant": {
+          "label": "Identifiant",
+          "help": "Numéro d’élève ou matricule donné par l’établissement."
+        },
+        "courriel": {
+          "label": "Courriel",
+          "help": "Pour l’envoi du code. Facultatif."
+        },
+        "telephone": {
+          "label": "Téléphone",
+          "help": "Par exemple +509 3712 4455. Facultatif."
+        }
+      }
+    },
+    "file": {
+      "title": "Votre fichier",
+      "zone": "Votre fichier",
+      "text": "Excel (.xlsx) ou CSV, n’importe quel nom. Séparateur « , » ou « ; » reconnu automatiquement.",
+      "drop": "Glissez le fichier ici, ou cliquez pour le choisir",
+      "limits": ".xlsx ou .csv · 5 Mo au plus · jusqu’à 10 000 lignes",
+      "chosen": "Fichier choisi",
+      "change": "Cliquez pour en choisir un autre",
+      "upload": "Envoyer et vérifier",
+      "uploading": "Envoi en cours…",
+      "hint": "Ce fichier n’a pas la terminaison .xlsx ou .csv : il sera vérifié quand même."
+    },
+    "locked": "Les électeurs ne peuvent plus être importés : l’élection n’est plus un brouillon ni planifiée.",
+    "rail": {
+      "label": "À savoir",
+      "title": "Bon à savoir",
+      "nothing": {
+        "title": "Rien n’est importé tout de suite",
+        "text": "Vous vérifiez les lignes à l’étape suivante, puis vous confirmez."
+      },
+      "errors": {
+        "title": "Les lignes en erreur",
+        "text": "Elles sont mises de côté et vous les téléchargez dans un fichier à corriger."
+      },
+      "duplicates": {
+        "title": "Les doublons",
+        "text": "Même identifiant ou même courriel, dans le fichier ou déjà dans l’élection : signalés. Deux personnes de même nom restent permises."
+      },
+      "groups": {
+        "title": "Les groupes",
+        "text": "Créés d’après la colonne « groupe » ; « 4e année » et « 4E ANNÉE » sont le même groupe."
+      },
+      "lockedTitle": "Élection verrouillée ?",
+      "lockedText": "Les électeurs ne peuvent être importés que tant que l’élection est en brouillon ou planifiée."
+    },
+    "error": {
+      "file": {
+        "required": "Choisissez un fichier avant de l’envoyer.",
+        "invalid_type": "Ce fichier n’est ni un classeur Excel (.xlsx) ni un fichier texte CSV. Utilisez le modèle.",
+        "empty": "Ce fichier est vide.",
+        "too_large": "Ce fichier est trop gros : 5 Mo au plus."
+      }
+    },
+    "check": {
+      "title": "Vérifier le fichier",
+      "text": "Rien n’est encore importé. Contrôlez, puis confirmez.",
+      "badge": "Brouillon · électeurs",
+      "chips": {
+        "rows": {
+          "one": "{count} ligne",
+          "other": "{count} lignes"
+        },
+        "ready": {
+          "one": "{count} prête",
+          "other": "{count} prêtes"
+        },
+        "toFix": {
+          "one": "{count} à corriger",
+          "other": "{count} à corriger"
+        }
+      },
+      "checking": {
+        "title": "Vérification du fichier…",
+        "text": "Nous lisons chaque ligne. Cela prend quelques secondes, même pour un grand fichier."
+      },
+      "failed": {
+        "title": "Ce fichier ne peut pas être utilisé",
+        "retry": "Choisir un autre fichier"
+      },
+      "failure": {
+        "no_header": "Le fichier n’a pas de ligne d’en-tête : la première ligne doit nommer les colonnes. Utilisez le modèle.",
+        "no_full_name_column": "Aucune colonne ne contient le nom complet. Ajoutez une colonne « nom_complet » ou utilisez le modèle.",
+        "too_many_rows": "Ce fichier a plus de 10 000 lignes. Coupez-le en plusieurs fichiers.",
+        "unreadable": "Ce fichier n’a pas pu être lu. Utilisez le modèle, en Excel (.xlsx) ou en CSV.",
+        "import_failed": "L’import s’est arrêté en route. Les électeurs déjà écrits sont conservés ; vérifiez la liste, puis importez le reste.",
+        "unknown": "Ce fichier n’a pas pu être traité. Réessayez avec le modèle."
+      },
+      "summary": {
+        "zone": "Résumé",
+        "title": "Résumé du fichier",
+        "file": "{name} · {rows}",
+        "total": "lignes lues",
+        "valid": "prêtes à importer",
+        "invalid": "en erreur",
+        "duplicates": "doublons",
+        "groupsTitle": "Groupes qui seront créés",
+        "groups": {
+          "one": "{count} nouveau groupe sera créé :",
+          "other": "{count} nouveaux groupes seront créés :"
+        },
+        "noGroups": "Aucun nouveau groupe ne sera créé."
+      },
+      "mapping": {
+        "zone": "Colonnes",
+        "title": "Colonnes",
+        "text": "Nous avons reconnu les colonnes. Corrigez si besoin ; l’aperçu se met à jour.",
+        "field": {
+          "full_name": "Nom complet",
+          "group": "Groupe",
+          "identifier": "Identifiant",
+          "email": "Courriel",
+          "phone": "Téléphone"
+        },
+        "skip": "Ne pas importer",
+        "column": "Colonne {n}",
+        "required": "obligatoire",
+        "invalid": "Cette combinaison de colonnes n’est pas possible : le nom complet est obligatoire et une colonne ne sert qu’à un champ."
+      },
+      "preview": {
+        "zone": "Aperçu",
+        "title": "Aperçu ligne par ligne",
+        "onlyErrors": "Voir seulement les erreurs ({count})",
+        "errorFile": "Fichier des erreurs",
+        "line": "Ligne",
+        "state": "État",
+        "empty": "(vide)",
+        "none": "Aucune ligne à afficher.",
+        "loading": "Chargement des lignes…",
+        "loadFailed": "Les lignes n’ont pas pu être lues. Réessayez dans un instant.",
+        "scroll": "Aperçu des lignes du fichier",
+        "range": {
+          "one": "{from} sur {total} ligne",
+          "other": "{from} à {to} sur {total} lignes"
+        },
+        "pager": "Pages de l’aperçu",
+        "prev": "Page précédente",
+        "next": "Page suivante",
+        "page": "Page {page} sur {pages}"
+      },
+      "status": {
+        "ok": "Prêt",
+        "duplicate": "Doublon"
+      },
+      "reason": {
+        "full_name_required": "Nom manquant",
+        "full_name_max": "Nom trop long",
+        "group_max": "Groupe trop long",
+        "identifier_max": "Identifiant trop long",
+        "email_invalid": "Courriel invalide",
+        "email_max": "Courriel trop long",
+        "phone_invalid": "Téléphone invalide",
+        "phone_max": "Téléphone trop long",
+        "group_limit_reached": "Trop de groupes (100 au plus)",
+        "duplicate_identifier_in_file": "Doublon : identifiant déjà dans le fichier",
+        "duplicate_email_in_file": "Doublon : courriel déjà dans le fichier",
+        "identifier_exists": "Identifiant déjà dans l’élection",
+        "email_exists": "Courriel déjà dans l’élection",
+        "unknown": "Ligne à corriger"
+      },
+      "confirm": {
+        "zone": "Confirmer",
+        "ready": {
+          "one": "{count} électeur sera importé.",
+          "other": "{count} électeurs seront importés."
+        },
+        "rest": {
+          "one": "L’autre ligne ne sera pas importée ; vous pouvez la corriger dans le fichier des erreurs.",
+          "other": "Les {count} autres lignes ne seront pas importées ; vous pouvez les corriger dans le fichier des erreurs."
+        },
+        "nothing": "Aucune ligne n’est prête à être importée. Corrigez le fichier ou les colonnes.",
+        "cancel": "Annuler l’import",
+        "cancelling": "Annulation…",
+        "go": {
+          "one": "Importer {count} électeur",
+          "other": "Importer {count} électeurs"
+        },
+        "going": "Lancement…"
+      },
+      "progress": {
+        "title": "Import en cours",
+        "text": "Les électeurs sont écrits en arrière-plan. Vous pouvez quitter la page : l’import continue.",
+        "label": "Progression de l’import",
+        "counts": "{done} sur {total}"
+      },
+      "done": {
+        "title": "Import terminé",
+        "text": "Les électeurs sont dans l’élection, rangés dans leurs groupes.",
+        "count": {
+          "one": "{count} électeur importé",
+          "other": "{count} électeurs importés"
+        },
+        "errors": {
+          "one": "{count} ligne rejetée",
+          "other": "{count} lignes rejetées"
+        },
+        "noErrors": "Aucune ligne rejetée",
+        "errorFile": "Télécharger les lignes rejetées",
+        "voters": "Voir les électeurs"
+      },
+      "gone": "Cet import n’existe plus.",
+      "rail": {
+        "label": "Après l’import",
+        "title": "Ensuite",
+        "background": {
+          "title": "L’import tourne en arrière-plan",
+          "text": "Une barre de progression montre où il en est ; vous pouvez quitter la page."
+        },
+        "codes": {
+          "title": "Les codes viennent après",
+          "text": "Aucun code n’est créé par l’import. Vous les générez à l’étape « Codes »."
+        }
+      }
+    }
+  },
+  "codes": {
+    "back": "Retour à l’élection",
+    "title": "Codes d’accès",
+    "badgeDraft": "Brouillon · codes d’accès",
+    "zone": {
+      "label": "État des codes",
+      "groups": "Par groupe"
+    },
+    "totals": {
+      "label": "Totaux",
+      "voters": "Électeurs",
+      "withCode": "Avec un code",
+      "withoutCode": "Sans code",
+      "progress": "{count} codes créés sur {total}",
+      "emailSent": "Courriels envoyés",
+      "emailFailed": "Courriels en échec",
+      "emailQueued": {
+        "one": "{count} courriel en attente d’envoi",
+        "other": "{count} courriels en attente d’envoi"
+      }
+    },
+    "generateAll": "Générer tous les codes manquants",
+    "generateAllCount": {
+      "one": "Générer le coupon manquant",
+      "other": "Générer les {count} coupons manquants"
+    },
+    "lost": {
+      "open": "Coupon perdu : nouveau code",
+      "title": "Coupon perdu",
+      "text": "Cherchez l’électeur par son nom. Un nouveau code est créé et affiché une seule fois ; l’ancien coupon, s’il existe, cesse de fonctionner.",
+      "search": "Nom de l’électeur",
+      "searching": "Recherche…",
+      "typeName": "Tapez au moins une lettre du nom.",
+      "noMatch": "Aucun électeur ne correspond.",
+      "more": "Seuls les premiers résultats sont montrés : précisez le nom.",
+      "failed": "La recherche a échoué. Réessayez.",
+      "results": "Électeurs trouvés",
+      "noGroup": "Sans groupe",
+      "chosen": "Électeur choisi : {name}",
+      "confirm": "Créer un nouveau code",
+      "cancel": "Annuler",
+      "resultTitle": "Nouveau code de {name}",
+      "codeLabel": "Code d’accès",
+      "once": "Ce code n’est affiché qu’une seule fois. Imprimez ou téléchargez le coupon avant de fermer.",
+      "replaced": "L’ancien coupon de cet électeur ne fonctionne plus.",
+      "first": "C’est le premier code de cet électeur.",
+      "download": "Télécharger le coupon (PDF)",
+      "downloadFailed": "Le coupon n’a pas pu être téléchargé.",
+      "close": "Fermer et effacer le code",
+      "closeLabel": "Fermer",
+      "email": "Envoyer aussi par courriel",
+      "emailQueued": "Le nouveau code a été mis en file d’envoi par courriel."
+    },
+    "locked": "Les codes ne peuvent plus être créés ni remplacés : l’élection est terminée. Les fichiers de coupons sont supprimés à la clôture.",
+    "run": {
+      "status": "Génération en cours. Les fichiers apparaissent dès qu’ils sont prêts ; vous pouvez rester sur cette page.",
+      "result": {
+        "done": {
+          "one": "{count} électeur a reçu son code.",
+          "other": "{count} électeurs ont reçu leur code."
+        },
+        "failed": {
+          "one": "{count} fichier a échoué : ses électeurs n’ont pas de code. Relancez la génération pour ce groupe.",
+          "other": "{count} fichiers ont échoué : leurs électeurs n’ont pas de code. Relancez la génération pour ces groupes."
+        },
+        "codeFileFailed": "Le fichier de distribution n’a pas pu être écrit. Les codes sont créés et les coupons imprimables sont prêts : relancez le fichier avec un nouvel envoi."
+      },
+      "failed": "La génération n’a pas pu démarrer.",
+      "emails": {
+        "one": "{count} courriel mis en file d’envoi.",
+        "other": "{count} courriels mis en file d’envoi."
+      }
+    },
+    "group": {
+      "noGroup": "Sans groupe",
+      "voters": {
+        "one": "{count} électeur",
+        "other": "{count} électeurs"
+      },
+      "withCode": "avec un code sur {total}",
+      "state": {
+        "none": "Sans code",
+        "partial": "Incomplet",
+        "done": "Prêt",
+        "empty": "Aucun électeur"
+      },
+      "generate": {
+        "one": "Générer {count} coupon",
+        "other": "Générer {count} coupons"
+      },
+      "complete": "Tous les codes sont créés",
+      "download": "Télécharger le PDF",
+      "part": "Partie {part} sur {parts}",
+      "fileOf": {
+        "one": "{count} coupon · {date}",
+        "other": "{count} coupons · {date}"
+      },
+      "downloadFailed": "Le fichier n’a pas pu être téléchargé.",
+      "emailSent": {
+        "one": "{count} envoyé",
+        "other": "{count} envoyés"
+      },
+      "emailQueued": {
+        "one": "{count} en attente",
+        "other": "{count} en attente"
+      },
+      "emailFailed": {
+        "one": "{count} en échec",
+        "other": "{count} en échec"
+      }
+    },
+    "empty": {
+      "title": "Aucun électeur pour le moment",
+      "text": "Ajoutez ou importez des électeurs avant de créer leurs codes.",
+      "link": "Voir les électeurs"
+    },
+    "loadFailed": "L’état des codes n’a pas pu être lu.",
+    "note": "Un code ne peut pas être réaffiché : seule son empreinte est gardée. Un coupon perdu se remplace par un nouveau code, sauf si l’électeur a déjà voté.",
+    "send": {
+      "open": "Générer et envoyer",
+      "title": "Générer et envoyer les codes",
+      "text": "Choisissez les électeurs, puis comment ils reçoivent leur code. Rien n’est fait avant votre confirmation.",
+      "closeLabel": "Fermer",
+      "scopeLabel": "Électeurs concernés",
+      "scope": {
+        "all": "Tous les électeurs",
+        "ungrouped": "Les électeurs sans groupe",
+        "failed_email": "Courriels en échec"
+      },
+      "scopeGroup": "Groupe : {name}",
+      "email": "Envoyer le code par courriel",
+      "emailHelp": "Chaque électeur qui a une adresse reçoit son lien personnel et son code.",
+      "file": "Fichier de distribution",
+      "fileNone": "Aucun fichier",
+      "fileXlsx": "Excel (.xlsx)",
+      "fileCsv": "CSV (.csv)",
+      "numbers": "Ce qui sera fait",
+      "countGenerate": "Codes à créer",
+      "countEmail": "Courriels à envoyer",
+      "countNoEmail": "Sans adresse",
+      "countSkipped": "Ont déjà un code",
+      "nothing": "Aucun code à créer pour ces électeurs.",
+      "nobody": "Aucun de ces électeurs n’a d’adresse : aucun courriel ne peut être envoyé.",
+      "noEmailTitle": {
+        "one": "{count} électeur sans adresse, laissé pour l’impression",
+        "other": "{count} électeurs sans adresse, laissés pour l’impression"
+      },
+      "noEmailMore": "et {count} autres",
+      "noEmailPrint": "Leur coupon est dans le fichier PDF de leur groupe.",
+      "readFailed": "Les nombres n’ont pas pu être lus.",
+      "retry": "Réessayer",
+      "changed": "Le nombre de courriels a changé depuis votre lecture. Vérifiez les nouveaux nombres, puis confirmez de nouveau.",
+      "cancel": "Annuler",
+      "confirm": "Générer les codes",
+      "confirmEmail": {
+        "one": "Générer et envoyer {count} courriel",
+        "other": "Générer et envoyer {count} courriels"
+      }
+    },
+    "resendFailed": "Renvoyer les courriels en échec",
+    "files": {
+      "title": "Fichiers de distribution",
+      "text": "Le fichier contient les codes en clair : gardez-le en lieu sûr. Il est supprimé à la clôture.",
+      "excel": "Excel · {date}",
+      "csv": "CSV · {date}"
+    }
+  },
+  "vote": {
+    "language": {
+      "label": "Langue",
+      "fr": "Français",
+      "en": "English",
+      "frShort": "FR",
+      "enShort": "EN"
+    },
+    "shell": {
+      "secret": "Vote secret",
+      "step": "Étape {n} sur {total}"
+    },
+    "period": {
+      "start": "Ouverture",
+      "end": "Fermeture",
+      "dayAt": "{day} à {time}"
+    },
+    "code": {
+      "kicker": "Vote en ligne",
+      "heading": "Entrez votre code",
+      "lede": "Votre code personnel figure sur votre fiche. Il compte dix caractères.",
+      "label": "Votre code de vote",
+      "help": "Majuscules ou minuscules, avec ou sans tiret. Tapez ou collez votre code.",
+      "stepHint": "Étape 1 sur 3 : c’est ici que votre vote commence.",
+      "submit": "Continuer",
+      "howTitle": "Comment ça marche",
+      "step1Title": "Votre code",
+      "step1Text": "Entrez le code de votre fiche.",
+      "step2Title": "Votre identité",
+      "step2Text": "Vérifiez que c’est bien vous.",
+      "step3Title": "Votre vote",
+      "step3Text": "Choisissez sur chaque poste, relisez, puis confirmez.",
+      "secretTitle": "Votre vote reste secret",
+      "secretText": "Personne ne peut relier votre nom à vos choix. Le vote ne peut être confirmé qu’une seule fois.",
+      "periodTitle": "Période du vote",
+      "notice": {
+        "expired": "Votre session a pris fin. Entrez de nouveau votre code pour continuer.",
+        "ended": "Session terminée. L’électeur suivant peut entrer son code.",
+        "alreadyVoted": "Ce code a déjà servi : le vote est enregistré et ne peut plus être changé."
+      },
+      "guide": "Voir le guide pas à pas"
+    },
+    "error": {
+      "invalid_code": "Ce code n’est pas valide. Vérifiez-le sur votre fiche, ou demandez-en un nouveau.",
+      "already_voted": "Ce code a déjà servi : le vote est enregistré et ne peut plus être changé.",
+      "election_not_open_before": "Le vote n’est pas encore ouvert.",
+      "election_not_open_closed": "Le vote est terminé.",
+      "voter_session_expired": "Votre session a pris fin. Entrez de nouveau votre code.",
+      "choices_invalid": "Un de vos choix n’est plus valable. Reprenez le vote depuis le début.",
+      "ballots_mismatch": "Les postes qui vous concernent ont changé. Reprenez le vote depuis le début.",
+      "empty": "Entrez votre code pour continuer.",
+      "election_not_open_paused": "Le vote est en pause. Il reprendra lorsque la suspension de l’établissement sera levée."
+    },
+    "before": {
+      "heading": "Votre élection n’est pas encore ouverte",
+      "text": "Tout est prêt de notre côté. Le champ du code apparaîtra ici dès l’ouverture, sans que vous ayez à recharger la page.",
+      "days": "jours",
+      "hours": "heures",
+      "minutes": "minutes",
+      "seconds": "secondes",
+      "soon": "L’ouverture est imminente, la page se met à jour toute seule.",
+      "countdown": "Ouverture dans {days} j {hours} h {minutes} min {seconds} s",
+      "status": "Pas encore ouverte",
+      "countdownTitle": "Ouverture dans",
+      "whenTitle": "Dates du vote",
+      "zone": "Heure de {zone}",
+      "nextTitle": "Le jour du vote",
+      "step1Title": "Retrouvez votre code",
+      "step1Text": "Il figure sur votre fiche ou dans votre lien personnel.",
+      "step2Title": "Entrez-le ici",
+      "step2Text": "Le champ apparaît à l’heure d’ouverture.",
+      "step3Title": "Choisissez",
+      "step3Text": "Un candidat par poste, ou un vote blanc si vous le souhaitez.",
+      "step4Title": "Confirmez",
+      "step4Text": "Relisez vos choix, puis confirmez : c’est fait.",
+      "secretTitle": "Votre vote restera secret",
+      "secretText": "Personne ne pourra relier votre nom à vos choix, pas même l’organisateur.",
+      "readyTitle": "Gardez votre code à portée de main",
+      "readyText": "Gardez votre fiche ou votre lien personnel prêt. Cette page se met à jour toute seule : vous pouvez la laisser ouverte."
+    },
+    "closed": {
+      "at": "Fermée : {when}",
+      "secret": "Vote secret",
+      "pendingTitle": "Les résultats arrivent",
+      "pendingText": "Les organisateurs les publient après la fermeture. Cette page affichera le bouton dès qu’ils seront publiés.",
+      "publishedTitle": "Les résultats sont publiés",
+      "publishedText": "Vous pouvez les consulter dès maintenant.",
+      "secretTitle": "Votre vote est resté secret",
+      "helpTitle": "Une question ?",
+      "helpText": "Voyez avec les organisateurs de votre établissement.",
+      "heading": "Le vote est terminé",
+      "text": "Cette élection est fermée : il n’est plus possible de voter.",
+      "results": "Voir les résultats"
+    },
+    "identity": {
+      "closes": "Fermeture : {when}",
+      "secret": "Vote secret",
+      "step": "Étape 2 sur 3",
+      "badge": {
+        "one": "poste à voter",
+        "other": "postes à voter"
+      },
+      "kicker": "Est-ce bien vous ?",
+      "noGroup": "Aucun groupe",
+      "group": "Groupe : {group}",
+      "ballotsTitle": "Vos postes",
+      "count": {
+        "one": "Vous votez pour {count} poste.",
+        "other": "Vous votez pour {count} postes."
+      },
+      "seats": {
+        "one": "{count} siège",
+        "other": "{count} sièges"
+      },
+      "forGroups": "Réservé à : {groups}",
+      "forAll": "Tous les électeurs",
+      "yes": "Oui, c’est moi",
+      "no": "Ce n’est pas moi",
+      "noneTitle": "Aucun poste ne vous concerne",
+      "noneText": "Vous n’avez rien à voter dans cette élection. Voyez avec les organisateurs.",
+      "loading": "Vérification de votre session…",
+      "hint": "Si ce n’est pas vous, ne continuez pas : rendez la place à la personne concernée."
+    },
+    "ballot": {
+      "progress": "Poste {n} sur {total}",
+      "stepLabel": "Étape {n} sur {total}",
+      "seatsOne": "Choisissez 1 candidat.",
+      "seatsMany": "Choisissez jusqu’à {seats} candidats.",
+      "chosenCount": "{count} choisi sur {seats}",
+      "full": "Vous avez choisi le maximum. Retirez un choix pour en changer.",
+      "pick": "Touchez une photo pour choisir.",
+      "legend": "Candidats au poste de {title}",
+      "blank": "Vote blanc",
+      "blankHint": "Je ne choisis aucun candidat",
+      "independent": "Indépendant",
+      "chosen": "Choisi",
+      "back": "Retour",
+      "next": "Suivant",
+      "review": "Vérifier mon vote",
+      "reminderNone": "Aucun choix pour l’instant",
+      "reminderBlank": "Votre choix : vote blanc",
+      "reminderOne": "Votre choix : {name}",
+      "reminderMany": "{count} candidats choisis",
+      "loading": "Chargement des candidats…",
+      "quote": "« {text} »",
+      "cardTitle": "Les candidats"
+    },
+    "review": {
+      "slip": "Votre bulletin",
+      "complete": {
+        "one": "{count} poste sur {count} complété",
+        "other": "{count} postes sur {count} complétés"
+      },
+      "blankHint": "Aucun candidat choisi",
+      "railTitle": "Avant de confirmer",
+      "rail1": "Votre vote reste secret : personne ne peut le relier à votre nom.",
+      "rail2": "Il est définitif : vous ne pourrez plus le changer.",
+      "rail3": "Il ne peut être confirmé qu’une seule fois.",
+      "kicker": "Dernière étape",
+      "heading": "Relisez votre vote",
+      "lede": "Vérifiez chaque choix. Après confirmation, il ne pourra plus être changé.",
+      "edit": "Modifier",
+      "blank": "Vote blanc",
+      "confirm": "Confirmer mon vote",
+      "sending": "Envoi en cours…",
+      "back": "Retour",
+      "restart": "Reprendre depuis le début",
+      "warning": "Votre vote est secret et définitif.",
+      "ballotOf": "Poste {n} : {title}"
+    },
+    "done": {
+      "heading": "Votre vote est enregistré",
+      "text": "Merci d’avoir voté. Votre choix est secret et ne peut plus être changé.",
+      "timeLabel": "Enregistré le",
+      "countdown": "Retour à la saisie du code dans {seconds} s",
+      "next": "Électeur suivant",
+      "leave": "Vous pouvez fermer cette page.",
+      "secretTitle": "Et maintenant ?",
+      "secretText": "Les résultats seront publiés par les organisateurs après la fermeture du vote."
+    },
+    "unavailable": {
+      "cardTitle": "Aucun vote à cette adresse",
+      "kicker": "Vote en ligne",
+      "title": "Cette élection n’est pas disponible",
+      "text": "L’adresse que vous avez ouverte ne mène à aucun vote pour le moment.",
+      "whatTitle": "Que faire ?",
+      "check": "Vérifiez l’adresse",
+      "checkText": "Ouvrez de nouveau le lien reçu, ou recopiez-le en entier.",
+      "ask": "Demandez à l’organisateur",
+      "askText": "Il pourra vous confirmer l’adresse et la date du vote.",
+      "home": "Retour à l’accueil",
+      "homeText": "Vous pouvez aussi repartir de la page d’accueil.",
+      "secure": "Aucun vote n’a été enregistré ici."
+    },
+    "paused": {
+      "whatTitle": "Que faire ?",
+      "chipSafe": "Aucun vote perdu ni modifié",
+      "chipEnd": "L’heure de fin ne change pas",
+      "heading": "Le vote est en pause",
+      "text": "Cet établissement est suspendu par l’administration de la plateforme : le vote est en pause et reprendra lorsque la suspension sera levée. Aucun vote n’est perdu ni modifié, et l’heure de fin ne change pas.",
+      "hint": "Gardez votre code et revenez plus tard : rechargez cette page pour vérifier.",
+      "status": "En pause"
+    }
+  },
+  "turnout": {
+    "title": "Participation",
+    "back": "Retour à l’élection",
+    "zone": "Participation à l’élection",
+    "live": "Mis à jour automatiquement toutes les 15 secondes",
+    "notStarted": "Le vote n’a pas encore commencé : personne n’a pu voter.",
+    "final": "Le vote est terminé : ces chiffres sont définitifs.",
+    "secrecy": "Les voix restent cachées jusqu’à la clôture, pour tout le monde.",
+    "loadFailed": "Les chiffres n’ont pas pu être actualisés.",
+    "headline": {
+      "label": "Taux de participation",
+      "percent": "{percent} %",
+      "of": {
+        "one": "{voted} sur {eligible} électeur a voté",
+        "other": "{voted} sur {eligible} électeurs ont voté"
+      }
+    },
+    "eligible": "Électeurs inscrits",
+    "voted": "Ont voté",
+    "left": "Restent à voter",
+    "end": {
+      "title": "Clôture",
+      "line": "Le {day} à {time}"
+    },
+    "chart": {
+      "title": "Votes au fil du temps",
+      "bucketLabel": "Regrouper par",
+      "hour": "Heure",
+      "day": "Jour",
+      "empty": "Personne n’a encore voté. La courbe apparaîtra avec le premier vote.",
+      "label": {
+        "one": "Courbe de participation, par {unit} : {total} électeur a voté en tout, dont {last} sur la dernière période ({at}).",
+        "other": "Courbe de participation, par {unit} : {total} électeurs ont voté en tout, dont {last} sur la dernière période ({at})."
+      },
+      "labelEmpty": "Courbe de participation : personne n’a encore voté.",
+      "unit": {
+        "hour": "heure",
+        "day": "jour"
+      },
+      "legendTotal": "Total cumulé",
+      "legendBucket": "Votes par {unit}"
+    },
+    "groups": {
+      "title": "Par groupe",
+      "hint": "Cliquez sur un groupe pour voir qui n’a pas voté.",
+      "none": "Sans groupe",
+      "line": "{voted} / {voters}",
+      "percent": "{percent} %",
+      "empty": "Aucun groupe : les électeurs ne sont pas répartis.",
+      "filter": "Voir qui n’a pas voté : {name}"
+    },
+    "nonvoters": {
+      "title": "Qui n’a pas voté",
+      "count": "{count} à relancer",
+      "search": "Rechercher un électeur",
+      "group": "Groupe",
+      "groupAll": "Tous les groupes",
+      "groupNone": "Sans groupe",
+      "export": "Exporter la liste",
+      "exportFailed": "L’export n’a pas pu être fait.",
+      "allVoted": "Tout le monde a voté",
+      "allVotedText": "Aucun électeur n’est à relancer.",
+      "noMatch": "Aucun électeur ne correspond à ces filtres.",
+      "reset": "Effacer les filtres",
+      "none": "Aucun électeur n’est inscrit à cette élection.",
+      "noGroup": "Sans groupe",
+      "list": "Électeurs qui n’ont pas voté",
+      "pager": "Pages de la liste",
+      "prev": "Page précédente",
+      "next": "Page suivante",
+      "range": "{from} à {to} sur {total}",
+      "exportXlsx": "Exporter en Excel",
+      "exportCsv": "Exporter en CSV"
+    },
+    "empty": {
+      "title": "Aucun électeur pour le moment",
+      "text": "Ajoutez des électeurs pour suivre la participation.",
+      "action": "Gérer les électeurs"
+    },
+    "voters": "Voir les électeurs"
+  },
+  "results": {
+    "title": "Résultats",
+    "back": "Retour à l’élection",
+    "zone": "Résultats de l’élection",
+    "empty": "Cette élection n’a aucun poste.",
+    "percent": "{percent}%",
+    "unavailable": {
+      "title": "Les résultats ne sont pas encore disponibles",
+      "text": {
+        "open": "Le vote est en cours. Aucun résultat n’est visible, pour personne, tant que l’élection n’est pas clôturée.",
+        "other": "Les résultats n’apparaissent qu’après la clôture de l’élection. Aucun résultat n’est visible, pour personne, avant."
+      },
+      "election": "Retour à l’élection",
+      "turnout": "Suivre la participation"
+    },
+    "hero": {
+      "turnout": {
+        "one": "{voted} électeur sur {eligible} a voté ({percent}%)",
+        "other": "{voted} électeurs sur {eligible} ont voté ({percent}%)"
+      },
+      "ballots": {
+        "one": "{count} poste",
+        "other": "{count} postes"
+      },
+      "ties": {
+        "one": "{count} égalité à régler",
+        "other": "{count} égalités à régler"
+      }
+    },
+    "ballot": {
+      "tags": "Informations du poste",
+      "seats": {
+        "one": "{count} siège",
+        "other": "{count} sièges"
+      },
+      "scopeGeneral": "Tous les électeurs concernés",
+      "scopeGroups": "Groupes : {names}",
+      "turnout": "{voted} sur {eligible} ont voté ({percent}%)"
+    },
+    "candidate": {
+      "noParty": "Sans parti",
+      "votes": {
+        "one": "vote",
+        "other": "votes"
+      },
+      "winner": "Élu(e)",
+      "tied": "À égalité",
+      "none": "Aucun candidat sur ce poste."
+    },
+    "blank": {
+      "title": "Votes blancs",
+      "line": {
+        "one": "{count} vote blanc ({percent}%)",
+        "other": "{count} votes blancs ({percent}%)"
+      }
+    },
+    "tie": {
+      "title": "Égalité",
+      "text": {
+        "one": "{names} sont à égalité pour le dernier siège ({seats} siège à pourvoir).",
+        "other": "{names} sont à égalité pour les derniers sièges ({seats} sièges à pourvoir)."
+      },
+      "never": "Le système ne départage jamais une égalité : aucun gagnant n’est désigné pour ces sièges. Vous pouvez organiser un second tour."
+    },
+    "check": {
+      "ok": "Bulletins vérifiés.",
+      "bad": "Écart à vérifier.",
+      "line": "{recorded} bulletins enregistrés, {expected} attendus.",
+      "badHelp": "Le nombre de bulletins ne correspond pas aux électeurs qui ont voté : vérifiez avant de publier."
+    },
+    "note": {
+      "label": "Note publique de ce poste",
+      "help": "Affichée avec le résultat sur la page publique. Laissez vide pour ne rien afficher.",
+      "count": "{count} / {max} caractères",
+      "tooLong": "La note ne peut pas dépasser {max} caractères.",
+      "save": "Enregistrer la note",
+      "saved": "Note enregistrée"
+    },
+    "second": {
+      "button": "Organiser un second tour",
+      "title": "Organiser un second tour",
+      "closeLabel": "Fermer cette fenêtre",
+      "text": "Le poste « {ballot} » est à égalité entre {names}. Un nouveau brouillon d’élection va être créé.",
+      "points": {
+        "only": "Il ne contient que ce poste et les candidats à égalité.",
+        "voters": "Ce sont les mêmes électeurs et les mêmes groupes.",
+        "codes": "Il faudra générer de nouveaux codes avant de le planifier."
+      },
+      "cancel": "Annuler",
+      "confirm": "Créer le second tour",
+      "created": "Un second tour a été créé pour ce poste.",
+      "link": "Ouvrir le second tour",
+      "notTied": "Ce poste n’est pas à égalité : aucun second tour n’est possible."
+    },
+    "rail": {
+      "label": "Repères",
+      "election": "L’élection",
+      "closed": "Clôturée le {day} à {time}",
+      "turnout": "Voir la participation",
+      "legend": "Pour lire les résultats",
+      "legendItems": {
+        "winner": "Élu(e) : le candidat obtient un siège.",
+        "tie": "Égalité : le système ne départage jamais, un second tour peut être organisé.",
+        "blank": "Vote blanc : un bulletin sans choix, compté dans le total.",
+        "percent": "Pourcentage : les votes sur tous les bulletins du poste, blancs compris."
+      },
+      "secrecy": "Les résultats sont comptés sur les bulletins seulement : aucun lien n’existe avec un électeur."
+    },
+    "refreshError": "Les résultats n’ont pas pu être relus. Rechargez la page pour voir l’état actuel."
+  },
+  "publication": {
+    "title": "Publication",
+    "closeLabel": "Fermer cette fenêtre",
+    "cancel": "Annuler",
+    "status": {
+      "closed": "Les résultats sont prêts. Ils restent privés tant que vous ne les publiez pas.",
+      "published": "Les résultats sont publics : toute personne qui a le lien peut les voir, sans compte.",
+      "archived": "L’élection est archivée. Sa page publique n’est plus visible."
+    },
+    "chip": {
+      "full": "Affichage : tous les chiffres",
+      "winners": "Affichage : gagnants et participation"
+    },
+    "publish": {
+      "button": "Publier les résultats",
+      "title": "Publier les résultats ?",
+      "text": "La page « {title} » sera visible de toute personne qui a son adresse, sans compte. Vous pourrez la retirer à tout moment.",
+      "legend": "Ce que la page publique montre",
+      "full": "Tous les chiffres",
+      "fullHelp": "Votes et pourcentages de chaque candidat, votes blancs, gagnants et participation.",
+      "winners": "Gagnants et participation seulement",
+      "winnersHelp": "Les gagnants, les candidats à égalité et la participation. Aucun nombre de votes.",
+      "smallGroup": {
+        "one": "Le poste « {ballots} » compte moins de 3 électeurs : le choix d’une personne peut se deviner à partir des résultats publiés.",
+        "other": "Les postes « {ballots} » comptent moins de 3 électeurs : le choix d’une personne peut se deviner à partir des résultats publiés."
+      },
+      "confirm": "Publier",
+      "failedBallots": "Postes concernés : {ballots}."
+    },
+    "unpublish": {
+      "button": "Dépublier",
+      "title": "Retirer la page publique ?",
+      "text": "La page publique disparaît tout de suite. Les résultats restent ici et vous pourrez les publier de nouveau.",
+      "confirm": "Retirer la page"
+    },
+    "archive": {
+      "button": "Archiver",
+      "help": "Archiver retire aussi la page publique.",
+      "undo": "Désarchiver"
+    },
+    "report": {
+      "button": "Télécharger le rapport (PDF)",
+      "error": "Le rapport n’a pas pu être téléchargé."
+    },
+    "link": {
+      "open": "Ouvrir la page publique",
+      "address": "Adresse de la page publique"
+    }
+  },
+  "public": {
+    "skip": "Aller aux résultats",
+    "kicker": "Résultats officiels",
+    "institution": {
+      "kicker": "Page de l’établissement",
+      "elections": "Dernières élections publiées",
+      "count": {
+        "one": "Dernière élection publiée",
+        "other": "{count} dernières élections publiées"
+      },
+      "empty": "Cet établissement n’a pas encore publié de résultats.",
+      "emptyHelp": "Les résultats apparaîtront ici dès qu’une élection sera publiée.",
+      "published": "Publiée le {day}",
+      "open": "Voir les résultats",
+      "type": {
+        "school": "École",
+        "university": "Université",
+        "association": "Association",
+        "other": "Organisation"
+      },
+      "description": "À propos"
+    },
+    "dates": "Vote du {start} au {end} ({zone})",
+    "published": "Résultats publiés le {day}",
+    "turnout": {
+      "title": "Participation",
+      "line": {
+        "one": "{voted} électeur sur {eligible} a voté",
+        "other": "{voted} électeurs sur {eligible} ont voté"
+      }
+    },
+    "winnersOnly": "Cette page montre les gagnants et la participation. Les nombres de votes ne sont pas publiés.",
+    "ballots": "Résultats par poste",
+    "ballot": {
+      "seats": {
+        "one": "{count} siège",
+        "other": "{count} sièges"
+      },
+      "general": "Tous les électeurs concernés",
+      "groups": "Groupes : {names}",
+      "none": "Aucun candidat n’est élu sur ce poste."
+    },
+    "candidate": {
+      "noParty": "Sans parti",
+      "votes": {
+        "one": "vote",
+        "other": "votes"
+      },
+      "winner": "Élu(e)",
+      "tied": "À égalité"
+    },
+    "blank": {
+      "line": {
+        "one": "{count} vote blanc ({percent}%)",
+        "other": "{count} votes blancs ({percent}%)"
+      }
+    },
+    "tie": {
+      "title": "Égalité",
+      "text": {
+        "one": "{names} sont à égalité pour le dernier siège ({seats} siège à pourvoir).",
+        "other": "{names} sont à égalité pour les derniers sièges ({seats} sièges à pourvoir)."
+      },
+      "never": "Le système ne départage jamais une égalité : aucun gagnant n’est désigné pour ces sièges."
+    },
+    "note": "Note de l’établissement",
+    "share": {
+      "title": "Partager ces résultats",
+      "text": "Envoyez le lien de cette page, ou téléchargez le rapport et l’image à joindre.",
+      "whatsapp": "WhatsApp",
+      "facebook": "Facebook",
+      "x": "X",
+      "copy": "Copier le lien",
+      "copied": "Lien copié",
+      "copyFailed": "La copie n’a pas fonctionné : sélectionnez l’adresse ci-dessous.",
+      "address": "Adresse de cette page",
+      "report": "Télécharger le rapport (PDF)",
+      "image": "Télécharger l’image",
+      "downloads": "Fichiers"
+    },
+    "closing": {
+      "title": "Les autres résultats de {name}",
+      "line": "Retrouvez les élections que cet établissement a publiées.",
+      "link": "Page de l’établissement"
+    },
+    "error": {
+      "kicker": "Résultats publics",
+      "title": "Les résultats sont momentanément indisponibles",
+      "text": "Les résultats n’ont pas pu être chargés pour le moment. L’élection n’est pas en cause : réessayez dans quelques secondes.",
+      "retry": "Réessayer"
+    },
+    "unavailable": {
+      "kicker": "Résultats publics",
+      "title": "Aucun résultat public ici",
+      "text": "Cette adresse ne mène à aucun résultat publié. Les résultats d’une élection n’apparaissent qu’après leur publication par l’établissement.",
+      "secure": "Aucun résultat n’est visible avant la publication.",
+      "home": "Retour à l’accueil"
+    },
+    "meta": {
+      "title": "{title} – {institution}",
+      "elected": {
+        "one": "Résultats de « {title} » : {names} est élu(e). Participation : {percent}%.",
+        "other": "Résultats de « {title} » : {names} sont élu(e)s. Participation : {percent}%."
+      },
+      "plain": "Résultats de « {title} » à {institution}. Participation : {percent}%.",
+      "institution": "Les élections publiées par {name}.",
+      "institutionTitle": "{name} – Résultats des élections",
+      "unavailable": "Aucun résultat public"
+    },
+    "image": {
+      "results": "Résultats",
+      "elected": "Élu(e)s"
+    },
+    "institutionLabel": "Établissement"
+  },
+  "audit": {
+    "lede": "Qui a fait quoi, quand et depuis quelle adresse. Le journal ne peut ni être modifié ni être effacé.",
+    "list": "Entrées du journal",
+    "count": {
+      "one": "{count} entrée",
+      "other": "{count} entrées"
+    },
+    "filters": {
+      "title": "Filtres",
+      "action": "Type d’action",
+      "actionAll": "Toutes les actions",
+      "election": "Élection",
+      "electionAll": "Toutes les élections",
+      "user": "Personne",
+      "userAll": "Toutes les personnes",
+      "from": "Du",
+      "to": "Au",
+      "clear": "Effacer les filtres"
+    },
+    "families": {
+      "auth": "Connexions",
+      "election": "Élections",
+      "second_round": "Seconds tours",
+      "voters": "Imports d’électeurs",
+      "voter": "Électeurs",
+      "credentials": "Codes d’accès"
+    },
+    "actions": {
+      "auth": {
+        "sign_in": "Connexion"
+      },
+      "election": {
+        "created": "Élection créée",
+        "duplicated": "Élection dupliquée",
+        "updated": "Élection modifiée",
+        "times_changed": "Dates de l’élection modifiées",
+        "scheduled": "Élection planifiée",
+        "unscheduled": "Planification annulée",
+        "opened": "Élection ouverte",
+        "closed": "Élection clôturée",
+        "extended": "Fin de l’élection repoussée",
+        "published": "Résultats publiés",
+        "unpublished": "Publication retirée",
+        "archived": "Élection archivée",
+        "unarchived": "Élection désarchivée",
+        "deleted": "Brouillon supprimé"
+      },
+      "second_round": {
+        "created": "Second tour créé"
+      },
+      "voters": {
+        "imported": "Électeurs importés"
+      },
+      "voter": {
+        "created": "Électeur ajouté",
+        "updated": "Électeur modifié",
+        "deleted": "Électeur supprimé"
+      },
+      "credentials": {
+        "generated": "Codes générés",
+        "reissued": "Code réémis",
+        "downloaded": "Codes téléchargés",
+        "emailed": "Codes envoyés par courriel"
+      }
+    },
+    "system": "Planificateur automatique",
+    "by": "Par {name}",
+    "noElection": "Sans élection",
+    "ip": "Adresse {address}",
+    "time": "{day} à {time}",
+    "utc": "{instant} UTC",
+    "more": "Afficher plus",
+    "moreCount": "{shown} sur {total} affichées",
+    "loading": "Chargement…",
+    "loadFailed": "Le journal n’a pas pu être lu.",
+    "empty": {
+      "title": "Aucune entrée",
+      "text": "Aucune action enregistrée ne correspond à ces filtres."
+    },
+    "export": {
+      "title": "Exporter",
+      "csv": "Exporter en CSV",
+      "xlsx": "Exporter en Excel",
+      "failed": "L’export a échoué."
+    },
+    "notOwner": {
+      "title": "Réservé au propriétaire",
+      "text": "Seul un propriétaire de l’établissement peut lire le journal d’activité.",
+      "back": "Retour au tableau de bord"
+    }
+  },
+  "platform": {
+    "twoFactorRequiredKicker": "Authentification à deux facteurs requise",
+    "twoFactorRequiredTitle": "Activez l’authentification à deux facteurs",
+    "twoFactorRequiredBody": "L’administration de la plateforme exige l’authentification à deux facteurs. Activez-la ci-dessous, puis rechargez cette page.",
+    "kicker": "Administration de la plateforme",
+    "title": "Établissements",
+    "lede": "Les établissements de la plateforme, avec leurs effectifs. Vous voyez des nombres seulement : jamais un nom d’électeur, un code ou un vote.",
+    "signOut": "Se déconnecter",
+    "filters": "Recherche et filtre",
+    "search": "Rechercher un établissement",
+    "list": "Liste des établissements",
+    "filter": {
+      "label": "État",
+      "all": "Tous",
+      "active": "Actifs",
+      "suspended": "Suspendus"
+    },
+    "count": {
+      "one": "{count} établissement",
+      "other": "{count} établissements"
+    },
+    "status": {
+      "active": "Actif",
+      "suspended": "Suspendu"
+    },
+    "type": {
+      "school": "École",
+      "university": "Université",
+      "association": "Association",
+      "other": "Autre"
+    },
+    "counts": {
+      "users": {
+        "one": "utilisateur",
+        "other": "utilisateurs"
+      },
+      "voters": {
+        "one": "électeur",
+        "other": "électeurs"
+      },
+      "elections": {
+        "one": "élection",
+        "other": "élections"
+      },
+      "byStatus": "Élections par état",
+      "noElection": "Aucune élection pour le moment."
+    },
+    "electionStatus": {
+      "draft": "brouillon",
+      "scheduled": "planifiée",
+      "open": "ouverte",
+      "closed": "terminée",
+      "published": "publiée",
+      "archived": "archivée"
+    },
+    "created": "Créé le",
+    "createdOn": "Créé le {day}",
+    "lastSignIn": "Dernière connexion",
+    "lastSignInOn": "Dernière connexion le {day}",
+    "neverSignedIn": "Aucune connexion pour le moment",
+    "reasonTitle": "Motif de la suspension",
+    "suspendedOn": "Suspendu le {day}",
+    "suspend": "Suspendre",
+    "reactivate": "Réactiver",
+    "cancel": "Annuler",
+    "more": "Voir plus",
+    "moreCount": "{shown} sur {total} affichés",
+    "loading": "Chargement…",
+    "loadFailed": "La liste n’a pas pu être mise à jour.",
+    "empty": {
+      "title": "Aucun établissement",
+      "text": "Les établissements apparaîtront ici dès leur inscription."
+    },
+    "emptyFiltered": {
+      "title": "Aucun résultat",
+      "text": "Aucun établissement ne correspond à cette recherche. Changez le nom ou le filtre."
+    },
+    "suspendDialog": {
+      "title": "Suspendre {name} ?",
+      "text": "Ses utilisateurs ne pourront plus se connecter et ses élections ouvertes seront mises en pause. Le propriétaire est prévenu par email, avec le motif.",
+      "reasonLabel": "Motif de la suspension",
+      "reasonHelp": "Entre 3 et 500 caractères. Le propriétaire le verra.",
+      "reasonRequired": "Indiquez le motif de la suspension.",
+      "reasonShort": "Le motif doit avoir au moins 3 caractères.",
+      "reasonLong": "Le motif est trop long (500 caractères au plus).",
+      "confirm": "Suspendre"
+    },
+    "reactivateDialog": {
+      "title": "Réactiver {name} ?",
+      "text": "Ses utilisateurs pourront se connecter de nouveau et ses élections en pause reprendront. Le propriétaire est prévenu par email.",
+      "confirm": "Réactiver"
+    },
+    "impersonate": "Se connecter en tant que",
+    "guide": "Guide d’utilisation"
   }
 }

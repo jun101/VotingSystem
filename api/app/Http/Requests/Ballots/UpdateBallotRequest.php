@@ -15,6 +15,9 @@ class UpdateBallotRequest extends CreateBallotRequest
             'description' => ['sometimes', 'nullable', 'string', 'max:1000'],
             'seats' => ['sometimes', 'bail', 'integer', 'min:1', 'max:20'],
             'allow_blank' => ['sometimes', 'boolean'],
+            'scope' => ['sometimes', 'nullable', 'string'],
+            'groups' => ['sometimes', 'nullable', 'array'],
+            'groups.*' => ['string'],
         ];
     }
 }

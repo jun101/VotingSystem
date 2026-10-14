@@ -41,7 +41,7 @@ No path parameter, no query parameter, no body.
 }
 ```
 
-`role` is `owner`, `manager` or `platform_admin`. `institution` is `null` for a platform
+`impersonating` is present only for a platform admin acting as an institution (slice 18c): `{ "by": "Admin name" }`; the user shown is then the institution's owner. `role` is `owner`, `manager` or `platform_admin`. `institution` is `null` for a platform
 admin. No numeric key, no password hash, no secret appears.
 
 ### 401 and 403
@@ -58,3 +58,10 @@ admin. No numeric key, no password hash, no secret appears.
 
 This is the response resource every later endpoint reuses for "the current user".
 In scenario 3 the session is also ended.
+
+## Password change required
+
+For a user who must change the password (school mode: a new or reset account), `data` also carries
+`"must_change_password": true`. The field is absent otherwise. Until [the password is changed](POST-auth-change-password.md)
+every route except this one, `POST /auth/logout`, `GET /auth/csrf` and `POST /auth/change-password` answers 403
+`password_change_required`.

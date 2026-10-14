@@ -2,6 +2,7 @@
 
 import { Reveal } from '@/components/motion';
 import type { TwoFactorState } from '@/lib/api/user';
+import { ChangePasswordCard } from './ChangePasswordCard';
 import { SecurityCard } from './SecurityCard';
 
 /**
@@ -11,6 +12,7 @@ import { SecurityCard } from './SecurityCard';
 export function AccountPage({ twoFactor }: { twoFactor: TwoFactorState }) {
   return (
     <Reveal stagger data-testid="account-page" className="grid gap-6 lg:max-w-3xl">
+      <ChangePasswordCard twoFactorEnabled={twoFactor.enabled} />
       <SecurityCard initial={twoFactor} />
     </Reveal>
   );

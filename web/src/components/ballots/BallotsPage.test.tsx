@@ -68,6 +68,10 @@ function ballot(title: string, position: number, extra: Partial<Ballot> = {}): B
     position,
     seats: 1,
     allow_blank: true,
+    scope: 'general',
+    groups: [],
+    eligible_voters: 0,
+    warnings: [],
     candidates_count: 0,
     candidates: [],
     created_at: '2026-10-10T14:00:00Z',
@@ -209,6 +213,7 @@ describe('BallotsPage', () => {
       description: null,
       seats: 2,
       allow_blank: true,
+      scope: 'general',
     });
     await waitFor(() => expect(titles()).toEqual(['Délégués']));
     expect(screen.queryByTestId('ballot-form')).not.toBeInTheDocument();
@@ -238,7 +243,47 @@ describe('BallotsPage', () => {
     expect(screen.queryByTestId('ballots-add')).not.toBeInTheDocument();
     expect(screen.queryByTestId('ballot-up-2')).not.toBeInTheDocument();
     expect(screen.queryByTestId('ballot-edit-1')).not.toBeInTheDocument();
-    expect(screen.getByTestId('ballots-locked')).toBeInTheDocument();
+    expect(screen.getByTestId('ballots-locked-notice')).toBeInTheDocument();
+  });
+
+  it('shows the notice and no write control for a scheduled election, with candidates and parties', () => {
+    const withCandidates = [
+      ballot('A', 1, { candidates_count: 1, candidates: [candidate('a', 1, 'p')] }),
+      ballot('B', 2),
+    ];
+
+    renderIn(
+      'fr',
+      <BallotsPage
+        election={{ ...election, status: 'scheduled' }}
+        initial={withCandidates}
+        initialParties={[party('Parti')]}
+      />,
+    );
+
+    expect(screen.getByTestId('ballots-locked-notice')).toBeInTheDocument();
+    expect(screen.getByTestId('ballots-hero')).toHaveAttribute('data-status', 'scheduled');
+
+    for (const id of [
+      'ballots-add',
+      'parties-add',
+      'ballot-new-tile',
+      'party-new',
+      'ballot-edit-1',
+      'ballot-delete-1',
+      'ballot-up-2',
+      'ballot-down-1',
+      'ballot-grip-1',
+      'candidate-add-1',
+      'candidate-edit-1-1',
+      'candidate-delete-1-1',
+      'candidate-up-1-1',
+      'candidate-grip-1-1',
+      'party-edit-1',
+      'party-delete-1',
+    ]) {
+      expect(screen.queryByTestId(id), id).not.toBeInTheDocument();
+    }
   });
 });
 
@@ -585,5 +630,74 @@ describe('BallotsPage candidates', () => {
     expect(screen.queryByTestId('candidate-add-1')).toBeNull();
     expect(screen.queryByTestId('candidate-up-1-1')).toBeNull();
     expect(screen.queryByTestId('ballots-check-add-3')).toBeNull();
+  });
+});
+
+describe('BallotsPage after a reorder', () => {
+  beforeEach(() => {
+    fetchBallots.mockReset();
+    fetchParties.mockReset();
+  });
+
+  const withTwo = [
+    ballot('A', 1, {
+      candidates: [candidate('a', 1), candidate('b', 1)],
+      candidates_count: 2,
+    }),
+    ballot('B', 2),
+  ];
+  const mismatch = (field: string) =>
+    new ApiError(422, 'validation_failed', { [field]: ['set_mismatch'] });
+
+  it('reads the ballots again and tells so on a 422 set_mismatch', async () => {
+    reorderBallots.mockRejectedValue(mismatch('ballots'));
+    fetchBallots.mockResolvedValue([ballot('B', 2), ballot('A', 1), ballot('N', 4)]);
+    renderIn('fr', <BallotsPage election={election} initial={withTwo} initialParties={[]} />);
+
+    await userEvent.click(screen.getByTestId('ballot-down-1'));
+
+    await waitFor(() => expect(titles()).toEqual(['B', 'A', 'N']));
+    expect(screen.getByTestId('ballots-notice')).toHaveTextContent('a changé ailleurs');
+    expect(reorderBallots).toHaveBeenCalledTimes(1);
+  });
+
+  it('reads the candidates again and tells so on a 422 set_mismatch', async () => {
+    reorderCandidates.mockRejectedValue(mismatch('candidates'));
+    fetchBallots.mockResolvedValue([
+      ballot('A', 1, {
+        candidates: [candidate('c', 1), candidate('a', 1), candidate('b', 1)],
+        candidates_count: 3,
+      }),
+      ballot('B', 2),
+    ]);
+    renderIn('fr', <BallotsPage election={election} initial={withTwo} initialParties={[]} />);
+
+    await userEvent.click(screen.getByTestId('candidate-down-1-1'));
+
+    await waitFor(() =>
+      expect(screen.getAllByTestId(/^candidate-name-1-/).map((n) => n.textContent)).toEqual([
+        'c Nom',
+        'a Nom',
+        'b Nom',
+      ]),
+    );
+    expect(screen.getByTestId('ballots-notice')).toHaveTextContent('ont changé ailleurs');
+  });
+
+  it('reads the list again and closes the party dialog on a 409 from a party delete', async () => {
+    deleteParty.mockRejectedValue(new ApiError(409, 'election_not_editable'));
+    fetchBallots.mockResolvedValue(withTwo);
+    renderIn(
+      'fr',
+      <BallotsPage election={election} initial={withTwo} initialParties={[party('Ensemble')]} />,
+    );
+
+    await userEvent.click(screen.getByTestId('party-delete-1'));
+    await userEvent.click(await screen.findByTestId('party-delete-confirm'));
+
+    expect(await screen.findByTestId('ballots-notice')).toHaveTextContent(
+      'Cette élection ne peut plus être modifiée',
+    );
+    expect(fetchBallots).toHaveBeenCalledWith(election.id);
   });
 });

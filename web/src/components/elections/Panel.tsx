@@ -14,6 +14,7 @@ export function Panel({
   title,
   id,
   testId,
+  status,
   headerTestId,
   aside,
   className,
@@ -27,6 +28,8 @@ export function Panel({
   /** The id of the title, which names the card. */
   id: string;
   testId?: string;
+  /** Written as `data-status` on the card, for the page's tests and styles. */
+  status?: string;
   headerTestId?: string;
   aside?: ReactNode;
   className?: string;
@@ -42,6 +45,7 @@ export function Panel({
     <section
       aria-labelledby={id}
       data-testid={testId}
+      data-status={status}
       className={cx(
         'relative flex min-w-0 flex-col rounded-lg border border-line bg-surface shadow-2',
         plain ? null : 'lift @container overflow-hidden',

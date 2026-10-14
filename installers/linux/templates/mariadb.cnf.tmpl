@@ -1,0 +1,14 @@
+# VoteSystem database. Written by the installer; changes are kept by an update.
+[mysqld]
+basedir=@ROOT@/mariadb
+datadir=/var/lib/votesystem/mariadb
+socket=/run/votesystem/mariadb.sock
+pid-file=/run/votesystem/mariadb.pid
+bind-address=127.0.0.1
+port=@DB_PORT@
+skip-name-resolve
+character-set-server=utf8mb4
+collation-server=utf8mb4_unicode_ci
+max_connections=100
+innodb_buffer_pool_size=256M
+log_error=/var/lib/votesystem/mariadb/error.log

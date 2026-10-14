@@ -1,10 +1,20 @@
 import { cookies } from 'next/headers';
 import { cache } from 'react';
 import { createApiClient } from './client';
+import type { PlatformPage } from './platform';
+import { PLATFORM_PER_PAGE } from './platform';
+import type { AuditPage } from './audit';
+import { AUDIT_PER_PAGE } from './audit';
 import type { Ballot } from './ballots';
+import type { CredentialState, GeneratedFile } from './credentials';
 import type { Party } from './parties';
+import type { VoterImport } from './voterImports';
+import type { GroupList, VoterFilters, VoterList } from './voters';
+import { VOTERS_PER_PAGE } from './voters';
 import type { Election, ElectionFilters, ElectionList } from './elections';
 import { SESSION_COOKIE } from './session';
+import type { Results } from './results';
+import type { Dashboard, Turnout } from './turnout';
 import type {
   CurrentUser,
   InstitutionProfile,
@@ -197,5 +207,201 @@ export async function fetchElectionParties(id: string): Promise<Party[] | null> 
     });
 
     return response.ok && data ? data.data : null;
+  });
+}
+
+/** One page of the voters of an election of the institution, or null when the API does not give it. */
+export async function fetchElectionVoters(
+  id: string,
+  filters: VoterFilters,
+): Promise<VoterList | null> {
+  return authorizedGet(async (headers) => {
+    const { data, response } = await createApiClient().GET('/v1/elections/{election}/voters', {
+      headers,
+      params: {
+        path: { election: id },
+        query: {
+          page: filters.page,
+          per_page: VOTERS_PER_PAGE,
+          ...(filters.q === '' ? {} : { q: filters.q }),
+          ...(filters.group === '' ? {} : { group: filters.group }),
+          ...(filters.credential === '' ? {} : { credential: filters.credential }),
+          ...(filters.email === '' ? {} : { email: filters.email }),
+          ...(!filters.voted ? {} : { voted: filters.voted }),
+        },
+      },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(4000),
+    });
+
+    if (!response.ok || !data) return null;
+
+    return { items: data.data, total: data.meta.total, page: data.meta.page };
+  });
+}
+
+/** The groups of an election of the institution with their counts, or null when the API does not give them. */
+export async function fetchElectionGroups(id: string): Promise<GroupList | null> {
+  return authorizedGet(async (headers) => {
+    const { data, response } = await createApiClient().GET('/v1/elections/{election}/groups', {
+      headers,
+      params: { path: { election: id }, query: { per_page: 100 } },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(4000),
+    });
+
+    if (!response.ok || !data) return null;
+
+    return {
+      items: data.data,
+      votersTotal: data.meta.voters_total,
+      ungrouped: data.meta.ungrouped,
+    };
+  });
+}
+
+/**
+ * An import of the institution, 'missing' when it does not exist (a malformed id and another
+ * institution's import: the same answer), null when the API does not answer at all.
+ */
+export async function fetchVoterImport(id: string): Promise<VoterImport | 'missing' | null> {
+  return authorizedGet(async (headers) => {
+    const { data, response } = await createApiClient().GET('/v1/voter-imports/{import}', {
+      headers,
+      params: { path: { import: id } },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(4000),
+    });
+
+    if (response.status === 404) return 'missing';
+
+    return response.ok && data ? data.data : null;
+  });
+}
+
+/** The state of the access codes of an election of the institution, or null when the API does not give it. */
+export async function fetchElectionCredentials(id: string): Promise<CredentialState | null> {
+  return authorizedGet(async (headers) => {
+    const { data, response } = await createApiClient().GET('/v1/elections/{election}/credentials', {
+      headers,
+      params: { path: { election: id } },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(4000),
+    });
+
+    return response.ok && data ? data.data : null;
+  });
+}
+
+/** The slip files of an election of the institution, or null when the API does not give them. */
+export async function fetchElectionFiles(id: string): Promise<GeneratedFile[] | null> {
+  return authorizedGet(async (headers) => {
+    const { data, response } = await createApiClient().GET(
+      '/v1/elections/{election}/generated-files',
+      {
+        headers,
+        params: { path: { election: id } },
+        cache: 'no-store',
+        signal: AbortSignal.timeout(4000),
+      },
+    );
+
+    return response.ok && data ? data.data : null;
+  });
+}
+
+/** The turnout of an election (slice 14), null when the API does not answer. */
+export async function fetchElectionTurnout(id: string): Promise<Turnout | null> {
+  return authorizedGet(async (headers) => {
+    const { data, response } = await createApiClient().GET('/v1/elections/{election}/turnout', {
+      headers,
+      params: { path: { election: id } },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(4000),
+    });
+
+    if (!response.ok || !data) return null;
+
+    return data.data;
+  });
+}
+
+/**
+ * The results of an election (slice 15). `'unavailable'` when the election is not closed yet
+ * (409), `'missing'` on a 404, null when the API does not answer.
+ */
+export async function fetchElectionResults(
+  id: string,
+): Promise<Results | 'unavailable' | 'missing' | null> {
+  return authorizedGet(async (headers) => {
+    const { data, response } = await createApiClient().GET('/v1/elections/{election}/results', {
+      headers,
+      params: { path: { election: id } },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(4000),
+    });
+
+    if (response.status === 404) return 'missing';
+    if (response.status === 409) return 'unavailable';
+
+    return response.ok && data ? data.data : null;
+  });
+}
+
+/** The dashboard's live data (slice 14), null when the API does not answer. */
+export async function fetchDashboard(): Promise<Dashboard | null> {
+  return authorizedGet(async (headers) => {
+    const { data, response } = await createApiClient().GET('/v1/dashboard', {
+      headers,
+      cache: 'no-store',
+      signal: AbortSignal.timeout(4000),
+    });
+
+    if (!response.ok || !data) return null;
+
+    return data.data;
+  });
+}
+
+/** The first page of the audit log (an owner only), or null when the API does not give it. */
+export async function fetchAuditFirstPage(): Promise<AuditPage | null> {
+  return authorizedGet(async (headers) => {
+    const { data, response } = await createApiClient().GET('/v1/audit', {
+      headers,
+      params: { query: { page: 1, per_page: AUDIT_PER_PAGE } },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(4000),
+    });
+
+    if (!response.ok || !data) return null;
+
+    return { items: data.data, total: data.meta.total, page: data.meta.page };
+  });
+}
+
+/**
+ * The first page of the institutions (a platform admin only), `'two-factor-required'` when the API
+ * asks the admin to turn two-factor on first, or null when the API does not give it.
+ */
+export async function fetchPlatformFirstPage(): Promise<
+  PlatformPage | 'two-factor-required' | null
+> {
+  return authorizedGet(async (headers) => {
+    const { data, error, response } = await createApiClient().GET('/v1/platform/institutions', {
+      headers,
+      params: { query: { page: 1, per_page: PLATFORM_PER_PAGE } },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(4000),
+    });
+
+    if (response.status === 403) {
+      const code = (error as { error?: { code?: string } } | undefined)?.error?.code;
+
+      return code === 'two_factor_required' ? 'two-factor-required' : null;
+    }
+
+    if (!response.ok || !data) return null;
+
+    return { items: data.data, total: data.meta.total, page: data.meta.page };
   });
 }

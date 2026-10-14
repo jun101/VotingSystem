@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\Actions\Auth\CompleteTwoFactorChallenge;
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\EndExpiredSession;
 use App\Http\Resources\UserResource;
+use App\Support\Audit\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Throwable;
 
 class TwoFactorChallengeController extends Controller
 {
@@ -31,6 +34,17 @@ class TwoFactorChallengeController extends Controller
         $user = $complete($request->session(), $request->input('code'), $request->input('recovery_code'), (string) $request->ip());
 
         Auth::guard()->login($user);
+        EndExpiredSession::start($request);
+
+        try {
+            AuditLog::record('auth.sign_in', $user);
+        } catch (Throwable $e) {
+            // No entry, no session: a sign-in the log does not hold must not stay open.
+            Auth::guard()->logout();
+
+            throw $e;
+        }
+
         $request->session()->regenerateToken();
 
         return new UserResource($user);

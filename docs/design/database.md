@@ -44,6 +44,7 @@ repeated.
 | timezone | str(64) | Default `America/Port-au-Prince` |
 | language | char(2) | `fr` (default) or `en` |
 | suspended_at | dt, null | Set by the platform admin |
+| suspension_reason | string(500), null | The reason given at suspension (slice 18); cleared on reactivation, kept in the platform audit entry |
 
 **`users`** — institution users and platform admins (section 3 of the spec).
 
@@ -145,7 +146,7 @@ in SQL.
 | institution_id | fk | |
 | election_id | fk | Cascade |
 | name | str(100) | As typed |
-| name_key | str(100) | Trimmed and lower-cased. Unique with `election_id` |
+| name_key | str(200) | Trimmed and lower-cased (wider than `name`: lower-casing can lengthen it); `utf8mb4_bin`, so accents count. Unique with `election_id` |
 
 **`ballot_voter_group`** — the groups a group ballot covers (FR-BAL-03). No `id`, no
 `uuid`, no timestamps.
@@ -213,26 +214,50 @@ hash in the same row.
 | issued_by_user_id | fk, null | |
 | reissue_count | smallint | Default 0 |
 | email_status | str(10), null | `queued`, `sent`, `failed` |
-| email_sent_at | dt, null | |
-| email_error | str(255), null | |
+| email_sent_at | dt, null | The time the message was sent. While the status is `queued`, a value is the marker of the one worker that holds the message (a send in progress): a second delivery of the job finds it and sends nothing |
+| email_error | str(255), null | A fixed reason code (`send_failed`, `no_address`, `address_changed`, `institution_suspended`, `election_locked`) |
+| email_hash | binary(32), null | Slice 11 review. Keyed hash of the address the run queued the message for; the job refuses a changed address. Cleared when the message is done. Never the address itself |
+| email_file_id | fk, null | Slice 11 review. The slip file whose job queued the message (set null with the file): a file that crashes fails the messages it queued. Never output |
 
-**`voter_imports`** (FR-VOT-03, 04).
+A code written without an email (reissue, replacement) clears `email_status`, `email_sent_at`, `email_error`, `email_hash` and `email_file_id`.
+
+**`voter_imports`** (FR-VOT-03, 04). Slice 08. One import at a time per election.
 
 | Column | Type | Notes |
 |---|---|---|
-| institution_id | fk | |
+| uuid | UUID | The import's public id |
+| institution_id | fk | Cascade |
 | election_id | fk | Cascade |
-| user_id | fk | |
-| original_name | str(255) | Shown to the user only |
-| stored_file | UUID | The uploaded file, private storage |
-| mapping | json, null | Column of the file → voter field |
+| user_id | fk | Who uploaded (restrict is not needed: set null) |
+| original_name | str(255) | Shown to the user only, never a path |
+| stored_file | UUID | The uploaded file under this name on the private disk |
+| columns | json, null | The header cells of the file |
+| mapping | json, null | Voter field to column index (or null) |
 | status | str(15) | `uploaded`, `checked`, `importing`, `done`, `failed` |
-| total_rows | int | |
+| failure | str(30), null | `no_header`, `too_many_rows`, `no_full_name_column`, `unreadable`, `import_failed` |
+| total_rows | int | Data rows read |
 | valid_rows | int | |
-| invalid_rows | int | |
+| invalid_rows | int | Includes the duplicates |
+| duplicate_rows | int | |
+| new_groups | json, null | Names the import would create |
 | processed_rows | int | For the progress bar |
-| error_file | UUID, null | The rejected rows |
+| imported_rows | int | Voters written |
 | finished_at | dt, null | |
+
+**`voter_import_rows`** (slice 08). The checked rows, read by the preview and the error file; deleted with the import.
+
+| Column | Type | Notes |
+|---|---|---|
+| institution_id | fk | Cascade |
+| voter_import_id | fk | Cascade |
+| line | int | Line in the file (the header is 1); unique with `voter_import_id` |
+| status | str(10) | `ok`, `invalid`, `duplicate` |
+| reasons | json | Reason codes |
+| full_name, group_name, identifier, email, phone | text, null | The values after trimming; `raw` keeps the original cell text of the five fields as json for the error file |
+
+An import's file and rows are deleted when the import is deleted, when a newer import replaces it, when it ends `done`
+(the file only), and by the scheduled clean-up of imports older than 7 days that are not `importing` and of imports left
+`importing` for more than a day. Each kept value is cut to its field's maximum length plus one character.
 
 **`generated_files`** — slip PDFs and code export files (FR-CRED-04, 05). Because only the
 hash of a code is stored, the file is written by the same job that generates the codes.
@@ -243,12 +268,20 @@ hash of a code is stored, the file is written by the same job that generates the
 | election_id | fk | Cascade |
 | user_id | fk | |
 | kind | str(15) | `slips_pdf`, `codes_xlsx`, `codes_csv` |
-| voter_group_id | fk, null | Set when generated for one group. Set null on delete |
+| voter_group_id | fk, null | The group of the slips; null for the voters with no group, and set null when the group is deleted. Slice 10 |
+| part | smallint | Default 1; a group of more than 1 000 slips is split in parts (slice 10) |
+| parts | smallint | Default 1; the number of parts of that group in the run |
 | voter_count | int | |
 | status | str(10) | `queued`, `ready`, `failed` |
-| stored_file | UUID, null | Encrypted, private storage |
+| failure | str(30), null | `generation_failed` (slice 10) |
+| send_email | bool | Default false (slice 11). The job queues one email for each voter it serves who has an address |
+| replace | bool | Default false (slice 11). The scope `failed_email`: the job serves the voters whose email failed and replaces their code |
+| run | UUID, null | Slice 11 review. One value for all the files of a run (the slips and the file of codes); a reissue's file has its own. The file of codes finds the slips of its run by it, never by `created_at`. Null only for a file written before |
+| ungrouped | bool | Default false (slice 11 review). The file of codes was asked for the scope `ungrouped`: it downloads as `codes-sans-groupe` |
+| stored_file | UUID, null | The PDF encrypted with `Crypt::encryptString`, on the private disk `credentials` under this name, no extension |
 | size_bytes | int, null | |
 | expires_at | dt | The election's end; the file is deleted after it |
+| created_at, updated_at | dt | Slice 10 (`credentials` has `issued_at` only, no timestamps) |
 
 ### 2.4 Voting: the secrecy boundary
 

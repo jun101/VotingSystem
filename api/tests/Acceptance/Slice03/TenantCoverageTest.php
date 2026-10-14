@@ -46,7 +46,7 @@ it('has a route behind every entry of the lists [NFR-SEC-03] (rule 5)', function
         }
     }
 
-    $listed = array_merge(Tenancy::PUBLIC_ROUTES, Tenancy::OWN_USER_ROUTES, array_keys(Tenancy::TENANT_ROUTES));
+    $listed = array_merge(Tenancy::PUBLIC_ROUTES, Tenancy::OWN_USER_ROUTES, Tenancy::PLATFORM_ROUTES, array_keys(Tenancy::TENANT_ROUTES));
 
     expect(array_values(array_diff($listed, $registered)))->toBe([], 'Listed routes that no longer exist: remove them from Tenancy.php');
 });

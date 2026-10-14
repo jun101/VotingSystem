@@ -19,7 +19,7 @@ Body, JSON:
 
 | Field | Type | Rules |
 |---|---|---|
-| name | string | Required on creation. 1 to 100 characters after trimming. Unique in the election, ignoring case and surrounding spaces |
+| name | string | Required on creation. 1 to 100 characters after trimming. Unique in the election, ignoring case and surrounding spaces; accents count (`Unité` and `Unite` are two names) |
 | acronym | string, null | Optional. 1 to 15 characters after trimming; blank is stored as `null` |
 | colour | string | Required on creation. `#` and six hexadecimal digits, any case; stored and output in upper case |
 
@@ -34,7 +34,7 @@ Body, JSON:
 | 1 | `name` and `colour` | 201 |  | |
 | 2 | Every field | 201 |  | |
 | 3 | `name` missing, blank or longer than 100 | 422 | `validation_failed` (`name: required`, `name: max`) | |
-| 4 | `name` already used in this election (case and spaces ignored) | 422 | `validation_failed` (`name: unique`) | |
+| 4 | `name` already used in this election (case and spaces ignored, accents not) | 422 | `validation_failed` (`name: unique`) | |
 | 5 | `acronym` longer than 15 | 422 | `validation_failed` (`acronym: max`) | |
 | 6 | `colour` missing or not `#RRGGBB` | 422 | `validation_failed` (`colour: required`, `colour: hex_colour`) | |
 | 7 | The election already has 30 parties | 409 | `party_limit_reached` | |

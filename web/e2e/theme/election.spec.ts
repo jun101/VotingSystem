@@ -93,12 +93,12 @@ test.describe('summary page', () => {
     await expect(page.getByTestId('election-card-settings')).not.toContainText('secret');
   });
 
-  test('shows the four next steps as a path: the first is ready (slice 06), the others coming soon [FR-ELEC-01]', async ({ page }) => {
+  test('shows the four next steps as a path, each one a way to the page where it is done [FR-ELEC-01]', async ({ page }) => {
     await openSummary(page);
 
     for (const n of [1, 2, 3, 4]) {
       const step = page.getByTestId(`election-step-${n}`);
-      await expect(step).toHaveAttribute('data-state', n === 1 ? 'ready' : 'soon');
+      await expect(step).toHaveAttribute('data-state', 'ready');
       expect(await step.locator('svg').count()).toBeGreaterThan(0);
     }
     const first = await boxOf(page, 'election-step-1');

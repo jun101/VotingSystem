@@ -39,6 +39,18 @@ final class Tenancy
         'POST api/v1/auth/accept-invitation',
         // Slice 04b: finishes a sign-in started with a password; a pending sign-in in the session is its only input.
         'POST api/v1/auth/two-factor-challenge',
+        // Slice 16: the public pages of a published election and of an institution. Nothing identifies the caller; the
+        // election or institution is found by its uuid and answers 404 unless it is published (or has a published one).
+        'GET api/v1/public/elections/{election}/results',
+        'GET api/v1/public/elections/{election}/report',
+        'GET api/v1/public/institutions/{institution}',
+        // Slice 12: the voter's own pages. A voter session (a random token in a cookie) is their only credential and it
+        // names one voter of one election; the election is found by its uuid and is never listed.
+        'GET api/v1/vote/{election}',
+        'POST api/v1/vote/{election}/session',
+        'DELETE api/v1/vote/{election}/session',
+        'GET api/v1/vote/{election}/ballots',
+        'POST api/v1/vote/{election}/submit',
     ];
 
     /**
@@ -51,6 +63,8 @@ final class Tenancy
         'GET api/v1/auth/me',
         'PATCH api/v1/auth/me',
         'POST api/v1/auth/verify-email/resend',
+        // Slice 19c: the user's own password; no record is named.
+        'POST api/v1/auth/change-password',
         // Slice 04: the institution is the tenant itself; these routes name no record of it.
         'GET api/v1/institution',
         'PATCH api/v1/institution',
@@ -62,6 +76,19 @@ final class Tenancy
         'POST api/v1/auth/two-factor/confirm',
         'POST api/v1/auth/two-factor/disable',
         'POST api/v1/auth/two-factor/recovery-codes',
+    ];
+
+    /**
+     * Slice 18: routes of the platform admin only. They sit behind `auth` and the platform middleware (an institution
+     * user answers 403) and show counts of institutions, never a tenant's records; the endpoint's own tests check that.
+     */
+    public const PLATFORM_ROUTES = [
+        'GET api/v1/platform/institutions',
+        'POST api/v1/platform/institutions/{institution}/suspend',
+        'POST api/v1/platform/institutions/{institution}/reactivate',
+        // Slice 18c: the admin acts as an institution's owner, and ends it (this one is called while acting).
+        'POST api/v1/platform/institutions/{institution}/impersonate',
+        'DELETE api/v1/platform/impersonation',
     ];
 
     /**
@@ -78,6 +105,9 @@ final class Tenancy
         'POST api/v1/invitations' => 'Slice04/CreateInvitationTest.php',
         'DELETE api/v1/invitations/{invitation}' => 'Slice04/CancelInvitationTest.php',
         'POST api/v1/users/{user}/two-factor/reset' => 'Slice04b/ResetUserTwoFactorTest.php',
+        // Slice 19c (school mode): the person is created in the caller's institution; another institution's user answers 404.
+        'POST api/v1/users' => 'Slice19c/SchoolModeTest.php',
+        'POST api/v1/users/{user}/password-reset' => 'Slice19c/SchoolModeTest.php',
         'GET api/v1/elections' => 'Slice05/ListElectionsTest.php',
         'POST api/v1/elections' => 'Slice05/CreateElectionTest.php',
         'GET api/v1/elections/{election}' => 'Slice05/ShowElectionTest.php',
@@ -97,6 +127,49 @@ final class Tenancy
         'DELETE api/v1/parties/{party}' => 'Slice06/DeletePartyTest.php',
         'PUT api/v1/parties/{party}/logo' => 'Slice06/PartyLogoTest.php',
         'DELETE api/v1/parties/{party}/logo' => 'Slice06/PartyLogoTest.php',
+        'GET api/v1/elections/{election}/voters' => 'Slice07/ListVotersTest.php',
+        'POST api/v1/elections/{election}/voters' => 'Slice07/CreateVoterTest.php',
+        'PATCH api/v1/voters/{voter}' => 'Slice07/UpdateVoterTest.php',
+        'DELETE api/v1/voters/{voter}' => 'Slice07/DeleteVoterTest.php',
+        'GET api/v1/elections/{election}/groups' => 'Slice07/ListGroupsTest.php',
+        'POST api/v1/elections/{election}/groups' => 'Slice07/CreateGroupTest.php',
+        'PATCH api/v1/groups/{group}' => 'Slice07/UpdateGroupTest.php',
+        'DELETE api/v1/groups/{group}' => 'Slice07/DeleteGroupTest.php',
+        'POST api/v1/groups/{group}/merge' => 'Slice07/MergeGroupsTest.php',
+        'GET api/v1/elections/{election}/voter-imports/template' => 'Slice08/TemplateTest.php',
+        'POST api/v1/elections/{election}/voter-imports' => 'Slice08/UploadImportTest.php',
+        'GET api/v1/voter-imports/{import}' => 'Slice08/ShowImportTest.php',
+        'PATCH api/v1/voter-imports/{import}' => 'Slice08/MapImportTest.php',
+        'GET api/v1/voter-imports/{import}/rows' => 'Slice08/ImportRowsTest.php',
+        'POST api/v1/voter-imports/{import}/confirm' => 'Slice08/ConfirmImportTest.php',
+        'GET api/v1/voter-imports/{import}/errors' => 'Slice08/ImportErrorsTest.php',
+        'DELETE api/v1/voter-imports/{import}' => 'Slice08/DeleteImportTest.php',
+        'POST api/v1/elections/{election}/voter-copies' => 'Slice09/VoterCopyTest.php',
+        'GET api/v1/elections/{election}/checklist' => 'Slice09/ChecklistTest.php',
+        'POST api/v1/elections/{election}/schedule' => 'Slice09/ScheduleTest.php',
+        'POST api/v1/elections/{election}/unschedule' => 'Slice09/UnscheduleTest.php',
+        'POST api/v1/elections/{election}/close' => 'Slice13/CloseElectionTest.php',
+        'POST api/v1/elections/{election}/extend' => 'Slice13/ExtendElectionTest.php',
+        'GET api/v1/elections/{election}/turnout' => 'Slice14/TurnoutTest.php',
+        'GET api/v1/elections/{election}/voters/export' => 'Slice14/ExportVotersTest.php',
+        'GET api/v1/dashboard' => 'Slice14/DashboardTest.php',
+        'GET api/v1/elections/{election}/results' => 'Slice15/ResultsTest.php',
+        'PUT api/v1/ballots/{ballot}/result-note' => 'Slice15/ResultNoteTest.php',
+        'POST api/v1/elections/{election}/second-round' => 'Slice15/SecondRoundTest.php',
+        'POST api/v1/elections/{election}/publish' => 'Slice16/PublishTest.php',
+        'POST api/v1/elections/{election}/unpublish' => 'Slice16/UnpublishTest.php',
+        'POST api/v1/elections/{election}/archive' => 'Slice16/ArchiveTest.php',
+        'POST api/v1/elections/{election}/unarchive' => 'Slice16/ArchiveTest.php',
+        'GET api/v1/elections/{election}/report' => 'Slice16/ReportTest.php',
+        'GET api/v1/audit' => 'Slice17/ListAuditTest.php',
+        'GET api/v1/audit/export' => 'Slice17/ExportAuditTest.php',
+        'GET api/v1/elections/{election}/credentials' => 'Slice10/CredentialsStateTest.php',
+        'POST api/v1/elections/{election}/credential-runs' => 'Slice10/CredentialRunTest.php',
+        'GET api/v1/elections/{election}/generated-files' => 'Slice10/GeneratedFilesTest.php',
+        'GET api/v1/generated-files/{file}' => 'Slice10/GeneratedFilesTest.php',
+        'GET api/v1/generated-files/{file}/download' => 'Slice10/DownloadFileTest.php',
+        'POST api/v1/voters/{voter}/credential' => 'Slice10/ReissueCredentialTest.php',
+        'POST api/v1/elections/{election}/credential-previews' => 'Slice11/CredentialPreviewTest.php',
         'POST api/v1/ballots/{ballot}/candidates' => 'Slice06/CreateCandidateTest.php',
         'PUT api/v1/ballots/{ballot}/candidates/order' => 'Slice06/ReorderCandidatesTest.php',
         'PATCH api/v1/candidates/{candidate}' => 'Slice06/UpdateCandidateTest.php',
@@ -283,7 +356,7 @@ final class Tenancy
      */
     public static function uncoveredRoutes(iterable $routes): array
     {
-        $known = array_merge(self::PUBLIC_ROUTES, self::OWN_USER_ROUTES, array_keys(self::TENANT_ROUTES));
+        $known = array_merge(self::PUBLIC_ROUTES, self::OWN_USER_ROUTES, self::PLATFORM_ROUTES, array_keys(self::TENANT_ROUTES));
         $missing = [];
 
         foreach ($routes as $route) {

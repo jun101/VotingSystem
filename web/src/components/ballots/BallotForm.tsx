@@ -6,9 +6,11 @@ import { Icon } from '@/components/admin/Icon';
 import { Panel } from '@/components/elections/Panel';
 import { Button, Input, Notice, Textarea } from '@/components/ui';
 import type { Ballot } from '@/lib/api/ballots';
-import { createBallot, updateBallot } from '@/lib/api/browser';
+import { createBallot, fetchGroups, updateBallot } from '@/lib/api/browser';
 import { ApiError, errorText, fieldText } from '@/lib/api/errors';
+import type { VoterGroup } from '@/lib/api/voters';
 import { useI18n } from '@/lib/i18n/client';
+import { cx } from '@/components/ui/cx';
 import {
   apiFieldErrors,
   bodyOf,
@@ -21,11 +23,14 @@ import {
   type BallotDraft,
   type BallotFieldErrors,
 } from './ballotForm';
+import { toggleGroup } from './ballotScope';
 
 function draftOf(ballot: Ballot | null): BallotDraft {
   if (!ballot) return EMPTY_DRAFT;
 
   return {
+    scope: ballot.scope,
+    groups: ballot.groups.map((group) => group.id),
     title: ballot.title,
     description: ballot.description ?? '',
     seats: String(ballot.seats),
@@ -59,6 +64,10 @@ function Fields({
   const [problem, setProblem] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const first = useRef<HTMLInputElement>(null);
+  // The groups of the election, read when the group scope is first chosen (null: not read yet).
+  const [choices, setChoices] = useState<VoterGroup[] | null>(null);
+  const [choicesFailed, setChoicesFailed] = useState(false);
+  const wantsGroups = draft.scope === 'group';
 
   // On a desktop the panel opens at the top of the zone: the title field takes the focus (a
   // dialog does it by itself).
@@ -68,6 +77,24 @@ function Fields({
     first.current?.focus({ preventScroll: true });
     first.current?.scrollIntoView?.({ block: 'nearest' });
   }, [inDialog]);
+
+  useEffect(() => {
+    if (!wantsGroups || choices !== null) return;
+
+    let alive = true;
+
+    fetchGroups(election)
+      .then((found) => {
+        if (alive) setChoices(found.items);
+      })
+      .catch(() => {
+        if (alive) setChoicesFailed(true);
+      });
+
+    return () => {
+      alive = false;
+    };
+  }, [wantsGroups, choices, election]);
 
   function text(field: keyof BallotFieldErrors): string | undefined {
     const code = errors[field];
@@ -149,6 +176,88 @@ function Fields({
         errorTestId="ballot-form-error-description"
         data-testid="ballot-form-description"
       />
+      <fieldset className="flex flex-col gap-2" data-testid="ballot-form-scope">
+        <legend className="mb-1 text-md font-medium text-ink">{t('ballots.form.scope')}</legend>
+        <div className="flex flex-wrap gap-x-6 gap-y-1">
+          {(['general', 'group'] as const).map((scope) => (
+            <label
+              key={scope}
+              className="flex min-h-11 cursor-pointer items-center gap-3 text-md text-ink"
+            >
+              <input
+                type="radio"
+                name="ballot-scope"
+                value={scope}
+                checked={draft.scope === scope}
+                onChange={() => {
+                  setDraft({ ...draft, scope });
+                  setErrors({ ...errors, groups: undefined });
+                }}
+                data-testid={`ballot-form-scope-${scope}`}
+                className={`size-5 shrink-0 cursor-pointer accent-primary ${focusRing}`}
+              />
+              {t(scope === 'group' ? 'ballots.form.scopeGroup' : 'ballots.form.scopeGeneral')}
+            </label>
+          ))}
+        </div>
+        {wantsGroups ? (
+          <div className="flex flex-col gap-2">
+            <p className="text-base text-ink-soft">{t('ballots.form.groupsHelp')}</p>
+            {choices === null ? (
+              <p className="text-base text-ink-soft" role={choicesFailed ? 'alert' : undefined}>
+                {t(choicesFailed ? 'ballots.form.groupsFailed' : 'ballots.form.groupsLoading')}
+              </p>
+            ) : choices.length === 0 ? (
+              <p data-testid="ballot-form-groups-empty" className="text-base text-ink-soft">
+                {t('ballots.form.groupsNone')}
+              </p>
+            ) : (
+              <div
+                role="group"
+                aria-label={t('ballots.form.groups')}
+                data-testid="ballot-form-groups"
+                className="flex flex-wrap gap-2"
+              >
+                {choices.map((group, index) => {
+                  const on = draft.groups.includes(group.id);
+
+                  return (
+                    <button
+                      key={group.id}
+                      type="button"
+                      aria-pressed={on}
+                      data-testid={`ballot-form-group-${index + 1}`}
+                      onClick={() => {
+                        setDraft({ ...draft, groups: toggleGroup(draft.groups, group.id) });
+                        setErrors({ ...errors, groups: undefined });
+                      }}
+                      className={cx(
+                        'ui-control inline-flex min-h-11 max-w-full items-center gap-2 rounded-full border px-3.5 text-base font-medium md:min-h-9',
+                        on
+                          ? 'border-primary bg-primary text-surface'
+                          : 'border-line-strong bg-surface text-ink hover:bg-primary-soft',
+                        focusRing,
+                      )}
+                    >
+                      <span className="min-w-0 truncate">{group.name}</span>
+                      <b>{group.voters_count}</b>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            {errors.groups ? (
+              <p
+                role="alert"
+                data-testid="ballot-form-error-groups"
+                className="text-base font-medium text-danger"
+              >
+                {text('groups')}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+      </fieldset>
       <div className="flex flex-wrap items-start gap-x-6 gap-y-3">
         <div className="w-full max-w-48 min-w-36">
           <Input

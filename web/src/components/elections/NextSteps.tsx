@@ -18,20 +18,32 @@ const STEPS = [
 /**
  * The four steps after the draft (ballots, voters, scheduling, codes). On the form they are a
  * reminder, in a list; on the summary page, where `soon` is set, they are a path of four coloured
- * circles joined by dotted lines, each saying it is not available yet (they open in the next
- * slices).
+ * circles joined by dotted lines; a step with an address is a link, the others say they are not
+ * available yet.
  */
 export function NextSteps({
   soon = false,
   title,
   headerTestId,
   ballotsHref,
+  votersHref,
+  onSchedule,
+  codesHref,
+  done = [],
 }: {
   soon?: boolean;
   title: string;
   headerTestId?: string;
   /** Where the first step is: when given, that step is a link and has no "not available" tag. */
   ballotsHref?: string;
+  /** The same for the second step (the voters). */
+  votersHref?: string;
+  /** The third step (scheduling) is an action, not an address: it opens the schedule dialog. */
+  onSchedule?: () => void;
+  /** The same for the fourth step (the access codes). */
+  codesHref?: string;
+  /** The steps already done (`ballots`, `voters`, `schedule`, `codes`): they say so and count. */
+  done?: readonly string[];
 }) {
   const { t } = useI18n();
 
@@ -46,7 +58,7 @@ export function NextSteps({
       aside={
         soon ? (
           <span className={PANEL_ASIDE}>
-            {t('elections.summary.stepsCount', { done: 0, total: STEPS.length })}
+            {t('elections.summary.stepsCount', { done: done.length, total: STEPS.length })}
           </span>
         ) : null
       }
@@ -58,48 +70,107 @@ export function NextSteps({
             : 'flex flex-col gap-3',
         )}
       >
-        {STEPS.map((step, index) =>
-          soon ? (
-            step.key === 'ballots' && ballotsHref ? (
+        {STEPS.map((step, index) => {
+          const href =
+            step.key === 'ballots'
+              ? ballotsHref
+              : step.key === 'voters'
+                ? votersHref
+                : step.key === 'codes'
+                  ? codesHref
+                  : undefined;
+          const action = step.key === 'schedule' ? onSchedule : undefined;
+          const finished = done.includes(step.key);
+
+          return soon ? (
+            href || action ? (
               <li
                 key={step.key}
                 data-testid={`election-step-${index + 1}`}
                 data-state="ready"
                 className="path-step flex"
               >
-                <Link
-                  href={ballotsHref}
-                  className={cx(
-                    'group flex w-full flex-col items-center gap-2 rounded-lg px-3.5 text-center',
-                    focusRing,
-                  )}
-                >
-                  <span
-                    aria-hidden="true"
+                {href ? (
+                  <Link
+                    href={href}
                     className={cx(
-                      'path-dot relative z-10 flex size-13.5 items-center justify-center rounded-full shadow-[0_0_0_6px_var(--color-surface)]',
-                      step.tone,
+                      'group flex w-full flex-col items-center gap-2 rounded-lg px-3.5 text-center',
+                      focusRing,
                     )}
                   >
-                    <Icon name={step.icon} size={26} />
-                  </span>
-                  <b className="font-display text-lg font-extrabold text-ink">
-                    {t(`elections.next.${step.key}.title`)}
-                  </b>
-                  <span className="max-w-64 text-base text-ink-soft">
-                    {t(`elections.next.${step.key}.text`)}
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-soft px-3 py-1 text-xs font-bold text-primary-hover group-hover:bg-primary-line">
-                    {t('elections.card.open')}
-                    <Icon name="open" size={14} />
-                  </span>
-                </Link>
+                    <span
+                      aria-hidden="true"
+                      className={cx(
+                        'path-dot relative z-10 flex size-13.5 items-center justify-center rounded-full shadow-[0_0_0_6px_var(--color-surface)]',
+                        step.tone,
+                      )}
+                    >
+                      <Icon name={step.icon} size={26} />
+                    </span>
+                    <b className="font-display text-lg font-extrabold text-ink">
+                      {t(`elections.next.${step.key}.title`)}
+                    </b>
+                    <span className="max-w-64 text-base text-ink-soft">
+                      {t(`elections.next.${step.key}.text`)}
+                    </span>
+                    {finished ? (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-soft px-3 py-1 text-xs font-bold text-teal-ink">
+                        <Icon name="check" size={14} />
+                        {t('elections.next.done')}
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-soft px-3 py-1 text-xs font-bold text-primary-hover group-hover:bg-primary-line">
+                        {t('elections.card.open')}
+                        <Icon name="open" size={14} />
+                      </span>
+                    )}
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={action}
+                    className={cx(
+                      cx(
+                        'group flex w-full flex-col items-center gap-2 rounded-lg px-3.5 text-center',
+                        focusRing,
+                      ),
+                      'cursor-pointer',
+                    )}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={cx(
+                        'path-dot relative z-10 flex size-13.5 items-center justify-center rounded-full shadow-[0_0_0_6px_var(--color-surface)]',
+                        step.tone,
+                      )}
+                    >
+                      <Icon name={step.icon} size={26} />
+                    </span>
+                    <b className="font-display text-lg font-extrabold text-ink">
+                      {t(`elections.next.${step.key}.title`)}
+                    </b>
+                    <span className="max-w-64 text-base text-ink-soft">
+                      {t(`elections.next.${step.key}.text`)}
+                    </span>
+                    {finished ? (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-soft px-3 py-1 text-xs font-bold text-teal-ink">
+                        <Icon name="check" size={14} />
+                        {t('elections.next.done')}
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-soft px-3 py-1 text-xs font-bold text-primary-hover group-hover:bg-primary-line">
+                        {t('elections.card.open')}
+                        <Icon name="open" size={14} />
+                      </span>
+                    )}
+                  </button>
+                )}
               </li>
             ) : (
               <li
                 key={step.key}
                 data-testid={`election-step-${index + 1}`}
-                data-state="soon"
+                data-state={finished ? 'done' : 'soon'}
                 className="path-step flex flex-col items-center gap-2 px-3.5 text-center"
               >
                 <span
@@ -117,7 +188,11 @@ export function NextSteps({
                 <span className="max-w-64 text-base text-ink-soft">
                   {t(`elections.next.${step.key}.text`)}
                 </span>
-                <Pill tone="neutral">{t('elections.summary.soon')}</Pill>
+                {finished ? (
+                  <Pill tone="teal">{t('elections.next.done')}</Pill>
+                ) : (
+                  <Pill tone="neutral">{t('elections.summary.soon')}</Pill>
+                )}
               </li>
             )
           ) : (
@@ -139,8 +214,8 @@ export function NextSteps({
                 {t(`elections.next.${step.key}.text`)}
               </span>
             </li>
-          ),
-        )}
+          );
+        })}
       </ol>
       {soon ? null : <p className="text-sm text-ink-soft">{t('elections.next.footer')}</p>}
     </Panel>

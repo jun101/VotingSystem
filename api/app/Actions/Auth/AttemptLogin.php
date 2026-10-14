@@ -78,7 +78,8 @@ final class AttemptLogin
         if ($user->institution?->isSuspended()) {
             Log::info('auth.login', ['outcome' => 'suspended']);
 
-            throw new ApiException(403, 'institution_suspended');
+            // Only here, once the password is right: the reason is for the people of this institution.
+            throw new ApiException(403, 'institution_suspended', reason: $user->institution->suspension_reason);
         }
 
         if (Hash::needsRehash($user->password)) {

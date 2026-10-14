@@ -7,6 +7,7 @@
 
 import type { Ballot } from '@/lib/api/ballots';
 import type { Candidate } from '@/lib/api/candidates';
+import { mergeOrder } from './ballotMove';
 
 /** The list with positions 1, 2, 3… in the order it has. */
 function numbered(candidates: readonly Candidate[]): Candidate[] {
@@ -27,6 +28,20 @@ export function withCandidates(
   candidates: readonly Candidate[],
 ): Ballot[] {
   return ballots.map((ballot) => (ballot.id === ballotId ? holding(ballot, candidates) : ballot));
+}
+
+/**
+ * The ballots after the server confirmed the order of one ballot's candidates: only the order
+ * and the positions are taken from the answer; a candidate added or edited meanwhile stays.
+ */
+export function withCandidateOrder(
+  ballots: readonly Ballot[],
+  ballotId: string,
+  saved: readonly Candidate[],
+): Ballot[] {
+  return ballots.map((ballot) =>
+    ballot.id === ballotId ? holding(ballot, mergeOrder(ballot.candidates, saved)) : ballot,
+  );
 }
 
 /**

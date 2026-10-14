@@ -1,11 +1,18 @@
 <?php
 
 use App\Exceptions\ApiErrorRenderer;
+use App\Http\Middleware\AddApiSecurityHeaders;
 use App\Http\Middleware\AssignRequestId;
+use App\Http\Middleware\EndExpiredSession;
+use App\Http\Middleware\EndStaleImpersonation;
+use App\Http\Middleware\EnforcePasswordChange;
 use App\Http\Middleware\EnsureInstitutionActive;
 use App\Http\Middleware\EnsureOwner;
+use App\Http\Middleware\EnsurePlatformAdmin;
 use App\Http\Middleware\RefuseOptions;
 use App\Http\Middleware\RejectMalformedJson;
+use App\Http\Middleware\RequireDeploymentMode;
+use App\Http\Middleware\RequireJsonBody;
 use App\Http\Middleware\ResetAuthState;
 use App\Http\Middleware\ThrottleWithoutCounters;
 use App\Http\Middleware\VerifyCsrfToken;
@@ -25,7 +32,9 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Routing\Middleware\ThrottleRequestsWithRedis;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -49,6 +58,9 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Global, so that routes outside the `api` group get a request id too.
         $middleware->prepend(AssignRequestId::class);
+        // The hardening headers (slice 19): outermost and global, so that a 404, a 405, a refused host and an
+        // OPTIONS answer carry them too, not only the routes that matched.
+        $middleware->prepend(AddApiSecurityHeaders::class);
         $middleware->append(RefuseOptions::class);
 
         // The routes that use the cookie session (docs/api/auth/): sign-in, CSRF, the current
@@ -62,11 +74,23 @@ return Application::configure(basePath: dirname(__DIR__))
             RejectMalformedJson::class,
             StartSession::class,
             VerifyCsrfToken::class,
+            EndExpiredSession::class,
             AuthenticateSession::class,
+            EndStaleImpersonation::class,
+            EnforcePasswordChange::class,
+        ]);
+        // The voter's pages (slice 12): no session, no CSRF token and no cookie encryption. The voter's
+        // token is its own cookie, read and written by the controllers (`SameSite=Strict`, path
+        // `/api/v1/vote`); a POST must declare a JSON body (RequireJsonBody).
+        $middleware->group('voter', [
+            RequireJsonBody::class,
+            RejectMalformedJson::class,
         ]);
         $middleware->alias([
+            'deployment' => RequireDeploymentMode::class,
             'institution.active' => EnsureInstitutionActive::class,
             'owner' => EnsureOwner::class,
+            'platform.admin' => EnsurePlatformAdmin::class,
             'throttle.quiet' => ThrottleWithoutCounters::class,
         ]);
 
@@ -89,11 +113,18 @@ return Application::configure(basePath: dirname(__DIR__))
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
             StartSession::class,
+            // The absolute lifetime is judged right after the session is read, before the CSRF token.
+            EndExpiredSession::class,
             ShareErrorsFromSession::class,
             AuthenticatesRequests::class,
             VerifyCsrfToken::class,
             EnsureInstitutionActive::class,
             AuthenticatesSessions::class,
+            EndStaleImpersonation::class,
+            // The platform admin's role is judged before the institution of the route is bound (an owner never learns
+            // whether an institution exists), and the binding before the rate limit (an unknown institution is a 404
+            // that uses no allowance).
+            EnsurePlatformAdmin::class,
             SubstituteBindings::class,
             EnsureOwner::class,
             ThrottleRequests::class,
@@ -105,6 +136,25 @@ return Application::configure(basePath: dirname(__DIR__))
         // This application serves the API only: every answer is JSON, whatever the path
         // and the Accept header (docs/api/README.md section 1).
         $exceptions->shouldRenderJsonWhen(fn () => true);
+
+        // The voting routes (slice 12) log a fault by its route name, status and exception class only:
+        // never the exception's message (a query's text can quote a value), its trace, the request
+        // body, a code, a choice or a voter. Returning false ends the default report.
+        $exceptions->reportable(function (Throwable $e): ?bool {
+            $request = request();
+
+            if (! $request->is('api/v1/vote/*')) {
+                return null;
+            }
+
+            Log::warning('vote.request_failed', [
+                'route' => $request->route()?->getName() ?? 'vote',
+                'status' => $e instanceof HttpExceptionInterface ? $e->getStatusCode() : 500,
+                'class' => $e::class,
+            ]);
+
+            return false;
+        });
 
         $exceptions->render(fn (Throwable $e, Request $request) => app(ApiErrorRenderer::class)($e, $request));
     })->create();

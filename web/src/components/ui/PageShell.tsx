@@ -12,6 +12,8 @@ type PageShellProps = {
   variant?: PageShellVariant;
   /** Without a hero, the content column: the default, or the width of a split card. */
   width?: 'narrow' | 'wide';
+  /** With a hero: something at the right end of the top line, opposite the product name (a language switch). */
+  headerEnd?: ReactNode;
   /** A `Hero`, shown across the whole width above the content. */
   hero?: ReactNode;
   /** With a hero: the first cards climb about 50 px onto it (the default). */
@@ -33,6 +35,7 @@ export function PageShell({
   variant = 'plain',
   width = 'narrow',
   hero,
+  headerEnd,
   overlap = true,
   withActionBar = false,
   children,
@@ -56,8 +59,9 @@ export function PageShell({
       <div data-variant={variant} className="min-h-screen bg-canvas">
         <div className="relative">
           {/* The name of the product sits on the hero, over its top edge, outside <main>. */}
-          <header className="absolute inset-x-0 top-0 z-10 mx-auto w-full max-w-6xl px-4 pt-6">
+          <header className="absolute inset-x-0 top-0 z-10 mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 pt-6">
             {link}
+            {headerEnd}
           </header>
           <main>
             {hero}

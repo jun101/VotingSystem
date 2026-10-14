@@ -12,12 +12,157 @@
       "online": "Online",
       "offline": "Offline",
       "unavailable": "Unavailable",
-      "unknown": "Unknown"
+      "unknown": "Unknown",
+      "overallOk": "System online",
+      "overallDown": "System partly offline",
+      "overallUnknown": "System status unknown"
+    },
+    "nav": {
+      "label": "Main navigation",
+      "home": "Home",
+      "how": "How it works",
+      "security": "Security",
+      "faq": "FAQ",
+      "signIn": "Sign in",
+      "create": "Create an election",
+      "menu": "Menu",
+      "close": "Close the menu"
     },
     "hero": {
-      "pill": "Online elections",
-      "accent": "Voting",
-      "lede": "Secure elections for schools and institutions, in French and English."
+      "pill": "Online elections for schools",
+      "title": "Vote simply,",
+      "accent": "in secret.",
+      "lede": "Import your voters, hand a code to each one, and follow turnout live. The vote stays secret and results are published when the election closes.",
+      "create": "Create an election",
+      "how": "How it works",
+      "assure": {
+        "secret": "Secret ballot",
+        "once": "One vote per voter",
+        "phone": "On a phone"
+      }
+    },
+    "art": {
+      "label": "Demo",
+      "ballot": "Student council president",
+      "one": "Marie-Claire Pierre",
+      "oneRole": "Candidate, year 3",
+      "two": "Jean Baptiste",
+      "twoRole": "Candidate, year 4",
+      "blank": "Blank vote",
+      "blankRole": "No candidate",
+      "vote": "Vote",
+      "slot": "Tap a candidate to vote",
+      "slotDone": "Ballot dropped in the box",
+      "idle": "No real vote: this is a trial.",
+      "voted": "Trial: “{name}”, ballot cast."
+    },
+    "voter": {
+      "title": "I am a voter",
+      "text": "Paste the voting link you received on your slip or by email.",
+      "label": "Voting link or election address",
+      "placeholder": "https://…/vote/…",
+      "button": "Vote",
+      "error": "This link is not valid. Paste the full link from your slip or your email."
+    },
+    "organiser": {
+      "title": "I organise an election",
+      "text": "Create the election, import the voters, print the codes.",
+      "signIn": "Sign in",
+      "register": "Create an account"
+    },
+    "why": {
+      "eyebrow": "Why us",
+      "title": "Elections you can trust",
+      "lead": "Built for schools and institutions: simple for the organiser, clear for the voter, verifiable by everyone.",
+      "secret": {
+        "title": "Nobody sees your choice",
+        "text": "No link between a voter and a vote."
+      },
+      "slips": {
+        "title": "One code per voter",
+        "text": "PDF slips, email or an Excel file."
+      },
+      "live": {
+        "title": "Who voted, not for whom",
+        "text": "Follow turnout group by group."
+      },
+      "results": {
+        "title": "Published at closing",
+        "text": "Ties are flagged, a runoff is possible."
+      }
+    },
+    "figures": {
+      "title": "At a glance",
+      "one": {
+        "value": "1",
+        "label": "code per voter, one vote"
+      },
+      "zero": {
+        "value": "0",
+        "label": "vote linked to a voter"
+      },
+      "two": {
+        "value": "2",
+        "label": "languages: French and English"
+      },
+      "full": {
+        "value": "100%",
+        "label": "online, on a phone"
+      }
+    },
+    "steps": {
+      "eyebrow": "How it works",
+      "title": "Four steps, from file to results",
+      "import": {
+        "title": "Import",
+        "text": "Drop in the list of voters."
+      },
+      "codes": {
+        "title": "Hand out the codes",
+        "text": "Print the slips or send them by email."
+      },
+      "vote": {
+        "title": "Vote",
+        "text": "Everyone votes once, in secret."
+      },
+      "results": {
+        "title": "Results",
+        "text": "Published when the election closes."
+      }
+    },
+    "faq": {
+      "eyebrow": "Questions",
+      "title": "You may be wondering",
+      "lead": "Another question? Write to us.",
+      "account": {
+        "q": "Do my voters need an account?",
+        "a": "No. A personal code is enough."
+      },
+      "phone": {
+        "q": "Can people vote from a phone?",
+        "a": "Yes, the page is designed for phones."
+      },
+      "tie": {
+        "q": "What happens in case of a tie?",
+        "a": "It is flagged and a runoff is possible."
+      },
+      "results": {
+        "q": "Who sees the results?",
+        "a": "Nobody before closing, then the public page."
+      }
+    },
+    "closing": {
+      "title": "Ready to organise your election?",
+      "create": "Create an election",
+      "signIn": "Sign in"
+    },
+    "footer": {
+      "tagline": "Simple, secret online elections for schools and institutions.",
+      "product": "Product",
+      "account": "Account",
+      "contact": "Contact",
+      "email": "contact@example.ht",
+      "copy": "© {year} New Voting System"
     }
   },
   "notFound": {
@@ -146,7 +291,7 @@
       "register": "Register my institution",
       "notice": "Your password has been changed. You can sign in.",
       "suspended": "This institution is suspended. You have been signed out.",
-      "platformAdmin": "The platform administrators' area is not available yet. You have been signed out."
+      "suspendedReason": "This institution is suspended. Reason given by the platform administrators:"
     },
     "forgot": {
       "title": "Forgot your password",
@@ -235,7 +380,8 @@
     "user": {
       "menu": "{name}'s menu",
       "signOut": "Sign out",
-      "account": "My account"
+      "account": "My account",
+      "guide": "User guide"
     },
     "roles": {
       "owner": "Owner",
@@ -343,6 +489,39 @@
         "twoFactorOn": "On for your account",
         "twoFactorOff": "Not on yet for your account",
         "invite": "Invite a colleague"
+      },
+      "live": {
+        "left": "{time} left",
+        "leftDays": "{days}d {hours}h",
+        "leftHours": "{hours}h {minutes}min",
+        "leftMinutes": "{minutes}min",
+        "over": "Voting is over, the closing is under way",
+        "turnout": "Turnout",
+        "percent": "{percent}%",
+        "votedOf": "{voted} / {eligible} have voted",
+        "viewTurnout": "See the turnout",
+        "viewElection": "Open the election",
+        "more": "See all open elections ({count})",
+        "todoKinds": {
+          "voters_not_voted": {
+            "one": "{count} voter has not voted yet",
+            "other": "{count} voters have not voted yet"
+          },
+          "draft_blockers": {
+            "one": "{count} item to fix before scheduling",
+            "other": "{count} items to fix before scheduling"
+          },
+          "codes_missing": {
+            "one": "{count} voter without an access code",
+            "other": "{count} voters without an access code"
+          }
+        },
+        "counts": "By status",
+        "upcoming": {
+          "title": "Coming up",
+          "empty": "No scheduled election.",
+          "starts": "Starts on {day} at {time}"
+        }
       }
     },
     "comingSoon": {
@@ -350,16 +529,20 @@
       "text": "This page comes with a later step of the product. The rest of the area is ready to use.",
       "back": "Back to the dashboard"
     },
-    "turnedAway": {
-      "title": "Area not available",
-      "text": "This account has no institution. You have been signed out."
-    }
+    "impersonation": {
+      "title": "You are acting as the owner of {institution}",
+      "text": "Signed in by {name} (platform administration). Every action is recorded in the audit log under your name and is visible to the institution’s owners.",
+      "end": "Leave the institution",
+      "ending": "Leaving…"
+    },
+    "insecure": "Unencrypted connection (HTTP): passwords and codes cross the school network in clear."
   },
   "errors": {
     "validation_failed": "Some fields need correcting.",
     "invalid_credentials": "Email or password is incorrect.",
     "institution_suspended": "This institution is suspended.",
     "unauthenticated": "Your session has ended. Sign in again.",
+    "two_factor_required": "Platform administration needs two-factor authentication. Set it up below, then reload this page.",
     "csrf_mismatch": "The session has expired. Reload the page, then try again.",
     "too_many_attempts": "Too many attempts. Try again in a moment.",
     "expired": "This link has expired. Ask for a new one.",
@@ -384,10 +567,46 @@
     "cannot_reset_self": "For your own account, use the “My account” page.",
     "too_many_attempts_wait_one": "Too many attempts. Try again in 1 minute.",
     "too_many_attempts_wait_many": "Too many attempts. Try again in {minutes} minutes.",
-    "election_not_editable": "This election is no longer a draft: it can no longer be changed or deleted.",
+    "election_not_editable": "This election is no longer a draft: it cannot be changed or deleted. If it is scheduled, unschedule it first.",
     "ballot_limit_reached": "An election cannot have more than 50 positions.",
     "party_limit_reached": "An election cannot have more than 30 parties.",
-    "candidate_limit_reached": "A position cannot have more than 50 candidates."
+    "candidate_limit_reached": "A position cannot have more than 50 candidates.",
+    "election_voters_locked": "The voters and groups of this election can no longer be changed.",
+    "voter_limit_reached": "An election cannot have more than 10,000 voters.",
+    "group_limit_reached": "An election cannot have more than 100 groups.",
+    "group_in_use": "This group still has voters or is used by a ballot. Move the voters, change the ballot or merge the group.",
+    "import_in_progress": "An import is already under way for this election. Wait for it to finish, or cancel it.",
+    "import_not_checked": "This file is no longer at the check step. Reload the page.",
+    "nothing_to_import": "No row is ready to import.",
+    "no_error_file": "There is no rejected row to download.",
+    "checklist_blocked": "The election is not ready: blocking points remain. Reload the page.",
+    "checklist_warnings": "Warnings remain: read them and confirm to schedule anyway.",
+    "election_period_over": "The end of the election has passed: change the dates before scheduling.",
+    "election_not_open": "This election is not open: it cannot be closed. Reload the page.",
+    "election_not_extendable": "The end of this election can no longer be moved. Reload the page.",
+    "election_started": "This election has already started: it can no longer go back to a draft. Reload the page.",
+    "election_not_scheduled": "This election is not scheduled. Reload the page.",
+    "election_codes_locked": "Codes can no longer be created or replaced: the election is over.",
+    "run_in_progress": "A generation is already under way for this election. Wait for it to finish.",
+    "nothing_to_generate": "Every voter concerned already has a code.",
+    "file_not_ready": "This file is not ready yet, or it failed.",
+    "voter_has_voted": "This voter has already voted: the code cannot be replaced.",
+    "email_count_changed": "The number of emails changed. Check the new numbers, then confirm again.",
+    "nothing_to_email": "None of these voters has an address: no email to send.",
+    "email_not_verified": "Confirm your email address first to send codes by email. You can still print the slips.",
+    "email_quota_exceeded": "The institution’s limit of emails for 24 hours is reached or would be: send fewer emails, or print the slips.",
+    "results_not_available": "The results are not available: the election is not closed.",
+    "second_round_exists": "A second round already exists for this position.",
+    "ballot_not_tied": "This position is not tied: no second round is possible.",
+    "results_check_failed": "Publication refused: the number of ballots does not match the number of voters who voted.",
+    "election_not_closed": "This election is no longer at the closed stage: reload the page to see its current state.",
+    "election_not_published": "The results are no longer published: reload the page to see the current state.",
+    "election_not_archivable": "This election cannot be archived in its current state.",
+    "election_not_archived": "This election is not archived.",
+    "already_suspended": "This institution is already suspended. Reload the page.",
+    "not_suspended": "This institution is not suspended. Reload the page.",
+    "already_impersonating": "You are already acting as an institution’s owner. Leave it first.",
+    "not_impersonating": "You are not acting as an institution’s owner. Reload the page."
   },
   "validation": {
     "required": "This field is required.",
@@ -505,7 +724,10 @@
       "ends_at": {
         "required": "Choose when voting ends.",
         "date": "This date and time are not valid.",
-        "after_start": "Voting must end after it starts."
+        "after_start": "Voting must end after it starts.",
+        "not_after": "The new end must be later than the current end. To end sooner, close the election.",
+        "too_far": "The end can move by 30 days at most in one go.",
+        "invalid": "This date and time are not valid."
       },
       "timezone": {
         "required": "Choose a time zone.",
@@ -519,6 +741,12 @@
       },
       "results_display": {
         "in": "Choose a display from the list."
+      }
+    },
+    "closing": {
+      "confirmation": {
+        "required": "Type the title of the election to confirm.",
+        "mismatch": "This is not the title of the election."
       }
     },
     "cover": {
@@ -540,6 +768,13 @@
         "integer": "Enter a whole number of seats.",
         "min": "There must be at least 1 seat.",
         "max": "A position has 20 seats at most."
+      },
+      "groups": {
+        "required": "Choose at least one group.",
+        "invalid": "One of the groups no longer exists. Reload the page."
+      },
+      "scope": {
+        "invalid": "Choose who can vote for this position."
       }
     },
     "party": {
@@ -594,6 +829,99 @@
         "required": "Choose an image.",
         "invalid": "This file cannot be used."
       }
+    },
+    "voter": {
+      "full_name": {
+        "required": "Enter the voter’s name.",
+        "max": "The name must be 150 characters or fewer."
+      },
+      "group": {
+        "max": "The group name must be 100 characters or fewer.",
+        "unknown": "This group does not exist. During voting, choose an existing group.",
+        "voted": "This voter has already voted: their group can no longer change."
+      },
+      "identifier": {
+        "max": "The identifier must be 50 characters or fewer.",
+        "unique": "A voter of this election already has this identifier."
+      },
+      "email": {
+        "email": "Enter a valid email address.",
+        "max": "This address is too long (255 characters at most).",
+        "unique": "A voter of this election already has this address."
+      },
+      "phone": {
+        "max": "The phone must be 30 characters or fewer.",
+        "invalid": "Use only digits, spaces and the signs + ( ) . -"
+      }
+    },
+    "group": {
+      "name": {
+        "required": "Give the group a name.",
+        "max": "The name must be 100 characters or fewer.",
+        "unique": "A group of this election already has this name."
+      },
+      "into": {
+        "required": "Choose the group that receives the voters.",
+        "uuid": "Choose a group from the list.",
+        "same": "Choose a group other than this one.",
+        "invalid": "This group no longer exists. Reload the page."
+      }
+    },
+    "copy": {
+      "source": {
+        "required": "Choose the source election.",
+        "uuid": "Choose an election from the list.",
+        "same": "Choose an election other than this one.",
+        "invalid": "This election no longer exists. Reload the page."
+      },
+      "groups": {
+        "invalid": "One of the chosen groups no longer exists. Choose the election again."
+      },
+      "rename": {
+        "invalid": "A new name is empty, too long (100 characters at most) or does not match a group being loaded."
+      }
+    },
+    "platform": {
+      "suspend": {
+        "reason": {
+          "required": "Give the reason for the suspension.",
+          "min": "The reason must have at least 3 characters.",
+          "max": "The reason is too long (500 characters at most)."
+        }
+      }
+    },
+    "createMember": {
+      "name": {
+        "required": "Enter the person’s name.",
+        "max": "This name is too long (100 characters at most)."
+      },
+      "email": {
+        "required": "Enter a sign-in address.",
+        "email": "Enter a valid address.",
+        "max": "This address is too long (255 characters at most).",
+        "taken": "This address already has an account."
+      },
+      "role": {
+        "required": "Choose a role.",
+        "in": "Choose a role from the list."
+      },
+      "password": {
+        "required": "Enter your password.",
+        "incorrect": "This is not your password."
+      }
+    },
+    "changePassword": {
+      "current_password": {
+        "required": "Enter your current password.",
+        "incorrect": "This is not your current password."
+      },
+      "password": {
+        "required": "Enter a new password.",
+        "min": "The new password needs at least 12 characters.",
+        "max": "The new password is too long.",
+        "same_as_email": "The password cannot be your address.",
+        "unchanged": "Choose a password different from the current one."
+      }
     }
   },
   "institution": {
@@ -636,7 +964,7 @@
       "label": "Institution’s public address",
       "copy": "Copy the address",
       "copied": "Address copied.",
-      "soon": "This page will be available soon."
+      "open": "Open the public page"
     },
     "users": {
       "title": "Users",
@@ -685,7 +1013,35 @@
       "resetCode": "Your 6-digit code",
       "resetCodeHelp": "Your own code from the authenticator app, to confirm.",
       "resetRecoveryCode": "Your recovery code",
-      "resetRecoveryHelp": "One of your own recovery codes. Each code works only once."
+      "resetRecoveryHelp": "One of your own recovery codes. Each code works only once.",
+      "create": {
+        "open": "Create a member",
+        "title": "Create a team member",
+        "name": "Full name",
+        "email": "Sign-in address",
+        "emailHelp": "No email is sent. Any address works, for example firstname@school.local.",
+        "role": "Role",
+        "password": "Your password",
+        "passwordHelp": "Your own password, to confirm.",
+        "code": "Your two-factor code",
+        "recovery": "One of your recovery codes",
+        "submit": "Create the account",
+        "cancel": "Cancel"
+      },
+      "issued": {
+        "title": "Password to give to {name}",
+        "text": "This password is shown only once. The person must change it at their first sign-in.",
+        "copy": "Copy",
+        "copied": "Copied",
+        "dismiss": "I have noted the password"
+      },
+      "passwordReset": {
+        "action": "New password",
+        "label": "Give {name} a new password",
+        "title": "New password for {name}",
+        "text": "A new one-time password replaces the current one and ends this person’s sessions. Confirm with your own password.",
+        "confirm": "Create the password"
+      }
     }
   },
   "account": {
@@ -749,6 +1105,22 @@
       "recoveryHelp": "One of your recovery codes. Each code works only once.",
       "useRecovery": "Use a recovery code",
       "useCode": "Use the app code"
+    },
+    "changePassword": {
+      "title": "Password",
+      "text": "Change the password you use to sign in. Your other sessions end.",
+      "current": "Current password",
+      "new": "New password",
+      "newHelp": "At least 12 characters.",
+      "submit": "Change the password",
+      "done": "Your password is changed.",
+      "code": "Two-factor code",
+      "recovery": "Recovery code"
+    },
+    "passwordRequired": {
+      "kicker": "First sign-in",
+      "title": "Choose your own password",
+      "text": "The password you were given is for one use. Choose your own to go on."
     }
   },
   "elections": {
@@ -896,17 +1268,50 @@
       },
       "codes": {
         "title": "Access codes",
-        "text": "slips, email or file"
+        "text": "printed slips by group"
       },
       "footer": "Everything stays editable while the election is a draft.",
-      "separator": ": "
+      "separator": ": ",
+      "done": "Done"
+    },
+    "open": {
+      "title": "Voting in progress",
+      "left": "Time left",
+      "days": "days",
+      "hours": "hours",
+      "minutes": "minutes",
+      "seconds": "seconds",
+      "countdown": "{days} d {hours} h {minutes} min {seconds} s left",
+      "over": "The end has been reached: the election closes within a minute.",
+      "ends": "Voting ends",
+      "extend": "Extend the end",
+      "close": "Close now"
+    },
+    "close": {
+      "title": "Close the election now?",
+      "closeLabel": "Close this window",
+      "warning": "This cannot be undone. Nobody can vote afterwards and the election cannot be reopened.",
+      "text": "To confirm, type the title of the election: {title}",
+      "label": "Title of the election",
+      "cancel": "Cancel",
+      "confirm": "Close the election",
+      "note": "This election is closed. Voting has ended and cannot be reopened."
+    },
+    "extend": {
+      "title": "Extend the end",
+      "closeLabel": "Close this window",
+      "text": "Choose a later end. Voters who are voting are not interrupted. The end can move by 30 days at most.",
+      "label": "New end",
+      "help": "Time in {zone}",
+      "cancel": "Cancel",
+      "confirm": "Extend"
     },
     "summary": {
       "dates": "Dates",
       "timezone": "Time zone",
       "language": "Voting language",
       "order": "Order of the candidates",
-      "results": "Public results page",
+      "results": "See the results",
       "ballots": "Positions and voters",
       "edit": "Edit",
       "duplicate": "Duplicate",
@@ -925,9 +1330,9 @@
       "facts": {
         "positions": "Positions",
         "voters": "Voters",
-        "ballots": "Ballots"
+        "ballots": "Voted"
       },
-      "factsSoon": "Available with the next steps"
+      "turnout": "See the turnout"
     },
     "rail": {
       "label": "Calendar and tasks",
@@ -978,6 +1383,56 @@
       "zone": "Time zone: {zone}",
       "cancel": "Cancel",
       "apply": "Apply the dates"
+    },
+    "checklist": {
+      "title": "Before scheduling",
+      "loading": "Checking…",
+      "failed": "The checklist could not be loaded.",
+      "retry": "Try again",
+      "ok": "Everything is ready: you can schedule the election.",
+      "blockers": "To fix before scheduling",
+      "warnings": "To look at",
+      "blockersCount": {
+        "one": "{count} blocking point",
+        "other": "{count} blocking points"
+      },
+      "warningsCount": {
+        "one": "{count} warning",
+        "other": "{count} warnings"
+      },
+      "items": {
+        "no_ballots": "The election has no position.",
+        "ballot_without_candidates": "The position “{title}” has no candidate.",
+        "no_voters": "The election has no voter.",
+        "ballot_single_candidate": "The position “{title}” has only one candidate.",
+        "group_ballot_no_voters": "The position “{title}” covers no voter.",
+        "group_ballot_few_voters": "The position “{title}” covers only {voters}.",
+        "voters_without_ballot": {
+          "one": "{count} voter cannot vote for any position.",
+          "other": "{count} voters cannot vote for any position."
+        },
+        "unknown": "One point still needs a look."
+      },
+      "schedule": {
+        "button": "Schedule the election",
+        "title": "Schedule this election?",
+        "text": "Positions, candidates and parties will be locked. Voters and groups stay editable, and you can go back to a draft.",
+        "warnings": "Some warnings remain:",
+        "accept": "I understand these warnings and want to schedule anyway.",
+        "confirm": "Schedule",
+        "cancel": "Cancel"
+      },
+      "unschedule": {
+        "button": "Back to draft",
+        "title": "Go back to a draft?",
+        "text": "The election will no longer be scheduled and its positions can be changed again. Voters and groups do not change.",
+        "confirm": "Back to draft",
+        "cancel": "Cancel"
+      },
+      "voters": {
+        "one": "{count} voter",
+        "other": "{count} voters"
+      }
     }
   },
   "ballots": {
@@ -1015,7 +1470,10 @@
       "addCandidate": "Add a candidate",
       "addCandidateTo": "Add a candidate to the position {title}",
       "candidatesLabel": "Candidates of the position {title}",
-      "oneCandidate": "Only one candidate: add another so voters have a choice."
+      "oneCandidate": "Only one candidate: add another so voters have a choice.",
+      "groups": "Groups: {names}",
+      "noVoters": "No voter can vote for this position yet: its groups have no voter.",
+      "fewVoters": "Few voters for this position: {voters} (fewer than {limit})."
     },
     "form": {
       "titleNew": "New position",
@@ -1028,7 +1486,15 @@
       "save": "Save",
       "add": "Add the position",
       "cancel": "Cancel",
-      "error": "The position could not be saved."
+      "error": "The position could not be saved.",
+      "scope": "Who can vote for this position",
+      "scopeGeneral": "Every voter of the election",
+      "scopeGroup": "Only some groups",
+      "groups": "Groups of voters",
+      "groupsHelp": "Choose the groups whose voters vote for this position.",
+      "groupsLoading": "Loading the groups…",
+      "groupsFailed": "The groups could not be loaded. Close the form and try again.",
+      "groupsNone": "This election has no group yet. Create groups on the voters page first."
     },
     "delete": {
       "title": "Delete this position?",
@@ -1039,6 +1505,7 @@
     "notEditable": "This election can no longer be changed.",
     "locked": "This election is no longer a draft: its positions can no longer be changed.",
     "reorderFailed": "The order could not be saved: the previous order is restored.",
+    "listChanged": "The list of ballots changed elsewhere: it was reloaded, please check the order.",
     "actionFailed": "The action could not be done.",
     "rail": {
       "label": "Parties and things to check"
@@ -1051,6 +1518,10 @@
       "one": "{title}: only one candidate",
       "add": "Add a candidate",
       "addTo": "Add a candidate to the position {title}"
+    },
+    "scope": {
+      "general": "Every voter: {voters}",
+      "group": "Chosen groups only: {voters}"
     }
   },
   "parties": {
@@ -1131,6 +1602,7 @@
       "moved": "{name}: place {position} of {total}."
     },
     "reorderFailed": "The order of the candidates could not be saved: the previous order is back.",
+    "listChanged": "The candidates of this ballot changed elsewhere: they were reloaded, please check the order.",
     "form": {
       "titleNew": "Add a candidate",
       "titleEdit": "Edit the candidate",
@@ -1181,5 +1653,1369 @@
       "confirm": "Delete",
       "cancel": "Cancel"
     }
+  },
+  "voters": {
+    "back": "Back to the election",
+    "title": "Voters",
+    "badgeDraft": "Draft · editable until it is scheduled",
+    "count": {
+      "one": "{count} voter",
+      "other": "{count} voters"
+    },
+    "ungrouped": "{count} without a group",
+    "range": {
+      "one": "{from} of {total} voter",
+      "other": "{from} to {to} of {total} voters"
+    },
+    "add": "Add a voter",
+    "zone": {
+      "label": "List of voters",
+      "title": "Voters"
+    },
+    "search": "Search a name, an identifier, an email…",
+    "filter": {
+      "label": "Filter by group",
+      "all": "All",
+      "none": "No group",
+      "credential": {
+        "label": "Access code",
+        "all": "All voters",
+        "issued": "With a code",
+        "none": "Without a code"
+      },
+      "emailStatus": {
+        "label": "Code email",
+        "all": "Any status",
+        "queued": "Waiting to send",
+        "sent": "Sent",
+        "failed": "Failed",
+        "none": "Never sent"
+      },
+      "voted": {
+        "label": "Turnout",
+        "all": "All voters",
+        "yes": "Have voted",
+        "no": "Have not voted"
+      }
+    },
+    "card": {
+      "noGroup": "No group",
+      "edit": "Edit the voter {name}",
+      "delete": "Delete the voter {name}",
+      "email": "Email: {value}",
+      "phone": "Phone: {value}",
+      "hasCode": "Access code created",
+      "emailStatus": {
+        "queued": "Email waiting to send",
+        "sent": "Email sent",
+        "failed": "Email failed"
+      },
+      "voted": "Has voted",
+      "notVoted": "Has not voted"
+    },
+    "empty": {
+      "title": "No voter yet",
+      "text": "Add the voters one by one. You can sort them into groups: a class, a level, a polling desk.",
+      "locked": "No voter was added to this election."
+    },
+    "noMatch": {
+      "text": "No voter matches this search.",
+      "reset": "Show all"
+    },
+    "pager": {
+      "label": "Pages of the list",
+      "prev": "Previous page",
+      "next": "Next page",
+      "page": "Page {page}"
+    },
+    "locked": "The voters and groups of this election can no longer be changed.",
+    "loadFailed": "The list could not be read. Try again in a moment.",
+    "form": {
+      "titleNew": "Add a voter",
+      "titleEdit": "Edit the voter",
+      "name": "Full name",
+      "nameHelp": "First and last name, as they will be printed on the code slip.",
+      "group": "Group",
+      "groupHelp": "Choose a group or write a new one.",
+      "groupHelpOpen": "Choose an existing group: new groups are not created during voting.",
+      "groupHelpVoted": "This voter has already voted: their group can no longer change.",
+      "identifier": "Identifier",
+      "identifierHelp": "Student number, unique in the election.",
+      "email": "Email",
+      "emailHelp": "To send the code. Optional.",
+      "phone": "Phone",
+      "phoneHelp": "Optional.",
+      "privacy": "No date of birth is asked: many voters are minors.",
+      "save": "Save",
+      "saveAnother": "Save and add another",
+      "cancel": "Cancel",
+      "close": "Close",
+      "added": "The voter “{name}” is added. Enter the next one.",
+      "error": "The voter could not be saved."
+    },
+    "delete": {
+      "title": "Delete this voter?",
+      "text": "The voter “{name}” will be removed from the election. Their group is kept.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    },
+    "copy": {
+      "open": "Load from another election",
+      "title": "Load voters",
+      "text": "Copies the voters of another election of the institution, with their groups. Codes are not copied.",
+      "source": "Source election",
+      "choose": "Choose an election",
+      "sourcesLoading": "Reading the elections…",
+      "sourcesNone": "The institution has no other election.",
+      "sourcesFailed": "The elections could not be read. Close and try again in a moment.",
+      "groupsLoading": "Reading the groups…",
+      "groupsFailed": "The groups of this election could not be read. Choose it again.",
+      "scope": "Voters to load",
+      "all": "Every voter, those with no group included",
+      "some": "Only some groups",
+      "noGroups": "This election has no group.",
+      "ungrouped": "Voters with no group",
+      "rename": "New name for “{name}”",
+      "renameHelp": "Leave empty to keep the name.",
+      "submit": {
+        "one": "Load {count} voter",
+        "other": "Load {count} voters"
+      },
+      "submitPlain": "Load the voters",
+      "cancel": "Cancel",
+      "close": "Close",
+      "error": "The voters could not be loaded.",
+      "resultTitle": "The voters are loaded.",
+      "copied": {
+        "one": "{count} voter loaded",
+        "other": "{count} voters loaded"
+      },
+      "skipped": {
+        "one": "{count} voter skipped (identifier or email already there)",
+        "other": "{count} voters skipped (identifier or email already there)"
+      },
+      "created": {
+        "one": "{count} group created",
+        "other": "{count} groups created"
+      }
+    },
+    "rail": {
+      "label": "Groups and codes"
+    },
+    "codes": {
+      "title": "Access codes",
+      "text": "Create the codes and download the slips of each group, or replace a lost slip.",
+      "open": "Open the codes"
+    },
+    "import": "Import a file"
+  },
+  "groups": {
+    "title": "Groups",
+    "new": "New group",
+    "count": {
+      "one": "{count} group",
+      "other": "{count} groups"
+    },
+    "empty": "No group yet: create one here, or write its name in a voter’s form.",
+    "note": "A group is deleted only when it has no voter and no position uses it.",
+    "row": {
+      "filter": "Show the voters of the group {name}",
+      "rename": "Rename the group {name}",
+      "merge": "Merge the group {name}",
+      "delete": "Delete the group {name}",
+      "ballots": "Used by {ballots}"
+    },
+    "form": {
+      "titleNew": "New group",
+      "titleEdit": "Rename the group",
+      "name": "Group name",
+      "save": "Save",
+      "add": "Add the group",
+      "cancel": "Cancel",
+      "close": "Close",
+      "error": "The group could not be saved."
+    },
+    "merge": {
+      "title": "Merge this group",
+      "text": "The voters of the group “{name}” move into the chosen group, then “{name}” is deleted.",
+      "into": "Group that receives the voters",
+      "choose": "Choose a group",
+      "missing": "Choose the group that receives the voters.",
+      "confirm": "Merge",
+      "cancel": "Cancel",
+      "ballots": "These positions cover this group and will cover the receiving group instead: {titles}."
+    },
+    "delete": {
+      "title": "Delete this group?",
+      "text": "The group “{name}” will be deleted. It has no voter.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    }
+  },
+  "voterImport": {
+    "back": "Back to voters",
+    "title": "Import voters",
+    "text": "Add many voters at once from an Excel or CSV file.",
+    "badgeDraft": "Draft · voters",
+    "chips": {
+      "rows": "10,000 rows at most",
+      "formats": ".xlsx or .csv",
+      "nothing": "Nothing imported before you confirm"
+    },
+    "steps": {
+      "label": "Steps",
+      "template": "Template",
+      "file": "File",
+      "check": "Check",
+      "done": "Done"
+    },
+    "template": {
+      "title": "The template",
+      "zone": "The template",
+      "text": "This is exactly what the file you download holds. Fill in one row per voter.",
+      "xlsx": "Download (Excel)",
+      "csv": "CSV",
+      "previewLabel": "Preview of the template",
+      "required": "required",
+      "instructionsTitle": "The columns",
+      "english": "Column names in English (full_name, group, email…) are accepted too. No date of birth is asked.",
+      "columns": {
+        "nom_complet": {
+          "label": "Full name",
+          "help": "First and last name of the voter. Required."
+        },
+        "groupe": {
+          "label": "Group",
+          "help": "For example Grade 4, Senior A. Created if it does not exist."
+        },
+        "identifiant": {
+          "label": "Identifier",
+          "help": "Student number or ID given by the institution."
+        },
+        "courriel": {
+          "label": "Email",
+          "help": "To send the code. Optional."
+        },
+        "telephone": {
+          "label": "Phone",
+          "help": "For example +509 3712 4455. Optional."
+        }
+      }
+    },
+    "file": {
+      "title": "Your file",
+      "zone": "Your file",
+      "text": "Excel (.xlsx) or CSV, any name. The separator “,” or “;” is recognised automatically.",
+      "drop": "Drop the file here, or click to choose it",
+      "limits": ".xlsx or .csv · 5 MB at most · up to 10,000 rows",
+      "chosen": "Chosen file",
+      "change": "Click to choose another one",
+      "upload": "Send and check",
+      "uploading": "Sending…",
+      "hint": "This file does not end in .xlsx or .csv: it will be checked anyway."
+    },
+    "locked": "Voters can no longer be imported: the election is neither a draft nor scheduled.",
+    "rail": {
+      "label": "Good to know",
+      "title": "Good to know",
+      "nothing": {
+        "title": "Nothing is imported right away",
+        "text": "You check the rows in the next step, then you confirm."
+      },
+      "errors": {
+        "title": "Rows with errors",
+        "text": "They are set aside and you download them in a file to correct."
+      },
+      "duplicates": {
+        "title": "Duplicates",
+        "text": "Same identifier or same email, in the file or already in the election: flagged. Two people with the same name are still allowed."
+      },
+      "groups": {
+        "title": "Groups",
+        "text": "Created from the “groupe” column; “4e année” and “4E ANNÉE” are the same group."
+      },
+      "lockedTitle": "Election locked?",
+      "lockedText": "Voters can only be imported while the election is a draft or scheduled."
+    },
+    "error": {
+      "file": {
+        "required": "Choose a file before sending it.",
+        "invalid_type": "This file is neither an Excel workbook (.xlsx) nor a CSV text file. Use the template.",
+        "empty": "This file is empty.",
+        "too_large": "This file is too large: 5 MB at most."
+      }
+    },
+    "check": {
+      "title": "Check the file",
+      "text": "Nothing is imported yet. Review, then confirm.",
+      "badge": "Draft · voters",
+      "chips": {
+        "rows": {
+          "one": "{count} row",
+          "other": "{count} rows"
+        },
+        "ready": {
+          "one": "{count} ready",
+          "other": "{count} ready"
+        },
+        "toFix": {
+          "one": "{count} to fix",
+          "other": "{count} to fix"
+        }
+      },
+      "checking": {
+        "title": "Checking the file…",
+        "text": "We are reading every row. It takes a few seconds, even for a large file."
+      },
+      "failed": {
+        "title": "This file cannot be used",
+        "retry": "Choose another file"
+      },
+      "failure": {
+        "no_header": "The file has no header row: the first row must name the columns. Use the template.",
+        "no_full_name_column": "No column holds the full name. Add a “full_name” column or use the template.",
+        "too_many_rows": "This file has more than 10,000 rows. Split it into several files.",
+        "unreadable": "This file could not be read. Use the template, as Excel (.xlsx) or CSV.",
+        "import_failed": "The import stopped half way. The voters already written are kept; check the list, then import the rest.",
+        "unknown": "This file could not be processed. Try again with the template."
+      },
+      "summary": {
+        "zone": "Summary",
+        "title": "File summary",
+        "file": "{name} · {rows}",
+        "total": "rows read",
+        "valid": "ready to import",
+        "invalid": "with errors",
+        "duplicates": "duplicates",
+        "groupsTitle": "Groups that will be created",
+        "groups": {
+          "one": "{count} new group will be created:",
+          "other": "{count} new groups will be created:"
+        },
+        "noGroups": "No new group will be created."
+      },
+      "mapping": {
+        "zone": "Columns",
+        "title": "Columns",
+        "text": "We recognised the columns. Correct them if needed; the preview updates.",
+        "field": {
+          "full_name": "Full name",
+          "group": "Group",
+          "identifier": "Identifier",
+          "email": "Email",
+          "phone": "Phone"
+        },
+        "skip": "Do not import",
+        "column": "Column {n}",
+        "required": "required",
+        "invalid": "This choice of columns is not possible: the full name is required and a column serves one field only."
+      },
+      "preview": {
+        "zone": "Preview",
+        "title": "Row by row preview",
+        "onlyErrors": "Show only the errors ({count})",
+        "errorFile": "Error file",
+        "line": "Row",
+        "state": "Status",
+        "empty": "(empty)",
+        "none": "No row to show.",
+        "loading": "Loading the rows…",
+        "loadFailed": "The rows could not be read. Try again in a moment.",
+        "scroll": "Preview of the rows of the file",
+        "range": {
+          "one": "{from} of {total} row",
+          "other": "{from} to {to} of {total} rows"
+        },
+        "pager": "Preview pages",
+        "prev": "Previous page",
+        "next": "Next page",
+        "page": "Page {page} of {pages}"
+      },
+      "status": {
+        "ok": "Ready",
+        "duplicate": "Duplicate"
+      },
+      "reason": {
+        "full_name_required": "Name missing",
+        "full_name_max": "Name too long",
+        "group_max": "Group too long",
+        "identifier_max": "Identifier too long",
+        "email_invalid": "Invalid email",
+        "email_max": "Email too long",
+        "phone_invalid": "Invalid phone",
+        "phone_max": "Phone too long",
+        "group_limit_reached": "Too many groups (100 at most)",
+        "duplicate_identifier_in_file": "Duplicate: identifier already in the file",
+        "duplicate_email_in_file": "Duplicate: email already in the file",
+        "identifier_exists": "Identifier already in the election",
+        "email_exists": "Email already in the election",
+        "unknown": "Row to correct"
+      },
+      "confirm": {
+        "zone": "Confirm",
+        "ready": {
+          "one": "{count} voter will be imported.",
+          "other": "{count} voters will be imported."
+        },
+        "rest": {
+          "one": "The other row will not be imported; you can correct it in the error file.",
+          "other": "The other {count} rows will not be imported; you can correct them in the error file."
+        },
+        "nothing": "No row is ready to import. Correct the file or the columns.",
+        "cancel": "Cancel the import",
+        "cancelling": "Cancelling…",
+        "go": {
+          "one": "Import {count} voter",
+          "other": "Import {count} voters"
+        },
+        "going": "Starting…"
+      },
+      "progress": {
+        "title": "Import under way",
+        "text": "The voters are written in the background. You can leave the page: the import goes on.",
+        "label": "Import progress",
+        "counts": "{done} of {total}"
+      },
+      "done": {
+        "title": "Import finished",
+        "text": "The voters are in the election, placed in their groups.",
+        "count": {
+          "one": "{count} voter imported",
+          "other": "{count} voters imported"
+        },
+        "errors": {
+          "one": "{count} row rejected",
+          "other": "{count} rows rejected"
+        },
+        "noErrors": "No row rejected",
+        "errorFile": "Download the rejected rows",
+        "voters": "See the voters"
+      },
+      "gone": "This import no longer exists.",
+      "rail": {
+        "label": "After the import",
+        "title": "What happens next",
+        "background": {
+          "title": "The import runs in the background",
+          "text": "A progress bar shows how far it is; you can leave the page."
+        },
+        "codes": {
+          "title": "Codes come after",
+          "text": "The import creates no code. You generate them in the “Codes” step."
+        }
+      }
+    }
+  },
+  "codes": {
+    "back": "Back to the election",
+    "title": "Access codes",
+    "badgeDraft": "Draft · access codes",
+    "zone": {
+      "label": "State of the codes",
+      "groups": "By group"
+    },
+    "totals": {
+      "label": "Totals",
+      "voters": "Voters",
+      "withCode": "With a code",
+      "withoutCode": "Without a code",
+      "progress": "{count} codes created out of {total}",
+      "emailSent": "Emails sent",
+      "emailFailed": "Emails failed",
+      "emailQueued": {
+        "one": "{count} email waiting to send",
+        "other": "{count} emails waiting to send"
+      }
+    },
+    "generateAll": "Generate every missing code",
+    "generateAllCount": {
+      "one": "Generate the missing slip",
+      "other": "Generate the {count} missing slips"
+    },
+    "lost": {
+      "open": "Lost slip: new code",
+      "title": "Lost slip",
+      "text": "Look the voter up by name. A new code is created and shown only once; the old slip, if there is one, stops working.",
+      "search": "Voter name",
+      "searching": "Searching…",
+      "typeName": "Type at least one letter of the name.",
+      "noMatch": "No voter matches.",
+      "more": "Only the first results are shown: be more precise.",
+      "failed": "The search failed. Try again.",
+      "results": "Voters found",
+      "noGroup": "No group",
+      "chosen": "Chosen voter: {name}",
+      "confirm": "Create a new code",
+      "cancel": "Cancel",
+      "resultTitle": "New code for {name}",
+      "codeLabel": "Access code",
+      "once": "This code is shown only once. Print or download the slip before closing.",
+      "replaced": "This voter’s old slip no longer works.",
+      "first": "This is this voter’s first code.",
+      "download": "Download the slip (PDF)",
+      "downloadFailed": "The slip could not be downloaded.",
+      "close": "Close and erase the code",
+      "closeLabel": "Close",
+      "email": "Also send by email",
+      "emailQueued": "The new code was queued to be sent by email."
+    },
+    "locked": "Codes can no longer be created or replaced: the election is over. Slip files are deleted when it closes.",
+    "run": {
+      "status": "Generating. Files appear as soon as they are ready; you can stay on this page.",
+      "result": {
+        "done": {
+          "one": "{count} voter received a code.",
+          "other": "{count} voters received a code."
+        },
+        "failed": {
+          "one": "{count} file failed: its voters have no code. Run the generation again for that group.",
+          "other": "{count} files failed: their voters have no code. Run the generation again for those groups."
+        },
+        "codeFileFailed": "The distribution file could not be written. The codes are issued and the printed slips are ready: run the file again with a new send."
+      },
+      "failed": "The generation could not start.",
+      "emails": {
+        "one": "{count} email queued for sending.",
+        "other": "{count} emails queued for sending."
+      }
+    },
+    "group": {
+      "noGroup": "No group",
+      "voters": {
+        "one": "{count} voter",
+        "other": "{count} voters"
+      },
+      "withCode": "with a code out of {total}",
+      "state": {
+        "none": "No code",
+        "partial": "Incomplete",
+        "done": "Ready",
+        "empty": "No voter"
+      },
+      "generate": {
+        "one": "Generate {count} slip",
+        "other": "Generate {count} slips"
+      },
+      "complete": "Every code is created",
+      "download": "Download the PDF",
+      "part": "Part {part} of {parts}",
+      "fileOf": {
+        "one": "{count} slip · {date}",
+        "other": "{count} slips · {date}"
+      },
+      "downloadFailed": "The file could not be downloaded.",
+      "emailSent": {
+        "one": "{count} sent",
+        "other": "{count} sent"
+      },
+      "emailQueued": {
+        "one": "{count} waiting",
+        "other": "{count} waiting"
+      },
+      "emailFailed": {
+        "one": "{count} failed",
+        "other": "{count} failed"
+      }
+    },
+    "empty": {
+      "title": "No voter yet",
+      "text": "Add or import voters before creating their codes.",
+      "link": "See the voters"
+    },
+    "loadFailed": "The state of the codes could not be read.",
+    "note": "A code cannot be shown again: only its fingerprint is kept. A lost slip is replaced by a new code, unless the voter has already voted.",
+    "send": {
+      "open": "Generate and send",
+      "title": "Generate and send the codes",
+      "text": "Choose the voters, then how they receive their code. Nothing is done before you confirm.",
+      "closeLabel": "Close",
+      "scopeLabel": "Voters concerned",
+      "scope": {
+        "all": "All voters",
+        "ungrouped": "Voters with no group",
+        "failed_email": "Failed emails"
+      },
+      "scopeGroup": "Group: {name}",
+      "email": "Send the code by email",
+      "emailHelp": "Each voter who has an address receives their personal link and code.",
+      "file": "Distribution file",
+      "fileNone": "No file",
+      "fileXlsx": "Excel (.xlsx)",
+      "fileCsv": "CSV (.csv)",
+      "numbers": "What will be done",
+      "countGenerate": "Codes to create",
+      "countEmail": "Emails to send",
+      "countNoEmail": "No address",
+      "countSkipped": "Already have a code",
+      "nothing": "No code to create for these voters.",
+      "nobody": "None of these voters has an address: no email can be sent.",
+      "noEmailTitle": {
+        "one": "{count} voter with no address, left for print",
+        "other": "{count} voters with no address, left for print"
+      },
+      "noEmailMore": "and {count} more",
+      "noEmailPrint": "Their slip is in the PDF file of their group.",
+      "readFailed": "The numbers could not be read.",
+      "retry": "Try again",
+      "changed": "The number of emails changed since you read it. Check the new numbers, then confirm again.",
+      "cancel": "Cancel",
+      "confirm": "Generate the codes",
+      "confirmEmail": {
+        "one": "Generate and send {count} email",
+        "other": "Generate and send {count} emails"
+      }
+    },
+    "resendFailed": "Send the failed emails again",
+    "files": {
+      "title": "Distribution files",
+      "text": "The file holds the codes in clear: keep it safe. It is deleted when the election closes.",
+      "excel": "Excel · {date}",
+      "csv": "CSV · {date}"
+    }
+  },
+  "vote": {
+    "language": {
+      "label": "Language",
+      "fr": "Français",
+      "en": "English",
+      "frShort": "FR",
+      "enShort": "EN"
+    },
+    "shell": {
+      "secret": "Secret ballot",
+      "step": "Step {n} of {total}"
+    },
+    "period": {
+      "start": "Opens",
+      "end": "Closes",
+      "dayAt": "{day} at {time}"
+    },
+    "code": {
+      "kicker": "Online voting",
+      "heading": "Enter your code",
+      "lede": "Your personal code is on your slip. It has ten characters.",
+      "label": "Your voting code",
+      "help": "Upper or lower case, with or without the hyphen. Type or paste your code.",
+      "stepHint": "Step 1 of 3: this is where your vote begins.",
+      "submit": "Continue",
+      "howTitle": "How it works",
+      "step1Title": "Your code",
+      "step1Text": "Enter the code from your slip.",
+      "step2Title": "Your identity",
+      "step2Text": "Check that it is really you.",
+      "step3Title": "Your vote",
+      "step3Text": "Choose on each position, review, then confirm.",
+      "secretTitle": "Your vote stays secret",
+      "secretText": "No one can link your name to your choices. A vote can be confirmed only once.",
+      "periodTitle": "Voting period",
+      "notice": {
+        "expired": "Your session has ended. Enter your code again to continue.",
+        "ended": "Session ended. The next voter can enter their code.",
+        "alreadyVoted": "This code has already been used: the vote is recorded and cannot be changed."
+      },
+      "guide": "See the step-by-step guide"
+    },
+    "error": {
+      "invalid_code": "This code is not valid. Check it on your slip, or ask for a new one.",
+      "already_voted": "This code has already been used: the vote is recorded and cannot be changed.",
+      "election_not_open_before": "Voting is not open yet.",
+      "election_not_open_closed": "Voting has ended.",
+      "voter_session_expired": "Your session has ended. Enter your code again.",
+      "choices_invalid": "One of your choices is no longer valid. Start the vote again.",
+      "ballots_mismatch": "The positions that concern you have changed. Start the vote again.",
+      "empty": "Enter your code to continue.",
+      "election_not_open_paused": "Voting is paused. It will resume when the institution's suspension is lifted."
+    },
+    "before": {
+      "heading": "Your election is not open yet",
+      "text": "Everything is ready on our side. The code field will appear here as soon as voting opens, with no need to reload the page.",
+      "days": "days",
+      "hours": "hours",
+      "minutes": "minutes",
+      "seconds": "seconds",
+      "soon": "Opening is imminent, the page updates by itself.",
+      "countdown": "Opens in {days} d {hours} h {minutes} min {seconds} s",
+      "status": "Not open yet",
+      "countdownTitle": "Opens in",
+      "whenTitle": "Voting dates",
+      "zone": "Time in {zone}",
+      "nextTitle": "On voting day",
+      "step1Title": "Find your code",
+      "step1Text": "It is on your slip or in your personal link.",
+      "step2Title": "Enter it here",
+      "step2Text": "The field appears when voting opens.",
+      "step3Title": "Choose",
+      "step3Text": "One candidate per position, or a blank vote if you prefer.",
+      "step4Title": "Confirm",
+      "step4Text": "Review your choices, then confirm: you are done.",
+      "secretTitle": "Your vote will stay secret",
+      "secretText": "No one will be able to link your name to your choices, not even the organiser.",
+      "readyTitle": "Keep your code within reach",
+      "readyText": "Keep your slip or your personal link ready. This page updates by itself: you can leave it open."
+    },
+    "closed": {
+      "at": "Closed: {when}",
+      "secret": "Secret vote",
+      "pendingTitle": "Results are coming",
+      "pendingText": "The organisers publish them after the vote closes. This page will show the button as soon as they are published.",
+      "publishedTitle": "The results are published",
+      "publishedText": "You can read them now.",
+      "secretTitle": "Your vote stayed secret",
+      "helpTitle": "A question?",
+      "helpText": "Ask the organisers of your institution.",
+      "heading": "Voting has ended",
+      "text": "This election is closed: it is no longer possible to vote.",
+      "results": "See the results"
+    },
+    "identity": {
+      "closes": "Closes: {when}",
+      "secret": "Secret vote",
+      "step": "Step 2 of 3",
+      "badge": {
+        "one": "position to vote on",
+        "other": "positions to vote on"
+      },
+      "kicker": "Is this you?",
+      "noGroup": "No group",
+      "group": "Group: {group}",
+      "ballotsTitle": "Your positions",
+      "count": {
+        "one": "You vote on {count} position.",
+        "other": "You vote on {count} positions."
+      },
+      "seats": {
+        "one": "{count} seat",
+        "other": "{count} seats"
+      },
+      "forGroups": "For: {groups}",
+      "forAll": "All voters",
+      "yes": "Yes, this is me",
+      "no": "This is not me",
+      "noneTitle": "No position concerns you",
+      "noneText": "You have nothing to vote on in this election. Please ask the organisers.",
+      "loading": "Checking your session…",
+      "hint": "If this is not you, do not continue: give the place back to the right person."
+    },
+    "ballot": {
+      "progress": "Position {n} of {total}",
+      "stepLabel": "Step {n} of {total}",
+      "seatsOne": "Choose 1 candidate.",
+      "seatsMany": "Choose up to {seats} candidates.",
+      "chosenCount": "{count} chosen of {seats}",
+      "full": "You have chosen the maximum. Remove a choice to change it.",
+      "pick": "Touch a photo to choose.",
+      "legend": "Candidates for {title}",
+      "blank": "Blank vote",
+      "blankHint": "I choose no candidate",
+      "independent": "Independent",
+      "chosen": "Chosen",
+      "back": "Back",
+      "next": "Next",
+      "review": "Review my vote",
+      "reminderNone": "No choice yet",
+      "reminderBlank": "Your choice: blank vote",
+      "reminderOne": "Your choice: {name}",
+      "reminderMany": "{count} candidates chosen",
+      "loading": "Loading the candidates…",
+      "quote": "“{text}”",
+      "cardTitle": "The candidates"
+    },
+    "review": {
+      "slip": "Your ballot",
+      "complete": {
+        "one": "{count} of {count} position completed",
+        "other": "{count} of {count} positions completed"
+      },
+      "blankHint": "No candidate chosen",
+      "railTitle": "Before you confirm",
+      "rail1": "Your vote stays secret: nobody can link it to your name.",
+      "rail2": "It is final: you will not be able to change it.",
+      "rail3": "It can only be confirmed once.",
+      "kicker": "Last step",
+      "heading": "Review your vote",
+      "lede": "Check each choice. Once confirmed, it cannot be changed.",
+      "edit": "Change",
+      "blank": "Blank vote",
+      "confirm": "Confirm my vote",
+      "sending": "Sending…",
+      "back": "Back",
+      "restart": "Start again from the beginning",
+      "warning": "Your vote is secret and final.",
+      "ballotOf": "Position {n}: {title}"
+    },
+    "done": {
+      "heading": "Your vote is recorded",
+      "text": "Thank you for voting. Your choice is secret and can no longer be changed.",
+      "timeLabel": "Recorded on",
+      "countdown": "Back to code entry in {seconds} s",
+      "next": "Next voter",
+      "leave": "You can close this page.",
+      "secretTitle": "What happens next?",
+      "secretText": "The organisers will publish the results after voting closes."
+    },
+    "unavailable": {
+      "cardTitle": "No vote at this address",
+      "kicker": "Online voting",
+      "title": "This election is not available",
+      "text": "The address you opened does not lead to a vote at the moment.",
+      "whatTitle": "What you can do",
+      "check": "Check the address",
+      "checkText": "Open the link you received again, or copy it in full.",
+      "ask": "Ask the organiser",
+      "askText": "They can confirm the address and the date of the vote.",
+      "home": "Back to the home page",
+      "homeText": "You can also start again from the home page.",
+      "secure": "No vote has been recorded here."
+    },
+    "paused": {
+      "whatTitle": "What to do?",
+      "chipSafe": "No vote is lost or changed",
+      "chipEnd": "The closing time does not change",
+      "heading": "Voting is paused",
+      "text": "This institution has been suspended by the platform administrators: voting is paused and will resume when the suspension is lifted. No vote is lost or changed, and the end time does not move.",
+      "hint": "Keep your code and come back later: reload this page to check.",
+      "status": "Paused"
+    }
+  },
+  "turnout": {
+    "title": "Turnout",
+    "back": "Back to the election",
+    "zone": "Election turnout",
+    "live": "Updated automatically every 15 seconds",
+    "notStarted": "Voting has not started yet: nobody could vote.",
+    "final": "Voting is over: these figures are final.",
+    "secrecy": "Votes stay hidden until the election is closed, for everyone.",
+    "loadFailed": "The figures could not be refreshed.",
+    "headline": {
+      "label": "Turnout rate",
+      "percent": "{percent}%",
+      "of": {
+        "one": "{voted} of {eligible} voter has voted",
+        "other": "{voted} of {eligible} voters have voted"
+      }
+    },
+    "eligible": "Registered voters",
+    "voted": "Have voted",
+    "left": "Still to vote",
+    "end": {
+      "title": "Closing",
+      "line": "On {day} at {time}"
+    },
+    "chart": {
+      "title": "Votes over time",
+      "bucketLabel": "Group by",
+      "hour": "Hour",
+      "day": "Day",
+      "empty": "Nobody has voted yet. The curve will appear with the first vote.",
+      "label": {
+        "one": "Turnout curve, by {unit}: {total} voter has voted in all, {last} in the latest period ({at}).",
+        "other": "Turnout curve, by {unit}: {total} voters have voted in all, {last} in the latest period ({at})."
+      },
+      "labelEmpty": "Turnout curve: nobody has voted yet.",
+      "unit": {
+        "hour": "hour",
+        "day": "day"
+      },
+      "legendTotal": "Running total",
+      "legendBucket": "Votes per {unit}"
+    },
+    "groups": {
+      "title": "By group",
+      "hint": "Click a group to see who has not voted.",
+      "none": "No group",
+      "line": "{voted} / {voters}",
+      "percent": "{percent}%",
+      "empty": "No group: the voters are not split up.",
+      "filter": "See who has not voted: {name}"
+    },
+    "nonvoters": {
+      "title": "Who has not voted",
+      "count": "{count} to remind",
+      "search": "Search for a voter",
+      "group": "Group",
+      "groupAll": "All groups",
+      "groupNone": "No group",
+      "export": "Export the list",
+      "exportFailed": "The export could not be made.",
+      "allVoted": "Everyone has voted",
+      "allVotedText": "No voter needs a reminder.",
+      "noMatch": "No voter matches these filters.",
+      "reset": "Clear the filters",
+      "none": "No voter is registered for this election.",
+      "noGroup": "No group",
+      "list": "Voters who have not voted",
+      "pager": "Pages of the list",
+      "prev": "Previous page",
+      "next": "Next page",
+      "range": "{from} to {to} of {total}",
+      "exportXlsx": "Export to Excel",
+      "exportCsv": "Export to CSV"
+    },
+    "empty": {
+      "title": "No voters yet",
+      "text": "Add voters to follow the turnout.",
+      "action": "Manage the voters"
+    },
+    "voters": "See the voters"
+  },
+  "results": {
+    "title": "Results",
+    "back": "Back to the election",
+    "zone": "Election results",
+    "empty": "This election has no ballot.",
+    "percent": "{percent}%",
+    "unavailable": {
+      "title": "The results are not available yet",
+      "text": {
+        "open": "Voting is in progress. No result is visible, for anyone, until the election is closed.",
+        "other": "Results appear only after the election is closed. No result is visible, for anyone, before then."
+      },
+      "election": "Back to the election",
+      "turnout": "Follow the turnout"
+    },
+    "hero": {
+      "turnout": {
+        "one": "{voted} of {eligible} voter has voted ({percent}%)",
+        "other": "{voted} of {eligible} voters have voted ({percent}%)"
+      },
+      "ballots": {
+        "one": "{count} position",
+        "other": "{count} positions"
+      },
+      "ties": {
+        "one": "{count} tie to settle",
+        "other": "{count} ties to settle"
+      }
+    },
+    "ballot": {
+      "tags": "About this position",
+      "seats": {
+        "one": "{count} seat",
+        "other": "{count} seats"
+      },
+      "scopeGeneral": "All eligible voters",
+      "scopeGroups": "Groups: {names}",
+      "turnout": "{voted} of {eligible} voted ({percent}%)"
+    },
+    "candidate": {
+      "noParty": "No party",
+      "votes": {
+        "one": "vote",
+        "other": "votes"
+      },
+      "winner": "Elected",
+      "tied": "Tied",
+      "none": "No candidate on this position."
+    },
+    "blank": {
+      "title": "Blank votes",
+      "line": {
+        "one": "{count} blank vote ({percent}%)",
+        "other": "{count} blank votes ({percent}%)"
+      }
+    },
+    "tie": {
+      "title": "Tie",
+      "text": {
+        "one": "{names} are tied for the last seat ({seats} seat left to fill).",
+        "other": "{names} are tied for the last seats ({seats} seats left to fill)."
+      },
+      "never": "The system never breaks a tie: no winner is named for these seats. You can organise a second round."
+    },
+    "check": {
+      "ok": "Ballots checked.",
+      "bad": "A gap to look into.",
+      "line": "{recorded} ballots recorded, {expected} expected.",
+      "badHelp": "The number of ballots does not match the voters who voted: look into it before publishing."
+    },
+    "note": {
+      "label": "Public note for this position",
+      "help": "Shown with the result on the public page. Leave empty to show nothing.",
+      "count": "{count} / {max} characters",
+      "tooLong": "The note cannot be longer than {max} characters.",
+      "save": "Save the note",
+      "saved": "Note saved"
+    },
+    "second": {
+      "button": "Organise a second round",
+      "title": "Organise a second round",
+      "closeLabel": "Close this window",
+      "text": "The position “{ballot}” is tied between {names}. A new draft election will be created.",
+      "points": {
+        "only": "It holds only this position and the tied candidates.",
+        "voters": "It has the same voters and the same groups.",
+        "codes": "New codes must be generated before it can be scheduled."
+      },
+      "cancel": "Cancel",
+      "confirm": "Create the second round",
+      "created": "A second round was created for this position.",
+      "link": "Open the second round",
+      "notTied": "This position is not tied: no second round is possible."
+    },
+    "rail": {
+      "label": "Guide",
+      "election": "The election",
+      "closed": "Closed on {day} at {time}",
+      "turnout": "See the turnout",
+      "legend": "How to read the results",
+      "legendItems": {
+        "winner": "Elected: the candidate wins a seat.",
+        "tie": "Tie: the system never breaks a tie; a second round can be organised.",
+        "blank": "Blank vote: a ballot with no choice, counted in the total.",
+        "percent": "Percentage: votes over all the ballots of the position, blank included."
+      },
+      "secrecy": "Results are counted from the ballots only: nothing links them to a voter."
+    },
+    "refreshError": "The results could not be read again. Reload the page to see the current state."
+  },
+  "publication": {
+    "title": "Publication",
+    "closeLabel": "Close this window",
+    "cancel": "Cancel",
+    "status": {
+      "closed": "The results are ready. They stay private until you publish them.",
+      "published": "The results are public: anyone with the link can see them, without an account.",
+      "archived": "The election is archived. Its public page is no longer visible."
+    },
+    "chip": {
+      "full": "Display: all figures",
+      "winners": "Display: winners and turnout"
+    },
+    "publish": {
+      "button": "Publish the results",
+      "title": "Publish the results?",
+      "text": "The page “{title}” will be visible to anyone who has its address, without an account. You can take it down at any time.",
+      "legend": "What the public page shows",
+      "full": "All figures",
+      "fullHelp": "Votes and percentages of every candidate, blank votes, winners and turnout.",
+      "winners": "Winners and turnout only",
+      "winnersHelp": "The winners, the tied candidates and the turnout. No vote counts.",
+      "smallGroup": {
+        "one": "The ballot “{ballots}” has fewer than 3 voters: one person’s choice can be guessed from the published results.",
+        "other": "The ballots “{ballots}” have fewer than 3 voters: one person’s choice can be guessed from the published results."
+      },
+      "confirm": "Publish",
+      "failedBallots": "Ballots concerned: {ballots}."
+    },
+    "unpublish": {
+      "button": "Unpublish",
+      "title": "Take the public page down?",
+      "text": "The public page disappears at once. The results stay here and you can publish them again.",
+      "confirm": "Take the page down"
+    },
+    "archive": {
+      "button": "Archive",
+      "help": "Archiving also takes the public page down.",
+      "undo": "Unarchive"
+    },
+    "report": {
+      "button": "Download the report (PDF)",
+      "error": "The report could not be downloaded."
+    },
+    "link": {
+      "open": "Open the public page",
+      "address": "Address of the public page"
+    }
+  },
+  "public": {
+    "skip": "Go to the results",
+    "kicker": "Official results",
+    "institution": {
+      "kicker": "Institution page",
+      "elections": "Latest published elections",
+      "count": {
+        "one": "Latest published election",
+        "other": "Latest {count} published elections"
+      },
+      "empty": "This institution has not published any results yet.",
+      "emptyHelp": "Results will appear here as soon as an election is published.",
+      "published": "Published on {day}",
+      "open": "See the results",
+      "type": {
+        "school": "School",
+        "university": "University",
+        "association": "Association",
+        "other": "Organisation"
+      },
+      "description": "About"
+    },
+    "dates": "Voting from {start} to {end} ({zone})",
+    "published": "Results published on {day}",
+    "turnout": {
+      "title": "Turnout",
+      "line": {
+        "one": "{voted} voter out of {eligible} voted",
+        "other": "{voted} voters out of {eligible} voted"
+      }
+    },
+    "winnersOnly": "This page shows the winners and the turnout. Vote counts are not published.",
+    "ballots": "Results by ballot",
+    "ballot": {
+      "seats": {
+        "one": "{count} seat",
+        "other": "{count} seats"
+      },
+      "general": "All eligible voters",
+      "groups": "Groups: {names}",
+      "none": "No candidate is elected on this ballot."
+    },
+    "candidate": {
+      "noParty": "No party",
+      "votes": {
+        "one": "vote",
+        "other": "votes"
+      },
+      "winner": "Elected",
+      "tied": "Tied"
+    },
+    "blank": {
+      "line": {
+        "one": "{count} blank vote ({percent}%)",
+        "other": "{count} blank votes ({percent}%)"
+      }
+    },
+    "tie": {
+      "title": "Tie",
+      "text": {
+        "one": "{names} are tied for the last seat ({seats} seat to fill).",
+        "other": "{names} are tied for the last seats ({seats} seats to fill)."
+      },
+      "never": "The system never breaks a tie: no winner is named for these seats."
+    },
+    "note": "Note from the institution",
+    "share": {
+      "title": "Share these results",
+      "text": "Send the link to this page, or download the report and the image to attach.",
+      "whatsapp": "WhatsApp",
+      "facebook": "Facebook",
+      "x": "X",
+      "copy": "Copy the link",
+      "copied": "Link copied",
+      "copyFailed": "Copying did not work: select the address below.",
+      "address": "Address of this page",
+      "report": "Download the report (PDF)",
+      "image": "Download the image",
+      "downloads": "Files"
+    },
+    "closing": {
+      "title": "More results from {name}",
+      "line": "Find the elections this institution has published.",
+      "link": "Institution page"
+    },
+    "error": {
+      "kicker": "Public results",
+      "title": "Results are not available right now",
+      "text": "The results could not be loaded for the moment. Nothing is wrong with the election: try again in a few seconds.",
+      "retry": "Try again"
+    },
+    "unavailable": {
+      "kicker": "Public results",
+      "title": "No public results here",
+      "text": "This address leads to no published results. An election’s results only appear once the institution has published them.",
+      "secure": "No result is visible before publication.",
+      "home": "Back to the home page"
+    },
+    "meta": {
+      "title": "{title} – {institution}",
+      "elected": {
+        "one": "Results of “{title}”: {names} is elected. Turnout: {percent}%.",
+        "other": "Results of “{title}”: {names} are elected. Turnout: {percent}%."
+      },
+      "plain": "Results of “{title}” at {institution}. Turnout: {percent}%.",
+      "institution": "The elections published by {name}.",
+      "institutionTitle": "{name} – Election results",
+      "unavailable": "No public results"
+    },
+    "image": {
+      "results": "Results",
+      "elected": "Elected"
+    },
+    "institutionLabel": "Institution"
+  },
+  "audit": {
+    "lede": "Who did what, when and from which address. The log can be neither edited nor erased.",
+    "list": "Log entries",
+    "count": {
+      "one": "{count} entry",
+      "other": "{count} entries"
+    },
+    "filters": {
+      "title": "Filters",
+      "action": "Kind of action",
+      "actionAll": "All actions",
+      "election": "Election",
+      "electionAll": "All elections",
+      "user": "Person",
+      "userAll": "All people",
+      "from": "From",
+      "to": "To",
+      "clear": "Clear filters"
+    },
+    "families": {
+      "auth": "Sign-ins",
+      "election": "Elections",
+      "second_round": "Runoffs",
+      "voters": "Voter imports",
+      "voter": "Voters",
+      "credentials": "Access codes"
+    },
+    "actions": {
+      "auth": {
+        "sign_in": "Signed in"
+      },
+      "election": {
+        "created": "Election created",
+        "duplicated": "Election duplicated",
+        "updated": "Election edited",
+        "times_changed": "Election dates changed",
+        "scheduled": "Election scheduled",
+        "unscheduled": "Scheduling cancelled",
+        "opened": "Election opened",
+        "closed": "Election closed",
+        "extended": "Election end extended",
+        "published": "Results published",
+        "unpublished": "Publication withdrawn",
+        "archived": "Election archived",
+        "unarchived": "Election unarchived",
+        "deleted": "Draft deleted"
+      },
+      "second_round": {
+        "created": "Runoff created"
+      },
+      "voters": {
+        "imported": "Voters imported"
+      },
+      "voter": {
+        "created": "Voter added",
+        "updated": "Voter edited",
+        "deleted": "Voter deleted"
+      },
+      "credentials": {
+        "generated": "Codes generated",
+        "reissued": "Code reissued",
+        "downloaded": "Codes downloaded",
+        "emailed": "Codes sent by email"
+      }
+    },
+    "system": "Automatic scheduler",
+    "by": "By {name}",
+    "noElection": "No election",
+    "ip": "Address {address}",
+    "time": "{day} at {time}",
+    "utc": "{instant} UTC",
+    "more": "Show more",
+    "moreCount": "{shown} of {total} shown",
+    "loading": "Loading…",
+    "loadFailed": "The log could not be read.",
+    "empty": {
+      "title": "No entry",
+      "text": "No recorded action matches these filters."
+    },
+    "export": {
+      "title": "Export",
+      "csv": "Export as CSV",
+      "xlsx": "Export as Excel",
+      "failed": "The export failed."
+    },
+    "notOwner": {
+      "title": "Owner only",
+      "text": "Only an owner of the institution can read the activity log.",
+      "back": "Back to the dashboard"
+    }
+  },
+  "platform": {
+    "twoFactorRequiredKicker": "Two-factor authentication required",
+    "twoFactorRequiredTitle": "Turn on two-factor authentication",
+    "twoFactorRequiredBody": "Platform administration needs two-factor authentication. Set it up below, then reload this page.",
+    "kicker": "Platform administration",
+    "title": "Institutions",
+    "lede": "The institutions of the platform, with their numbers. You see counts only: never a voter's name, a code or a vote.",
+    "signOut": "Sign out",
+    "filters": "Search and filter",
+    "search": "Search an institution",
+    "list": "Institutions",
+    "filter": {
+      "label": "Status",
+      "all": "All",
+      "active": "Active",
+      "suspended": "Suspended"
+    },
+    "count": {
+      "one": "{count} institution",
+      "other": "{count} institutions"
+    },
+    "status": {
+      "active": "Active",
+      "suspended": "Suspended"
+    },
+    "type": {
+      "school": "School",
+      "university": "University",
+      "association": "Association",
+      "other": "Other"
+    },
+    "counts": {
+      "users": {
+        "one": "user",
+        "other": "users"
+      },
+      "voters": {
+        "one": "voter",
+        "other": "voters"
+      },
+      "elections": {
+        "one": "election",
+        "other": "elections"
+      },
+      "byStatus": "Elections by status",
+      "noElection": "No election yet."
+    },
+    "electionStatus": {
+      "draft": "draft",
+      "scheduled": "scheduled",
+      "open": "open",
+      "closed": "closed",
+      "published": "published",
+      "archived": "archived"
+    },
+    "created": "Created",
+    "createdOn": "Created on {day}",
+    "lastSignIn": "Last sign-in",
+    "lastSignInOn": "Last sign-in on {day}",
+    "neverSignedIn": "No sign-in yet",
+    "reasonTitle": "Reason for the suspension",
+    "suspendedOn": "Suspended on {day}",
+    "suspend": "Suspend",
+    "reactivate": "Reactivate",
+    "cancel": "Cancel",
+    "more": "Show more",
+    "moreCount": "{shown} of {total} shown",
+    "loading": "Loading…",
+    "loadFailed": "The list could not be updated.",
+    "empty": {
+      "title": "No institution",
+      "text": "Institutions appear here as soon as they register."
+    },
+    "emptyFiltered": {
+      "title": "No match",
+      "text": "No institution matches this search. Change the name or the filter."
+    },
+    "suspendDialog": {
+      "title": "Suspend {name}?",
+      "text": "Its users will no longer be able to sign in and its open elections will be paused. The owner is told by email, with the reason.",
+      "reasonLabel": "Reason for the suspension",
+      "reasonHelp": "Between 3 and 500 characters. The owner will see it.",
+      "reasonRequired": "Give the reason for the suspension.",
+      "reasonShort": "The reason must have at least 3 characters.",
+      "reasonLong": "The reason is too long (500 characters at most).",
+      "confirm": "Suspend"
+    },
+    "reactivateDialog": {
+      "title": "Reactivate {name}?",
+      "text": "Its users will be able to sign in again and its paused elections will resume. The owner is told by email.",
+      "confirm": "Reactivate"
+    },
+    "impersonate": "Sign in as",
+    "guide": "User guide"
   }
 }

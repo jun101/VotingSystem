@@ -4,9 +4,49 @@ import { ApiError, parseApiError } from './errors';
 import { XSRF_COOKIE } from './session';
 import type { Ballot, BallotChanges, NewBallot } from './ballots';
 import type { Candidate, CandidateChanges, NewCandidate } from './candidates';
-import type { Election, ElectionChanges, ElectionFilters, NewElection } from './elections';
+import type {
+  Checklist,
+  Election,
+  ElectionChanges,
+  ElectionFilters,
+  NewElection,
+} from './elections';
 import type { NewParty, Party, PartyChanges } from './parties';
+import type {
+  CredentialPreview,
+  CredentialRun,
+  CredentialState,
+  GeneratedFile,
+  PreviewBody,
+  Reissue,
+  RunBody,
+} from './credentials';
+import type {
+  GroupList,
+  NewVoter,
+  Voter,
+  VoterChanges,
+  VoterCopyBody,
+  VoterCopyResult,
+  VoterFilters,
+  VoterGroup,
+  VoterList,
+} from './voters';
+import { VOTERS_PER_PAGE } from './voters';
+import type { PlatformFilters, PlatformInstitution, PlatformPage } from './platform';
+import { PLATFORM_PER_PAGE } from './platform';
+import type { AuditFilters, AuditPage } from './audit';
+import { AUDIT_PER_PAGE } from './audit';
 import type { paths } from './schema';
+import type { Results, SecondRound } from './results';
+import type { Dashboard, ExportQuery, Turnout, TurnoutBucket } from './turnout';
+import type {
+  ImportMapping,
+  ImportRowFilter,
+  ImportRowList,
+  VoterImport,
+  VoterImportUpload,
+} from './voterImports';
 import type {
   CurrentUser,
   InstitutionProfile,
@@ -14,6 +54,7 @@ import type {
   PendingInvitation,
   ProfileChanges,
   RegisterBody,
+  TeamMember,
   TwoFactorRequired,
   TwoFactorSetup,
 } from './user';
@@ -337,6 +378,48 @@ export async function inviteUser(body: {
   return data!.data;
 }
 
+/**
+ * `POST /users` (school mode): an owner creates a team member and receives a one-time password, shown once. Asks for the
+ * owner's own password, and the owner's second factor when the owner has one.
+ */
+export async function createTeamMember(
+  body: { name: string; email: string; role: InvitedRole; password: string },
+  factor?: SecondFactor,
+): Promise<{ member: TeamMember; oneTimePassword: string }> {
+  const { data } = await send((api) => api.POST('/v1/users', { body: { ...body, ...factor } }));
+
+  return { member: data!.data, oneTimePassword: data!.one_time_password };
+}
+
+/** `POST /users/{user}/password-reset` (school mode): a new one-time password for a team member, shown once. */
+export async function resetUserPassword(
+  id: string,
+  password: string,
+  factor?: SecondFactor,
+): Promise<string> {
+  const { data } = await send((api) =>
+    api.POST('/v1/users/{user}/password-reset', {
+      params: { path: { user: id } },
+      body: { password, ...factor },
+    }),
+  );
+
+  return data!.one_time_password;
+}
+
+/** `POST /auth/change-password`: the signed-in user's own password (the one-time password at first sign-in). */
+export async function changePassword(
+  current: string,
+  password: string,
+  factor?: SecondFactor,
+): Promise<void> {
+  await send((api) =>
+    api.POST('/v1/auth/change-password', {
+      body: { current_password: current, password, ...factor },
+    }),
+  );
+}
+
 export async function cancelInvitation(id: string): Promise<void> {
   await send((api) =>
     api.DELETE('/v1/invitations/{invitation}', { params: { path: { invitation: id } } }),
@@ -395,6 +478,102 @@ export async function deleteElection(id: string): Promise<void> {
 export async function duplicateElection(id: string): Promise<Election> {
   const { data } = await send((api) =>
     api.POST('/v1/elections/{election}/duplicate', { params: { path: { election: id } } }),
+  );
+
+  return data!.data;
+}
+
+/** `GET /elections/{election}/checklist`: the blockers and warnings of an election. */
+export async function fetchChecklist(id: string): Promise<Checklist> {
+  const { data } = await send((api) =>
+    api.GET('/v1/elections/{election}/checklist', { params: { path: { election: id } } }),
+  );
+
+  return data!.data;
+}
+
+/** `POST /elections/{election}/schedule`: a draft becomes scheduled. */
+export async function scheduleElection(id: string, acceptWarnings: boolean): Promise<Election> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/schedule', {
+      params: { path: { election: id } },
+      body: { accept_warnings: acceptWarnings },
+    }),
+  );
+
+  return data!.data;
+}
+
+/** `POST /elections/{election}/unschedule`: a scheduled election goes back to draft. */
+export async function unscheduleElection(id: string): Promise<Election> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/unschedule', { params: { path: { election: id } } }),
+  );
+
+  return data!.data;
+}
+
+/** `POST /elections/{election}/close`: closes an open election now; `confirmation` is its title. */
+export async function closeElection(id: string, confirmation: string): Promise<Election> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/close', {
+      params: { path: { election: id } },
+      body: { confirmation },
+    }),
+  );
+
+  return data!.data;
+}
+
+/** `POST /elections/{election}/extend`: moves the end of a scheduled or open election later (UTC, ISO). */
+export async function extendElection(id: string, endsAt: string): Promise<Election> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/extend', {
+      params: { path: { election: id } },
+      body: { ends_at: endsAt },
+    }),
+  );
+
+  return data!.data;
+}
+
+/**
+ * `POST /elections/{election}/publish`: a closed election's results become public. `display` is
+ * what the public page shows (`full` counts or only `winners` and turnout).
+ */
+export async function publishElection(id: string, display: 'full' | 'winners'): Promise<Election> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/publish', {
+      params: { path: { election: id } },
+      body: { results_display: display },
+    }),
+  );
+
+  return data!.data;
+}
+
+/** `POST /elections/{election}/unpublish`: back to closed, nothing public at once. */
+export async function unpublishElection(id: string): Promise<Election> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/unpublish', { params: { path: { election: id } } }),
+  );
+
+  return data!.data;
+}
+
+/** `POST /elections/{election}/archive`: a closed or published election is archived (and not public). */
+export async function archiveElection(id: string): Promise<Election> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/archive', { params: { path: { election: id } } }),
+  );
+
+  return data!.data;
+}
+
+/** `POST /elections/{election}/unarchive`: an archived election goes back to closed. */
+export async function unarchiveElection(id: string): Promise<Election> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/unarchive', { params: { path: { election: id } } }),
   );
 
   return data!.data;
@@ -679,4 +858,627 @@ export async function uploadCandidatePhoto(id: string, file: File): Promise<Cand
 
     throw failure;
   }
+}
+
+/**
+ * `GET /elections/{election}/voters`: one page, with the search and the group of the filters.
+ * Blank filters are not sent.
+ */
+export async function fetchVoters(election: string, filters: VoterFilters): Promise<VoterList> {
+  const { data } = await send((api) =>
+    api.GET('/v1/elections/{election}/voters', {
+      params: {
+        path: { election },
+        query: {
+          page: filters.page,
+          per_page: VOTERS_PER_PAGE,
+          ...(filters.q === '' ? {} : { q: filters.q }),
+          ...(filters.group === '' ? {} : { group: filters.group }),
+          ...(filters.credential === '' ? {} : { credential: filters.credential }),
+          ...(filters.email === '' ? {} : { email: filters.email }),
+          ...(!filters.voted ? {} : { voted: filters.voted }),
+        },
+      },
+    }),
+  );
+
+  return { items: data!.data, total: data!.meta.total, page: data!.meta.page };
+}
+
+/** `POST /elections/{election}/voters`: a voter (the group is sent as its name). */
+export async function createVoter(election: string, body: NewVoter): Promise<Voter> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/voters', { params: { path: { election } }, body }),
+  );
+
+  return data!.data;
+}
+
+/** `POST /elections/{election}/voter-copies`: loads voters from another election. */
+export async function copyVoters(election: string, body: VoterCopyBody): Promise<VoterCopyResult> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/voter-copies', {
+      params: { path: { election } },
+      body,
+    }),
+  );
+
+  return data!.data;
+}
+
+/** `PATCH /voters/{voter}`: the fields given change. */
+export async function updateVoter(id: string, body: VoterChanges): Promise<Voter> {
+  const { data } = await send((api) =>
+    api.PATCH('/v1/voters/{voter}', { params: { path: { voter: id } }, body }),
+  );
+
+  return data!.data;
+}
+
+/** `DELETE /voters/{voter}`: a voter of a draft or scheduled election. */
+export async function deleteVoter(id: string): Promise<void> {
+  await send((api) => api.DELETE('/v1/voters/{voter}', { params: { path: { voter: id } } }));
+}
+
+/** `GET /elections/{election}/groups`: every group (at most 100) with the voter counts. */
+export async function fetchGroups(election: string): Promise<GroupList> {
+  const { data } = await send((api) =>
+    api.GET('/v1/elections/{election}/groups', {
+      params: { path: { election }, query: { per_page: 100 } },
+    }),
+  );
+
+  return {
+    items: data!.data,
+    votersTotal: data!.meta.voters_total,
+    ungrouped: data!.meta.ungrouped,
+  };
+}
+
+/** `POST /elections/{election}/groups`: an empty group. */
+export async function createGroup(election: string, name: string): Promise<VoterGroup> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/groups', {
+      params: { path: { election } },
+      body: { name },
+    }),
+  );
+
+  return data!.data;
+}
+
+/** `PATCH /groups/{group}`: renames a group; its voters follow it. */
+export async function renameGroup(id: string, name: string): Promise<VoterGroup> {
+  const { data } = await send((api) =>
+    api.PATCH('/v1/groups/{group}', { params: { path: { group: id } }, body: { name } }),
+  );
+
+  return data!.data;
+}
+
+/** `DELETE /groups/{group}`: a group with no voter. */
+export async function deleteGroup(id: string): Promise<void> {
+  await send((api) => api.DELETE('/v1/groups/{group}', { params: { path: { group: id } } }));
+}
+
+/** `POST /groups/{group}/merge`: the voters move into `into`, the group is deleted. */
+export async function mergeGroup(id: string, into: string): Promise<VoterGroup> {
+  const { data } = await send((api) =>
+    api.POST('/v1/groups/{group}/merge', { params: { path: { group: id } }, body: { into } }),
+  );
+
+  return data!.data;
+}
+
+/**
+ * `POST /elections/{election}/voter-imports`: the voter file, as one `file` part. Sent by hand
+ * like the pictures (the schema has no multipart body), with the same rules: the CSRF token, one
+ * retry on a 419, an `ApiError` for anything that is not a success. Nothing is imported: the
+ * file is checked in the background.
+ */
+export async function uploadVoterFile(election: string, file: File): Promise<VoterImportUpload> {
+  for (let attempt = 0; ; attempt++) {
+    const body = new FormData();
+    body.append('file', file);
+
+    let response: Response;
+
+    try {
+      response = await fetch(
+        `${apiBaseUrl()}/v1/elections/${encodeURIComponent(election)}/voter-imports`,
+        {
+          method: 'POST',
+          body,
+          credentials: 'same-origin',
+          headers: {
+            Accept: 'application/json',
+            'Accept-Language': pageLanguage(),
+            'X-XSRF-TOKEN': await csrfToken(),
+          },
+        },
+      );
+    } catch (error) {
+      throw error instanceof ApiError ? error : new ApiError(0, 'network');
+    }
+
+    if (response.ok) return ((await response.json()) as { data: VoterImportUpload }).data;
+
+    let answer: unknown = null;
+
+    try {
+      answer = await response.json();
+    } catch {
+      // Not JSON: an `unknown` error.
+    }
+
+    const failure = parseApiError(response.status, answer, response.headers.get('Retry-After'));
+
+    if (failure.code === 'csrf_mismatch' && attempt === 0) {
+      await refreshCsrf();
+
+      continue;
+    }
+
+    throw failure;
+  }
+}
+
+/** `GET /voter-imports/{import}`: the status, the summary and the progress. */
+export async function fetchVoterImport(id: string): Promise<VoterImport> {
+  const { data } = await send((api) =>
+    api.GET('/v1/voter-imports/{import}', { params: { path: { import: id } } }),
+  );
+
+  return data!.data;
+}
+
+/** `GET /voter-imports/{import}/rows`: a page of the preview (50 rows). */
+export async function fetchImportRows(
+  id: string,
+  filter: ImportRowFilter,
+  page: number,
+): Promise<ImportRowList> {
+  const { data } = await send((api) =>
+    api.GET('/v1/voter-imports/{import}/rows', {
+      params: { path: { import: id }, query: { filter, page } },
+    }),
+  );
+
+  return { items: data!.data, total: data!.meta.total, page: data!.meta.page ?? page };
+}
+
+/** `PATCH /voter-imports/{import}`: the fields given change column; the file is checked again. */
+export async function updateImportMapping(
+  id: string,
+  mapping: Partial<ImportMapping>,
+): Promise<VoterImport> {
+  const { data } = await send((api) =>
+    api.PATCH('/v1/voter-imports/{import}', {
+      params: { path: { import: id } },
+      // The generated type has no body for this call; the endpoint file says `mapping`.
+      body: { mapping } as never,
+    }),
+  );
+
+  return (data as { data: VoterImport }).data;
+}
+
+/** `POST /voter-imports/{import}/confirm`: the valid rows are written in the background. */
+export async function confirmImport(id: string): Promise<VoterImport> {
+  const { data } = await send((api) =>
+    api.POST('/v1/voter-imports/{import}/confirm', { params: { path: { import: id } } }),
+  );
+
+  return (data as { data: VoterImport }).data;
+}
+
+/** `DELETE /voter-imports/{import}`: the file and its rows are deleted. */
+export async function cancelImport(id: string): Promise<void> {
+  await send((api) =>
+    api.DELETE('/v1/voter-imports/{import}', { params: { path: { import: id } } }),
+  );
+}
+
+/** `GET /elections/{election}/credentials`: the totals and one line per group (A11). */
+export async function fetchCredentials(election: string): Promise<CredentialState> {
+  const { data } = await send((api) =>
+    api.GET('/v1/elections/{election}/credentials', { params: { path: { election } } }),
+  );
+
+  return data!.data;
+}
+
+/** `GET /elections/{election}/generated-files`: the slip files of an election, newest first. */
+export async function fetchGeneratedFiles(election: string): Promise<GeneratedFile[]> {
+  const { data } = await send((api) =>
+    api.GET('/v1/elections/{election}/generated-files', { params: { path: { election } } }),
+  );
+
+  return data!.data;
+}
+
+/**
+ * `POST /elections/{election}/credential-runs`: gives a code to the voters of the scope who have
+ * none. The answer comes before the work: the files are `queued`.
+ */
+export async function startCredentialRun(election: string, body: RunBody): Promise<CredentialRun> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/credential-runs', {
+      params: { path: { election } },
+      body,
+    }),
+  );
+
+  return data!.data;
+}
+
+/**
+ * `POST /elections/{election}/credential-previews`: what a run would do for a scope. A reading:
+ * nothing is made, nothing is sent.
+ */
+export async function previewCredentialRun(
+  election: string,
+  body: PreviewBody,
+): Promise<CredentialPreview> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/credential-previews', {
+      params: { path: { election } },
+      body,
+    }),
+  );
+
+  return data!.data;
+}
+
+/**
+ * `POST /voters/{voter}/credential`: a new code for one voter, shown once, with a one-slip file.
+ * The answer is the only place a code is ever sent: the caller shows it and keeps it nowhere.
+ */
+export async function reissueCredential(
+  voter: string,
+  options: { email?: boolean } = {},
+): Promise<Reissue> {
+  const { data } = await send((api) =>
+    api.POST('/v1/voters/{voter}/credential', {
+      params: { path: { voter } },
+      // The body is sent only when the code is also to be emailed.
+      ...(options.email ? { body: { email: true } } : {}),
+    }),
+  );
+
+  return data!.data;
+}
+
+/** A downloaded file: the bytes and the name the API gave it. */
+export type DownloadedFile = { blob: Blob; name: string };
+
+/** The file name of a `Content-Disposition` header, or the fallback. */
+export function dispositionName(header: string | null, fallback: string): string {
+  const match = header ? /filename="?([^";]+)"?/i.exec(header) : null;
+
+  return match?.[1] ?? fallback;
+}
+
+/**
+ * `GET /generated-files/{file}/download`: the PDF as bytes, with the name the API sends. Read by
+ * hand (not as a plain link) so a refusal (409, 404, 429) is an `ApiError` the page can say in
+ * words, and no JSON error page replaces the screen.
+ */
+export async function downloadGeneratedFile(file: string): Promise<DownloadedFile> {
+  let response: Response;
+
+  try {
+    response = await fetch(
+      `${apiBaseUrl()}/v1/generated-files/${encodeURIComponent(file)}/download`,
+      {
+        credentials: 'same-origin',
+        cache: 'no-store',
+        headers: { Accept: 'application/pdf, application/json', 'Accept-Language': pageLanguage() },
+      },
+    );
+  } catch {
+    throw new ApiError(0, 'network');
+  }
+
+  if (!response.ok) {
+    let answer: unknown = null;
+
+    try {
+      answer = await response.json();
+    } catch {
+      // Not JSON: an `unknown` error.
+    }
+
+    throw parseApiError(response.status, answer, response.headers.get('Retry-After'));
+  }
+
+  return {
+    blob: await response.blob(),
+    name: dispositionName(response.headers.get('Content-Disposition'), 'coupons.pdf'),
+  };
+}
+
+/** `GET /elections/{election}/turnout`: how many have voted, by group and over time (never what). */
+export async function fetchTurnout(election: string, bucket?: TurnoutBucket): Promise<Turnout> {
+  const { data } = await send((api) =>
+    api.GET('/v1/elections/{election}/turnout', {
+      params: { path: { election }, ...(bucket ? { query: { bucket } } : {}) },
+      cache: 'no-store',
+    }),
+  );
+
+  return data!.data;
+}
+
+/** `PUT /ballots/{ballot}/result-note`: sets the public note of a ballot's result (null or empty clears it). */
+export async function saveResultNote(ballot: string, note: string | null): Promise<string | null> {
+  const { data } = await send((api) =>
+    api.PUT('/v1/ballots/{ballot}/result-note', {
+      params: { path: { ballot } },
+      body: { note },
+    }),
+  );
+
+  return data!.data.note;
+}
+
+/** `POST /elections/{election}/second-round`: a draft election from a tied ballot. */
+export async function createSecondRound(election: string, ballot: string): Promise<SecondRound> {
+  const { data } = await send((api) =>
+    api.POST('/v1/elections/{election}/second-round', {
+      params: { path: { election } },
+      body: { ballot },
+    }),
+  );
+
+  return data!.data;
+}
+
+/** `GET /elections/{election}/results`, read again after a change. */
+export async function fetchResults(election: string): Promise<Results> {
+  const { data } = await send((api) =>
+    api.GET('/v1/elections/{election}/results', {
+      params: { path: { election } },
+      cache: 'no-store',
+    }),
+  );
+
+  return data!.data;
+}
+
+/** `GET /dashboard`: the counts by status, the open elections with their turnout, the to-do list. */
+export async function fetchDashboard(): Promise<Dashboard> {
+  const { data } = await send((api) => api.GET('/v1/dashboard', { cache: 'no-store' }));
+
+  return data!.data;
+}
+
+/**
+ * `GET /elections/{election}/voters/export`: the voters as an Excel or CSV file, with the name
+ * the API gives it. Read by hand so a refusal (429, 404) is an `ApiError` the page can say.
+ */
+export async function downloadVoterExport(
+  election: string,
+  query: ExportQuery,
+): Promise<DownloadedFile> {
+  const params = new URLSearchParams({ format: query.format, voted: query.voted });
+
+  if (query.group !== '') params.set('group', query.group);
+  if (query.q !== '') params.set('q', query.q);
+
+  let response: Response;
+
+  try {
+    response = await fetch(
+      `${apiBaseUrl()}/v1/elections/${encodeURIComponent(election)}/voters/export?${params}`,
+      {
+        credentials: 'same-origin',
+        cache: 'no-store',
+        headers: {
+          Accept:
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, text/csv, application/json',
+          'Accept-Language': pageLanguage(),
+        },
+      },
+    );
+  } catch {
+    throw new ApiError(0, 'network');
+  }
+
+  if (!response.ok) {
+    let answer: unknown = null;
+
+    try {
+      answer = await response.json();
+    } catch {
+      // Not JSON: an `unknown` error.
+    }
+
+    throw parseApiError(response.status, answer, response.headers.get('Retry-After'));
+  }
+
+  return {
+    blob: await response.blob(),
+    name: dispositionName(
+      response.headers.get('Content-Disposition'),
+      query.format === 'csv' ? 'electeurs.csv' : 'electeurs.xlsx',
+    ),
+  };
+}
+
+/**
+ * `GET /elections/{election}/report`: the results report as a PDF, with the name the API gives it.
+ * Read by hand so a refusal (409, 429) is an `ApiError` the page can say in words.
+ */
+export async function downloadElectionReport(election: string): Promise<DownloadedFile> {
+  let response: Response;
+
+  try {
+    response = await fetch(`${apiBaseUrl()}/v1/elections/${encodeURIComponent(election)}/report`, {
+      credentials: 'same-origin',
+      cache: 'no-store',
+      headers: { Accept: 'application/pdf, application/json', 'Accept-Language': pageLanguage() },
+    });
+  } catch {
+    throw new ApiError(0, 'network');
+  }
+
+  if (!response.ok) {
+    let answer: unknown = null;
+
+    try {
+      answer = await response.json();
+    } catch {
+      // Not JSON: an `unknown` error.
+    }
+
+    throw parseApiError(response.status, answer, response.headers.get('Retry-After'));
+  }
+
+  return {
+    blob: await response.blob(),
+    name: dispositionName(response.headers.get('Content-Disposition'), 'report.pdf'),
+  };
+}
+
+/** The filters that are set, as query parameters. */
+function auditParams(filters: AuditFilters): URLSearchParams {
+  const params = new URLSearchParams();
+
+  for (const key of ['action', 'election', 'user', 'from', 'to'] as const) {
+    if (filters[key] !== '') params.set(key, filters[key]);
+  }
+
+  return params;
+}
+
+/** `GET /audit`: one page of the audit log (an owner only), newest first. */
+export async function fetchAudit(filters: AuditFilters, page: number): Promise<AuditPage> {
+  const { data } = await send((api) =>
+    api.GET('/v1/audit', {
+      params: {
+        query: {
+          page,
+          per_page: AUDIT_PER_PAGE,
+          ...(filters.action === '' ? {} : { action: filters.action }),
+          ...(filters.election === '' ? {} : { election: filters.election }),
+          ...(filters.user === '' ? {} : { user: filters.user }),
+          ...(filters.from === '' ? {} : { from: filters.from }),
+          ...(filters.to === '' ? {} : { to: filters.to }),
+        },
+      },
+    }),
+  );
+
+  return { items: data!.data, total: data!.meta.total, page: data!.meta.page };
+}
+
+/** `GET /platform/institutions`: a page of the platform admin's list, under the filters. */
+export async function fetchPlatformInstitutions(
+  filters: PlatformFilters,
+  page: number,
+): Promise<PlatformPage> {
+  const { data } = await send((api) =>
+    api.GET('/v1/platform/institutions', {
+      params: {
+        query: {
+          page,
+          per_page: PLATFORM_PER_PAGE,
+          ...(filters.q.trim() === '' ? {} : { q: filters.q.trim() }),
+          ...(filters.status === 'all' ? {} : { status: filters.status }),
+        },
+      },
+    }),
+  );
+
+  return { items: data!.data, total: data!.meta.total, page: data!.meta.page };
+}
+
+/** `POST /platform/institutions/{institution}/suspend`: the institution as it is now. */
+export async function suspendInstitution(id: string, reason: string): Promise<PlatformInstitution> {
+  const { data } = await send((api) =>
+    api.POST('/v1/platform/institutions/{institution}/suspend', {
+      params: { path: { institution: id } },
+      body: { reason },
+    }),
+  );
+
+  return data!.data;
+}
+
+/** `POST /platform/institutions/{institution}/reactivate`: the institution as it is now. */
+export async function reactivateInstitution(id: string): Promise<PlatformInstitution> {
+  const { data } = await send((api) =>
+    api.POST('/v1/platform/institutions/{institution}/reactivate', {
+      params: { path: { institution: id } },
+    }),
+  );
+
+  return data!.data;
+}
+
+/**
+ * `POST /platform/institutions/{institution}/impersonate`: the session becomes the institution's
+ * owner's, with the admin named in `impersonating`. The page then navigates in full.
+ */
+export async function impersonateInstitution(id: string): Promise<void> {
+  await send((api) =>
+    api.POST('/v1/platform/institutions/{institution}/impersonate', {
+      params: { path: { institution: id } },
+    }),
+  );
+}
+
+/** `DELETE /platform/impersonation`: the admin's own session again. */
+export async function endImpersonation(): Promise<void> {
+  await send((api) => api.DELETE('/v1/platform/impersonation'));
+}
+
+/**
+ * `GET /audit/export`: the log as CSV or Excel under the filters on the screen, with the name the
+ * API gives it. Read by hand so a refusal (422, 429) is an `ApiError` the page can say in words.
+ */
+export async function downloadAuditExport(
+  filters: AuditFilters,
+  format: 'csv' | 'xlsx',
+): Promise<DownloadedFile> {
+  const params = auditParams(filters);
+
+  params.set('format', format);
+
+  let response: Response;
+
+  try {
+    response = await fetch(`${apiBaseUrl()}/v1/audit/export?${params}`, {
+      credentials: 'same-origin',
+      cache: 'no-store',
+      headers: {
+        Accept:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, text/csv, application/json',
+        'Accept-Language': pageLanguage(),
+      },
+    });
+  } catch {
+    throw new ApiError(0, 'network');
+  }
+
+  if (!response.ok) {
+    let answer: unknown = null;
+
+    try {
+      answer = await response.json();
+    } catch {
+      // Not JSON: an `unknown` error.
+    }
+
+    throw parseApiError(response.status, answer, response.headers.get('Retry-After'));
+  }
+
+  return {
+    blob: await response.blob(),
+    name: dispositionName(
+      response.headers.get('Content-Disposition'),
+      format === 'csv' ? 'journal.csv' : 'journal.xlsx',
+    ),
+  };
 }

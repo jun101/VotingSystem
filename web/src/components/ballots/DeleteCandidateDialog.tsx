@@ -10,15 +10,17 @@ import { fullName } from './candidateForm';
 
 /**
  * Asks before a candidate is deleted, naming it. The dialog stays open with the reason when the
- * API refuses; a candidate that is already gone counts as deleted.
+ * API refuses; a candidate that is already gone counts as deleted; a locked election is the page's to deal with (`onLocked`).
  */
 export function DeleteCandidateDialog({
   candidate,
   onDeleted,
+  onLocked,
   onCancel,
 }: {
   candidate: Candidate;
   onDeleted: () => void;
+  onLocked: () => void;
   onCancel: () => void;
 }) {
   const { t, tIfAny } = useI18n();
@@ -35,6 +37,7 @@ export function DeleteCandidateDialog({
     } catch (caught) {
       const failure = caught instanceof ApiError ? caught : new ApiError(0, 'unknown');
 
+      if (failure.code === 'election_not_editable') return onLocked();
       if (failure.status === 404) return onDeleted();
 
       setError(errorText(failure, tIfAny));

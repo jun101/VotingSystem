@@ -27,7 +27,7 @@ final class ListElections
     {
         $starts = Election::query()->distinct()->get(['timezone', 'starts_at']);
 
-        $query = Election::query()->withCount('ballots');
+        $query = Election::query()->withCount(['ballots', 'voters']);
 
         if ($status !== null) {
             $query->where('status', $status->value);

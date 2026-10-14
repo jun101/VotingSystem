@@ -11,6 +11,7 @@ use App\Http\Requests\Auth\PasswordRequest;
 use App\Http\Requests\Auth\SecondFactorRequest;
 use App\Http\Requests\Auth\TwoFactorCodeRequest;
 use App\Models\User;
+use App\Support\Platform\Impersonation;
 use App\Support\TwoFactor;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -95,6 +96,7 @@ class TwoFactorController extends Controller
             return $secret;
         });
 
+        Impersonation::note('two_factor.changed');
         Log::info('auth.two_factor_setup', ['outcome' => 'started']);
 
         return response()->json(['data' => [
@@ -165,6 +167,7 @@ class TwoFactorController extends Controller
             return $codes;
         });
 
+        Impersonation::note('two_factor.changed');
         Log::info('auth.two_factor_confirm', ['outcome' => 'enabled']);
 
         return response()->json(['data' => ['recovery_codes' => $codes['plain']]])->header('Cache-Control', 'no-store');
@@ -191,6 +194,7 @@ class TwoFactorController extends Controller
         ($this->verifySecondFactor)($user, $request->input('code'), $request->input('recovery_code'));
 
         $clear($user);
+        Impersonation::note('two_factor.changed');
 
         Log::info('auth.two_factor_disable', ['outcome' => 'disabled']);
 
@@ -238,6 +242,7 @@ class TwoFactorController extends Controller
             return $codes;
         });
 
+        Impersonation::note('two_factor.changed');
         Log::info('auth.two_factor_recovery_codes', ['outcome' => 'renewed']);
 
         return response()->json(['data' => ['recovery_codes' => $codes['plain']]])->header('Cache-Control', 'no-store');

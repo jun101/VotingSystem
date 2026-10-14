@@ -6,12 +6,19 @@ import { SecondFactorField, useSecondFactor } from '@/components/account/SecondF
 import { PasswordField } from '@/components/auth/PasswordField';
 import { Button, Card, ConfirmDialog, Notice, Pill } from '@/components/ui';
 import { initials } from '@/components/admin/menu';
-import { cancelInvitation, removeUser, resetUserTwoFactor } from '@/lib/api/browser';
+import {
+  cancelInvitation,
+  removeUser,
+  resetUserPassword,
+  resetUserTwoFactor,
+} from '@/lib/api/browser';
 import { ApiError, errorText, fieldText, waitText } from '@/lib/api/errors';
 import type { Listing, PendingInvitation, TeamMember } from '@/lib/api/user';
 import { useI18n } from '@/lib/i18n/client';
 import type { MessageKey } from '@/lib/i18n/messages';
+import { CreateMemberForm } from './CreateMemberForm';
 import { InviteForm } from './InviteForm';
+import { IssuedPassword } from './IssuedPassword';
 
 const ROLE_LABELS = {
   owner: 'admin.roles.owner',
@@ -28,9 +35,12 @@ const DAY = 86_400_000;
 export function UsersCard({
   members: initialMembers,
   invitations: initialInvitations,
+  schoolMode = false,
 }: {
   members: Listing<TeamMember>;
   invitations: Listing<PendingInvitation>;
+  /** School mode (no email): the owner creates people and hands over a one-time password. */
+  schoolMode?: boolean;
 }) {
   const { t, tIfAny } = useI18n();
   const router = useRouter();
@@ -43,6 +53,10 @@ export function UsersCard({
   const [removing, setRemoving] = useState(false);
   const [removeError, setRemoveError] = useState<string | null>(null);
   const [resetTarget, setResetTarget] = useState<TeamMember | null>(null);
+  // What the reset dialog resets: the two-factor setting, or (school mode) the password.
+  const [resetKind, setResetKind] = useState<'two_factor' | 'password'>('two_factor');
+  // The one-time password just issued, shown once.
+  const [issued, setIssued] = useState<{ name: string; password: string } | null>(null);
   const [resetting, setResetting] = useState(false);
   const [resetError, setResetError] = useState<string | null>(null);
   const [refocus, setRefocus] = useState(0);
@@ -76,6 +90,13 @@ export function UsersCard({
       invitation,
       ...current.filter((other) => other.email.toLowerCase() !== invitation.email.toLowerCase()),
     ]);
+    setInviting(false);
+    window.setTimeout(() => inviteButton.current?.focus(), 0);
+  }
+
+  function created(member: TeamMember, oneTimePassword: string) {
+    setMembers((current) => [...current, member]);
+    setIssued({ name: member.name, password: oneTimePassword });
     setInviting(false);
     window.setTimeout(() => inviteButton.current?.focus(), 0);
   }
@@ -151,11 +172,21 @@ export function UsersCard({
     setResetSecondError(null);
 
     try {
-      await resetUserTwoFactor(
-        resetTarget.id,
-        resetPassword,
-        ownerHasTwoFactor ? second.factor() : undefined,
-      );
+      if (resetKind === 'password') {
+        const oneTime = await resetUserPassword(
+          resetTarget.id,
+          resetPassword,
+          ownerHasTwoFactor ? second.factor() : undefined,
+        );
+
+        setIssued({ name: resetTarget.name, password: oneTime });
+      } else {
+        await resetUserTwoFactor(
+          resetTarget.id,
+          resetPassword,
+          ownerHasTwoFactor ? second.factor() : undefined,
+        );
+      }
     } catch (caught) {
       const failure = caught instanceof ApiError ? caught : new ApiError(0, 'unknown');
       const password = failure.fields.password?.[0];
@@ -202,11 +233,13 @@ export function UsersCard({
 
     const id = resetTarget.id;
 
-    setMembers((current) =>
-      current.map((member) =>
-        member.id === id ? { ...member, two_factor_enabled: false } : member,
-      ),
-    );
+    if (resetKind === 'two_factor') {
+      setMembers((current) =>
+        current.map((member) =>
+          member.id === id ? { ...member, two_factor_enabled: false } : member,
+        ),
+      );
+    }
     closeResetDialog();
     setResetting(false);
     focusCardLater();
@@ -252,14 +285,34 @@ export function UsersCard({
           variant="primary"
           aria-expanded={inviting}
           onClick={() => setInviting((open) => !open)}
-          data-testid="invite-open"
+          data-testid={schoolMode ? 'create-member-open' : 'invite-open'}
         >
-          {t('institution.users.invite.open')}
+          {t(schoolMode ? 'institution.users.create.open' : 'institution.users.invite.open')}
         </Button>
       }
     >
       <div className="flex flex-col gap-5">
-        {inviting ? <InviteForm onInvited={invited} onClose={() => setInviting(false)} /> : null}
+        {issued ? (
+          <IssuedPassword
+            name={issued.name}
+            password={issued.password}
+            onDismiss={() => {
+              setIssued(null);
+              card.current?.focus();
+            }}
+          />
+        ) : null}
+
+        {inviting && schoolMode ? (
+          <CreateMemberForm
+            ownerHasTwoFactor={ownerHasTwoFactor}
+            onCreated={created}
+            onClose={() => setInviting(false)}
+          />
+        ) : null}
+        {inviting && !schoolMode ? (
+          <InviteForm onInvited={invited} onClose={() => setInviting(false)} />
+        ) : null}
 
         {problem ? (
           <Notice tone="danger" role="alert" data-testid="users-error">
@@ -327,11 +380,27 @@ export function UsersCard({
                   )}
                 </Pill>
               </div>
+              {schoolMode && !member.is_you ? (
+                <Button
+                  variant="secondary"
+                  aria-label={t('institution.users.passwordReset.label', { name: member.name })}
+                  onClick={() => {
+                    setResetKind('password');
+                    setResetTarget(member);
+                  }}
+                  data-testid={`user-reset-password-${index + 1}`}
+                >
+                  {t('institution.users.passwordReset.action')}
+                </Button>
+              ) : null}
               {member.two_factor_enabled && !member.is_you ? (
                 <Button
                   variant="secondary"
                   aria-label={t('institution.users.resetTwoFactorLabel', { name: member.name })}
-                  onClick={() => setResetTarget(member)}
+                  onClick={() => {
+                    setResetKind('two_factor');
+                    setResetTarget(member);
+                  }}
                   data-testid={`user-reset-two-factor-${index + 1}`}
                 >
                   {t('institution.users.resetTwoFactor')}
@@ -349,62 +418,64 @@ export function UsersCard({
           ))}
         </ul>
 
-        <section aria-labelledby="invitations-title" className="flex flex-col gap-3">
-          <h3 id="invitations-title" className="text-md font-bold text-ink">
-            {t('institution.users.invitationsTitle')}
-          </h3>
-          {initialInvitations.total > initialInvitations.items.length ? (
-            <p data-testid="invitations-truncated" className="text-sm text-ink-soft">
-              {t('institution.users.invitationsTruncated', {
-                count: initialInvitations.items.length,
-                total: initialInvitations.total,
-              })}
-            </p>
-          ) : null}
-          {invitations.length === 0 ? (
-            <p className="text-base text-ink-soft">{t('institution.users.empty')}</p>
-          ) : (
-            <ul className="flex flex-col gap-3">
-              {invitations.map((invitation, index) => (
-                <li
-                  key={invitation.id}
-                  data-testid={`invitation-card-${index + 1}`}
-                  className="flex flex-wrap items-center gap-3 rounded-md border border-dashed border-line-strong bg-surface p-3"
-                >
-                  <div className="flex min-w-0 flex-1 basis-40 flex-col">
-                    <span
-                      data-testid={`invitation-email-${index + 1}`}
-                      className="font-semibold break-all text-ink"
-                    >
-                      {invitation.email}
-                    </span>
-                    <span
-                      data-testid={`invitation-status-${index + 1}`}
-                      className={
-                        invitation.expired
-                          ? 'text-sm font-medium text-warm-ink'
-                          : 'text-sm text-ink-soft'
-                      }
-                    >
-                      {pending(invitation)}
-                    </span>
-                  </div>
-                  <Pill tone="neutral" data-testid={`invitation-role-${index + 1}`}>
-                    {t(ROLE_LABELS[invitation.role])}
-                  </Pill>
-                  <Button
-                    variant="secondary"
-                    aria-label={t('institution.users.cancelLabel', { email: invitation.email })}
-                    onClick={() => cancel(invitation)}
-                    data-testid={`invitation-cancel-${index + 1}`}
+        {schoolMode ? null : (
+          <section aria-labelledby="invitations-title" className="flex flex-col gap-3">
+            <h3 id="invitations-title" className="text-md font-bold text-ink">
+              {t('institution.users.invitationsTitle')}
+            </h3>
+            {initialInvitations.total > initialInvitations.items.length ? (
+              <p data-testid="invitations-truncated" className="text-sm text-ink-soft">
+                {t('institution.users.invitationsTruncated', {
+                  count: initialInvitations.items.length,
+                  total: initialInvitations.total,
+                })}
+              </p>
+            ) : null}
+            {invitations.length === 0 ? (
+              <p className="text-base text-ink-soft">{t('institution.users.empty')}</p>
+            ) : (
+              <ul className="flex flex-col gap-3">
+                {invitations.map((invitation, index) => (
+                  <li
+                    key={invitation.id}
+                    data-testid={`invitation-card-${index + 1}`}
+                    className="flex flex-wrap items-center gap-3 rounded-md border border-dashed border-line-strong bg-surface p-3"
                   >
-                    {t('institution.users.cancel')}
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
+                    <div className="flex min-w-0 flex-1 basis-40 flex-col">
+                      <span
+                        data-testid={`invitation-email-${index + 1}`}
+                        className="font-semibold break-all text-ink"
+                      >
+                        {invitation.email}
+                      </span>
+                      <span
+                        data-testid={`invitation-status-${index + 1}`}
+                        className={
+                          invitation.expired
+                            ? 'text-sm font-medium text-warm-ink'
+                            : 'text-sm text-ink-soft'
+                        }
+                      >
+                        {pending(invitation)}
+                      </span>
+                    </div>
+                    <Pill tone="neutral" data-testid={`invitation-role-${index + 1}`}>
+                      {t(ROLE_LABELS[invitation.role])}
+                    </Pill>
+                    <Button
+                      variant="secondary"
+                      aria-label={t('institution.users.cancelLabel', { email: invitation.email })}
+                      onClick={() => cancel(invitation)}
+                      data-testid={`invitation-cancel-${index + 1}`}
+                    >
+                      {t('institution.users.cancel')}
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        )}
       </div>
 
       {target ? (
@@ -431,8 +502,17 @@ export function UsersCard({
 
       {resetTarget ? (
         <ConfirmDialog
-          title={t('institution.users.resetTitle', { name: resetTarget.name })}
-          confirmLabel={t('institution.users.resetConfirm')}
+          title={t(
+            resetKind === 'password'
+              ? 'institution.users.passwordReset.title'
+              : 'institution.users.resetTitle',
+            { name: resetTarget.name },
+          )}
+          confirmLabel={t(
+            resetKind === 'password'
+              ? 'institution.users.passwordReset.confirm'
+              : 'institution.users.resetConfirm',
+          )}
           cancelLabel={t('institution.users.resetCancel')}
           busy={resetting}
           error={resetError}
@@ -447,7 +527,14 @@ export function UsersCard({
           }}
         >
           <form method="post" noValidate onSubmit={submitReset} className="flex flex-col gap-4">
-            <p id={resetTextId}>{t('institution.users.resetText', { name: resetTarget.name })}</p>
+            <p id={resetTextId}>
+              {t(
+                resetKind === 'password'
+                  ? 'institution.users.passwordReset.text'
+                  : 'institution.users.resetText',
+                { name: resetTarget.name },
+              )}
+            </p>
             <PasswordField
               ref={resetField}
               label={t('institution.users.resetPassword')}

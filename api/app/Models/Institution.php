@@ -25,6 +25,7 @@ use Illuminate\Support\Carbon;
  * @property string $timezone
  * @property string $language
  * @property Carbon|null $suspended_at
+ * @property string|null $suspension_reason
  */
 class Institution extends Model
 {
@@ -33,7 +34,7 @@ class Institution extends Model
 
     use HasUuid;
 
-    // `suspended_at` and `logo_file` are never mass-assigned: a request cannot reach them.
+    // `suspended_at`, `suspension_reason` and `logo_file` are never mass-assigned: a request cannot reach them.
     /** @var list<string> */
     protected $fillable = ['name', 'type', 'description', 'address', 'city', 'phone', 'contact_email', 'timezone', 'language'];
 

@@ -1,0 +1,24 @@
+[Unit]
+Description=VoteSystem API (Laravel Octane on FrankenPHP)
+After=votesystem-mariadb.service votesystem-redis.service
+Requires=votesystem-mariadb.service votesystem-redis.service
+
+[Service]
+Type=simple
+User=votesystem
+Group=votesystem
+WorkingDirectory=@ROOT@/api
+EnvironmentFile=/etc/votesystem/env
+Environment=PATH=@ROOT@/bin:/usr/bin:/bin
+Environment=HOME=/var/lib/votesystem
+Environment=XDG_DATA_HOME=/var/lib/votesystem/xdg-data
+Environment=XDG_CONFIG_HOME=/var/lib/votesystem/xdg-config
+ExecStart=@ROOT@/bin/php artisan octane:start --server=frankenphp --host=127.0.0.1 --port=${API_PORT} --admin-port=${API_ADMIN_PORT} --workers=2 --max-requests=500 --log-level=warn
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

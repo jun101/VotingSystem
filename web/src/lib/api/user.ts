@@ -2,7 +2,12 @@ import type { operations } from './schema';
 
 /** The current user and their institution: the `data` of `GET /auth/me`. */
 export type CurrentUser =
-  operations['auth.me']['responses'][200]['content']['application/json']['data'];
+  operations['auth.me']['responses'][200]['content']['application/json']['data'] & {
+    /** Present only while a platform admin acts as the institution's owner (slice 18c). */
+    impersonating?: { by: string };
+    /** Present (and true) only while the user must change a one-time password (school mode, slice 19c). */
+    must_change_password?: boolean;
+  };
 
 export type RegisterBody = {
   institution_name: string;

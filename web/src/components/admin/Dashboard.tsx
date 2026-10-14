@@ -1,13 +1,21 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { rangeText } from '@/components/elections/rangeText';
 import { STATUS_ICONS } from '@/components/elections/statusIcon';
 import { StatusPill } from '@/components/elections/StatusPill';
 import { GrowBar, LiveDot } from '@/components/motion';
 import { cx } from '@/components/ui/cx';
-import type { Election, ElectionCounts, ElectionStatus } from '@/lib/api/elections';
+import { fetchDashboard } from '@/lib/api/browser';
+import type { Dashboard as DashboardLive } from '@/lib/api/turnout';
+import { usePolling } from '@/lib/usePolling';
+import {
+  ELECTION_STATUSES,
+  type Election,
+  type ElectionCounts,
+  type ElectionStatus,
+} from '@/lib/api/elections';
 import type { InstitutionProfile, Listing, TeamMember, TwoFactorState } from '@/lib/api/user';
 import { clock, longDay, pluralForm } from '@/lib/format/electionDates';
 import { DEFAULT_TIME_ZONE } from '@/lib/format/timeZones';
@@ -21,7 +29,9 @@ import {
   gettingStarted,
   latestOf,
   openElectionOf,
+  openShown,
   roleCounts,
+  timeLeft,
   todayText,
   todoOf,
   type StepKey,
@@ -37,6 +47,8 @@ export type DashboardData = {
   /** The users, for an owner only. */
   team: Listing<TeamMember> | null;
   twoFactor: TwoFactorState | null;
+  /** The live numbers of `GET /dashboard` (slice 14); null when the API did not answer. */
+  live?: DashboardLive | null;
 };
 
 const STATUS_TONES: Record<ElectionStatus, Tone> = {
@@ -81,10 +93,36 @@ function Fact({ icon, value, label }: { icon: IconName; value: number; label: st
  * holding the cards, each in its coloured header. It shows what exists (the page reads it on
  * the server) and says honestly when a card is empty. No vote count appears here.
  */
-export function Dashboard({ now, elections, counts, institution, team, twoFactor }: DashboardData) {
+export function Dashboard({
+  now,
+  elections,
+  counts,
+  institution,
+  team,
+  twoFactor,
+  live: liveGiven = null,
+}: DashboardData) {
   const user = useAdminUser();
   const { t, locale } = useI18n();
-  const moment = useMemo(() => new Date(now), [now]);
+  const [live, setLive] = useState<DashboardLive | null>(liveGiven);
+  const [stamp, setStamp] = useState<number | null>(null);
+  const moment = useMemo(() => (stamp === null ? new Date(now) : new Date(stamp)), [now, stamp]);
+
+  // The live numbers are read again every 15 seconds while an election is open or about to start
+  // (a scheduled one whose start passes shows up as open), and again when the first read failed.
+  // A failed read keeps what is shown.
+  usePolling(
+    () => {
+      void fetchDashboard().then(
+        (fresh) => {
+          setLive(fresh);
+          setStamp(Date.now());
+        },
+        () => undefined,
+      );
+    },
+    live === null || live.open.length > 0 || live.upcoming.length > 0,
+  );
   const zone = institution?.timezone ?? DEFAULT_TIME_ZONE;
 
   const start = gettingStarted({
@@ -95,8 +133,69 @@ export function Dashboard({ now, elections, counts, institution, team, twoFactor
   const open = openElectionOf(elections);
   const todo = todoOf(elections, moment);
   const figures = figuresOf(elections, counts);
+  const openShownNow = live ? openShown(live.open) : null;
+  const upcoming = live?.upcoming ?? [];
+
+  /** The to-do rows: the API's (not voted, blockers, codes), then an election about to start. */
+  type TodoItem = {
+    key: string;
+    href: string;
+    icon: IconName;
+    tone: Tone;
+    title: string;
+    detail: string;
+  };
+
+  const todoItems: TodoItem[] = live
+    ? [
+        ...live.todo.map((item): TodoItem => {
+          const base = `/admin/elections/${item.election.id}`;
+
+          return {
+            key: `${item.kind}-${item.election.id}`,
+            href:
+              item.kind === 'voters_not_voted'
+                ? `${base}/turnout`
+                : item.kind === 'codes_missing'
+                  ? `${base}/codes`
+                  : `${base}/edit`,
+            icon:
+              item.kind === 'voters_not_voted'
+                ? 'people'
+                : item.kind === 'codes_missing'
+                  ? 'qr'
+                  : 'draft',
+            tone: item.kind === 'voters_not_voted' ? 'primary' : 'warm',
+            title: t(
+              `admin.dashboard.live.todoKinds.${item.kind}.${pluralForm(locale, item.count)}`,
+              { count: item.count },
+            ),
+            detail: item.election.title,
+          };
+        }),
+        ...todo
+          .filter((row) => row.kind === 'soon')
+          .map((row): TodoItem => ({
+            key: `soon-${row.election.id}`,
+            href: `/admin/elections/${row.election.id}`,
+            icon: 'clock',
+            tone: 'primary',
+            title: t('admin.dashboard.todo.soon'),
+            detail: t('admin.dashboard.todo.detail', {
+              title: row.election.title,
+              when: when(row),
+            }),
+          })),
+      ]
+    : [];
+  const todoCount = live ? todoItems.length : todo.length;
   const latest = latestOf(elections);
   const remaining = start.total - start.done;
+
+  /** The time zone of an election (its own), else the institution's. */
+  function ownZone(id: string): string {
+    return elections.find((one) => one.id === id)?.timezone ?? zone;
+  }
 
   function when(row: (typeof todo)[number]): string {
     if (row.inDays <= 0) return t('admin.dashboard.todo.today');
@@ -172,7 +271,7 @@ export function Dashboard({ now, elections, counts, institution, team, twoFactor
             icon="flag"
             title={t('admin.dashboard.openElection.title')}
             aside={
-              open ? (
+              (live ? live.open.length > 0 : open) ? (
                 <span className={ASIDE}>
                   <LiveDot />
                   {t('admin.dashboard.openElection.live')}
@@ -180,7 +279,108 @@ export function Dashboard({ now, elections, counts, institution, team, twoFactor
               ) : null
             }
           >
-            {open ? (
+            {live && live.open.length > 0 && openShownNow ? (
+              <>
+                {openShownNow.shown.map((item, index) => {
+                  const left = timeLeft(item.ends_at, moment.getTime());
+                  const leftText =
+                    left.kind === 'over'
+                      ? t('admin.dashboard.live.over')
+                      : t('admin.dashboard.live.left', {
+                          time: t(
+                            left.kind === 'days'
+                              ? 'admin.dashboard.live.leftDays'
+                              : left.kind === 'hours'
+                                ? 'admin.dashboard.live.leftHours'
+                                : 'admin.dashboard.live.leftMinutes',
+                            { days: left.days, hours: left.hours, minutes: left.minutes },
+                          ),
+                        });
+                  const full = elections.find((one) => one.id === item.id);
+                  const n = index + 1;
+
+                  return (
+                    <div
+                      key={item.id}
+                      data-testid={`dashboard-election-${n}`}
+                      className="flex flex-col gap-3 rounded-md border border-line bg-surface-alt p-3.5"
+                    >
+                      <h4 className="font-display text-[19px] leading-tight font-extrabold break-words text-ink">
+                        {item.title}
+                      </h4>
+                      <p className="flex items-center gap-2 text-base text-ink-soft">
+                        <span aria-hidden="true" className="text-primary">
+                          <Icon name="clock" size={18} />
+                        </span>
+                        <span data-testid={`dashboard-election-left-${n}`}>{leftText}</span>
+                        <span aria-hidden="true">{'\u00b7'}</span>
+                        <span>
+                          {t('admin.dashboard.openElection.ends', {
+                            day: longDay(new Date(item.ends_at), locale, full?.timezone ?? zone),
+                            time: clock(new Date(item.ends_at), locale, full?.timezone ?? zone),
+                          })}
+                        </span>
+                      </p>
+                      <div data-testid={`dashboard-turnout-${n}`}>
+                        <div className="mb-1.5 flex items-baseline justify-between gap-3">
+                          <span className="font-display text-2xl leading-8 font-extrabold text-ink">
+                            {t('admin.dashboard.live.percent', {
+                              percent: new Intl.NumberFormat(locale, {
+                                maximumFractionDigits: 1,
+                              }).format(item.percentage),
+                            })}
+                          </span>
+                          <span className="text-base text-ink-soft">
+                            {t('admin.dashboard.live.votedOf', {
+                              voted: item.voted,
+                              eligible: item.eligible,
+                            })}
+                          </span>
+                        </div>
+                        <GrowBar
+                          value={item.eligible > 0 ? item.voted / item.eligible : 0}
+                          trackClassName="h-3"
+                          className="bg-bar-open"
+                        />
+                      </div>
+                      <div className="flex flex-wrap gap-2.5">
+                        <Link
+                          href={`/admin/elections/${item.id}/turnout`}
+                          data-testid={`dashboard-election-turnout-${n}`}
+                          className={cx(linkPrimary, 'min-h-11.5 gap-2 px-5')}
+                        >
+                          <Icon name="chart" size={20} />
+                          {t('admin.dashboard.live.viewTurnout')}
+                        </Link>
+                        <Link
+                          href={`/admin/elections/${item.id}`}
+                          data-testid={`dashboard-election-open-${n}`}
+                          className={cx(
+                            'ui-control inline-flex min-h-11.5 items-center gap-2 rounded-full border border-line-strong bg-surface px-5 text-base font-semibold text-ink hover:bg-primary-soft',
+                            focusRing,
+                          )}
+                        >
+                          <Icon name="open" size={20} />
+                          {t('admin.dashboard.live.viewElection')}
+                        </Link>
+                      </div>
+                    </div>
+                  );
+                })}
+                {openShownNow.more > 0 ? (
+                  <Link
+                    href="/admin/elections?status=open"
+                    className={cx(
+                      'ui-control inline-flex min-h-11 items-center gap-2 self-start rounded-full px-3 text-base font-bold text-primary-hover hover:bg-primary-soft',
+                      focusRing,
+                    )}
+                  >
+                    {t('admin.dashboard.live.more', { count: live.open.length })}
+                    <Icon name="open" size={16} />
+                  </Link>
+                ) : null}
+              </>
+            ) : !live && open ? (
               <>
                 <h4 className="font-display text-[21px] font-extrabold break-words text-ink">
                   {open.title}
@@ -243,10 +443,22 @@ export function Dashboard({ now, elections, counts, institution, team, twoFactor
             card="todo"
             icon="list"
             title={t('admin.dashboard.todo.title')}
-            aside={todo.length > 0 ? <span className={ASIDE}>{todo.length}</span> : null}
+            aside={todoCount > 0 ? <span className={ASIDE}>{todoCount}</span> : null}
             className="gap-1"
           >
-            {todo.length > 0 ? (
+            {live && todoItems.length > 0 ? (
+              todoItems.map((item, index) => (
+                <Row
+                  key={item.key}
+                  data-testid={`dashboard-todo-${index + 1}`}
+                  href={item.href}
+                  icon={item.icon}
+                  tone={item.tone}
+                  title={item.title}
+                  detail={item.detail}
+                />
+              ))
+            ) : !live && todo.length > 0 ? (
               todo.map((row, index) => (
                 <Row
                   key={row.election.id}
@@ -424,7 +636,7 @@ export function Dashboard({ now, elections, counts, institution, team, twoFactor
                 {(
                   [
                     ['elections', 'ballot', figures.elections],
-                    ['voters', 'people', figures.voters],
+                    ['voters', 'people', live ? live.voters : figures.voters],
                     ['ballots', 'check', figures.ballots],
                   ] as const
                 ).map(([key, icon, value]) => (
@@ -450,7 +662,51 @@ export function Dashboard({ now, elections, counts, institution, team, twoFactor
             ) : (
               <Empty icon="chart" tone="teal" text={t('admin.dashboard.figures.empty')} />
             )}
+            {live && counts.all > 0 ? (
+              <div data-testid="dashboard-counts" className="flex flex-col gap-2">
+                <span className="text-xs font-bold tracking-wider text-ink-soft uppercase">
+                  {t('admin.dashboard.live.counts')}
+                </span>
+                <ul className="flex flex-wrap gap-2">
+                  {ELECTION_STATUSES.map((status) => (
+                    <li
+                      key={status}
+                      data-testid={`dashboard-count-${status}`}
+                      className="inline-flex items-center gap-2"
+                    >
+                      <StatusPill status={status} />
+                      <b className="text-md text-ink">{live.counts[status]}</b>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
           </DashCard>
+
+          {upcoming.length > 0 ? (
+            <DashCard
+              card="upcoming"
+              icon="calendar"
+              title={t('admin.dashboard.live.upcoming.title')}
+              aside={<span className={ASIDE}>{upcoming.length}</span>}
+              className="gap-1"
+            >
+              {upcoming.map((item, index) => (
+                <Row
+                  key={item.id}
+                  data-testid={`dashboard-upcoming-${index + 1}`}
+                  href={`/admin/elections/${item.id}`}
+                  icon="calendar"
+                  tone="scheduled"
+                  title={item.title}
+                  detail={t('admin.dashboard.live.upcoming.starts', {
+                    day: longDay(new Date(item.starts_at), locale, ownZone(item.id)),
+                    time: clock(new Date(item.starts_at), locale, ownZone(item.id)),
+                  })}
+                />
+              ))}
+            </DashCard>
+          ) : null}
         </div>
       </section>
     </div>

@@ -32,9 +32,10 @@ Body, JSON:
 |---|---|---|---|---|
 | 1 | The same set in another order | 200 | | |
 | 2 | The same order as stored | 200 (nothing changes) | | |
-| 3 | `ballots` missing, not an array, or an item not a UUID | 422 | `validation_failed` (`ballots: required`, `ballots: array`, `ballots.0: uuid`) | |
+| 3 | `ballots` missing, not an array, holds more than 50 items, or an item is not a UUID | 422 | `validation_failed` (`ballots: required`, `ballots: array`, `ballots: max`, `ballots.0: uuid`) | |
 | 4 | A UUID is repeated, missing, unknown, or belongs to another election or institution | 422 | `validation_failed` (`ballots: set_mismatch`) | |
-| 5 | The election is not a draft | 409 | `election_not_editable` | |
+| 5 | The set is right and the election is not a draft | 409 | `election_not_editable` | |
+| 5b | The set is wrong and the election is not a draft | 422 | `validation_failed` (`ballots: set_mismatch`) | |
 | 6 | The election has no ballot and `ballots` is `[]` | 200 (`data: []`) | | |
 | 7 | Not a UUID, unknown, or another institution's election | 404 | `not_found` | |
 | 8 | Not signed in, or the session has expired | 401 | `unauthenticated` | |

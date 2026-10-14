@@ -8,6 +8,7 @@ use App\Http\Requests\Institution\UpdateInstitutionRequest;
 use App\Http\Resources\InstitutionProfileResource;
 use App\Models\Institution;
 use App\Models\User;
+use App\Support\Platform\Impersonation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -39,6 +40,7 @@ class InstitutionController extends Controller
         $institution = $this->institutionOf($request);
         $institution->fill($request->validated());
         $institution->save();
+        Impersonation::note('institution.updated', $institution);
 
         Log::info('institution.update', ['outcome' => 'updated']);
 

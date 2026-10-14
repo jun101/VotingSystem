@@ -27,9 +27,10 @@ Body, JSON:
 |---|---|---|---|---|
 | 1 | The same set in another order | 200 |  | |
 | 2 | The same order as stored, or `[]` for a ballot with no candidate | 200 (nothing changes) |  | |
-| 3 | `candidates` missing, not an array, or an item not a UUID | 422 | `validation_failed` (`candidates: required`, `candidates: array`, `candidates.0: uuid`) | |
+| 3 | `candidates` missing, not an array, holds more than 50 items, or an item is not a UUID | 422 | `validation_failed` (`candidates: required`, `candidates: array`, `candidates: max`, `candidates.0: uuid`) | |
 | 4 | A UUID repeated, missing, unknown, or of another ballot, election or institution | 422 | `validation_failed` (`candidates: set_mismatch`), the same body for each | |
-| 5 | The election is not a draft | 409 | `election_not_editable` | |
+| 5 | The set is right and the election is not a draft | 409 | `election_not_editable` | |
+| 5b | The set is wrong and the election is not a draft | 422 | `validation_failed` (`candidates: set_mismatch`) | |
 | 6 | Not a UUID, unknown, or another institution's | 404 | `not_found` | |
 | 7 | Not signed in, or the session has expired | 401 | `unauthenticated` | |
 | 8 | The user's institution was suspended since sign-in | 403 | `institution_suspended` | |

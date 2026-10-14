@@ -1,5 +1,6 @@
 import { Dashboard } from '@/components/admin/Dashboard';
 import {
+  fetchDashboard,
   fetchElections,
   fetchInstitution,
   fetchSession,
@@ -16,11 +17,12 @@ export const dynamic = 'force-dynamic';
 export default async function AdminPage() {
   const session = await fetchSession();
   const owner = session.status === 'signed-in' && session.user.role === 'owner';
-  const [list, institution, team, twoFactor] = await Promise.all([
+  const [list, institution, team, twoFactor, live] = await Promise.all([
     fetchElections({}),
     fetchInstitution(),
     owner ? fetchTeam() : null,
     fetchTwoFactor(),
+    fetchDashboard(),
   ]);
 
   // The layout has judged the session; an API that does not answer is the error page.
@@ -40,6 +42,7 @@ export default async function AdminPage() {
         institution={institution}
         team={team}
         twoFactor={twoFactor}
+        live={live}
       />
     </I18nProvider>
   );

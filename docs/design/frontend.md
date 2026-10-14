@@ -1,6 +1,6 @@
 # New Voting System — Front-end design
 
-Version 1.5 · 2026-10-10 (parties and candidates are registered in a modal; ballots page and candidate record, adaptive layout and phone rules; theme Material periwinkle from 1.3) · goes with [SPEC.md](../SPEC.md) 1.3,
+Version 1.6 · 2026-10-11 (light home page, item 13; parties and candidates are registered in a modal; ballots page and candidate record, adaptive layout and phone rules; theme Material periwinkle from 1.3) · goes with [SPEC.md](../SPEC.md) 1.3,
 [architecture.md](architecture.md) and the approved mockups in [mockups/](mockups/).
 
 Stack: Next.js (App Router), TypeScript in strict mode, Tailwind CSS.
@@ -350,6 +350,17 @@ at 1280 and at 1920.
     another" keeps it open with the form cleared and the focus on the first field. There is no separate route for a party
     or a candidate: the old record route of the candidate screen (A07) is this modal.
 
+13. **The home page is light and has almost no cards** (Jun, 2026-10-11, adapted from a landing page he supplied;
+    mockup [material-home-light.html](mockups/material-home-light.html), which replaces
+    [material-home.html](mockups/material-home.html)). A white sticky header (the language switch is drawn light there);
+    a light hero (soft drifting glows, the accent word in the hero gradient as text, an outline second button, three
+    short assurances as plain icons) beside **one live ballot**: touching a candidate drops a trial ballot in the box
+    and nothing is sent. Under it **one white panel with two halves**, the voter's door and the organiser's door.
+    Then open layouts: the four steps as a dashed path, the reasons as a split with an open list, a gradient band of
+    four true figures separated by lines (never a claim we cannot back: no customer counts, no certification, no
+    testimonial), the questions as a native accordion, a plain closing line, and the dark footer with the system state.
+    The two exceptions to rules 4 and 5 are deliberate: on this band figures are not in tiles.
+
 ### Motion
 
 The interface moves: it should feel alive, never slow.
@@ -410,6 +421,7 @@ Rules:
 | Name | From | Layout |
 |---|---|---|
 | base | 320 px | One column. Admin: the side menu becomes a drawer |
+| `sm` | 640 px | Forms and button rows go side by side. In px like the others, so a larger breakpoint always wins in the CSS |
 | `md` | 768 px | Voter flow moves to the centred desktop layout |
 | `lg` | 1024 px | Admin: fixed side menu (272 px, gradient panel, rounded outer corners) plus content |
 | `xl` | 1280 px | Admin: list and detail side by side; this is the first mockup width |
@@ -491,3 +503,16 @@ WCAG 2.1 AA for the voting flow and the public results:
 - The voting flow loads no chart, date or component library.
 - A test in slice 12 measures the transferred size of the first voting screen and fails
   above 150 KB.
+
+## 11. The voters page (slice 07, Jun, 2026-10-10)
+
+13. **Voters are cards, two per row, with a groups card in the rail** (mockups
+    [material-voters.html](mockups/material-voters.html) and [material-voter-modal.html](mockups/material-voter-modal.html)).
+    Under the hero: a search box and the group chips (with counts, "Sans groupe" last). The cards are compact (initials
+    avatar, name, group tag, identifier and contact icons, edit and delete); the grid is two columns from 768 px, three
+    from 2300 px and one on a phone, every card the same size. 24 per page with a range text and page numbers; the page,
+    the search and the group are kept in the URL. The right rail (below the zone under 1600 px, as item 10) holds the
+    groups card (rename, merge, delete only when empty, new) and the locked "Codes de vote" placeholder. A voter is
+    added and edited in a 540 px modal (item 12); the group is a text field with the existing groups as suggestions, and
+    a new name creates the group. A closed, published or archived election shows the same page with no write button and
+    a notice.

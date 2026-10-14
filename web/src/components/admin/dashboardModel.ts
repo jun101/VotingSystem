@@ -53,9 +53,8 @@ export type Figures = {
 export function figuresOf(elections: readonly Election[], counts: ElectionCounts): Figures {
   return {
     elections: counts.all,
-    voters: elections
-      .filter((election) => election.status !== 'archived')
-      .reduce((sum, election) => sum + election.voters_count, 0),
+    // All the voters of the institution's elections, as the API's `voters` counts them.
+    voters: elections.reduce((sum, election) => sum + election.voters_count, 0),
     ballots: 0,
   };
 }
@@ -132,4 +131,31 @@ export function roleCounts(members: readonly TeamMember[]): { owners: number; ma
     owners: members.filter((member) => member.role === 'owner').length,
     managers: members.filter((member) => member.role === 'manager').length,
   };
+}
+
+export type TimeLeft = {
+  /** Which two units are worth showing: days and hours, hours and minutes, minutes, or none left. */
+  kind: 'days' | 'hours' | 'minutes' | 'over';
+  days: number;
+  hours: number;
+  minutes: number;
+};
+
+/** The time between `now` (ms) and an end, in whole days, hours and minutes (time only, never votes). */
+export function timeLeft(endsAt: string, now: number): TimeLeft {
+  const total = Math.max(0, Math.floor((new Date(endsAt).getTime() - now) / 60_000));
+  const days = Math.floor(total / 1440);
+  const hours = Math.floor((total % 1440) / 60);
+  const minutes = total % 60;
+
+  if (total === 0) return { kind: 'over', days, hours, minutes };
+  if (days > 0) return { kind: 'days', days, hours, minutes };
+  if (hours > 0) return { kind: 'hours', days, hours, minutes };
+
+  return { kind: 'minutes', days, hours, minutes };
+}
+
+/** The first `limit` open elections of the dashboard's live data, and how many more there are. */
+export function openShown<T>(open: readonly T[], limit = 3): { shown: T[]; more: number } {
+  return { shown: open.slice(0, limit), more: Math.max(0, open.length - limit) };
 }

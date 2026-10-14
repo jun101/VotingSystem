@@ -9,6 +9,7 @@ use App\Http\Resources\InstitutionProfileResource;
 use App\Models\Institution;
 use App\Models\User;
 use App\Support\Media\ImageReEncoder;
+use App\Support\Platform\Impersonation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
@@ -64,6 +65,7 @@ class LogoController extends Controller
 
         // The old files go once the transaction is committed: the database points at the new ones.
         $images->delete($previous);
+        Impersonation::note('institution.logo_changed', $institution);
 
         Log::info('institution.logo', ['outcome' => 'replaced']);
 
@@ -92,6 +94,8 @@ class LogoController extends Controller
             $institution->save();
             $images->delete($previous);
         }
+
+        Impersonation::note('institution.logo_changed', $institution);
 
         Log::info('institution.logo', ['outcome' => 'removed']);
 

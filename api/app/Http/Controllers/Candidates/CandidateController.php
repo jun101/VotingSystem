@@ -11,6 +11,7 @@ use App\Http\Resources\CandidateResource;
 use App\Models\Ballot;
 use App\Models\Candidate;
 use App\Models\Election;
+use App\Models\Party;
 use App\Support\Media\ImageReEncoder;
 use Dedoc\Scramble\Attributes\Response;
 use Illuminate\Http\JsonResponse;
@@ -51,11 +52,12 @@ class CandidateController extends Controller
             $candidate = new Candidate($request->attributesToWrite());
             $candidate->election_id = $election->id;
             $candidate->ballot_id = $locked->id;
-            $candidate->party_id = $request->party()?->id;
+            $party = $this->lockParty($request, $election);
+            $candidate->party_id = $party?->id;
             $candidate->position = $this->lastPositionIn($locked) + 1;
             $candidate->save();
 
-            return $candidate->setRelation('ballot', $locked)->setRelation('party', $request->party());
+            return $candidate->setRelation('ballot', $locked)->setRelation('party', $party);
         });
 
         Log::info('candidate.create', ['outcome' => 'created']);
@@ -82,10 +84,14 @@ class CandidateController extends Controller
         $election->assertEditable();
 
         $saved = DB::transaction(function () use ($request, $candidate, $election): Candidate {
-            $this->lockElection($election);
+            $lockedElection = $this->lockElection($election);
+
+            // The party and the ballot named are read again by UUID, now that the election is locked:
+            // one deleted meanwhile answers the same 422 as an unknown one.
+            $party = $this->lockParty($request, $lockedElection);
+            $target = $this->findTarget($request, $lockedElection);
 
             $locked = $this->lockCandidate($candidate);
-            $target = $request->targetBallot();
 
             if ($target !== null && $target->id !== $locked->ballot_id) {
                 $this->moveTo($locked, $target);
@@ -94,7 +100,7 @@ class CandidateController extends Controller
             $locked->fill($request->attributesToWrite());
 
             if ($request->namesParty()) {
-                $locked->party_id = $request->party()?->id;
+                $locked->party_id = $party?->id;
             }
 
             $locked->save();
@@ -160,12 +166,12 @@ class CandidateController extends Controller
         $this->allow('reorderCandidates', $ballot);
 
         $election = $this->electionOf($ballot);
-        $election->assertEditable();
 
+        // Order of the answers: record 404, body 422, state 409. The state is judged after the set.
         $wanted = $request->order();
 
         DB::transaction(function () use ($ballot, $election, $wanted): void {
-            $this->lockElection($election);
+            $lockedElection = $this->lockElection($election, judge: false);
             $locked = $this->lockBallot($ballot);
 
             $candidates = Candidate::query()->where('ballot_id', $locked->id)->orderBy('id')->lockForUpdate()->get();
@@ -175,6 +181,9 @@ class CandidateController extends Controller
             if (count($wanted) !== count($stored) || array_diff($wanted, $stored) !== [] || count(array_unique($wanted)) !== count($wanted)) {
                 throw ValidationException::withMessages(['candidates' => ['set_mismatch']]);
             }
+
+            // Judged under the lock, once the set is known to be right.
+            $lockedElection->assertEditable();
 
             $byUuid = $candidates->keyBy('uuid');
 
@@ -191,6 +200,46 @@ class CandidateController extends Controller
         Log::info('candidate.reorder', ['outcome' => 'reordered']);
 
         return CandidateResource::collection($ballot->candidates()->with('party')->get());
+    }
+
+    /**
+     * The party named in the body, read again by UUID under the election lock.
+     *
+     * @throws ValidationException 422 `party: invalid`
+     */
+    private function lockParty(CreateCandidateRequest $request, Election $election): ?Party
+    {
+        $named = $request->input('party');
+
+        if (! is_string($named)) {
+            return null;
+        }
+
+        return Party::query()
+            ->where('election_id', $election->id)
+            ->where('uuid', strtolower($named))
+            ->lockForUpdate()
+            ->first()
+            ?? throw ValidationException::withMessages(['party' => ['invalid']]);
+    }
+
+    /**
+     * The ballot a change moves the candidate to, read again by UUID under the election lock.
+     *
+     * @throws ValidationException 422 `ballot: invalid`
+     */
+    private function findTarget(CreateCandidateRequest $request, Election $election): ?Ballot
+    {
+        if ($request->targetBallot() === null) {
+            return null;
+        }
+
+        $named = $request->input('ballot');
+
+        return is_string($named)
+            ? Ballot::query()->where('election_id', $election->id)->where('uuid', strtolower($named))->first()
+                ?? throw ValidationException::withMessages(['ballot' => ['invalid']])
+            : throw ValidationException::withMessages(['ballot' => ['invalid']]);
     }
 
     /** Puts the candidate last in another ballot of its election, and closes the gap it leaves. */
@@ -250,7 +299,7 @@ class CandidateController extends Controller
      *
      * @throws ApiException 404, or 409 `election_not_editable`
      */
-    private function lockElection(Election $election): Election
+    private function lockElection(Election $election, bool $judge = true): Election
     {
         $locked = Election::query()->whereKey($election->getKey())->lockForUpdate()->first();
 
@@ -258,7 +307,9 @@ class CandidateController extends Controller
             throw new ApiException(404, 'not_found');
         }
 
-        $locked->assertEditable();
+        if ($judge) {
+            $locked->assertEditable();
+        }
 
         return $locked;
     }

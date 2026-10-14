@@ -5,8 +5,10 @@ namespace App\Models;
 use App\Enums\BallotScope;
 use App\Models\Concerns\BelongsToInstitution;
 use App\Models\Concerns\HasUuid;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
@@ -21,6 +23,9 @@ use Illuminate\Support\Carbon;
  * @property int $seats
  * @property bool $allow_blank
  * @property BallotScope $scope
+ * @property string|null $result_note
+ * @property int|null $source_ballot_id
+ * @property int $id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
@@ -65,5 +70,35 @@ class Ballot extends Model
     public function candidates(): HasMany
     {
         return $this->hasMany(Candidate::class)->orderBy('position')->orderBy('id')->chaperone('ballot');
+    }
+
+    /**
+     * The groups a group ballot covers (FR-BAL-03), Empty for a general ballot.
+     *
+     * @return BelongsToMany<VoterGroup, $this>
+     */
+    public function groups(): BelongsToMany
+    {
+        return $this->belongsToMany(VoterGroup::class, 'ballot_voter_group');
+    }
+
+    /**
+     * What the resource needs about the scope, in two queries for a whole list: the groups with their
+     * voter counts, and the number of voters of the election (for the general ballots).
+     *
+     * @param  Builder<Ballot>  $query
+     * @return Builder<Ballot>
+     */
+    public function scopeWithScopeData(Builder $query): Builder
+    {
+        if ($query->getQuery()->columns === null) {
+            $query->select('ballots.*');
+        }
+
+        return $query
+            ->addSelect(['election_voters_count' => Voter::query()
+                ->selectRaw('count(*)')
+                ->whereColumn('voters.election_id', 'ballots.election_id'), ])
+            ->with(['groups' => fn ($groups) => $groups->withCount('voters')]);
     }
 }

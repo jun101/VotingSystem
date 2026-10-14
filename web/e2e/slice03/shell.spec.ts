@@ -75,8 +75,9 @@ test.describe('the shell after sign-up [FR-NAV-02, FR-NAV-03]', () => {
       await expect(page.getByTestId('top-bar-title')).toHaveText(entry.fr);
       await expect(page.locator('h1')).toHaveCount(1);
 
-      // The dashboard is real since slice 03, the institution page since slice 04, the elections since slice 05.
-      if (entry.key !== 'dashboard' && entry.key !== 'institution' && entry.key !== 'elections') {
+      // The dashboard is real since slice 03, the institution page since slice 04, the elections since slice 05,
+      // the audit log since slice 17.
+      if (entry.key !== 'dashboard' && entry.key !== 'institution' && entry.key !== 'elections' && entry.key !== 'audit') {
         await expect(page.getByTestId('coming-soon')).toBeVisible();
       }
 
@@ -118,8 +119,9 @@ test.describe('the shell after sign-up [FR-NAV-02, FR-NAV-03]', () => {
       await page.goto(path);
       const html = await page.content();
       const hrefs = await page.locator('[href]').evaluateAll((nodes) => nodes.map((n) => n.getAttribute('href') ?? ''));
+      // `data-nimg` is Next's own marker on an optimised image (1 or fill): not an identifier.
       const data = await page.locator('*').evaluateAll((nodes) =>
-        nodes.flatMap((n) => Array.from(n.attributes).filter((a) => a.name.startsWith('data-') && a.name !== 'data-testid' && a.name !== 'data-count').map((a) => a.value)),
+        nodes.flatMap((n) => Array.from(n.attributes).filter((a) => a.name.startsWith('data-') && a.name !== 'data-testid' && a.name !== 'data-count' && a.name !== 'data-nimg').map((a) => a.value)),
       );
 
       for (const value of [...hrefs, page.url()]) {

@@ -14,16 +14,19 @@ const FIELDS = ['email', 'password'] as const;
 
 /**
  * Sign in. `reset` is true after a password change: a short confirmation is shown.
- * `suspended` and `platformAdmin` explain why the admin area sent the person back here.
+ * `suspended` explains why the admin area sent the person back here (an ended session: no reason
+ * is known). A sign-in refused for a suspension (403 `institution_suspended`) shows the reason the
+ * platform gave, when the API gives one.
  */
 export function LoginForm({
   reset,
   suspended = false,
-  platformAdmin = false,
+  school = false,
 }: {
   reset: boolean;
   suspended?: boolean;
-  platformAdmin?: boolean;
+  /** School mode: no sign-up and no email reset, so no link to them. */
+  school?: boolean;
 }) {
   const { t } = useI18n();
   const router = useRouter();
@@ -31,7 +34,9 @@ export function LoginForm({
   // After the password, a person with two-factor authentication gets the code step on this same
   // page. The password is not kept: only the address, to fill the field again if they cancel.
   const [step, setStep] = useState<'password' | 'code'>('password');
-  const [ended, setEnded] = useState<'expired' | 'suspended' | null>(null);
+  const [ended, setEnded] = useState<'expired' | null>(null);
+  // Set when the API refused the sign-in for a suspension; `reason` is its text, or null.
+  const [refusal, setRefusal] = useState<{ reason: string | null } | null>(null);
   const [email, setEmail] = useState('');
   const passwordField = useRef<HTMLInputElement>(null);
   // Goes up at each return from the code step (cancelled, expired or suspended).
@@ -45,18 +50,30 @@ export function LoginForm({
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const next = { needsCode: false };
+    const next = { needsCode: false, home: '/admin' };
 
     setEmail(String(data.get('email') ?? ''));
+    setRefusal(null);
 
-    const done = await run(async () => {
-      const result = await login({
-        email: String(data.get('email') ?? ''),
-        password: String(data.get('password') ?? ''),
-      });
+    const done = await run(
+      async () => {
+        const result = await login({
+          email: String(data.get('email') ?? ''),
+          password: String(data.get('password') ?? ''),
+        });
 
-      next.needsCode = 'two_factor_required' in result;
-    });
+        next.needsCode = 'two_factor_required' in result;
+
+        if ('role' in result && result.role === 'platform_admin') next.home = '/platform';
+      },
+      (error) => {
+        if (error.code !== 'institution_suspended') return false;
+
+        setRefusal({ reason: error.reason });
+
+        return true;
+      },
+    );
 
     if (!done) return;
 
@@ -69,7 +86,7 @@ export function LoginForm({
     }
 
     // The page is rendered again, so <html lang> takes the language stored for this user.
-    router.push('/admin');
+    router.push(next.home);
     router.refresh();
   }
 
@@ -81,8 +98,10 @@ export function LoginForm({
           setStep('password');
           setReturns((count) => count + 1);
         }}
-        onEnded={(reason) => {
-          setEnded(reason);
+        onEnded={(reason, detail) => {
+          if (reason === 'suspended') setRefusal({ reason: detail });
+          else setEnded(reason);
+
           setStep('password');
           setReturns((count) => count + 1);
         }}
@@ -116,15 +135,16 @@ export function LoginForm({
         </Notice>
       ) : null}
 
-      {suspended || ended === 'suspended' ? (
+      {refusal?.reason ? (
+        <Notice tone="warm" role="alert" data-testid="login-suspended">
+          <p>{t('auth.login.suspendedReason')}</p>
+          <p data-testid="login-suspended-reason" className="mt-1 font-semibold break-words">
+            {refusal.reason}
+          </p>
+        </Notice>
+      ) : suspended || refusal ? (
         <Notice tone="warm" role="alert" data-testid="login-suspended">
           {t('auth.login.suspended')}
-        </Notice>
-      ) : null}
-
-      {platformAdmin ? (
-        <Notice tone="warm" role="alert" data-testid="login-platform-admin">
-          {t('auth.login.platformAdmin')}
         </Notice>
       ) : null}
 
@@ -160,28 +180,32 @@ export function LoginForm({
         errorTestId="field-error-password"
       />
 
-      <Link
-        href="/forgot-password"
-        data-testid="login-forgot"
-        className="w-fit text-base font-semibold text-primary underline"
-      >
-        {t('auth.login.forgot')}
-      </Link>
+      {school ? null : (
+        <Link
+          href="/forgot-password"
+          data-testid="login-forgot"
+          className="w-fit text-base font-semibold text-primary underline"
+        >
+          {t('auth.login.forgot')}
+        </Link>
+      )}
 
       <Button type="submit" shimmer loading={busy} data-testid="login-submit">
         {t('auth.login.submit')}
       </Button>
 
-      <p className="text-center text-base text-ink-soft">
-        {t('auth.login.noAccount')}{' '}
-        <Link
-          href="/register"
-          data-testid="login-register"
-          className="font-semibold text-primary underline"
-        >
-          {t('auth.login.register')}
-        </Link>
-      </p>
+      {school ? null : (
+        <p className="text-center text-base text-ink-soft">
+          {t('auth.login.noAccount')}{' '}
+          <Link
+            href="/register"
+            data-testid="login-register"
+            className="font-semibold text-primary underline"
+          >
+            {t('auth.login.register')}
+          </Link>
+        </p>
+      )}
     </form>
   );
 }
