@@ -1197,6 +1197,53 @@
       "kicker": "Première connexion",
       "title": "Choisissez votre mot de passe",
       "text": "Le mot de passe qu’on vous a remis est à usage unique. Choisissez le vôtre pour continuer."
+    },
+    "page": {
+      "verified": "E-mail vérifié",
+      "notVerified": "E-mail non vérifié",
+      "quick": {
+        "password": "Changer le mot de passe",
+        "twoFactor": "Activer la double authentification"
+      },
+      "zone": {
+        "title": "Mon compte",
+        "lede": "Vos informations et votre sécurité"
+      },
+      "profile": {
+        "title": "Profil",
+        "name": "Nom",
+        "email": "Adresse e-mail",
+        "language": "Langue de l’interface",
+        "french": "Français",
+        "english": "English"
+      },
+      "score": {
+        "title": "Niveau de sécurité",
+        "progress": "Niveau de sécurité du compte",
+        "percent": "{percent} %",
+        "lead": "{done} protection sur {total} en place. Complétez les autres pour mieux protéger votre compte.",
+        "full": "Toutes les protections sont en place.",
+        "done": "En place",
+        "steps": {
+          "emailVerified": "Adresse e-mail vérifiée",
+          "twoFactor": "Double authentification",
+          "recoveryCodes": "Codes de récupération"
+        },
+        "hints": {
+          "emailVerified": "Ouvrez le lien reçu par e-mail.",
+          "twoFactor": "Ajoutez un code de votre téléphone.",
+          "recoveryCodes": "Créés à l’activation de la double authentification."
+        }
+      },
+      "institution": {
+        "title": "Établissement",
+        "yours": "Votre établissement",
+        "open": "Voir l’établissement",
+        "roles": {
+          "owner": "Peut tout gérer, y compris l’équipe.",
+          "manager": "Gère les élections de l’établissement."
+        }
+      }
     }
   },
   "elections": {
