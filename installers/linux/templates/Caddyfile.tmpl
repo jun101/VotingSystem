@@ -6,11 +6,22 @@
 }
 
 :{$WEB_PORT} {
+	# TRACE and TRACK echo a request back: nothing of the product uses them.
+	@echo method TRACE TRACK
+	handle @echo {
+		respond 405
+	}
+
 	header {
 		X-Content-Type-Options nosniff
 		?Referrer-Policy strict-origin-when-cross-origin
 		X-Frame-Options DENY
 		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+		# Same-origin only: the product loads nothing from another site, so the pages and their
+		# files can be isolated from other origins (ZAP baseline, 2026-10-14).
+		Cross-Origin-Opener-Policy same-origin
+		Cross-Origin-Embedder-Policy require-corp
+		Cross-Origin-Resource-Policy same-origin
 		-Server
 		-X-Powered-By
 		-Via
