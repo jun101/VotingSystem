@@ -9,12 +9,15 @@ import { linkStyles } from './links';
  * The top line, white and fixed to the top while the page scrolls: the product, the section links,
  * the language, and the two ways in. Below `md` the links and the two buttons move into a menu.
  */
-export function HomeNav({ t }: { t: Translate }) {
+export function HomeNav({ t, onHome = true }: { t: Translate; onHome?: boolean }) {
+  // Away from the home page the section links go back to it.
+  const base = onHome ? '' : '/';
   const items = [
-    { href: '#top', label: t('home.nav.home') },
-    { href: '#how', label: t('home.nav.how') },
-    { href: '#security', label: t('home.nav.security') },
-    { href: '#faq', label: t('home.nav.faq') },
+    { href: onHome ? '#top' : '/', label: t('home.nav.home') },
+    { href: `${base}#how`, label: t('home.nav.how') },
+    { href: `${base}#security`, label: t('home.nav.security') },
+    { href: `${base}#faq`, label: t('home.nav.faq') },
+    { href: '/developer', label: t('home.nav.developer') },
   ];
   const signIn = { href: '/login', label: t('home.nav.signIn') };
   const create = { href: '/register', label: t('home.nav.create') };

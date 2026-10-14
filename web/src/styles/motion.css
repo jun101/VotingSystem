@@ -1546,3 +1546,220 @@
     }
   }
 }
+
+/*
+ * The site footer's large name and the developer page (docs/design/mockups/material-developer.html).
+ * Tokens only; reduced motion is handled by the rule above.
+ */
+@layer components {
+  .site-footer-name {
+    margin-top: -0.5rem;
+    font-size: clamp(48px, 10.5vw, 168px);
+    line-height: 0.85;
+    letter-spacing: -0.04em;
+    background-image: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-surface) 12%, transparent),
+      transparent
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    overflow: hidden;
+  }
+
+  .dev-ring {
+    border: 2px dashed var(--color-backdrop-to);
+    animation: dev-spin 40s linear infinite;
+  }
+
+  .dev-ring-outer {
+    border: 1px solid var(--color-line);
+    animation: dev-spin 70s linear infinite reverse;
+  }
+
+  .dev-ring::after,
+  .dev-ring-outer::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: -6px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--color-backdrop-from);
+  }
+
+  .dev-ring-outer::after {
+    background: var(--color-teal);
+  }
+
+  .dev-portrait {
+    animation: dev-float 7s ease-in-out infinite;
+  }
+
+  .dev-badge {
+    animation: dev-float 6s ease-in-out infinite;
+  }
+
+  .dev-marquee {
+    mask-image: linear-gradient(
+      90deg,
+      transparent,
+      var(--color-ink) 8%,
+      var(--color-ink) 92%,
+      transparent
+    );
+  }
+
+  .dev-marquee-track {
+    display: flex;
+    gap: 0.875rem;
+    width: max-content;
+    animation: dev-slide 40s linear infinite;
+  }
+
+  /* The path's line draws itself from top to bottom when the section enters. */
+  .dev-line {
+    transform-origin: top;
+    transition: transform 1.6s var(--ease-out-soft);
+  }
+
+  [data-state='pending'] .dev-line,
+  .dev-line[data-state='pending'] {
+    transform: scaleY(0);
+  }
+
+  .dev-bar {
+    transform-origin: left;
+    transform: scaleX(var(--w, 1));
+    transition: transform 1.4s var(--ease-out-soft);
+  }
+
+  [data-state='pending'] .dev-bar {
+    transform: scaleX(0);
+  }
+
+  .dev-lift {
+    transition:
+      transform 250ms ease,
+      box-shadow 250ms ease;
+  }
+
+  .dev-lift:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-3);
+  }
+
+  @keyframes dev-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes dev-float {
+    50% {
+      transform: translateY(-12px);
+    }
+  }
+
+  @keyframes dev-slide {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+}
+
+/* The home page's bento cards, hero cards and install terminal (docs/design/mockups/material-home-wow.html). */
+@layer components {
+  .home-float {
+    animation: dev-float 7s ease-in-out infinite;
+  }
+
+  .home-turn-bar {
+    animation: home-fill 4s ease-in-out infinite;
+    transform-origin: left;
+  }
+
+  .home-lock-shackle {
+    transform-origin: 12px 9px;
+    animation: home-shackle 4s ease-in-out infinite;
+  }
+
+  .home-bar {
+    transform-origin: bottom;
+    animation: home-grow 3.4s ease-in-out infinite;
+  }
+
+  .home-slip {
+    animation: home-sway 5s ease-in-out infinite;
+  }
+
+  .home-ring {
+    opacity: 0.15;
+    animation: home-ring 2.4s ease-in-out infinite;
+  }
+
+  .home-caret {
+    animation: home-blink 1s steps(2) infinite;
+  }
+
+  .home-photo img {
+    transition: transform 800ms var(--ease-out-soft);
+  }
+
+  .home-photo:hover img {
+    transform: scale(1.07);
+  }
+
+  @keyframes home-fill {
+    0% {
+      transform: scaleX(0.05);
+    }
+    60%,
+    100% {
+      transform: scaleX(0.92);
+    }
+  }
+
+  @keyframes home-shackle {
+    0%,
+    55%,
+    100% {
+      transform: translateY(0);
+    }
+    65%,
+    90% {
+      transform: translateY(-4px) rotate(-14deg);
+    }
+  }
+
+  @keyframes home-grow {
+    0%,
+    100% {
+      transform: scaleY(0.25);
+    }
+    40%,
+    70% {
+      transform: scaleY(1);
+    }
+  }
+
+  @keyframes home-sway {
+    50% {
+      transform: rotate(3deg) translateY(-8px);
+    }
+  }
+
+  @keyframes home-ring {
+    50% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes home-blink {
+    50% {
+      opacity: 0;
+    }
+  }
+}

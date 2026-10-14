@@ -26,20 +26,22 @@
       "signIn": "Sign in",
       "create": "Create an election",
       "menu": "Menu",
-      "close": "Close the menu"
+      "close": "Close the menu",
+      "developer": "The developer"
     },
     "hero": {
       "pill": "Online elections for schools",
-      "title": "Vote simply,",
-      "accent": "in secret.",
-      "lede": "Import your voters, hand a code to each one, and follow turnout live. The vote stays secret and results are published when the election closes.",
+      "title": "Every vote counts,",
+      "accent": "none is seen.",
+      "lede": "Run an election for your school, association or institution in minutes: a secret ballot, one voter one vote, fair and verifiable results.",
       "create": "Create an election",
       "how": "How it works",
       "assure": {
         "secret": "Secret ballot",
         "once": "One vote per voter",
         "phone": "On a phone"
-      }
+      },
+      "try": "Try a vote"
     },
     "art": {
       "label": "Demo",
@@ -70,64 +72,39 @@
       "signIn": "Sign in",
       "register": "Create an account"
     },
-    "why": {
-      "eyebrow": "Why us",
-      "title": "Elections you can trust",
-      "lead": "Built for schools and institutions: simple for the organiser, clear for the voter, verifiable by everyone.",
-      "secret": {
-        "title": "Nobody sees your choice",
-        "text": "No link between a voter and a vote."
-      },
-      "slips": {
-        "title": "One code per voter",
-        "text": "PDF slips, email or an Excel file."
-      },
-      "live": {
-        "title": "Who voted, not for whom",
-        "text": "Follow turnout group by group."
-      },
-      "results": {
-        "title": "Published at closing",
-        "text": "Ties are flagged, a runoff is possible."
-      }
-    },
     "figures": {
       "title": "At a glance",
-      "one": {
-        "value": "1",
-        "label": "code per voter, one vote"
+      "a": {
+        "value": 1000,
+        "label": "votes a minute tested"
       },
-      "zero": {
-        "value": "0",
-        "label": "vote linked to a voter"
+      "b": {
+        "value": 100,
+        "label": "secret ballots"
       },
-      "two": {
-        "value": "2",
+      "c": {
+        "value": 2,
         "label": "languages: French and English"
       },
-      "full": {
-        "value": "100%",
-        "label": "online, on a phone"
+      "d": {
+        "value": 4,
+        "label": "to install"
       }
     },
     "steps": {
       "eyebrow": "How it works",
-      "title": "Four steps, from file to results",
-      "import": {
-        "title": "Import",
-        "text": "Drop in the list of voters."
+      "title": "Three steps, not one more",
+      "prepare": {
+        "title": "Prepare",
+        "text": "Create the election, ballots and candidates, and import voters from Excel."
       },
-      "codes": {
-        "title": "Hand out the codes",
-        "text": "Print the slips or send them by email."
+      "distribute": {
+        "title": "Distribute",
+        "text": "Print the codes or send them by email. Schedule the opening and closing."
       },
-      "vote": {
-        "title": "Vote",
-        "text": "Everyone votes once, in secret."
-      },
-      "results": {
-        "title": "Results",
-        "text": "Published when the election closes."
+      "publish": {
+        "title": "Publish",
+        "text": "At closing, results, a PDF report and the audit log, in one click."
       }
     },
     "faq": {
@@ -152,9 +129,10 @@
       }
     },
     "closing": {
-      "title": "Ready to organise your election?",
+      "title": "Your first election starts here",
       "create": "Create an election",
-      "signIn": "Sign in"
+      "signIn": "Sign in",
+      "text": "Open an account, create a ballot and invite your voters today."
     },
     "footer": {
       "tagline": "Simple, secret online elections for schools and institutions.",
@@ -162,7 +140,105 @@
       "account": "Account",
       "contact": "Contact",
       "email": "contact@example.ht",
-      "copy": "© {year} New Voting System"
+      "copy": "© {year} New Voting System",
+      "resources": "Resources",
+      "guide": "Guides by role",
+      "about": "About",
+      "developer": "The developer",
+      "location": "Cap-Haïtien, Haiti",
+      "social": {
+        "label": "Social",
+        "linkedin": "LinkedIn",
+        "github": "GitHub",
+        "x": "X"
+      },
+      "legal": "Made in Haiti, for schools and institutions."
+    },
+    "heroCards": {
+      "ballot": "Council election",
+      "ballotStep": "1 / 3",
+      "turnout": "Turnout",
+      "toast": "Vote recorded, thank you",
+      "turnoutValue": "86%"
+    },
+    "bento": {
+      "eyebrow": "Everything for a fair election",
+      "title": "Simple tools for a vote people can trust",
+      "lead": "From the voter list to the minutes, every step takes three clicks.",
+      "secret": {
+        "title": "Secret by design",
+        "text": "No vote is tied to a voter, not even for us."
+      },
+      "live": {
+        "title": "Live turnout",
+        "text": "Who voted, not for whom. Results come when the election closes."
+      },
+      "slips": {
+        "title": "Printed codes",
+        "text": "One code per voter, on paper, by email or as a file.",
+        "label": "Your code",
+        "code": "K7M-4QX-92"
+      },
+      "audit": {
+        "title": "Audit log",
+        "text": "Every action is recorded, nothing is erased silently.",
+        "l1": "10:02 election opened",
+        "l2": "10:03 first vote recorded",
+        "l3": "10:41 code reissued",
+        "l4": "16:00 election closed"
+      },
+      "school": {
+        "title": "No internet, at school",
+        "text": "An edition that runs on a single computer, on the local network, with no email."
+      }
+    },
+    "audience": {
+      "eyebrow": "Who it is for",
+      "title": "An election for every community",
+      "school": {
+        "title": "Schools",
+        "alt": "Students voting in a classroom"
+      },
+      "association": {
+        "title": "Associations",
+        "alt": "Association members gathered around a table"
+      },
+      "institution": {
+        "title": "Institutions",
+        "alt": "An institution’s team in front of a results screen"
+      }
+    },
+    "try": {
+      "eyebrow": "Try it, this is the real screen",
+      "title": "Vote in ten seconds",
+      "text": "Touch a candidate: the ballot drops into the box and nobody can link it to you."
+    },
+    "install": {
+      "eyebrow": "Installation",
+      "title": "At home, or online",
+      "lead": "One installer for Linux, Windows or Docker. A few minutes, one password, ready.",
+      "terminal": {
+        "label": "Installation example",
+        "l1": "$ sudo ./install.sh",
+        "l2": "Checking the machine…",
+        "l3": "✓ Ports free: 80",
+        "l4": "✓ Database and cache started",
+        "l5": "✓ Accounts created (credentials.txt)",
+        "l6": "✓ The site answers",
+        "l7": "Installation finished."
+      },
+      "school": {
+        "title": "School edition",
+        "text": "No internet and no email. One computer is enough, accounts are created at install."
+      },
+      "online": {
+        "title": "Online edition",
+        "text": "A domain name, automatic HTTPS, emails to voters, updates with rollback."
+      },
+      "backup": {
+        "title": "Built-in backup",
+        "text": "One command to back up and restore the whole election."
+      }
     }
   },
   "notFound": {
@@ -3017,5 +3093,113 @@
     },
     "impersonate": "Sign in as",
     "guide": "User guide"
+  },
+  "developer": {
+    "meta": {
+      "title": "The developer",
+      "description": "Josué Junior Fleuridor, DevOps engineer, built this voting system for schools and institutions."
+    },
+    "eyebrow": "The developer",
+    "name": "Josué Junior Fleuridor",
+    "role": "DevOps Engineer · Data Science Specialist",
+    "lede": "I build and secure the infrastructure behind data-driven products, and I teach the next generation of engineers in Haiti. This voting system started from a simple idea: a fair election should depend neither on the internet nor on blind trust.",
+    "linkedin": "LinkedIn",
+    "github": "GitHub",
+    "site": "My website",
+    "avatarAlt": "Portrait of Josué Junior Fleuridor",
+    "badgePlace": "Cap-Haïtien · Jacksonville",
+    "badgeUptime": "4 servers · 99.98%",
+    "stackLabel": "Technologies used",
+    "figures": {
+      "title": "In numbers",
+      "years": "years in production",
+      "uptime": "uptime of 4 servers",
+      "certs": "verified certifications",
+      "students": "students taught"
+    },
+    "story": {
+      "eyebrow": "Why this system",
+      "quote": "“In an election, the technology should disappear. Only trust is left.”",
+      "p1": "In many schools in Haiti, voting means ballots counted by hand, long queues and doubts. Existing solutions assume a reliable connection and a budget these schools do not have.",
+      "p2": "So I designed this system with two editions: one runs on a single computer, with no internet and no email; the other is online for institutions. The same rules everywhere: a secret vote, one voter one vote, results anyone can check."
+    },
+    "promises": {
+      "secret": {
+        "title": "Secrecy first",
+        "text": "No vote is tied to a voter. No number, no readable time."
+      },
+      "tested": {
+        "title": "Tested hard",
+        "text": "More than 2,500 server tests, more than 900 in the browser, 500 votes a minute under load."
+      },
+      "install": {
+        "title": "Installs anywhere",
+        "text": "Linux, Windows or Docker: a few minutes, one password, ready."
+      }
+    },
+    "stack": {
+      "eyebrow": "Under the hood",
+      "title": "A stack chosen to last",
+      "api": {
+        "title": "Laravel and Octane",
+        "text": "An in-memory API on FrankenPHP."
+      },
+      "web": {
+        "title": "Next.js",
+        "text": "A fast interface, in French and English."
+      },
+      "data": {
+        "title": "MariaDB and Redis",
+        "text": "Data, sessions and queues."
+      },
+      "ops": {
+        "title": "Docker and systemd",
+        "text": "Three installers, backups, updates with rollback."
+      }
+    },
+    "path": {
+      "eyebrow": "Path",
+      "title": "Eight years keeping systems running",
+      "now": {
+        "when": "Since 2025",
+        "title": "DevOps Engineer, Devora",
+        "text": "Production rollout and 24/7 operation of 4 servers, WireGuard VPN, PostgreSQL, MinIO, CrowdSec and fail2ban hardening."
+      },
+      "cert": {
+        "when": "2026",
+        "title": "FinTech Technician certificate, Data Analytics",
+        "text": "Florida State College at Jacksonville."
+      },
+      "work": {
+        "when": "2017 – 2025",
+        "title": "Linux administrator and web developer, Alpha Group",
+        "text": "Servers, web applications and monitoring."
+      },
+      "teach": {
+        "when": "University",
+        "title": "Lecturer in Haiti",
+        "text": "Java, PHP/Laravel and Linux server administration."
+      }
+    },
+    "langs": {
+      "title": "Languages",
+      "creole": {
+        "name": "Haitian Creole",
+        "level": "Native"
+      },
+      "french": {
+        "name": "French",
+        "level": "Bilingual"
+      },
+      "english": {
+        "name": "English",
+        "level": "Professional"
+      }
+    },
+    "contact": {
+      "title": "Let’s talk about your election",
+      "text": "A school, an association, an institution: write to me and I will help you get started.",
+      "email": "juniorfleuridor93@gmail.com"
+    }
   }
 }
