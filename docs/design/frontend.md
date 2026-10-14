@@ -518,3 +518,17 @@ WCAG 2.1 AA for the voting flow and the public results:
     added and edited in a 540 px modal (item 12); the group is a text field with the existing groups as suggestions, and
     a new name creates the group. A closed, published or archived election shows the same page with no write button and
     a notice.
+
+## 12. The account page (2026-10-14)
+
+Reference: [material-account.html](mockups/material-account.html). `/admin/account` uses the dashboard's pieces: a
+gradient identity band (avatar with the initials and a slow dashed ring, the name, the address, chips for the role, the
+institution and the e-mail state, two quick actions that scroll to the password and two-factor cards; the second goes away
+once two-factor is on), then one white zone `account-zone` with five cards in a 12-column grid from 1536 px (4-4-4, then
+6-6; two columns from 768 px; one below). Card headers reuse the dashboard bands (profile and institution violet, security
+teal-green, password coral, two-factor purple). Cards: **Profil** (name, address with its state, FR/EN switch that saves at
+once with `PATCH /auth/me`), **Niveau de sécurité** (a ring and three equal facts: e-mail verified, two-factor on, recovery
+codes left; 0, 33, 66 or 100 %), **Établissement** (name, role and what it allows, link to the institution page; absent for
+a platform admin), **Mot de passe** and **Double authentification** (the existing forms, unchanged, without their own
+title). The name is displayed, not edited: `PATCH /auth/me` takes only the language today (a name change needs its endpoint
+file first).

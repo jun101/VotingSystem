@@ -1197,6 +1197,53 @@
       "kicker": "First sign-in",
       "title": "Choose your own password",
       "text": "The password you were given is for one use. Choose your own to go on."
+    },
+    "page": {
+      "verified": "E-mail verified",
+      "notVerified": "E-mail not verified",
+      "quick": {
+        "password": "Change password",
+        "twoFactor": "Turn on two-factor authentication"
+      },
+      "zone": {
+        "title": "My account",
+        "lede": "Your details and your security"
+      },
+      "profile": {
+        "title": "Profile",
+        "name": "Name",
+        "email": "E-mail address",
+        "language": "Interface language",
+        "french": "Français",
+        "english": "English"
+      },
+      "score": {
+        "title": "Security level",
+        "progress": "Account security level",
+        "percent": "{percent}%",
+        "lead": "{done} of {total} protections in place. Complete the others to better protect your account.",
+        "full": "Every protection is in place.",
+        "done": "In place",
+        "steps": {
+          "emailVerified": "E-mail address verified",
+          "twoFactor": "Two-factor authentication",
+          "recoveryCodes": "Recovery codes"
+        },
+        "hints": {
+          "emailVerified": "Open the link sent to you by e-mail.",
+          "twoFactor": "Add a code from your phone.",
+          "recoveryCodes": "Created when two-factor authentication is turned on."
+        }
+      },
+      "institution": {
+        "title": "Institution",
+        "yours": "Your institution",
+        "open": "View the institution",
+        "roles": {
+          "owner": "Can manage everything, including the team.",
+          "manager": "Manages the institution’s elections."
+        }
+      }
     }
   },
   "elections": {

@@ -3,10 +3,11 @@
 import { useState, type FormEvent } from 'react';
 import { PasswordField } from '@/components/auth/PasswordField';
 import { useAuthForm } from '@/components/auth/useAuthForm';
-import { Button, Card, Notice } from '@/components/ui';
+import { Button, Notice } from '@/components/ui';
 import { changePassword } from '@/lib/api/browser';
 import { useI18n } from '@/lib/i18n/client';
 import { loadPage } from '@/lib/navigation';
+import { CardShell } from './CardShell';
 import { SecondFactorField, useSecondFactor } from './SecondFactorField';
 
 const FIELDS = ['current_password', 'password', 'code', 'recovery_code'] as const;
@@ -18,9 +19,12 @@ const FIELDS = ['current_password', 'password', 'code', 'recovery_code'] as cons
 export function ChangePasswordCard({
   twoFactorEnabled,
   required = false,
+  plain = false,
 }: {
   twoFactorEnabled: boolean;
   required?: boolean;
+  /** Only the form: the account page gives it a header. */
+  plain?: boolean;
 }) {
   const { t } = useI18n();
   const { form, busy, fields, formError, run, idle } = useAuthForm(FIELDS, 'changePassword');
@@ -55,7 +59,11 @@ export function ChangePasswordCard({
   }
 
   return (
-    <Card title={t('account.changePassword.title')} data-testid="change-password-card">
+    <CardShell
+      plain={plain}
+      title={t('account.changePassword.title')}
+      data-testid="change-password-card"
+    >
       <form ref={form} method="post" noValidate onSubmit={submit} className="flex flex-col gap-4">
         <p className="text-base text-ink-soft">{t('account.changePassword.text')}</p>
 
@@ -116,6 +124,6 @@ export function ChangePasswordCard({
           {t('account.changePassword.submit')}
         </Button>
       </form>
-    </Card>
+    </CardShell>
   );
 }

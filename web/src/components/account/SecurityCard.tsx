@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { PasswordField } from '@/components/auth/PasswordField';
-import { Button, Card, Input, Notice, Pill } from '@/components/ui';
+import { Button, Input, Notice, Pill } from '@/components/ui';
 import {
   confirmTwoFactor,
   disableTwoFactor,
@@ -11,6 +11,7 @@ import {
 } from '@/lib/api/browser';
 import type { TwoFactorSetup, TwoFactorState } from '@/lib/api/user';
 import { useI18n } from '@/lib/i18n/client';
+import { CardShell } from './CardShell';
 import { PasswordDialog } from './PasswordDialog';
 import { QrCode } from './QrCode';
 import { RecoveryCodes } from './RecoveryCodes';
@@ -28,7 +29,16 @@ function inGroups(secret: string): string {
  * to turn it on (password, QR code and first code, recovery codes), off, or to renew the
  * recovery codes. The codes live in this component's memory only until the person finishes.
  */
-export function SecurityCard({ initial }: { initial: TwoFactorState }) {
+export function SecurityCard({
+  initial,
+  plain = false,
+  onState,
+}: {
+  initial: TwoFactorState;
+  plain?: boolean;
+  /** Told each time the state changes, so that the page around can follow it. */
+  onState?: (state: TwoFactorState) => void;
+}) {
   const { t } = useI18n();
   const [state, setState] = useState(initial);
   const [phase, setPhase] = useState<Phase>('idle');
@@ -37,6 +47,10 @@ export function SecurityCard({ initial }: { initial: TwoFactorState }) {
   const [dialog, setDialog] = useState<'disable' | 'renew' | null>(null);
   const card = useRef<HTMLElement>(null);
 
+  useEffect(() => {
+    onState?.(state);
+  }, [state, onState]);
+
   function backToCard() {
     window.setTimeout(() => card.current?.focus(), 0);
   }
@@ -44,7 +58,8 @@ export function SecurityCard({ initial }: { initial: TwoFactorState }) {
   const count = state.recovery_codes_left ?? 0;
 
   return (
-    <Card
+    <CardShell
+      plain={plain}
       ref={card}
       tabIndex={-1}
       title={t('account.security.title')}
@@ -189,7 +204,7 @@ export function SecurityCard({ initial }: { initial: TwoFactorState }) {
           }}
         />
       ) : null}
-    </Card>
+    </CardShell>
   );
 }
 
