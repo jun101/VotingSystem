@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VoteSystem, accueil animé (proposition)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--grad-a:#C944B6;--grad-b:#A66EDC;--grad-c:#7A92EE;--primary:#5468D4;--primary-hover:#4458C2;--ink:#14162B;--muted:#5A5F7A;--line:#D5D9EC;--surface:#FFFFFF;--canvas:#F1F2FB;--tint:#EEF0FB;--teal:#0F8F7A;--teal-bg:#E1F5EE;--amber:#B7791F;--amber-bg:#FFF4DC;--rose:#C2386B;--rose-bg:#FDE8F0;--night:#1B1E45}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Roboto,system-ui,sans-serif;color:var(--ink);background:var(--canvas);overflow-x:hidden}
+h1,h2,h3{font-family:Archivo,Roboto,sans-serif;margin:0}
+.wrap{max-width:1200px;margin:0 auto;padding:0 28px}
+a{color:inherit;text-decoration:none}
+.eyebrow{color:var(--primary);font:700 12px Roboto;letter-spacing:1.4px;text-transform:uppercase}
+
+/* nav */
+nav{position:fixed;z-index:20;top:14px;left:50%;transform:translateX(-50%);width:min(1120px,calc(100% - 28px));height:60px;border-radius:30px;background:rgba(255,255,255,.78);backdrop-filter:blur(14px);box-shadow:0 10px 30px -14px rgba(20,22,43,.35);display:flex;align-items:center;gap:6px;padding:0 10px 0 20px;animation:drop .8s cubic-bezier(.2,.8,.2,1) both}
+nav .logo{font:800 20px Archivo;margin-right:auto;display:flex;gap:9px;align-items:center}
+nav .logo i{width:26px;height:26px;border-radius:9px;background:linear-gradient(135deg,var(--grad-a),var(--grad-c));display:block;position:relative}
+nav .logo i::after{content:"";position:absolute;inset:7px 6px 6px;border-radius:2px;background:#fff;clip-path:polygon(0 50%,35% 85%,100% 10%,88% 0,35% 62%,12% 38%)}
+nav a.l{padding:9px 14px;border-radius:20px;font-weight:500;font-size:14.5px;color:var(--muted);transition:.2s}
+nav a.l:hover{background:var(--tint);color:var(--primary)}
+.btn{display:inline-flex;align-items:center;gap:10px;height:46px;padding:0 22px;border-radius:23px;font:700 15px Roboto;border:0;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.btn.p{background:var(--ink);color:#fff}
+.btn.p:hover{transform:translateY(-2px);box-shadow:0 14px 26px -10px rgba(20,22,43,.6)}
+.btn.w{background:#fff;color:var(--ink)}
+.btn .dot{width:28px;height:28px;border-radius:50%;background:var(--primary);display:grid;place-items:center;margin-right:-12px;transition:transform .25s}
+.btn:hover .dot{transform:translateX(4px) rotate(-45deg)}
+.btn .dot svg{width:14px;height:14px}
+
+/* hero */
+.hero{position:relative;min-height:100vh;padding:150px 0 90px;overflow:hidden;background:radial-gradient(1000px 600px at 78% 40%,#E3E6FB 0,transparent 60%),var(--canvas)}
+.hero .wrap{position:relative;display:grid;grid-template-columns:1.05fr 1fr;gap:20px;align-items:center;min-height:560px}
+.hero h1{font-size:clamp(40px,5.2vw,72px);line-height:1.02;font-weight:800;letter-spacing:-1.5px}
+.hero h1 .w{display:inline-block;overflow:hidden;vertical-align:bottom}
+.hero h1 .w span{display:inline-block;transform:translateY(110%);animation:up .9s cubic-bezier(.2,.8,.2,1) forwards}
+.grad{background:linear-gradient(100deg,var(--grad-a),var(--grad-c));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.lead{font-size:18px;line-height:1.55;color:var(--muted);max-width:520px;margin:22px 0 30px;opacity:0;animation:fade .9s .7s forwards}
+.hero .cta{display:flex;gap:12px;flex-wrap:wrap;opacity:0;animation:fade .9s .9s forwards}
+.stage{position:relative;height:560px}
+#sphere{position:absolute;inset:-40px -60px;width:calc(100% + 120px);height:calc(100% + 80px)}
+.float{position:absolute;background:#fff;border-radius:22px;box-shadow:0 30px 60px -24px rgba(20,22,43,.5);animation:floaty 7s ease-in-out infinite}
+.f-ballot{right:-10px;top:30px;width:290px;padding:14px;transform:rotate(2.5deg)}
+.f-ballot .hd{background:linear-gradient(120deg,var(--grad-a),var(--primary));color:#fff;border-radius:14px;padding:11px 13px;font:700 14px Archivo;display:flex;justify-content:space-between}
+.f-ballot .row{display:flex;gap:8px;margin-top:10px}
+.f-ballot .t{flex:1;border-radius:14px;background:var(--tint);padding:8px 4px;text-align:center;font-size:12px;font-weight:500;position:relative}
+.f-ballot .t b{display:block;width:40px;height:40px;border-radius:50%;margin:0 auto 5px;background:linear-gradient(135deg,#C9CFF3,#9AA7EB)}
+.f-ballot .t.sel{outline:3px solid var(--primary)}
+.f-ballot .t.sel::after{content:"✓";position:absolute;right:-4px;top:-6px;width:22px;height:22px;border-radius:50%;background:var(--teal);color:#fff;font:700 13px/22px Roboto;box-shadow:0 0 0 3px #fff;animation:pop 3.5s infinite}
+.f-turn{left:6%;bottom:40px;width:190px;padding:16px 18px;background:var(--primary);color:#fff;animation-delay:-3s}
+.f-turn b{font:800 38px Archivo;display:block}
+.f-turn span{font-size:12px;letter-spacing:1px;text-transform:uppercase;opacity:.85}
+.f-turn .bar{height:6px;border-radius:3px;background:rgba(255,255,255,.3);margin-top:12px;overflow:hidden}
+.f-turn .bar i{display:block;height:100%;width:0;background:#fff;border-radius:3px;animation:fill 4s ease-in-out infinite}
+.f-toast{right:20px;bottom:90px;padding:12px 16px;display:flex;gap:10px;align-items:center;font-weight:500;font-size:14px;animation-delay:-1.5s}
+.f-toast i{width:30px;height:30px;border-radius:50%;background:var(--teal-bg);color:var(--teal);display:grid;place-items:center;font-style:normal;font-weight:700}
+.scroll-hint{position:absolute;left:50%;bottom:22px;width:24px;height:40px;border:2px solid var(--muted);border-radius:14px;opacity:.5}
+.scroll-hint::after{content:"";position:absolute;left:9px;top:7px;width:4px;height:8px;border-radius:2px;background:var(--muted);animation:wheel 1.6s infinite}
+
+/* stats */
+.stats{background:#fff;padding:46px 0}
+.stats .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;text-align:center}
+.stats b{font:800 46px Archivo;display:block;letter-spacing:-1px}
+.stats span{color:var(--muted);font-size:14px}
+
+/* sections */
+section.sec{padding:96px 0 0}
+.sec h2{font-size:clamp(30px,3.4vw,46px);line-height:1.08;letter-spacing:-.8px;margin:10px 0 14px;max-width:760px}
+.sec .lead{color:var(--muted);font-size:17px;max-width:620px;line-height:1.55;margin:0}
+.rv{opacity:0;transform:translateY(34px);transition:opacity .8s cubic-bezier(.2,.8,.2,1),transform .8s cubic-bezier(.2,.8,.2,1)}
+.rv.in{opacity:1;transform:none}
+
+/* bento */
+.bento{display:grid;grid-template-columns:repeat(6,1fr);gap:18px;margin-top:40px}
+.bc{background:#fff;border-radius:26px;padding:24px;position:relative;overflow:hidden;min-height:230px;transition:transform .3s,box-shadow .3s}
+.bc:hover{transform:translateY(-6px);box-shadow:0 26px 40px -24px rgba(20,22,43,.4)}
+.bc.s2{grid-column:span 2}.bc.s3{grid-column:span 3}.bc.s4{grid-column:span 4}
+.bc h3{font-size:20px;margin-bottom:6px}
+.bc p{margin:0;color:var(--muted);font-size:14.5px;line-height:1.5;max-width:340px}
+.bc.dark{background:linear-gradient(135deg,var(--night),#3A2E7A 65%,#5F3FA8);color:#fff}
+.bc.dark p{color:#C9CBF0}
+.bc.grad{background:linear-gradient(135deg,var(--grad-a),var(--grad-b) 50%,var(--grad-c));color:#fff}
+.bc.grad p{color:#F2E9FF}
+.viz{position:absolute;right:18px;bottom:16px}
+.lock{width:84px;height:84px}
+.lock .sh{transform-origin:12px 9px;animation:shackle 4s ease-in-out infinite}
+.bars{display:flex;gap:7px;align-items:flex-end;height:90px}
+.bars i{width:20px;border-radius:7px 7px 3px 3px;background:linear-gradient(var(--grad-c),var(--primary));height:var(--h);transform-origin:bottom;animation:grow 3.4s ease-in-out infinite;animation-delay:var(--d)}
+.slip{width:110px;height:130px;background:#fff;color:var(--ink);border-radius:10px;transform:rotate(8deg);padding:10px;font-size:10px;box-shadow:0 14px 28px -10px rgba(0,0,0,.5);animation:slip 5s ease-in-out infinite}
+.slip .qr{width:48px;height:48px;margin-top:8px;background:conic-gradient(var(--ink) 25%,#fff 0 50%,var(--ink) 0 75%,#fff 0);background-size:12px 12px;border-radius:4px}
+.wifi{display:flex;gap:10px;align-items:center}
+.wifi s{width:20px;height:20px;border-radius:50%;border:3px solid var(--primary);opacity:.15;animation:ring 2.4s infinite}
+.wifi s:nth-child(2){animation-delay:.3s}.wifi s:nth-child(3){animation-delay:.6s}
+.log{font:12px/1.9 ui-monospace,Menlo,monospace;color:#C9CBF0}
+.log i{font-style:normal;color:#7DE0C4}
+
+/* audience */
+.aud{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:40px}
+.photo{position:relative;border-radius:28px;overflow:hidden;aspect-ratio:4/5;background:repeating-linear-gradient(135deg,#DDE1FA,#DDE1FA 14px,#E8EAFB 14px,#E8EAFB 28px);transition:transform .4s}
+.photo:hover{transform:scale(1.02)}
+.photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .8s}
+.photo:hover img{transform:scale(1.07)}
+.photo .cap{position:absolute;left:0;right:0;bottom:0;padding:70px 20px 18px;color:#fff;background:linear-gradient(transparent,rgba(20,22,43,.82));font:700 15px Archivo;letter-spacing:.5px;text-transform:uppercase;display:flex;justify-content:space-between;align-items:flex-end}
+.photo .cap span{width:34px;height:34px;border-radius:50%;background:var(--primary);display:grid;place-items:center}
+.photo .ph{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:13px;text-align:center;padding:24px}
+
+/* live vote demo */
+.demo{margin-top:40px;border-radius:34px;background:linear-gradient(135deg,var(--night),#3A2E7A 60%,#5F3FA8);color:#fff;padding:48px;display:grid;grid-template-columns:1fr 1.1fr;gap:40px;align-items:center;overflow:hidden;position:relative}
+.demo h2{color:#fff}
+.demo .lead{color:#C9CBF0}
+.phone{background:#fff;color:var(--ink);border-radius:30px;padding:18px;max-width:380px;margin:0 auto;width:100%;box-shadow:0 40px 80px -30px #000;position:relative;overflow:hidden}
+.phone .hd{font:700 15px Archivo;margin:2px 4px 12px;display:flex;justify-content:space-between}
+.cands{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cand{border:0;background:var(--tint);border-radius:18px;padding:12px 8px;font:500 13.5px Roboto;cursor:pointer;position:relative;transition:transform .2s,background .2s}
+.cand:hover{transform:translateY(-3px)}
+.cand b{display:block;width:62px;height:62px;border-radius:50%;margin:0 auto 7px}
+.cand:nth-child(1) b{background:linear-gradient(135deg,#F2B8EA,var(--grad-a))}
+.cand:nth-child(2) b{background:linear-gradient(135deg,#BFD0FF,var(--primary))}
+.cand:nth-child(3) b{background:linear-gradient(135deg,#B6EBDD,var(--teal))}
+.cand:nth-child(4) b{background:linear-gradient(135deg,#FFE3A6,var(--amber))}
+.cand.sel{outline:3px solid var(--primary);background:#fff}
+.cand.sel::after{content:"✓";position:absolute;right:-5px;top:-7px;width:26px;height:26px;border-radius:50%;background:var(--teal);color:#fff;font:700 14px/26px Roboto;box-shadow:0 0 0 3px #fff;animation:pop .4s}
+.send{width:100%;margin-top:14px;height:50px;border-radius:25px;border:0;background:var(--primary);color:#fff;font:700 15px Roboto;cursor:pointer;opacity:.4;transition:.3s}
+.send.ok{opacity:1}
+.urn{position:absolute;inset:0;background:#fff;display:grid;place-items:center;text-align:center;opacity:0;pointer-events:none;transition:opacity .4s}
+.urn.on{opacity:1;pointer-events:auto}
+.urn svg{width:150px;height:150px}
+.urn .paper{animation:drop2 1.2s ease-in forwards}
+.urn h3{font-size:22px;margin-top:6px}
+.urn small{color:var(--muted)}
+.again{margin-top:12px;background:none;border:0;color:var(--primary);font:700 14px Roboto;cursor:pointer}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:40px;position:relative}
+.step{background:#fff;border-radius:26px;padding:26px}
+.step em{font:800 54px Archivo;font-style:normal;color:var(--tint);-webkit-text-stroke:2px var(--primary);display:block;line-height:1}
+.step h3{margin:12px 0 6px;font-size:20px}
+.step p{margin:0;color:var(--muted);font-size:14.5px;line-height:1.5}
+
+/* installer terminal */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:40px}
+.term{background:#0F1130;color:#D5D9EC;border-radius:24px;padding:22px;font:13px/1.8 ui-monospace,Menlo,monospace;min-height:260px;box-shadow:0 30px 50px -30px rgba(20,22,43,.7)}
+.term .dots{display:flex;gap:7px;margin-bottom:12px}.term .dots i{width:11px;height:11px;border-radius:50%;background:#FF6B6B}.term .dots i:nth-child(2){background:#FFD166}.term .dots i:nth-child(3){background:#7DE0C4}
+.term .ok{color:#7DE0C4}.term .c{color:#8F95D6}
+.caret{display:inline-block;width:8px;height:15px;background:#D5D9EC;vertical-align:-2px;animation:blink 1s steps(2) infinite}
+.edition{background:#fff;border-radius:24px;padding:26px;display:flex;flex-direction:column;gap:16px}
+.edition .e{display:flex;gap:14px;align-items:flex-start;padding:14px;border-radius:18px;background:var(--tint)}
+.edition .e i{width:42px;height:42px;border-radius:14px;flex:none;display:grid;place-items:center;font-style:normal;font-size:20px;background:#fff}
+.edition b{display:block;font:700 16px Archivo}
+.edition span{color:var(--muted);font-size:14px;line-height:1.45}
+
+/* close + footer */
+.close{margin:96px 0 0;background:linear-gradient(120deg,var(--grad-a),var(--grad-b) 50%,var(--grad-c));border-radius:34px;padding:64px 28px;text-align:center;color:#fff;position:relative;overflow:hidden}
+.close h2{color:#fff;margin:0 auto 12px;font-size:clamp(30px,4vw,52px)}
+.close p{margin:0 auto 26px;max-width:520px;color:#F2E9FF;font-size:17px}
+.close .orb{position:absolute;border-radius:50%;background:rgba(255,255,255,.14);animation:floaty 9s ease-in-out infinite}
+footer{margin-top:96px;background:#0B0F19;color:rgba(255,255,255,.6);position:relative;overflow:hidden;font-size:14.5px}
+footer .top{display:grid;grid-template-columns:1.4fr 2fr;gap:48px;padding:76px 0 56px;position:relative;z-index:1}
+footer .brand .logo{font:800 24px Archivo;color:#fff;display:flex;gap:10px;align-items:center}
+footer .brand .logo i{width:30px;height:30px;border-radius:10px;background:linear-gradient(135deg,var(--grad-a),var(--grad-c));display:block;position:relative}
+footer .brand .logo i::after{content:"";position:absolute;inset:8px 7px 7px;background:#fff;clip-path:polygon(0 50%,35% 85%,100% 10%,88% 0,35% 62%,12% 38%)}
+footer .brand p{margin:18px 0 24px;max-width:340px;line-height:1.6}
+footer .soc{display:flex;gap:10px}
+footer .soc a{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.08);display:grid;place-items:center;color:#fff;transition:background .2s,transform .2s}
+footer .soc a:hover{background:var(--primary);transform:translateY(-3px)}
+footer .soc svg{width:18px;height:18px}
+footer .cols{display:grid;grid-template-columns:repeat(4,1fr);gap:28px}
+footer h4{margin:0 0 18px;font:700 12px Roboto;letter-spacing:1.6px;text-transform:uppercase;color:rgba(255,255,255,.4)}
+footer .cols a{display:block;padding:6px 0;color:rgba(255,255,255,.6);transition:color .2s,transform .2s}
+footer .cols a:hover{color:#fff;transform:translateX(4px)}
+footer .bottom{border-top:1px solid rgba(255,255,255,.1);padding:24px 0 30px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;font-size:13px;color:rgba(255,255,255,.45);position:relative;z-index:1}
+footer .bottom a:hover{color:#fff}
+footer .giant{font:800 clamp(80px,17vw,260px)/.8 Archivo;letter-spacing:-.04em;text-align:center;white-space:nowrap;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,0));-webkit-background-clip:text;background-clip:text;color:transparent;margin-top:-20px;padding-bottom:10px;user-select:none}
+
+@keyframes up{to{transform:none}}
+@keyframes fade{to{opacity:1}}
+@keyframes drop{from{opacity:0;transform:translate(-50%,-30px)}}
+@keyframes floaty{50%{transform:translateY(-14px) rotate(var(--r,0deg))}}
+@keyframes fill{0%{width:5%}60%,100%{width:92%}}
+@keyframes pop{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+@keyframes wheel{to{transform:translateY(14px);opacity:0}}
+@keyframes shackle{0%,55%,100%{transform:translateY(0)}65%,90%{transform:translateY(-4px) rotate(-14deg)}}
+@keyframes grow{0%,100%{transform:scaleY(.25)}40%,70%{transform:scaleY(1)}}
+@keyframes slip{50%{transform:rotate(3deg) translateY(-8px)}}
+@keyframes ring{50%{opacity:1}}
+@keyframes blink{50%{opacity:0}}
+@keyframes drop2{0%{transform:translateY(-70px);opacity:0}30%{opacity:1}100%{transform:translateY(24px);opacity:0}}
+
+@media (max-width:900px){
+  nav a.l{display:none}
+  .hero .wrap,.demo,.two{grid-template-columns:1fr}
+  .stage{height:420px}
+  .f-ballot{width:240px;right:0}
+  .stats .wrap{grid-template-columns:1fr 1fr}
+  .bento{grid-template-columns:1fr}.bc.s2,.bc.s3,.bc.s4{grid-column:auto}
+  .aud,.steps{grid-template-columns:1fr}
+  .photo{aspect-ratio:16/10}
+  .demo{padding:28px}
+  footer .top{grid-template-columns:1fr;padding:56px 0 36px}
+  footer .cols{grid-template-columns:1fr 1fr}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}.hero h1 .w span{transform:none}.hero p.lead,.hero .cta{opacity:1}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="#"><i></i>VoteSystem</a>
+  <a class="l" href="#produit">Produit</a>
+  <a class="l" href="#essayer">Essayer</a>
+  <a class="l" href="#installer">Installer</a>
+  <a class="l" href="#">FR | EN</a>
+  <a class="btn p" href="#">Ouvrir un compte <span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow" style="opacity:0;animation:fade .8s .3s forwards">Élections en ligne · Haïti et au-delà</div>
+      <h1 style="margin-top:14px">
+        <span class="w"><span style="animation-delay:.35s">Chaque</span></span>
+        <span class="w"><span style="animation-delay:.45s">voix</span></span>
+        <span class="w"><span style="animation-delay:.55s">compte,</span></span><br>
+        <span class="w"><span style="animation-delay:.7s" class="grad">aucune</span></span>
+        <span class="w"><span style="animation-delay:.8s" class="grad">ne se voit.</span></span>
+      </h1>
+      <p class="lead">Organisez une élection pour votre école, votre association ou votre institution en quelques minutes : vote secret, un électeur une voix, résultats justes et vérifiables.</p>
+      <div class="cta">
+        <a class="btn p" href="#">Commencer <span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="btn w" href="#essayer">Essayer un vote</a>
+      </div>
+    </div>
+    <div class="stage" aria-hidden="true">
+      <canvas id="sphere"></canvas>
+      <div class="float f-ballot" style="--r:2.5deg">
+        <div class="hd"><span>Élection du conseil</span><span>1 / 3</span></div>
+        <div class="row"><div class="t"><b></b>Marie</div><div class="t sel"><b style="background:linear-gradient(135deg,#BFD0FF,#5468D4)"></b>Jean</div><div class="t"><b></b>Rose</div></div>
+      </div>
+      <div class="float f-turn"><span>Participation</span><b data-count="86" data-suffix=" %">0</b><div class="bar"><i></i></div></div>
+      <div class="float f-toast"><i>✓</i>Vote enregistré, merci</div>
+    </div>
+    <div class="scroll-hint"></div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="wrap">
+    <div class="rv"><b data-count="1000" data-suffix="+">0</b><span>votes par minute testés</span></div>
+    <div class="rv"><b data-count="100" data-suffix=" %">0</b><span>bulletins secrets</span></div>
+    <div class="rv"><b data-count="2">0</b><span>langues : français, anglais</span></div>
+    <div class="rv"><b data-count="4" data-suffix=" min">0</b><span>pour installer</span></div>
+  </div>
+</div>
+
+<section class="sec" id="produit">
+  <div class="wrap">
+    <div class="eyebrow rv">Tout pour une élection juste</div>
+    <h2 class="rv">Des outils simples pour un vote de confiance</h2>
+    <p class="lead rv">De la liste des électeurs au procès-verbal, chaque étape tient en trois clics.</p>
+    <div class="bento">
+      <div class="bc s2 rv">
+        <h3>Secret par conception</h3><p>Aucun vote n’est lié à un électeur, même pour nous.</p>
+        <svg class="viz lock" viewBox="0 0 24 24" fill="none" stroke="#5468D4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2.5" fill="#EEF0FB"/><g class="sh"><path d="M8 10V7a4 4 0 0 1 8 0v3"/></g><circle cx="12" cy="15.5" r="1.4" fill="#5468D4"/></svg>
+      </div>
+      <div class="bc s2 rv">
+        <h3>Résultats en direct</h3><p>Participation suivie en temps réel, résultats une fois clos.</p>
+        <div class="viz bars"><i style="--h:40%;--d:0s"></i><i style="--h:70%;--d:.2s"></i><i style="--h:55%;--d:.4s"></i><i style="--h:95%;--d:.6s"></i><i style="--h:35%;--d:.8s"></i></div>
+      </div>
+      <div class="bc s2 grad rv">
+        <h3>Codes imprimés</h3><p>Un code par électeur, sur papier, par courriel ou en fichier.</p>
+        <div class="viz slip"><b>VOTRE CODE</b><br>K7M-4QX-92<div class="qr"></div></div>
+      </div>
+      <div class="bc s3 dark rv">
+        <h3>Journal d’audit</h3><p>Chaque action est tracée, rien n’est effacé en silence.</p>
+        <div class="log" style="margin-top:12px"><i>10:02</i> élection ouverte<br><i>10:03</i> 1er vote enregistré<br><i>10:41</i> code réémis (électeur n° …)<br><i>16:00</i> élection close</div>
+      </div>
+      <div class="bc s3 rv">
+        <h3>Sans internet, dans l’école</h3><p>Une édition qui tourne sur un seul ordinateur, en réseau local, sans courriel.</p>
+        <div class="viz wifi"><s></s><s></s><s></s></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <div class="eyebrow rv">Pour qui</div>
+    <h2 class="rv">Une élection pour chaque communauté</h2>
+    <div class="aud">
+      <div class="photo rv"><div class="ph">images/ecole.jpg<br>(voir le prompt 1)</div><img src="images/ecole.jpg" alt="" onerror="this.remove()"><div class="cap">Écoles <span>→</span></div></div>
+      <div class="photo rv" style="transition-delay:.1s"><div class="ph">images/association.jpg<br>(prompt 2)</div><img src="images/association.jpg" alt="" onerror="this.remove()"><div class="cap">Associations <span>→</span></div></div>
+      <div class="photo rv" style="transition-delay:.2s"><div class="ph">images/institution.jpg<br>(prompt 3)</div><img src="images/institution.jpg" alt="" onerror="this.remove()"><div class="cap">Institutions <span>→</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="essayer">
+  <div class="wrap">
+    <div class="demo rv">
+      <div>
+        <div class="eyebrow" style="color:#B9C3FF">Essayez, c’est le vrai écran</div>
+        <h2>Votez en dix secondes</h2>
+        <p class="lead">Touchez un candidat, confirmez. Le bulletin tombe dans l’urne et plus personne ne peut le relier à vous.</p>
+      </div>
+      <div class="phone" id="phone">
+        <div class="hd"><span>Président du conseil</span><span style="color:var(--muted)">1 / 1</span></div>
+        <div class="cands">
+          <button class="cand"><b></b>Marie Joseph</button>
+          <button class="cand"><b></b>Jean Baptiste</button>
+          <button class="cand"><b></b>Rose Pierre</button>
+          <button class="cand"><b></b>Vote blanc</button>
+        </div>
+        <button class="send" id="send">Confirmer mon vote</button>
+        <div class="urn" id="urn">
+          <div>
+            <svg viewBox="0 0 120 120"><rect x="22" y="48" width="76" height="58" rx="10" fill="#EEF0FB" stroke="#5468D4" stroke-width="3"/><rect x="40" y="46" width="40" height="7" rx="3.5" fill="#5468D4"/><g class="paper"><rect x="46" y="8" width="28" height="38" rx="4" fill="#fff" stroke="#A66EDC" stroke-width="3"/><path d="M52 20h16M52 28h10" stroke="#A66EDC" stroke-width="3" stroke-linecap="round"/></g></svg>
+            <h3>Vote enregistré</h3><small>Merci. Votre vote est secret.</small><br>
+            <button class="again" id="again">Recommencer la démo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <div class="eyebrow rv">Comment ça marche</div>
+    <h2 class="rv">Trois étapes, pas une de plus</h2>
+    <div class="steps">
+      <div class="step rv"><em>1</em><h3>Préparez</h3><p>Créez l’élection, les bulletins, les candidats, importez les électeurs depuis Excel.</p></div>
+      <div class="step rv" style="transition-delay:.12s"><em>2</em><h3>Distribuez</h3><p>Imprimez les codes ou envoyez-les par courriel. Planifiez l’ouverture et la fermeture.</p></div>
+      <div class="step rv" style="transition-delay:.24s"><em>3</em><h3>Publiez</h3><p>À la clôture, résultats, procès-verbal PDF et journal d’audit, en un clic.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="installer">
+  <div class="wrap">
+    <div class="eyebrow rv">Installation</div>
+    <h2 class="rv">Chez vous, ou en ligne</h2>
+    <p class="lead rv">Un installateur pour Linux, Windows ou Docker. Quatre minutes, un mot de passe, c’est prêt.</p>
+    <div class="two">
+      <div class="term rv" id="term"><div class="dots"><i></i><i></i><i></i></div><div id="termtxt"></div></div>
+      <div class="edition rv">
+        <div class="e"><i>🏫</i><div><b>Édition école</b><span>Sans internet ni courriel. Un ordinateur suffit, les comptes sont créés à l’installation.</span></div></div>
+        <div class="e"><i>☁️</i><div><b>Édition en ligne</b><span>Un nom de domaine, HTTPS automatique, courriels aux électeurs, mises à jour avec retour arrière.</span></div></div>
+        <div class="e"><i>💾</i><div><b>Sauvegarde intégrée</b><span>Une commande pour sauvegarder et restaurer toute l’élection.</span></div></div>
+      </div>
+    </div>
+
+    <div class="close rv">
+      <span class="orb" style="width:220px;height:220px;left:-60px;top:-60px"></span>
+      <span class="orb" style="width:140px;height:140px;right:8%;bottom:-40px;animation-delay:-4s"></span>
+      <h2>Votre première élection commence ici</h2>
+      <p>Ouvrez un compte, créez un scrutin et invitez vos électeurs aujourd’hui.</p>
+      <a class="btn w" href="#">Ouvrir un compte <span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">
+        <a class="logo" href="#"><i></i>VoteSystem</a>
+        <p>Le vote en ligne pour les écoles, associations et institutions : secret, simple et vérifiable.</p>
+        <div class="soc">
+          <a href="https://www.linkedin.com/in/josu%C3%A9-junior-fleuridor-b6905b157/" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 11v5M8 8v.01M12 16v-5M12 13a3 3 0 0 1 6 0v3"/></svg></a>
+          <a href="https://github.com/jun101" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-4 1.200-4-2-6-2m12 4v-3.500a3 3 0 0 0-.8-2.300c2.800-.3 5.800-1.400 5.800-6.200a4.800 4.800 0 0 0-1.300-3.300 4.500 4.500 0 0 0-.1-3.300s-1.100-.3-3.500 1.300a12 12 0 0 0-6.200 0C6.500 2.800 5.400 3.100 5.400 3.100a4.500 4.500 0 0 0-.1 3.300A4.800 4.800 0 0 0 4 9.700c0 4.800 3 5.900 5.800 6.200A3 3 0 0 0 9 18.200V21"/></svg></a>
+          <a href="https://x.com/jun_101_ht" aria-label="X"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l16 16M20 4L4 20"/></svg></a>
+        </div>
+      </div>
+      <div class="cols">
+        <div><h4>Produit</h4><a href="#produit">Fonctionnalités</a><a href="#essayer">Essayer un vote</a><a href="#installer">Installer</a><a href="#">Tarifs</a><a href="#">Sécurité</a></div>
+        <div><h4>Ressources</h4><a href="#">Guides par rôle</a><a href="#">Guide d’installation</a><a href="#">Foire aux questions</a><a href="#">État du service</a></div>
+        <div><h4>Pour qui</h4><a href="#">Écoles</a><a href="#">Associations</a><a href="#">Institutions</a><a href="#">Syndicats</a></div>
+        <div><h4>Entreprise</h4><a href="material-developer.html">Le développeur</a><a href="#">Contact</a><a href="#">Parler à un conseiller</a><a href="#">Carrières</a></div>
+      </div>
+    </div>
+    <div class="bottom">
+      <span>© 2026 VoteSystem. Tous droits réservés.</span>
+      <span style="display:flex;gap:26px;flex-wrap:wrap"><a href="#">Centre juridique</a><a href="#">Conditions d’utilisation</a><a href="#">Politique de confidentialité</a></span>
+      <span>Port-au-Prince, Haïti · FR | EN</span>
+    </div>
+  </div>
+  <div class="giant" aria-hidden="true">VoteSystem</div>
+</footer>
+
+<script>
+(function(){
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* sphere: points on a sphere, radiating streaks, a few orbiting nodes */
+  var cv = document.getElementById('sphere'), cx = cv.getContext('2d'), W, H, dpr = Math.min(devicePixelRatio || 1, 2);
+  function size(){ var r = cv.getBoundingClientRect(); W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; cx.setTransform(dpr,0,0,dpr,0,0); }
+  size(); addEventListener('resize', size);
+  var N = 520, pts = [], ga = Math.PI * (3 - Math.sqrt(5));
+  for (var i = 0; i < N; i++) { var y = 1 - (i / (N - 1)) * 2, r = Math.sqrt(1 - y * y), t = ga * i; pts.push({x: Math.cos(t) * r, y: y, z: Math.sin(t) * r}); }
+  var nodes = [0,1,2,3,4,5,6].map(function(k){ return {a: k * 0.9, b: .3 + k * .35, s: .12 + k * .02, c: k % 3 === 0 ? '#E8743B' : (k % 3 === 1 ? '#5468D4' : '#C944B6')}; });
+  var rays = []; for (i = 0; i < 46; i++) rays.push({a: Math.random() * 6.283, l: .25 + Math.random() * .7, d: .02 + Math.random() * .04, p: Math.random() * 6.283, c: ['#5468D4','#C944B6','#E8743B'][i % 3]});
+  var mx = 0, my = 0, tmx = 0, tmy = 0;
+  addEventListener('mousemove', function(e){ tmx = e.clientX / innerWidth - .5; tmy = e.clientY / innerHeight - .5; });
+  var rot = 0, last = 0;
+  function frame(ts){
+    var dt = Math.min((ts - last) / 1000, .05); last = ts;
+    if (!reduce) rot += dt * .35;
+    mx += (tmx - mx) * .05; my += (tmy - my) * .05;
+    cx.clearRect(0, 0, W, H);
+    var R = Math.min(W, H) * .3, ox = W * .5 + mx * 30, oy = H * .5 + my * 30;
+    var g = cx.createRadialGradient(ox - R * .3, oy - R * .35, R * .1, ox, oy, R);
+    g.addColorStop(0, '#FFFFFF'); g.addColorStop(.6, '#E4E7FB'); g.addColorStop(1, '#BAC3F3');
+    cx.beginPath(); cx.arc(ox, oy, R, 0, 6.283); cx.fillStyle = g; cx.fill();
+    cx.lineCap = 'round';
+    rays.forEach(function(q){
+      var pulse = .5 + .5 * Math.sin(ts / 900 + q.p), a = q.a + rot * .1, r0 = R * 1.05, r1 = R * (1.05 + q.l * (.6 + .4 * pulse));
+      var lg = cx.createLinearGradient(ox + Math.cos(a) * r0, oy + Math.sin(a) * r0, ox + Math.cos(a) * r1, oy + Math.sin(a) * r1);
+      lg.addColorStop(0, q.c + '00'); lg.addColorStop(.3, q.c + '99'); lg.addColorStop(1, q.c + '00');
+      cx.strokeStyle = lg; cx.lineWidth = 1.6;
+      cx.beginPath(); cx.moveTo(ox + Math.cos(a) * r0, oy + Math.sin(a) * r0); cx.lineTo(ox + Math.cos(a) * r1, oy + Math.sin(a) * r1); cx.stroke();
+    });
+    var cr = Math.cos(rot), sr = Math.sin(rot), tilt = .35, ct = Math.cos(tilt), st = Math.sin(tilt);
+    function proj(p, rr){ var x = p.x * cr + p.z * sr, z = -p.x * sr + p.z * cr, y = p.y * ct - z * st; z = p.y * st + z * ct; return {x: ox + x * rr, y: oy + y * rr, z: z}; }
+    for (var k = 0; k < N; k++) {
+      var q = proj(pts[k], R); if (q.z < -.1) continue;
+      cx.fillStyle = 'rgba(84,104,212,' + (.15 + .6 * (q.z + 1) / 2) + ')';
+      cx.beginPath(); cx.arc(q.x, q.y, 1.2 + q.z * .9, 0, 6.283); cx.fill();
+    }
+    nodes.forEach(function(n){
+      n.a += dt * n.s * (reduce ? 0 : 1);
+      var p = proj({x: Math.cos(n.a) * Math.cos(n.b), y: Math.sin(n.b) * .9, z: Math.sin(n.a) * Math.cos(n.b)}, R * 1.0);
+      if (p.z < 0) return;
+      cx.fillStyle = '#fff'; cx.beginPath(); cx.arc(p.x, p.y, 11, 0, 6.283); cx.fill();
+      cx.strokeStyle = n.c; cx.lineWidth = 2; cx.stroke();
+      cx.fillStyle = n.c; cx.fillRect(p.x - 4, p.y - 3, 8, 6);
+    });
+    if (!reduce) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  /* reveal on scroll */
+  var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }); }, {threshold: .15});
+  document.querySelectorAll('.rv').forEach(function(el){ io.observe(el); });
+
+  /* count up */
+  function count(el){
+    var to = +el.dataset.count, suf = el.dataset.suffix || '', t0 = performance.now();
+    (function s(t){ var p = Math.min((t - t0) / 1400, 1), e = 1 - Math.pow(1 - p, 3); el.textContent = Math.round(to * e) + suf; if (p < 1) requestAnimationFrame(s); })(t0);
+  }
+  var io2 = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting) { count(e.target); io2.unobserve(e.target); } }); }, {threshold: .6});
+  document.querySelectorAll('[data-count]').forEach(function(el){ io2.observe(el); });
+
+  /* vote demo */
+  var cands = [].slice.call(document.querySelectorAll('.cand')), send = document.getElementById('send'), urn = document.getElementById('urn');
+  cands.forEach(function(c){ c.addEventListener('click', function(){ cands.forEach(function(x){ x.classList.remove('sel'); }); c.classList.add('sel'); send.classList.add('ok'); }); });
+  send.addEventListener('click', function(){ if (send.classList.contains('ok')) urn.classList.add('on'); });
+  document.getElementById('again').addEventListener('click', function(){ urn.classList.remove('on'); cands.forEach(function(x){ x.classList.remove('sel'); }); send.classList.remove('ok'); });
+
+  /* terminal typing, started when visible */
+  var lines = [
+    ['c', '$ sudo ./install.sh'],
+    ['', 'Vérification de la machine…'],
+    ['ok', '✓ Ports libres : 80'],
+    ['ok', '✓ Base de données et cache démarrés'],
+    ['ok', '✓ Comptes créés (identifiants.txt)'],
+    ['ok', '✓ Le site répond : http://10.0.2.15'],
+    ['', 'Installation terminée en 4 min.']
+  ];
+  var box = document.getElementById('termtxt');
+  function type(){
+    var li = 0;
+    (function next(){
+      if (li >= lines.length) { box.insertAdjacentHTML('beforeend', '<span class="caret"></span>'); return; }
+      var d = document.createElement('div'); d.className = lines[li][0]; box.appendChild(d);
+      var txt = lines[li][1], ci = 0; li++;
+      (function ch(){ d.textContent = txt.slice(0, ++ci); if (ci < txt.length) setTimeout(ch, reduce ? 0 : 22); else setTimeout(next, reduce ? 0 : 260); })();
+    })();
+  }
+  var io3 = new IntersectionObserver(function(es){ if (es[0].isIntersecting) { type(); io3.disconnect(); } }, {threshold: .5});
+  io3.observe(document.getElementById('term'));
+})();
+</script>
+</body>
+</html>
