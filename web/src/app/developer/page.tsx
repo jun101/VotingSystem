@@ -127,8 +127,8 @@ export default async function DeveloperPage() {
                 <Image
                   src="/developer/josue.webp"
                   alt={t('developer.avatarAlt')}
-                  width={640}
-                  height={640}
+                  width={480}
+                  height={480}
                   priority
                   unoptimized
                   className="dev-portrait bg-hero relative size-full rounded-full object-cover shadow-3"
