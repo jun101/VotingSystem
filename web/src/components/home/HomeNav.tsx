@@ -33,12 +33,15 @@ export function HomeNav({ t, onHome = true }: { t: Translate; onHome?: boolean }
           <span className="max-sm:sr-only">{t('app.name')}</span>
         </Link>
 
-        <nav aria-label={t('home.nav.label')} className="ml-2 hidden items-center gap-5 lg:flex">
+        <nav
+          aria-label={t('home.nav.label')}
+          className="ml-2 hidden items-center gap-4 lg:flex xl:gap-5"
+        >
           {items.map((item) => (
             <a
               key={item.href}
               href={item.href}
-              className="rounded-sm text-base font-semibold text-ink-soft hover:text-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              className="rounded-sm text-base font-semibold whitespace-nowrap text-ink-soft hover:text-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
               {item.label}
             </a>
