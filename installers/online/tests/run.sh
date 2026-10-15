@@ -126,5 +126,27 @@ t "the unpacked installer runs a dry run from its own folder" test "$rc" -eq 0
 t "and takes the archive's version" contains "$out" "image version: 9.9.9"
 
 echo
+echo "the update picks its archive"
+# An installation (a .env) in a folder of its own; the update stops at the backup (no votectl there), after the choice is printed.
+UPD="$TMP/upd"
+mkdir -p "$UPD"
+printf 'VOTE_VERSION=9.0.0\n' > "$UPD/.env"
+# From the unpacked archive, no option: this archive is the new version, nothing is downloaded.
+out="$(VOTE_ONLINE_DIR="$UPD" VOTE_TEST_NO_ROOT=1 VOTE_LANG=en "$TMP/votesystem-online-9.9.9/install-online.sh" update 2>&1)"
+t "from the unpacked archive it uses that archive" contains "$out" "Using the unpacked archive"
+nt "and downloads nothing" contains "$out" "Downloading version"
+# From the unpacked archive with --version equal to its own: still that archive.
+out="$(VOTE_ONLINE_DIR="$UPD" VOTE_TEST_NO_ROOT=1 VOTE_LANG=en "$TMP/votesystem-online-9.9.9/install-online.sh" update --version 9.9.9 2>&1)"
+t "--version equal to the archive's own uses the archive" contains "$out" "Using the unpacked archive"
+# From the unpacked archive with another version: that version is downloaded.
+out="$(VOTE_ONLINE_DIR="$UPD" VOTE_TEST_NO_ROOT=1 VOTE_LANG=en timeout 20 "$TMP/votesystem-online-9.9.9/install-online.sh" update --version 9.8.7 2>&1)"
+t "another --version is honoured (it is downloaded)" contains "$out" "Downloading version 9.8.7"
+# From the copy installed in the installation's own folder, a version is asked for: it is downloaded, not the local files.
+mkdir -p "$UPD/installer" && cp -a "$TMP/votesystem-online-9.9.9/." "$UPD/installer/"
+out="$(VOTE_ONLINE_DIR="$UPD" VOTE_TEST_NO_ROOT=1 VOTE_LANG=en timeout 20 "$UPD/installer/install-online.sh" update --version 9.8.7 2>&1)"
+t "from the installed copy, --version is downloaded" contains "$out" "Downloading version 9.8.7"
+nt "and the installed copy is not taken for a new archive" contains "$out" "Using the unpacked archive"
+
+echo
 printf '%s passed, %s failed\n' "$PASS" "$FAIL"
 [ "$FAIL" -eq 0 ]

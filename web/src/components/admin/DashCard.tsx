@@ -80,7 +80,9 @@ export function DashCard({
         >
           <Icon name={icon} size={22} />
         </span>
-        <h3 className="min-w-0 flex-1 truncate font-display text-xl font-extrabold">{title}</h3>
+        <h3 className="min-w-0 flex-1 font-display text-xl leading-tight font-extrabold break-words">
+          {title}
+        </h3>
         {aside}
       </header>
       <div className={cx('flex flex-1 flex-col gap-3.5 px-5 pt-4.5 pb-5', className)}>

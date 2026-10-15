@@ -36,8 +36,8 @@ export function SecurityCard({
 }: {
   initial: TwoFactorState;
   plain?: boolean;
-  /** Told each time the state changes, so that the page around can follow it. */
-  onState?: (state: TwoFactorState) => void;
+  /** Told each time the state or the phase changes, so that the page around can follow it. */
+  onState?: (state: TwoFactorState, settled: boolean) => void;
 }) {
   const { t } = useI18n();
   const [state, setState] = useState(initial);
@@ -47,9 +47,10 @@ export function SecurityCard({
   const [dialog, setDialog] = useState<'disable' | 'renew' | null>(null);
   const card = useRef<HTMLElement>(null);
 
+  // `settled`: nothing is going on in the card (no set-up in progress, no recovery codes on screen).
   useEffect(() => {
-    onState?.(state);
-  }, [state, onState]);
+    onState?.(state, phase === 'idle');
+  }, [state, phase, onState]);
 
   function backToCard() {
     window.setTimeout(() => card.current?.focus(), 0);
@@ -345,14 +346,14 @@ function ScanStep({
         {t('account.setup.scanTitle')}
       </h3>
 
-      <div className="flex flex-col items-start gap-4 md:flex-row">
+      <div className="flex flex-col items-start gap-4">
         <QrCode value={setup.otpauth_url} label={t('account.setup.qrLabel')} />
-        <div className="flex min-w-0 flex-col gap-3">
+        <div className="flex w-full min-w-0 flex-col gap-3">
           <p className="text-base text-ink-soft">{t('account.setup.scanText')}</p>
           <p className="text-base text-ink-soft">{t('account.setup.manual')}</p>
           <code
             data-testid="two-factor-secret"
-            className="w-fit max-w-full rounded border border-line bg-surface px-3 py-2 font-mono text-md font-semibold tracking-wider break-words text-ink"
+            className="w-full max-w-full rounded border border-line bg-surface px-3 py-2 font-mono text-md font-semibold tracking-wider break-words text-ink"
           >
             {inGroups(setup.secret)}
           </code>

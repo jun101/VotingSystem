@@ -1,9 +1,12 @@
 # Production on one VPS: the rollout runbook (slice 20)
 
-Nothing in this file has been run on a real server: it needs the VPS, the domain and, every time, Jun's approval to connect
-(Jun's standing rule: no SSH without a described, approved set of commands). Everything it asks the server to do was
-rehearsed on this machine with the production images: install, vote flow, load test, backup, disaster and restore, update
-and rollback, uninstall (`docs/slices/19c-step-e.done.md`, `docs/ops/load-test.md`, `docs/ops/backup-restore.md`).
+This runbook was run once on a real VPS (2026-10-15, `vote.fleuridor.com`, Debian 13, behind Nginx Proxy Manager, mail through
+Resend); the step-by-step version for a person doing it alone is
+[../guides/install-online-vps.md](../guides/install-online-vps.md). The rule that applies to the assistant working on this
+repository stays: no SSH without a described, approved set of commands (Jun's standing rule). Everything it asks the server to
+do was also rehearsed on a development machine with the production images: install, vote flow, load test, backup, disaster
+and restore, update and rollback, uninstall (`docs/slices/19c-step-e.done.md`, `docs/ops/load-test.md`,
+`docs/ops/backup-restore.md`).
 
 ## What Jun provides
 

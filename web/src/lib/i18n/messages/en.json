@@ -1191,7 +1191,9 @@
       "submit": "Change the password",
       "done": "Your password is changed.",
       "code": "Two-factor code",
-      "recovery": "Recovery code"
+      "recovery": "Recovery code",
+      "codeHelp": "Your own code from the authenticator app, to confirm.",
+      "recoveryHelp": "One of your own recovery codes. Each code works only once."
     },
     "passwordRequired": {
       "kicker": "First sign-in",
@@ -1243,6 +1245,11 @@
           "owner": "Can manage everything, including the team.",
           "manager": "Manages the institution’s elections."
         }
+      },
+      "continue": {
+        "title": "Everything is in place",
+        "text": "The password is changed and two-factor authentication is on. You can open the platform.",
+        "button": "Go to the platform"
       }
     }
   },
