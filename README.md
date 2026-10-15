@@ -7,15 +7,16 @@ all in Docker Compose.
 
 ## Install it for an institution
 
-Three installers, one per situation. The full guide (French and English, with the screens)
-is in the application for the signed-in owner and platform admin, under "Guide d'utilisation",
-"Installation", and in [docs/ops/installation-guide.md](docs/ops/installation-guide.md).
+Three installers, one per situation, each with a **step-by-step guide** (French and English, written for a person
+with basic computer skills): pick yours in the last column of the table. All three are listed in
+[docs/ops/installation-guide.md](docs/ops/installation-guide.md). The same guide is in the application for the
+signed-in owner and platform admin, under "Guide d'utilisation", "Installation".
 
-| Situation | Installer | Needs | Email |
-|---|---|---|---|
-| A Linux server in the institution, no internet | `install.sh` (school edition, native, no Docker) | Debian 12 or 13, Ubuntu 24.04 or 26.04, x86_64, 4 GB memory, 5 GB free, systemd | No: the installer creates the accounts; passwords are reset with `votectl` |
-| A Windows computer in the institution | `install.ps1` (school edition, native, no Docker or WSL) | Windows 10 1809 or later, Windows 11, Windows Server 2019 or later, 64-bit, 4 GB, 5 GB free | No |
-| An online server with a domain name | `install-online.sh` (online edition, Docker, automatic HTTPS) | Debian or Ubuntu with Docker (installed by the script when missing), ports 80 and 443, a domain name | Yes (SMTP) |
+| Situation | Installer | Needs | Email | Step-by-step guide |
+|---|---|---|---|---|
+| A Linux server in the institution, no internet | `install.sh` (school edition, native, no Docker) | Debian 12 or 13, Ubuntu 24.04 or 26.04, x86_64, 4 GB memory, 5 GB free, systemd | No: the installer creates the accounts; passwords are reset with `votectl` | [Linux guide](docs/guides/install-school-linux.md) |
+| A Windows computer in the institution | `install.ps1` (school edition, native, no Docker or WSL) | Windows 10 1809 or later, Windows 11, Windows Server 2019 or later, 64-bit, 4 GB, 5 GB free | No | [Windows guide](docs/guides/install-school-windows.md) |
+| An online server with a domain name | `install-online.sh` (online edition, Docker, automatic HTTPS) | Debian or Ubuntu with Docker (installed by the script when missing), ports 80 and 443, a domain name | Yes (SMTP) | [Online (VPS) guide](docs/guides/install-online-vps.md) |
 
 Steps, the same for the three:
 
@@ -38,13 +39,13 @@ Steps, the same for the three:
 Operation: `votectl status | version | logs | backup | restore | update | user list | user
 reset-password | owner create | admin create | 2fa reset | mail test` (Windows: the same
 command in an administrator PowerShell). To update, unpack the new version and run
-`install.sh update` (`install.ps1 update`, or `votectl update --version X.Y.Z`): backup,
-migrations, and an automatic return to the previous version on failure. `install.sh
+`install.sh update` (`install.ps1 update`; online edition: `install-online.sh update --archive FILE`, or
+`votectl update --version X.Y.Z`): backup, migrations, and an automatic return to the previous version on failure. `install.sh
 uninstall` keeps the data unless `--purge-data` is given.
 
 Tried: Debian 12 and 13, Ubuntu 24.04 and 26.04 (fresh virtual machines), Windows 11 (virtual
-machine), and the online edition on its production images. Not tried yet: a real HTTPS domain
-and a real VPS ([docs/ops/production-vps.md](docs/ops/production-vps.md)).
+machine), and the online edition on a real VPS with a domain and HTTPS, behind Nginx Proxy Manager
+([docs/ops/production-vps.md](docs/ops/production-vps.md)).
 
 ## Development
 

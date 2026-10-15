@@ -1191,7 +1191,9 @@
       "submit": "Changer le mot de passe",
       "done": "Votre mot de passe est changé.",
       "code": "Code à deux facteurs",
-      "recovery": "Code de secours"
+      "recovery": "Code de secours",
+      "codeHelp": "Votre propre code de l’application d’authentification, pour confirmer.",
+      "recoveryHelp": "Un de vos propres codes de récupération. Chaque code ne sert qu’une fois."
     },
     "passwordRequired": {
       "kicker": "Première connexion",
@@ -1243,6 +1245,11 @@
           "owner": "Peut tout gérer, y compris l’équipe.",
           "manager": "Gère les élections de l’établissement."
         }
+      },
+      "continue": {
+        "title": "Tout est en place",
+        "text": "Le mot de passe est changé et la double authentification est active. Vous pouvez ouvrir la plateforme.",
+        "button": "Accéder à la plateforme"
       }
     }
   },

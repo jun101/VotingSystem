@@ -19,7 +19,9 @@ Le script pose ses questions une fois : le **nom de domaine** (un seul, exemple 
 (SMTP), l'adresse de l'administrateur de la plateforme. Avant de commencer, le nom de domaine doit pointer vers le
 serveur (enregistrement A) et les ports 80 et 443 doivent être libres : sinon Caddy ne peut pas obtenir le certificat.
 Si un autre proxy (Nginx Proxy Manager) les utilise déjà, répondez oui à « un autre proxy fera le HTTPS » : VoteSystem
-écoute alors sur `127.0.0.1:<port libre>` et le script donne la cible à régler dans l'autre proxy.
+écoute alors sur `127.0.0.1:<port libre>` et le script donne la cible à régler dans l'autre proxy. Avec
+`--proxy-network NOM` (le réseau Docker de Nginx Proxy Manager, par exemple `npm_network`), le proxy de VoteSystem rejoint ce
+réseau et l'autre proxy envoie vers `votesystem-proxy-1`, port `80`. Pas à pas : [docs/guides/install-online-vps.md](../../docs/guides/install-online-vps.md).
 
 À la fin, deux fichiers sont écrits dans le dossier de la personne qui a lancé `sudo` :
 `votesystem-identifiants.txt` (mot de passe de l'administrateur, à changer à la première connexion) et
@@ -30,7 +32,9 @@ Si un autre proxy (Nginx Proxy Manager) les utilise déjà, répondez oui à « 
 On a Debian or Ubuntu server, as an administrator: the same five commands as above. The script asks once for the
 **domain** (one only, example `vote.fleuridor.com`), the mail (SMTP) settings and the platform admin's address. The domain
 must already point to the server and ports 80 and 443 must be free; with another proxy in front, answer yes to "another
-proxy does the HTTPS" and point it to the local port the script prints.
+proxy does the HTTPS" and point it to the local port the script prints. With `--proxy-network NAME` (the Docker network of
+Nginx Proxy Manager, for example `npm_network`), VoteSystem's proxy joins that network and the other proxy forwards to
+`votesystem-proxy-1`, port `80`. Step by step: [docs/guides/install-online-vps.md](../../docs/guides/install-online-vps.md).
 
 Options: `--yes --domain NAME --admin-email ADDRESS` for a run with no questions, `--behind-proxy`, `--skip-mail`,
 `--dry-run` (checks and plan, nothing changed), `--lang fr|en`. `./install-online.sh --help` lists them all.

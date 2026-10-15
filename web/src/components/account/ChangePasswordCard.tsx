@@ -106,9 +106,9 @@ export function ChangePasswordCard({
             error={fields.code ?? fields.recovery_code}
             labels={{
               code: t('account.changePassword.code'),
-              codeHelp: t('institution.users.resetCodeHelp'),
+              codeHelp: t('account.changePassword.codeHelp'),
               recovery: t('account.changePassword.recovery'),
-              recoveryHelp: t('institution.users.resetRecoveryHelp'),
+              recoveryHelp: t('account.changePassword.recoveryHelp'),
             }}
             testIds={{
               code: 'change-password-code',
