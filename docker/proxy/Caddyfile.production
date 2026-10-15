@@ -4,6 +4,12 @@
 
 {
 	admin off
+	# Behind another proxy (Nginx Proxy Manager, ...) the visitor's address is in X-Forwarded-For: trust it from private
+	# addresses only, so that the per-address limits count the visitor and not the proxy. A visitor coming straight
+	# from the internet is a public address and is never trusted.
+	servers {
+		trusted_proxies static private_ranges
+	}
 }
 
 {$SITE_ADDRESS} {
@@ -59,14 +65,16 @@
 		}
 	}
 
+	# The upstreams are named by aliases of their own: the short names `api` and `web` could also be the names of
+	# containers of another stack on a network shared with the proxy in front.
 	handle /api/* {
 		request_body {
 			max_size 8MB
 		}
-		reverse_proxy api:8000
+		reverse_proxy votesystem-api:8000
 	}
 
 	handle {
-		reverse_proxy web:3000
+		reverse_proxy votesystem-web:3000
 	}
 }

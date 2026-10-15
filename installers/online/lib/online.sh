@@ -166,6 +166,7 @@ write_env() {
       echo "DB_PASSWORD=$ENV_DB_PASSWORD"
       echo "DB_MIGRATOR_PASSWORD=$ENV_DB_MIGRATOR_PASSWORD"
       echo "REDIS_PASSWORD=$ENV_REDIS_PASSWORD"
+      echo "PROXY_NETWORK=${ENV_PROXY_NETWORK:-votesystem_edge}"
       echo "SESSION_COOKIE=votesystem_session"
       echo "MAIL_MAILER=$ENV_MAIL_MAILER"
       echo "MAIL_HOST=$ENV_MAIL_HOST"
@@ -190,6 +191,15 @@ set_env_value() {
 env_value() { sed -n "s/^$2=//p" "$1" | head -1; }
 
 # compose ARGS...: Docker Compose on the installation's file, from its folder (the .env there is read).
+# ensure_proxy_network: the network the proxy container also joins (PROXY_NETWORK of the .env, default votesystem_edge).
+# An existing one (the network of Nginx Proxy Manager) is used as it is; the default is created when it is missing.
+ensure_proxy_network() {
+  local name
+  name="$(env_value "$ONLINE_DIR/.env" PROXY_NETWORK 2>/dev/null)"
+  name="${name:-votesystem_edge}"
+  docker network inspect "$name" >/dev/null 2>&1 || docker network create "$name" >/dev/null
+}
+
 compose() { docker compose -f "$ONLINE_DIR/compose.prod.yaml" --project-directory "$ONLINE_DIR" "$@"; }
 
 # wait_healthy URL [EXTRA CURL ARGS]: 0 as soon as the URL answers 2xx, 1 after about the given time.
