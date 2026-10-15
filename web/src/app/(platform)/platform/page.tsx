@@ -67,7 +67,7 @@ export default async function PlatformRoute() {
         )}
       >
         <TwoFactorRequired>
-          <AccountPage twoFactor={twoFactor} user={session.user} />
+          <AccountPage twoFactor={twoFactor} user={session.user} continueTo="/platform" />
         </TwoFactorRequired>
       </I18nProvider>
     );

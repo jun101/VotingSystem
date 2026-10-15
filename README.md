@@ -9,7 +9,10 @@ all in Docker Compose.
 
 Three installers, one per situation. The full guide (French and English, with the screens)
 is in the application for the signed-in owner and platform admin, under "Guide d'utilisation",
-"Installation", and in [docs/ops/installation-guide.md](docs/ops/installation-guide.md).
+"Installation", and in [docs/ops/installation-guide.md](docs/ops/installation-guide.md), which opens the three
+step-by-step guides: [Linux (school)](docs/guides/install-school-linux.md),
+[Windows (school)](docs/guides/install-school-windows.md) and
+[online VPS](docs/guides/install-online-vps.md).
 
 | Situation | Installer | Needs | Email |
 |---|---|---|---|
@@ -38,13 +41,13 @@ Steps, the same for the three:
 Operation: `votectl status | version | logs | backup | restore | update | user list | user
 reset-password | owner create | admin create | 2fa reset | mail test` (Windows: the same
 command in an administrator PowerShell). To update, unpack the new version and run
-`install.sh update` (`install.ps1 update`, or `votectl update --version X.Y.Z`): backup,
-migrations, and an automatic return to the previous version on failure. `install.sh
+`install.sh update` (`install.ps1 update`; online edition: `install-online.sh update --archive FILE`, or
+`votectl update --version X.Y.Z`): backup, migrations, and an automatic return to the previous version on failure. `install.sh
 uninstall` keeps the data unless `--purge-data` is given.
 
 Tried: Debian 12 and 13, Ubuntu 24.04 and 26.04 (fresh virtual machines), Windows 11 (virtual
-machine), and the online edition on its production images. Not tried yet: a real HTTPS domain
-and a real VPS ([docs/ops/production-vps.md](docs/ops/production-vps.md)).
+machine), and the online edition on a real VPS with a domain and HTTPS, behind Nginx Proxy Manager
+([docs/ops/production-vps.md](docs/ops/production-vps.md)).
 
 ## Development
 

@@ -46,6 +46,7 @@ PURGE=0
 DOMAIN=""
 BEHIND_PROXY=0
 SITE_URL_ARG=""
+VERSION_GIVEN=0
 PROXY_NETWORK_ARG=""
 ADMIN_EMAIL=""
 SKIP_MAIL=0
@@ -68,7 +69,7 @@ while [ $# -gt 0 ]; do
     --proxy-network) shift; PROXY_NETWORK_ARG="${1:-}" ;;
     --admin-email) shift; ADMIN_EMAIL="${1:-}" ;;
     --skip-mail) SKIP_MAIL=1 ;;
-    --version) shift; VERSION="${1:-$VERSION}" ;;
+    --version) shift; VERSION="${1:-$VERSION}"; VERSION_GIVEN=1 ;;
     --registry) shift; REGISTRY="${1:-$REGISTRY}" ;;
     --credentials-file) shift; CREDENTIALS_FILE="${1:-}" ;;
     --archive) shift; ARCHIVE="${1:-}" ;;
@@ -159,26 +160,35 @@ do_update() {
   work="$(mktemp -d)"
   trap 'rm -rf "$work"' RETURN
 
+  local src=""
   if [ -n "$ARCHIVE" ]; then
     [ -f "$ARCHIVE" ] || die "archive introuvable : $ARCHIVE" "archive not found: $ARCHIVE"
+  elif [ -f "$HERE/VERSION" ] && [ -d "$HERE/files" ] && [ "${HERE#"$ONLINE_DIR"/}" = "$HERE" ] \
+       && { [ -z "${VERSION_ARG:-}" ] || [ "$VERSION_ARG" = "$ARCHIVE_VERSION" ]; }; then
+    # Run from an unpacked archive (not from the copy installed in $ONLINE_DIR): this archive is the new version.
+    src="$HERE"
+    say "Archive dépaquetée utilisée : $HERE" "Using the unpacked archive: $HERE"
   else
     new="${VERSION_ARG:-}"
     [ -n "$new" ] || new="$(latest_version)"
-    [ -n "$new" ] || die "la dernière version n'a pas pu être lue ; indiquez --version ou --archive" "the latest version could not be read; give --version or --archive"
+    [ -n "$new" ] || die "aucune version stable n'a été trouvée : indiquez --version X.Y.Z, ou lancez la mise à jour depuis l'archive dépaquetée" \
+                         "no stable release was found: give --version X.Y.Z, or run the update from the unpacked archive"
     ARCHIVE="$work/votesystem-online-$new.tar.gz"
     say "Téléchargement de la version $new..." "Downloading version $new..."
     curl -fsSL "https://github.com/$REPO/releases/download/v$new/votesystem-online-$new.tar.gz" -o "$ARCHIVE" \
       && curl -fsSL "https://github.com/$REPO/releases/download/v$new/votesystem-online-$new.tar.gz.sha256" -o "$ARCHIVE.sha256" \
       || die "le téléchargement a échoué" "the download failed"
   fi
-  if [ -f "$ARCHIVE.sha256" ]; then
-    (cd "$(dirname "$ARCHIVE")" && sha256sum -c --quiet "$(basename "$ARCHIVE").sha256") || die "la somme de contrôle ne correspond pas : fichier abîmé ou modifié" "the checksum does not match: the file is damaged or changed"
-  else
-    warn "  aucune somme de contrôle à côté de l'archive : elle n'est pas vérifiée" "  no checksum next to the archive: it is not verified"
+  if [ -z "$src" ]; then
+    if [ -f "$ARCHIVE.sha256" ]; then
+      (cd "$(dirname "$ARCHIVE")" && sha256sum -c --quiet "$(basename "$ARCHIVE").sha256") \
+        || die "la somme de contrôle ne correspond pas : fichier abîmé ou modifié" "the checksum does not match: the file is damaged or was changed"
+    else
+      warn "  aucune somme de contrôle à côté de l'archive : elle n'est pas vérifiée" "  no checksum next to the archive: it is not verified"
+    fi
+    tar -C "$work" -xzf "$ARCHIVE" || die "archive illisible" "unreadable archive"
+    src="$(find "$work" -maxdepth 2 -name install-online.sh -print -quit | xargs -r dirname)"
   fi
-  tar -C "$work" -xzf "$ARCHIVE" || die "archive illisible" "unreadable archive"
-  local src
-  src="$(find "$work" -maxdepth 2 -name install-online.sh -print -quit | xargs -r dirname)"
   [ -n "$src" ] && [ -f "$src/VERSION" ] || die "ce n'est pas une archive VoteSystem en ligne" "this is not a VoteSystem online archive"
   new="$(cat "$src/VERSION")"
   say "Mise à jour : $old -> $new" "Update: $old -> $new"
@@ -219,8 +229,9 @@ do_update() {
   return 1
 }
 
+# The version asked for with --version, always (also when it equals the version of this archive).
 VERSION_ARG=""
-[ "$VERSION" != "$ARCHIVE_VERSION" ] && VERSION_ARG="$VERSION"
+[ "$VERSION_GIVEN" = 1 ] && VERSION_ARG="$VERSION"
 
 case "$ACTION" in
   uninstall) do_uninstall; exit $? ;;

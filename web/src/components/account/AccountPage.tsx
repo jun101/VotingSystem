@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useCallback, useState } from 'react';
 import { AdminUserProvider, useAdminUser } from '@/components/admin/AdminUser';
-import { focusRing, linkSecondary } from '@/components/admin/classes';
+import { focusRing, linkPrimary, linkSecondary } from '@/components/admin/classes';
 import { ASIDE, DashCard } from '@/components/admin/DashCard';
 import { Icon } from '@/components/admin/Icon';
 import { Reveal } from '@/components/motion';
@@ -42,31 +42,65 @@ export function initials(name: string): string {
 export function AccountPage({
   twoFactor,
   user,
+  continueTo,
 }: {
   twoFactor: TwoFactorState;
   user?: CurrentUser;
+  /** Where to go once two-factor is on and set up (the platform, for an admin kept here until then). */
+  continueTo?: string;
 }) {
   if (user) {
     return (
       <AdminUserProvider user={user}>
-        <AccountContent twoFactor={twoFactor} />
+        <AccountContent twoFactor={twoFactor} continueTo={continueTo} />
       </AdminUserProvider>
     );
   }
 
-  return <AccountContent twoFactor={twoFactor} />;
+  return <AccountContent twoFactor={twoFactor} continueTo={continueTo} />;
 }
 
-function AccountContent({ twoFactor }: { twoFactor: TwoFactorState }) {
+function AccountContent({
+  twoFactor,
+  continueTo,
+}: {
+  twoFactor: TwoFactorState;
+  continueTo?: string;
+}) {
   const { t, tIfAny } = useI18n();
   const user = useAdminUser();
   const [state, setState] = useState(twoFactor);
-  const onState = useCallback((next: TwoFactorState) => setState(next), []);
+  const [settled, setSettled] = useState(true);
+  const onState = useCallback((next: TwoFactorState, idle: boolean) => {
+    setState(next);
+    setSettled(idle);
+  }, []);
   const role = tIfAny(`admin.roles.${user.role}`);
   const withInstitution = user.institution !== null;
 
   return (
     <Reveal stagger data-testid="account-page" className="flex flex-col gap-4.5">
+      {continueTo && state.enabled && settled ? (
+        <section
+          data-testid="account-continue"
+          className="flex flex-wrap items-center gap-x-5 gap-y-3 rounded-xl border border-primary-line bg-primary-soft px-5 py-4"
+        >
+          <span
+            aria-hidden="true"
+            className="flex size-11 shrink-0 items-center justify-center rounded-full bg-status-open-soft text-status-open"
+          >
+            <Icon name="check" size={24} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-lg">{t('account.page.continue.title')}</h2>
+            <p className="text-base text-ink-soft">{t('account.page.continue.text')}</p>
+          </div>
+          {/* A full load: the page asks the server again and shows what was blocked until now. */}
+          <a href={continueTo} data-testid="account-continue-link" className={linkPrimary}>
+            {t('account.page.continue.button')}
+          </a>
+        </section>
+      ) : null}
       <section
         data-testid="account-hero"
         className="bg-hero cover-sweep flex flex-wrap items-center gap-x-7 gap-y-5 rounded-xl px-5 py-6 text-surface shadow-2 md:px-8"

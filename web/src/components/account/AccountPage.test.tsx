@@ -41,6 +41,29 @@ describe('AccountPage outside the admin layout', () => {
     expect(screen.queryByTestId('account-institution-link')).toBeNull();
   });
 
+  it('offers the way on once two-factor is on, only when a destination is given', () => {
+    const ON = { enabled: true, setup_started: false, recovery_codes_left: 8 };
+
+    renderIn('fr', <AccountPage twoFactor={ON} user={PLATFORM_ADMIN} continueTo="/platform" />);
+
+    const link = screen.getByTestId('account-continue-link');
+    expect(link.getAttribute('href')).toBe('/platform');
+  });
+
+  it('shows no way on while two-factor is off, or when there is no destination', () => {
+    const ON = { enabled: true, setup_started: false, recovery_codes_left: 8 };
+
+    const first = renderIn(
+      'fr',
+      <AccountPage twoFactor={OFF} user={PLATFORM_ADMIN} continueTo="/platform" />,
+    );
+    expect(screen.queryByTestId('account-continue')).toBeNull();
+    first.unmount();
+
+    renderIn('fr', <AccountPage twoFactor={ON} user={PLATFORM_ADMIN} />);
+    expect(screen.queryByTestId('account-continue')).toBeNull();
+  });
+
   it('fails clearly when there is neither a layout nor a user', () => {
     const quiet = vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
