@@ -11,6 +11,8 @@
 #   --domain NAME          the site's domain (example: vote.fleuridor.com); the only name asked
 #   --behind-proxy         another proxy (Nginx Proxy Manager, ...) already owns ports 80 and 443 and does the HTTPS
 #   --site-url URL         with --behind-proxy: the public address (default https://<domain>)
+#   --proxy-network NAME   with --behind-proxy: the Docker network of the other proxy (example npm_network); VoteSystem's
+#                          proxy joins it, and the other proxy forwards to votesystem-proxy-1 port 80
 #   --admin-email ADDRESS  the platform admin's sign-in address
 #   --skip-mail            leave the mail settings for later
 #   --version X.Y.Z        the version of the images (default: the version of this archive)
@@ -44,6 +46,7 @@ PURGE=0
 DOMAIN=""
 BEHIND_PROXY=0
 SITE_URL_ARG=""
+PROXY_NETWORK_ARG=""
 ADMIN_EMAIL=""
 SKIP_MAIL=0
 VERSION="$ARCHIVE_VERSION"
@@ -62,6 +65,7 @@ while [ $# -gt 0 ]; do
     --domain) shift; DOMAIN="$(printf '%s' "${1:-}" | tr 'A-Z' 'a-z')" ;;
     --behind-proxy) BEHIND_PROXY=1 ;;
     --site-url) shift; SITE_URL_ARG="${1:-}" ;;
+    --proxy-network) shift; PROXY_NETWORK_ARG="${1:-}" ;;
     --admin-email) shift; ADMIN_EMAIL="${1:-}" ;;
     --skip-mail) SKIP_MAIL=1 ;;
     --version) shift; VERSION="${1:-$VERSION}" ;;
@@ -192,6 +196,7 @@ do_update() {
   HERE="$src"; LIB="$src/lib"; VERSION="$new"
   set_env_value "$ONLINE_DIR/.env" VOTE_VERSION "$new"
   install_files
+  ensure_proxy_network || die "création du réseau du proxy" "creating the proxy network"
 
   local log="$ONLINE_DIR/last-update.log"
   : > "$log"
@@ -402,7 +407,9 @@ unset KEYPAIR
 [ "${#ENV_AUDIT_PUBLIC}" -eq 64 ] && [ "${#AUDIT_PRIVATE}" -eq 64 ] || fail "clés de l'audit" "audit keys"
 
 step "Configuration" "Configuration"
+ENV_PROXY_NETWORK="${PROXY_NETWORK_ARG:-votesystem_edge}"
 write_env "$ONLINE_DIR/.env" || fail "écriture de la configuration" "writing the configuration"
+ensure_proxy_network || fail "création du réseau du proxy" "creating the proxy network"
 
 step "Base de données et cache" "Database and cache"
 compose up -d db redis --wait >/dev/null 2>&1 || fail "démarrage de la base de données" "starting the database"

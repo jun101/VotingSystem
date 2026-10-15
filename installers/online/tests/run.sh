@@ -43,6 +43,7 @@ write_env "$TMP/env"
 t "the file is private (0600)" test "$(stat -c %a "$TMP/env")" = 600
 t "the version is written" test "$(env_value "$TMP/env" VOTE_VERSION)" = 1.2.3
 t "the site address is written" test "$(env_value "$TMP/env" SITE_ADDRESS)" = vote.example.com
+t "the proxy network defaults to votesystem_edge" test "$(env_value "$TMP/env" PROXY_NETWORK)" = votesystem_edge
 set_env_value "$TMP/env" VOTE_VERSION 2.0.0
 t "a value is replaced in place" test "$(env_value "$TMP/env" VOTE_VERSION)" = 2.0.0
 t "the other values are kept" test "$(env_value "$TMP/env" DB_PASSWORD)" = d

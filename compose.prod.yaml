@@ -46,6 +46,9 @@ x-api: &api
 services:
   proxy:
     image: caddy:2.11.7-alpine
+    # Also on PROXY_NETWORK (the network of Nginx Proxy Manager when it fronts the site; otherwise an empty network
+    # the installer creates), so that another proxy can reach this one by its container name, `votesystem-proxy-1`.
+    networks: [default, edge]
     # The only published ports. On a server of its own, 80 and 443; behind another proxy the installer binds them
     # to 127.0.0.1 on free ports and SITE_ADDRESS is a plain `:80`.
     ports:
@@ -76,6 +79,11 @@ services:
 
   api:
     <<: *api
+    # A name of its own on the Compose network: the proxy reaches the API by it, and the short name `api` can also be
+    # the name of a container of another stack when the proxy joins a shared network.
+    networks:
+      default:
+        aliases: [votesystem-api]
     command:
       - php
       - artisan
@@ -131,6 +139,9 @@ services:
 
   web:
     image: ${VOTE_REGISTRY:-ghcr.io/jun101}/votesystem-web:${VOTE_VERSION:?set by the installer}
+    networks:
+      default:
+        aliases: [votesystem-web]
     environment:
       API_INTERNAL_URL: http://api:8000
       DEPLOYMENT_MODE: online
@@ -189,6 +200,11 @@ configs:
   redis_auth:
     content: |
       requirepass ${REDIS_PASSWORD:?set by the installer}
+
+networks:
+  edge:
+    name: ${PROXY_NETWORK:-votesystem_edge}
+    external: true
 
 volumes:
   db_data:
