@@ -64,7 +64,7 @@ services:
       web:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/api/v1/health"]
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/robots.txt"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -89,8 +89,8 @@ services:
       # (without it Octane rewrites every line it cannot read as a server message).
       - --log-level=warn
     healthcheck:
-      # Healthy when the API answers at all: 200, or 503 when a service it needs is down.
-      test: ["CMD-SHELL", "curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/api/v1/health | grep -qE '^(200|503)$'"]
+      # Healthy when the API answers at all: 200, 503 when a service it needs is down, or 429 when the health limiter is spent (a test run).
+      test: ["CMD-SHELL", "curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/api/v1/health | grep -qE '^(200|429|503)$'"]
       interval: 10s
       timeout: 5s
       retries: 5

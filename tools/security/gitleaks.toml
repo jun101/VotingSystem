@@ -1,0 +1,13 @@
+# Extends the default rules. Only dummy values used by tests and examples are allowed here.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Example and test files hold placeholder values"
+paths = [
+  '''\.env\.example$''',
+  '''api/\.env\.testing$''',
+  '''docs/.*''',
+  '''web/src/components/institution/IssuedPassword\.test\.tsx$''',
+  '''api/tests/Support/Images\.php$''',
+]

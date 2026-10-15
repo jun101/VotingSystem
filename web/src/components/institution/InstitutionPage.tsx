@@ -36,14 +36,13 @@ export function InstitutionPage({
     <Reveal
       stagger
       data-testid="institution-page"
-      className="grid gap-4 lg:grid-cols-2 lg:items-start"
+      className="grid gap-4 lg:grid-cols-3 lg:items-start"
     >
-      <div className="flex min-w-0 flex-col gap-4">
+      <div className="min-w-0 lg:col-span-2">
         <ProfileCard profile={profile} canEdit={owner} onProfile={setProfile} />
-        <PublicAddress id={profile.id} />
       </div>
 
-      <div className="min-w-0">
+      <div className="flex min-w-0 flex-col gap-4">
         {owner && members && invitations ? (
           <UsersCard members={members} invitations={invitations} schoolMode={school} />
         ) : (
@@ -53,6 +52,7 @@ export function InstitutionPage({
             </p>
           </Card>
         )}
+        <PublicAddress id={profile.id} />
       </div>
     </Reveal>
   );

@@ -13,7 +13,12 @@ export type CardKey =
   | 'latest'
   | 'getting-started'
   | 'institution'
-  | 'upcoming';
+  | 'upcoming'
+  | 'account-profile'
+  | 'account-security'
+  | 'account-institution'
+  | 'account-password'
+  | 'account-two-factor';
 
 /** The colours of a round icon: a token pair, text on its soft surface. */
 export const TONES = {
@@ -41,8 +46,14 @@ export function DashCard({
   aside,
   children,
   className,
+  id,
+  outerClassName,
 }: {
   card: CardKey;
+  /** An anchor for a link that scrolls to the card. */
+  id?: string;
+  /** Classes of the card itself (its place in a grid). */
+  outerClassName?: string;
   icon: IconName;
   title: string;
   aside?: ReactNode;
@@ -51,8 +62,12 @@ export function DashCard({
 }) {
   return (
     <section
+      id={id}
       data-testid={`dashboard-card-${card}`}
-      className="lift flex min-h-75 min-w-0 flex-col overflow-hidden rounded-lg border border-line bg-surface shadow-2"
+      className={cx(
+        'lift flex min-h-75 min-w-0 flex-col overflow-hidden rounded-lg border border-line bg-surface shadow-2',
+        outerClassName,
+      )}
     >
       <header
         data-testid={`dashboard-card-header-${card}`}

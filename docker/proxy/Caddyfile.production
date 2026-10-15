@@ -17,10 +17,21 @@
 		X-Frame-Options DENY
 		# Nothing of the product needs the camera, the microphone, the position or a payment.
 		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+		# Same-origin only: the product loads nothing from another site, so the pages and their
+		# files can be isolated from other origins (ZAP baseline, 2026-10-14).
+		Cross-Origin-Opener-Policy same-origin
+		Cross-Origin-Embedder-Policy require-corp
+		Cross-Origin-Resource-Policy same-origin
 		# No header names the software or its version.
 		-Server
 		-X-Powered-By
 		-Via
+	}
+
+	# TRACE and TRACK echo a request back: nothing of the product uses them.
+	@echo method TRACE TRACK
+	handle @echo {
+		respond 405
 	}
 
 	# The web application sends its own Content-Security-Policy (a nonce per request, web/src/proxy.ts) and

@@ -87,8 +87,8 @@ services:
       - --max-requests=500
       - --log-level=warn
     healthcheck:
-      # Healthy when the API answers at all: 200, or 503 when a service it needs is down.
-      test: ["CMD-SHELL", "curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/api/v1/health | grep -qE '^(200|503)$'"]
+      # Healthy when the API answers at all: 200, 503 when a service it needs is down, or 429 when the health limiter is spent (a test run).
+      test: ["CMD-SHELL", "curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/api/v1/health | grep -qE '^(200|429|503)$'"]
       interval: 10s
       timeout: 5s
       retries: 6
