@@ -18,7 +18,6 @@ import { useI18n } from '@/lib/i18n/client';
 import {
   NOTE_MAX,
   barShare,
-  ballotTurnout,
   canCreateSecondRound,
   candidateState,
   fullName,

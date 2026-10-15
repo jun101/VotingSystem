@@ -11,9 +11,16 @@ and checks the results against what it sent: every vote counted, the right talli
 only (and `pdftotext` for the codes). Run it against a stack whose AUTH_RATE_LIMIT_FACTOR is high enough for one address (the dev stack's is), or from
 several addresses: the per-address limits are part of what it must not be stopped by.
 """
-import argparse, http.client, json, random, re, statistics, string, subprocess, sys, threading, time, urllib.parse
+import argparse, http.client, json, os, random, re, socket, ssl, statistics, string, subprocess, sys, threading, time, urllib.parse
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
+
+
+# VOTE_LOAD_RESOLVE=name=address: reach a test stack by a name this machine does not know (like curl --resolve).
+_RESOLVE = dict(item.split('=', 1) for item in os.environ.get('VOTE_LOAD_RESOLVE', '').split(',') if '=' in item)
+if _RESOLVE:
+    _real_getaddrinfo = socket.getaddrinfo
+    socket.getaddrinfo = lambda host, *a, **k: _real_getaddrinfo(_RESOLVE.get(host, host), *a, **k)
 
 
 class Session:
@@ -25,9 +32,21 @@ class Session:
         self.cookies = {}
         self.conn = None
 
+    def new_connection(self, timeout=60):
+        """A connection of its own, the way this client connects (TLS included)."""
+        if self.tls:
+            context = ssl._create_unverified_context() if os.environ.get('VOTE_LOAD_INSECURE') == '1' else None
+            return http.client.HTTPSConnection(self.host, self.port, timeout=timeout, context=context)
+
+        return http.client.HTTPConnection(self.host, self.port, timeout=timeout)
+
     def _connect(self):
-        cls = http.client.HTTPSConnection if self.tls else http.client.HTTPConnection
-        self.conn = cls(self.host, self.port, timeout=60)
+        if self.tls:
+            # VOTE_LOAD_INSECURE=1: a test stack with a self-signed certificate.
+            context = ssl._create_unverified_context() if os.environ.get('VOTE_LOAD_INSECURE') == '1' else None
+            self.conn = http.client.HTTPSConnection(self.host, self.port, timeout=60, context=context)
+        else:
+            self.conn = http.client.HTTPConnection(self.host, self.port, timeout=60)
 
     def request(self, method, path, body=None):
         headers = {'Accept': 'application/json'}
@@ -122,7 +141,7 @@ def main():
     boundary = '----vsload' + ''.join(random.choices(string.hexdigits, k=16))
     payload = ('--%s\r\nContent-Disposition: form-data; name="file"; filename="electeurs.csv"\r\nContent-Type: text/csv\r\n\r\n%s\r\n--%s--\r\n'
                % (boundary, '\n'.join(csv_lines), boundary)).encode()
-    conn = http.client.HTTPConnection(owner.host, owner.port, timeout=120)
+    conn = owner.new_connection(timeout=120)
     token = urllib.parse.unquote(owner.cookies.get('XSRF-TOKEN', ''))
     conn.request('POST', f'{api}/elections/{eid}/voter-imports', body=payload, headers={
         'Cookie': '; '.join(f'{k}={v}' for k, v in owner.cookies.items()), 'X-XSRF-TOKEN': token, 'Accept': 'application/json',
@@ -159,7 +178,7 @@ def main():
             if info['status'] == 'failed':
                 sys.exit('setup failed: slips file failed')
             time.sleep(1)
-        conn = http.client.HTTPConnection(owner.host, owner.port, timeout=120) if not owner.tls else http.client.HTTPSConnection(owner.host, owner.port, timeout=120)
+        conn = owner.new_connection(timeout=120)
         conn.request('GET', f'{api}/generated-files/{f["id"]}/download', headers={'Cookie': '; '.join(f'{k}={v}' for k, v in owner.cookies.items()), 'Accept': 'application/pdf'})
         r = conn.getresponse()
         pdf = r.read()
