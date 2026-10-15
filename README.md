@@ -7,18 +7,16 @@ all in Docker Compose.
 
 ## Install it for an institution
 
-Three installers, one per situation. The full guide (French and English, with the screens)
-is in the application for the signed-in owner and platform admin, under "Guide d'utilisation",
-"Installation", and in [docs/ops/installation-guide.md](docs/ops/installation-guide.md), which opens the three
-step-by-step guides: [Linux (school)](docs/guides/install-school-linux.md),
-[Windows (school)](docs/guides/install-school-windows.md) and
-[online VPS](docs/guides/install-online-vps.md).
+Three installers, one per situation, each with a **step-by-step guide** (French and English, written for a person
+with basic computer skills): pick yours in the last column of the table. All three are listed in
+[docs/ops/installation-guide.md](docs/ops/installation-guide.md). The same guide is in the application for the
+signed-in owner and platform admin, under "Guide d'utilisation", "Installation".
 
-| Situation | Installer | Needs | Email |
-|---|---|---|---|
-| A Linux server in the institution, no internet | `install.sh` (school edition, native, no Docker) | Debian 12 or 13, Ubuntu 24.04 or 26.04, x86_64, 4 GB memory, 5 GB free, systemd | No: the installer creates the accounts; passwords are reset with `votectl` |
-| A Windows computer in the institution | `install.ps1` (school edition, native, no Docker or WSL) | Windows 10 1809 or later, Windows 11, Windows Server 2019 or later, 64-bit, 4 GB, 5 GB free | No |
-| An online server with a domain name | `install-online.sh` (online edition, Docker, automatic HTTPS) | Debian or Ubuntu with Docker (installed by the script when missing), ports 80 and 443, a domain name | Yes (SMTP) |
+| Situation | Installer | Needs | Email | Step-by-step guide |
+|---|---|---|---|---|
+| A Linux server in the institution, no internet | `install.sh` (school edition, native, no Docker) | Debian 12 or 13, Ubuntu 24.04 or 26.04, x86_64, 4 GB memory, 5 GB free, systemd | No: the installer creates the accounts; passwords are reset with `votectl` | [Linux guide](docs/guides/install-school-linux.md) |
+| A Windows computer in the institution | `install.ps1` (school edition, native, no Docker or WSL) | Windows 10 1809 or later, Windows 11, Windows Server 2019 or later, 64-bit, 4 GB, 5 GB free | No | [Windows guide](docs/guides/install-school-windows.md) |
+| An online server with a domain name | `install-online.sh` (online edition, Docker, automatic HTTPS) | Debian or Ubuntu with Docker (installed by the script when missing), ports 80 and 443, a domain name | Yes (SMTP) | [Online (VPS) guide](docs/guides/install-online-vps.md) |
 
 Steps, the same for the three:
 
