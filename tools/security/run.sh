@@ -36,10 +36,10 @@ images() {
     fs --scanners vuln,secret,misconfig --ignore-unfixed --severity HIGH,CRITICAL --exit-code 1 \
     --skip-dirs node_modules --skip-dirs api/vendor --skip-dirs installers/bundle/stage --skip-dirs web/.next \
     --format json --output tools/security/reports/trivy-fs.json . || status=1
-  if docker image inspect votesystem-web:prod >/dev/null 2>&1; then
+  if docker image inspect "${SCAN_WEB_IMAGE:-votesystem-web:prod}" >/dev/null 2>&1; then
     docker run --rm -e TRIVY_CACHE_DIR=/tmp/trivy -v /var/run/docker.sock:/var/run/docker.sock \
       -v "$OUT":/out "$TRIVY_IMAGE" image --ignore-unfixed --severity HIGH,CRITICAL --exit-code 1 \
-      --format json --output /out/trivy-web-image.json votesystem-web:prod || status=1
+      --format json --output /out/trivy-web-image.json "${SCAN_WEB_IMAGE:-votesystem-web:prod}" || status=1
   else
     echo "   (skipped the web image: run make build first)"
   fi
