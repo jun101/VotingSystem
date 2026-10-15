@@ -2,13 +2,13 @@
 
 import Link from 'next/link';
 import { useCallback, useState } from 'react';
-import { useAdminUser } from '@/components/admin/AdminUser';
+import { AdminUserProvider, useAdminUser } from '@/components/admin/AdminUser';
 import { focusRing, linkSecondary } from '@/components/admin/classes';
 import { ASIDE, DashCard } from '@/components/admin/DashCard';
 import { Icon } from '@/components/admin/Icon';
 import { Reveal } from '@/components/motion';
 import { cx } from '@/components/ui/cx';
-import type { TwoFactorState } from '@/lib/api/user';
+import type { CurrentUser, TwoFactorState } from '@/lib/api/user';
 import { useI18n } from '@/lib/i18n/client';
 import { ChangePasswordCard } from './ChangePasswordCard';
 import { ProfileCard } from './ProfileCard';
@@ -35,8 +35,29 @@ export function initials(name: string): string {
  * "Mon compte": the identity of the signed-in person in a band, then one white zone with the
  * cards of the profile, the security score, the institution, the password and the second factor.
  * Everything shown comes from what the API already gives (`/auth/me`, `/auth/two-factor`).
+ *
+ * In the admin area the layout already provides the user. On `/platform` there is no such layout
+ * (a platform admin who must set up two-factor first sees this page there): pass `user`.
  */
-export function AccountPage({ twoFactor }: { twoFactor: TwoFactorState }) {
+export function AccountPage({
+  twoFactor,
+  user,
+}: {
+  twoFactor: TwoFactorState;
+  user?: CurrentUser;
+}) {
+  if (user) {
+    return (
+      <AdminUserProvider user={user}>
+        <AccountContent twoFactor={twoFactor} />
+      </AdminUserProvider>
+    );
+  }
+
+  return <AccountContent twoFactor={twoFactor} />;
+}
+
+function AccountContent({ twoFactor }: { twoFactor: TwoFactorState }) {
   const { t, tIfAny } = useI18n();
   const user = useAdminUser();
   const [state, setState] = useState(twoFactor);
