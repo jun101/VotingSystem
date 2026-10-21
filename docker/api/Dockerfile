@@ -1,6 +1,6 @@
 # API image: PHP 8.4 on FrankenPHP, served by Laravel Octane (worker mode); also used by
 # `queue` and `scheduler`, which run plain CLI commands. In development the source is mounted at /var/www/html.
-FROM dunglas/frankenphp:1.13.0-php8.4.26-trixie AS base
+FROM dunglas/frankenphp:1.13.2-php8.4.27-trixie AS base
 
 COPY --from=composer:2.10.3 /usr/bin/composer /usr/local/bin/composer
 
