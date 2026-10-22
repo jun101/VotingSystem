@@ -127,3 +127,14 @@ occupy() { python3 -c "import socket,time;s=socket.socket();s.setsockopt(socket.
   [ "${#output}" -eq 32 ]
   [[ "$output" =~ ^[0-9a-f]+$ ]]
 }
+
+@test "bin/php runs frankenphp php-cli and tells child PHP processes to call bin/php, not frankenphp" {
+  mkdir -p "$BATS_TEST_TMPDIR/real/bin"
+  printf '#!/bin/sh\necho "$PHP_BINARY|$*"\n' > "$BATS_TEST_TMPDIR/real/bin/frankenphp"
+  cp "$ROOT/../bundle/php-wrapper.sh" "$BATS_TEST_TMPDIR/real/bin/php"
+  chmod 755 "$BATS_TEST_TMPDIR/real/bin/"*
+  ln -s real "$BATS_TEST_TMPDIR/current"
+  run "$BATS_TEST_TMPDIR/current/bin/php" artisan schedule:work
+  [ "$status" -eq 0 ]
+  [ "$output" = "$BATS_TEST_TMPDIR/real/bin/php|php-cli artisan schedule:work" ]
+}

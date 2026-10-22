@@ -49,10 +49,7 @@ mkdir -p "$STAGE"/{bin,api,web,node,mariadb,redis,installers,config} "$OUT"
 say "PHP"
 cp "$CACHE/$(lock frankenphp 3)" "$STAGE/bin/frankenphp"
 # The command line is the same binary as the server: one PHP version, patched in one place.
-cat > "$STAGE/bin/php" <<'WRAP'
-#!/bin/sh
-exec "$(dirname "$(readlink -f "$0")")/frankenphp" php-cli "$@"
-WRAP
+cp "$HERE/php-wrapper.sh" "$STAGE/bin/php"
 chmod 755 "$STAGE/bin/frankenphp" "$STAGE/bin/php"
 
 # ---- Node, only the interpreter -------------------------------------------------------------------------------------
