@@ -1,6 +1,6 @@
 # Web image. `dev` runs the development server on the mounted source; `prod` is the
 # standalone build.
-FROM node:24.21.0-trixie-slim AS base
+FROM node:24.22.1-trixie-slim AS base
 ENV NEXT_TELEMETRY_DISABLED=1 \
     HOME=/tmp \
     npm_config_cache=/tmp/npm-cache
@@ -20,7 +20,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY web/ ./
 RUN npm run build
 
-FROM node:24.21.0-trixie-slim AS prod
+FROM node:24.22.1-trixie-slim AS prod
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     HOSTNAME=0.0.0.0 \
