@@ -402,7 +402,7 @@ Institution 1─* AuditEntry
 
 | Layer | Choice |
 |---|---|
-| API | Laravel (current stable), PHP 8.4, REST + JSON |
+| API | Laravel (current stable), PHP 8.5, REST + JSON |
 | Web | Next.js (App Router), TypeScript |
 | Database | MariaDB (current LTS) |
 | Cache, queue, sessions | Redis |

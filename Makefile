@@ -84,7 +84,8 @@ generate-check:
 build: ## Build the production web image
 	docker build -f docker/web/Dockerfile --target prod -t votesystem-web:prod .
 
-audit: ## Known vulnerabilities in every dependency; accepted advisories are listed, dated, in web/audit-accepted.json
+audit: ## Known vulnerabilities in every dependency and PHP below the patched floor; accepted advisories are in web/audit-accepted.json
+	sh docker/scripts/check-php-pins.sh
 	$(API_BARE) composer audit
 	$(WEB_BARE) node scripts/audit.mjs
 
