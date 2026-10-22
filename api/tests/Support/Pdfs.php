@@ -129,11 +129,16 @@ final class Pdfs
         return self::contents($pdf);
     }
 
-    /** @return list<string> the inflated content of every stream that can be read */
+    /**
+     * The writer ends a stream with a line feed alone. The end marker must not take an optional carriage return with
+     * it: a compressed stream whose last byte is 0x0D (about one in 256) would lose that byte and fail to inflate.
+     *
+     * @return list<string> the inflated content of every stream that can be read
+     */
     private static function contents(string $pdf): array
     {
         $out = [];
-        if (preg_match_all('/stream\r?\n(.*?)\r?\nendstream/s', $pdf, $m)) {
+        if (preg_match_all('/stream\r?\n(.*?)\nendstream/s', $pdf, $m)) {
             foreach ($m[1] as $stream) {
                 $inflated = @gzuncompress($stream);
                 $out[] = $inflated === false ? $stream : $inflated;

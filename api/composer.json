@@ -5,7 +5,7 @@
     "description": "API of the New Voting System.",
     "license": "proprietary",
     "require": {
-        "php": "^8.4",
+        "php": "^8.5.12",
         "laravel/framework": "^13.34",
         "laravel/octane": "^2.20",
         "openspout/openspout": "^5.12",

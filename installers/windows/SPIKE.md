@@ -38,7 +38,7 @@ Anything that fails is written in the result with the exact message. Two failure
 
 | # | Check | Result |
 |---|---|---|
-| 1 | PHP 8.5.11 NTS x64 with the needed modules | pass (needs the Visual C++ runtime; bundled) |
+| 1 | PHP 8.5.12 NTS x64 with the needed modules | pass (needs the Visual C++ runtime; bundled) |
 | 2 | MariaDB 12.3.3 (zip, no installer) as a task on a free port | pass |
 | 3 | Our migrations and `db:grant-app` | pass |
 | 4 | A Redis-compatible store | pass with the Windows port of Redis 5.0.14 (cache, session, queue); Garnet was not needed |
