@@ -69,7 +69,7 @@ jobs:
       - name: Composer advisories (locked versions)
         run: docker run --rm -v "$PWD/api":/app -w /app composer:2.10.3 audit --locked
       - name: npm advisories (production dependencies, high and above)
-        run: docker run --rm -v "$PWD/web":/app -w /app node:24.21.0-trixie-slim npm audit --omit=dev --audit-level=high
+        run: docker run --rm -v "$PWD/web":/app -w /app node:24.22.1-trixie-slim npm audit --omit=dev --audit-level=high
 
   e2e:
     name: Browser tests against the running stack
