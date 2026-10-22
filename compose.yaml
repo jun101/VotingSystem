@@ -250,7 +250,7 @@ services:
     restart: unless-stopped
 
   mailpit:
-    image: axllent/mailpit:v1.31.4
+    image: axllent/mailpit:v1.31.6
     ports:
       - "127.0.0.1:${MAILPIT_PORT:-8025}:8025"
     healthcheck:
@@ -265,7 +265,7 @@ services:
   # service of the machine.
   e2e:
     profiles: ["tools"]
-    image: mcr.microsoft.com/playwright:v1.63.0-noble
+    image: mcr.microsoft.com/playwright:v1.64.1-noble
     depends_on:
       proxy:
         condition: service_healthy
