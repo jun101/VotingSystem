@@ -3,6 +3,6 @@
 php | 8.5.12 | php-8.5.12-nts-Win32-vs17-x64.zip | https://downloads.php.net/~windows/releases/php-8.5.12-nts-Win32-vs17-x64.zip | 2ab242af38d76bdf417cde5ec048b1bcd76a5a40f39a3d15d5f046f38571c477
 mariadb | 12.3.3 | mariadb-12.3.3-winx64.zip | https://archive.mariadb.org/mariadb-12.3.3/winx64-packages/mariadb-12.3.3-winx64.zip | 4b5706b47148b47c8f36963c8352d1ddee37a1287b4690428f631a74b09b85a0
 redis | 5.0.14.1 | Redis-x64-5.0.14.1.zip | https://github.com/tporadowski/redis/releases/download/v5.0.14.1/Redis-x64-5.0.14.1.zip | 018ea18a35876383cbb5f4cd0258adfc87747cf9d619bce1cf73a2e36f720ccf
-node | 24.21.0 | node-v24.21.0-win-x64.zip | https://nodejs.org/dist/v24.21.0/node-v24.21.0-win-x64.zip | 158f7685b44de51f6c0df1d153526cbcd3e1bc739a8dfc607721cef75de9e541
+node | 24.22.1 | node-v24.22.1-win-x64.zip | https://nodejs.org/dist/v24.22.1/node-v24.22.1-win-x64.zip | d2046d28c2c3dcd211ac5145c0bf30e2047ef9dfb306693c8c6e2eccd8b95fa5
 caddy | 2.11.7 | caddy_2.11.7_windows_amd64.zip | https://github.com/caddyserver/caddy/releases/download/v2.11.7/caddy_2.11.7_windows_amd64.zip | 0a1edc0b799512051c57071ce0e798d3f2cf67dc98171366f1d2b326072e3b06
 vc_redist | 14.x | vc_redist.x64.exe | https://aka.ms/vs/17/release/vc_redist.x64.exe | 
