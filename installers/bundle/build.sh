@@ -4,7 +4,7 @@
 #   build.sh [--version X.Y.Z] [--out DIR] [--skip-web] [--skip-redis]
 #
 # One tar.gz with everything the installer needs and nothing it must fetch: the pinned upstream binaries of
-# sources.lock (FrankenPHP with PHP 8.5, a static PHP CLI, Node, MariaDB, Redis compiled for glibc 2.36), the API without
+# sources.lock (FrankenPHP with PHP 8.5 (server and command line), Node, MariaDB, Redis compiled for glibc 2.36), the API without
 # its development packages, the web application's standalone build, and the installer files. A SHA256SUMS of every file
 # and one of the archive come with it. Needs Docker (Composer and `next build` run in the project's own images).
 set -eu
@@ -48,7 +48,11 @@ mkdir -p "$STAGE"/{bin,api,web,node,mariadb,redis,installers,config} "$OUT"
 # ---- PHP: the server (FrankenPHP, which is Caddy too) and the command line ------------------------------------------
 say "PHP"
 cp "$CACHE/$(lock frankenphp 3)" "$STAGE/bin/frankenphp"
-tar -xzf "$CACHE/$(lock php-cli 3)" -C "$STAGE/bin" php
+# The command line is the same binary as the server: one PHP version, patched in one place.
+cat > "$STAGE/bin/php" <<'WRAP'
+#!/bin/sh
+exec "$(dirname "$(readlink -f "$0")")/frankenphp" php-cli "$@"
+WRAP
 chmod 755 "$STAGE/bin/frankenphp" "$STAGE/bin/php"
 
 # ---- Node, only the interpreter -------------------------------------------------------------------------------------
@@ -126,7 +130,7 @@ echo "$VERSION" > "$STAGE/VERSION"
 {
   echo "votesystem $VERSION"
   echo "built $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-  for n in frankenphp php-cli node mariadb redis; do
+  for n in frankenphp node mariadb redis; do
     echo "$n $(lock "$n" 2) sha256 $(lock "$n" 6)"
   done
 } > "$STAGE/MANIFEST"

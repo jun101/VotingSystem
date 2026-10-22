@@ -28,7 +28,7 @@ One Compose file for development (`compose.yaml`) and an override for production
 | Service | Image built from | Role |
 |---|---|---|
 | `proxy` | Caddy | Terminates HTTPS (automatic certificates in production), routes by path, serves `/media`, sets the security headers |
-| `api` | `api/` (PHP 8.4, Laravel Octane on FrankenPHP) | The REST API. Plain HTTP on the internal network only |
+| `api` | `api/` (PHP 8.5, Laravel Octane on FrankenPHP) | The REST API. Plain HTTP on the internal network only |
 | `queue` | same image as `api`, plain command line, no Octane | Background jobs: imports, PDF generation, emails (NFR-PERF-03) |
 | `scheduler` | same image as `api` | Runs the scheduled commands every minute (NFR-OPS-03) |
 | `web` | `web/` (Node, Next.js standalone build) | Pages |

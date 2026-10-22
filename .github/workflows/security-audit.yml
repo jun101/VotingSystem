@@ -1,5 +1,5 @@
 # Weekly dependency audit, the same checks as the `audit-runtime` job of ci.yml. It also catches advisories
-# published after the last pull request. The PHP runtime itself is pinned in docker/api/Dockerfile.
+# published after the last pull request. The PHP floor is MIN_PHP in docker/scripts/check-php-pins.sh: raise it when a PHP security release is out.
 name: Security audit
 
 on:
@@ -17,6 +17,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: PHP runtime is at the patched version everywhere (pins, then the image itself)
+        run: sh docker/scripts/check-php-pins.sh --image
       - name: Composer advisories (locked versions)
         run: docker run --rm -v "$PWD/api":/app -w /app composer:2.10.3 audit --locked
       - name: npm advisories (production dependencies, high and above)
