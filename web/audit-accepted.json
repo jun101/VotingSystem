@@ -1,9 +1,9 @@
 [
   {
-    "id": "GHSA-vfj7-8cjw-p6xm",
-    "package": "braces, through eslint-config-next > @next/eslint-plugin-next > fast-glob > micromatch",
-    "reason": "A development tool (the linter) can be slowed by a deeply nested glob pattern. It never runs in production and no input of ours reaches it. npm's only suggested fix installs eslint-config-next 14, which does not work with Next.js 16.",
-    "accepted": "2026-10-06",
-    "review_by": "2026-12-06"
+    "id": "GHSA-g3hv-75wg-m249",
+    "package": "minimatch, through eslint, typescript-eslint, eslint-plugin-import and openapi-typescript",
+    "reason": "A development tool (the linter and the API type generator) can be slowed by a crafted glob pattern. It never runs in production and no input of ours reaches it. The fix is minimatch 11, a major version that ESLint 9 and its plugins do not accept; npm's only suggested fix installs eslint 4.",
+    "accepted": "2026-11-02",
+    "review_by": "2026-12-02"
   }
 ]
