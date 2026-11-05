@@ -65,7 +65,7 @@
 
 **Voting System** is a web platform for institutions (schools first) that want to run their own elections without technical staff. It is multi-tenant, French and English, mobile-first, and designed so that nobody can find out how a given person voted through the application, not the institution and not a platform administrator.
 
-> **Status:** `v1.0.0-rc.10`, a pre-release that already runs a real server. It was installed and tested on Debian 12 and 13, Ubuntu 24.04 and 26.04, Windows 11, and as the online edition on a VPS with a domain and HTTPS. The [live demo](https://vote.fleuridor.com) runs the latest release. See [Project status](#project-status).
+> **Status:** pre-release, already running a real server. It was installed and tested on Debian 12 and 13, Ubuntu 24.04 and 26.04, Windows 11, and as the online edition on a VPS with a domain and HTTPS. The [live demo](https://vote.fleuridor.com) runs the latest release; the release badge above shows its version. See [Project status](#project-status).
 
 &nbsp;
 
@@ -135,12 +135,12 @@ Three installers, one per situation. Each has a **step-by-step guide** in French
 | A Windows computer in the institution | `install.ps1` (school edition, native, no Docker or WSL) | Windows 10 1809 or later, Windows 11, Windows Server 2019 or later, 64-bit, 4 GB, 5 GB free | No | [Windows guide](docs/guides/install-school-windows.md) |
 | An online server with a domain name | `install-online.sh` (online edition, Docker, automatic HTTPS) | Debian or Ubuntu with Docker (installed by the script if missing), ports 80 and 443, a domain name | Yes (SMTP) | [Online (VPS) guide](docs/guides/install-online-vps.md) |
 
-Example for the Linux school edition. Download the archive and its checksum from the [releases](https://github.com/jun101/VotingSystem/releases), check the sum, and unpack:
+Example for the Linux school edition. **Replace `xxx` with the version of the latest release**: check the [releases page](https://github.com/jun101/VotingSystem/releases) and use the number after the `v` of the newest tag. Download the archive and its checksum, check the sum, and unpack:
 
 ```
-$ wget -q https://github.com/jun101/VotingSystem/releases/download/v1.0.0-rc.10/votesystem-1.0.0-rc.10-linux-x86_64.tar.gz{,.sha256}
-$ sha256sum -c votesystem-1.0.0-rc.10-linux-x86_64.tar.gz.sha256
-$ tar -xzf votesystem-1.0.0-rc.10-linux-x86_64.tar.gz && cd votesystem-1.0.0-rc.10-linux-x86_64
+$ wget -q https://github.com/jun101/VotingSystem/releases/download/vxxx/votesystem-xxx-linux-x86_64.tar.gz{,.sha256}
+$ sha256sum -c votesystem-xxx-linux-x86_64.tar.gz.sha256
+$ tar -xzf votesystem-xxx-linux-x86_64.tar.gz && cd votesystem-xxx-linux-x86_64
 ```
 
 &nbsp;
@@ -309,7 +309,7 @@ Details and what the test found: [docs/ops/load-test.md](docs/ops/load-test.md).
 
 # Project Status
 
-`v1.0.0-rc.10` is a pre-release. Every slice of the plan is built and merged: the voting flow, opening and closing, turnout, results, publication, the audit log, platform administration and security hardening, plus the three installers. Releases are built by a workflow that publishes the archives and their checksums.
+The project is in pre-release: check the [releases page](https://github.com/jun101/VotingSystem/releases) for the latest release candidate. Every slice of the plan is built and merged: the voting flow, opening and closing, turnout, results, publication, the audit log, platform administration and security hardening, plus the three installers. Releases are built by a workflow that publishes the archives and their checksums.
 
 Not done yet, in the open: the fresh-install test of the latest release on a clean machine, and the `v1.0.0` tag.
 
