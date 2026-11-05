@@ -10,13 +10,12 @@
   </style>
   <rect width="1000" height="380" rx="18" fill="var(--bg)"/>
   <rect x="215" y="24" width="745" height="332" rx="16" fill="none" stroke="var(--line)" stroke-width="2" stroke-dasharray="3 7"/>
-  <text class="s" x="232" y="46" style="font-weight:700">one host · one origin · no CORS</text>
+  <text class="t s" x="232" y="46" style="font-weight:700">one host · one origin · no CORS</text>
 
   <path id="p0" class="path" d="M150 190 H250"/>
   <path id="p1" class="path" d="M410 160 C470 160 480 110 540 110"/>
   <path id="p2" class="path" d="M410 190 C470 190 480 190 540 190"/>
   <path id="p3" class="path" d="M410 220 C470 220 480 280 540 280"/>
-  <path id="p4" class="path" d="M700 110 C740 110 740 160 780 160"/>
   <path id="p5" class="path" d="M700 190 H780"/>
   <path id="p6" class="path" d="M700 190 C740 190 740 240 780 240"/>
 
@@ -27,7 +26,7 @@
     <text class="t h" x="330" y="178" text-anchor="middle">Caddy proxy</text><text class="t s" x="330" y="198" text-anchor="middle">HTTPS, headers,</text><text class="t s" x="330" y="215" text-anchor="middle">routes by path</text></g>
 
   <g><rect class="box" x="540" y="70" width="160" height="80" rx="12"/><rect x="540" y="70" width="160" height="8" rx="4" fill="var(--mint)"/>
-    <text class="t h" x="620" y="108" text-anchor="middle">Next.js 16 web</text><text class="t s" x="620" y="128" text-anchor="middle">everything else</text></g>
+    <text class="t h" x="620" y="108" text-anchor="middle">Next.js 16 web</text><text class="t s" x="620" y="128" text-anchor="middle">everything else, calls the API</text></g>
   <g><rect class="box" x="540" y="150" width="160" height="80" rx="12"/><rect x="540" y="150" width="160" height="8" rx="4" fill="var(--lav)"/>
     <text class="t h" x="620" y="188" text-anchor="middle">Laravel 13 API</text><text class="t s" x="620" y="208" text-anchor="middle">Octane on FrankenPHP</text></g>
   <g><rect class="box" x="540" y="250" width="160" height="60" rx="12"/><rect x="540" y="250" width="160" height="8" rx="4" fill="var(--pink)"/>
@@ -42,6 +41,7 @@
 
   <text class="lbl" x="468" y="122">/</text><text class="lbl" x="452" y="182">/api/*</text><text class="lbl" x="452" y="262">/media/*</text>
 
+  <text class="t s" x="960" y="374" text-anchor="end" style="font-weight:700">only the API, queue and scheduler reach the data</text>
   <circle r="6" fill="var(--a)"><animateMotion dur="2s" repeatCount="indefinite"><mpath xlink:href="#p0"/></animateMotion></circle>
   <circle r="6" fill="var(--a)"><animateMotion dur="2.4s" begin="1s" repeatCount="indefinite"><mpath xlink:href="#p1"/></animateMotion></circle>
   <circle r="6" fill="var(--b)"><animateMotion dur="2.4s" begin=".6s" repeatCount="indefinite"><mpath xlink:href="#p2"/></animateMotion></circle>
