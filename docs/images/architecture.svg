@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1000 380" width="1000" height="380" role="img" aria-label="Architecture: browser, Caddy proxy on one origin, Laravel API, Next.js web app, MariaDB, Redis, queue worker and scheduler">
+  <style>
+    :root { --bg:#F4F5FC; --box:#FFFFFF; --line:#C9CCE6; --ink:#271A38; --muted:#5A5470; --a:#5468D4; --b:#A33BA8; --mint:#CDEFD9; --lav:#DDD5FB; --sun:#FFE7A8; --sky:#BBDAF7; --pink:#FFD3E0; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#141020; --box:#1A1626; --line:#3A3260; --ink:#F4F1FC; --muted:#B7B0CE; --a:#8A9BF2; --b:#D26BD6; --mint:#1A4A38; --lav:#3A2F6B; --sun:#5C4614; --sky:#26456B; --pink:#5E2640; } }
+    .t { font-family: Archivo, "Segoe UI", system-ui, -apple-system, Arial, sans-serif; fill: var(--ink); }
+    .h { font-size: 16px; font-weight: 700; } .s { font-size: 12.5px; fill: var(--muted); }
+    .box { fill: var(--box); stroke: var(--line); stroke-width: 2; }
+    .path { fill: none; stroke: var(--line); stroke-width: 3; stroke-dasharray: 6 8; }
+    .lbl { font-family: Archivo, "Segoe UI", system-ui, Arial, sans-serif; font-size: 12px; font-weight: 700; fill: var(--a); }
+  </style>
+  <rect width="1000" height="380" rx="18" fill="var(--bg)"/>
+  <rect x="215" y="24" width="745" height="332" rx="16" fill="none" stroke="var(--line)" stroke-width="2" stroke-dasharray="3 7"/>
+  <text class="t s" x="232" y="46" style="font-weight:700">one host · one origin · no CORS</text>
+
+  <path id="p0" class="path" d="M150 190 H250"/>
+  <path id="p1" class="path" d="M410 160 C470 160 480 110 540 110"/>
+  <path id="p2" class="path" d="M410 190 C470 190 480 190 540 190"/>
+  <path id="p3" class="path" d="M410 220 C470 220 480 280 540 280"/>
+  <path id="p5" class="path" d="M700 190 H780"/>
+  <path id="p6" class="path" d="M700 190 C740 190 740 240 780 240"/>
+
+  <g><rect class="box" x="30" y="150" width="120" height="80" rx="12"/><rect x="30" y="150" width="120" height="8" rx="4" fill="var(--sun)"/>
+    <text class="t h" x="90" y="192" text-anchor="middle">Browser</text><text class="t s" x="90" y="212" text-anchor="middle">voter or admin</text></g>
+
+  <g><rect class="box" x="250" y="140" width="160" height="100" rx="12"/><rect x="250" y="140" width="160" height="8" rx="4" fill="var(--sky)"/>
+    <text class="t h" x="330" y="178" text-anchor="middle">Caddy proxy</text><text class="t s" x="330" y="198" text-anchor="middle">HTTPS, headers,</text><text class="t s" x="330" y="215" text-anchor="middle">routes by path</text></g>
+
+  <g><rect class="box" x="540" y="70" width="160" height="80" rx="12"/><rect x="540" y="70" width="160" height="8" rx="4" fill="var(--mint)"/>
+    <text class="t h" x="620" y="108" text-anchor="middle">Next.js 16 web</text><text class="t s" x="620" y="128" text-anchor="middle">everything else, calls the API</text></g>
+  <g><rect class="box" x="540" y="150" width="160" height="80" rx="12"/><rect x="540" y="150" width="160" height="8" rx="4" fill="var(--lav)"/>
+    <text class="t h" x="620" y="188" text-anchor="middle">Laravel 13 API</text><text class="t s" x="620" y="208" text-anchor="middle">Octane on FrankenPHP</text></g>
+  <g><rect class="box" x="540" y="250" width="160" height="60" rx="12"/><rect x="540" y="250" width="160" height="8" rx="4" fill="var(--pink)"/>
+    <text class="t h" x="620" y="283" text-anchor="middle">Media files</text><text class="t s" x="620" y="300" text-anchor="middle">/media/*</text></g>
+
+  <g><rect class="box" x="780" y="130" width="170" height="60" rx="12"/><rect x="780" y="130" width="170" height="8" rx="4" fill="var(--sky)"/>
+    <text class="t h" x="865" y="165" text-anchor="middle">MariaDB</text><text class="t s" x="865" y="180" text-anchor="middle">data</text></g>
+  <g><rect class="box" x="780" y="205" width="170" height="60" rx="12"/><rect x="780" y="205" width="170" height="8" rx="4" fill="var(--pink)"/>
+    <text class="t h" x="865" y="240" text-anchor="middle">Redis</text><text class="t s" x="865" y="255" text-anchor="middle">sessions, queue, limits</text></g>
+  <g><rect class="box" x="780" y="280" width="170" height="60" rx="12"/><rect x="780" y="280" width="170" height="8" rx="4" fill="var(--sun)"/>
+    <text class="t h" x="865" y="312" text-anchor="middle">Queue + scheduler</text><text class="t s" x="865" y="328" text-anchor="middle">same image as the API</text></g>
+
+  <text class="lbl" x="468" y="122">/</text><text class="lbl" x="452" y="182">/api/*</text><text class="lbl" x="452" y="262">/media/*</text>
+
+  <text class="t s" x="960" y="374" text-anchor="end" style="font-weight:700">only the API, queue and scheduler reach the data</text>
+  <circle r="6" fill="var(--a)"><animateMotion dur="2s" repeatCount="indefinite"><mpath xlink:href="#p0"/></animateMotion></circle>
+  <circle r="6" fill="var(--a)"><animateMotion dur="2.4s" begin="1s" repeatCount="indefinite"><mpath xlink:href="#p1"/></animateMotion></circle>
+  <circle r="6" fill="var(--b)"><animateMotion dur="2.4s" begin=".6s" repeatCount="indefinite"><mpath xlink:href="#p2"/></animateMotion></circle>
+  <circle r="6" fill="var(--a)"><animateMotion dur="2.4s" begin="1.6s" repeatCount="indefinite"><mpath xlink:href="#p3"/></animateMotion></circle>
+  <circle r="6" fill="var(--b)"><animateMotion dur="1.8s" begin="1.5s" repeatCount="indefinite"><mpath xlink:href="#p5"/></animateMotion></circle>
+  <circle r="6" fill="var(--b)"><animateMotion dur="1.8s" begin="2s" repeatCount="indefinite"><mpath xlink:href="#p6"/></animateMotion></circle>
+</svg>

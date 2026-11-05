@@ -7,14 +7,16 @@ Version 1.0 · 2026-10-06 · goes with [SPEC.md](../SPEC.md) 1.3,
 ## 1. Overview
 
 ```
-                    ┌──────────── one host, one origin ────────────┐
- browser ── HTTPS ──▶  proxy ──┬── /api/*    ──▶ api  ──┬── MariaDB │
-                               ├── /media/*  ──▶ files  ├── Redis   │
-                               └── the rest  ──▶ web ───┘           │
-                               queue worker and scheduler: same     │
-                               image as api, no port open           │
-                    └───────────────────────────────────────────────┘
+                    ┌──────────────── one host, one origin ───────────────┐
+ browser ── HTTPS ──▶  proxy ──┬── /api/*    ──────▶ api ──┬── MariaDB    │
+                               ├── /media/*  ──▶ files     └── Redis      │
+                               └── the rest  ──▶ web ── calls the api     │
+                               queue worker and scheduler: same image     │
+                               as api, no port open                       │
+                    └─────────────────────────────────────────────────────┘
 ```
+
+Only the `api`, `queue` and `scheduler` services reach MariaDB and Redis. The web application never does: it reads and writes through the API.
 
 Everything is served from **one origin**. The browser never talks to a second domain, so
 there is no cross-origin configuration, cookies are first-party, and the
