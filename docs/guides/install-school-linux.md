@@ -23,17 +23,22 @@ Docker, no email.
 
 ### Étape 1. Télécharger et vérifier
 
-Ouvrez un terminal sur la machine. Remplacez `1.0.0-rc.10` par la version que vous voulez installer (la dernière est sur la
-page des versions du projet).
+Ouvrez un terminal sur la machine.
+
+> **Important : remplacez `xxx` par le numéro de la dernière version publiée.** Ouvrez la
+> [page des versions](https://github.com/jun101/VotingSystem/releases), prenez la version la plus récente de la liste et
+> écrivez son numéro (ce qui suit le `v` dans son nom) à la place de `xxx`, dans chaque commande. N'installez pas une version
+> plus ancienne : elle peut contenir des failles de sécurité corrigées depuis. Un numéro qui n'existe pas fait échouer le
+> téléchargement.
 
 ```bash
-cd ~ && wget -q https://github.com/jun101/VotingSystem/releases/download/v1.0.0-rc.10/votesystem-1.0.0-rc.10-linux-x86_64.tar.gz{,.sha256}
+cd ~ && wget -q https://github.com/jun101/VotingSystem/releases/download/vxxx/votesystem-xxx-linux-x86_64.tar.gz{,.sha256}
 ```
 
 Vérifiez que le fichier n'est pas abîmé. Vous devez lire `OK` :
 
 ```bash
-sha256sum -c votesystem-1.0.0-rc.10-linux-x86_64.tar.gz.sha256
+sha256sum -c votesystem-xxx-linux-x86_64.tar.gz.sha256
 ```
 
 Si vous lisez `FAILED`, ne continuez pas : retéléchargez le fichier.
@@ -41,7 +46,7 @@ Si vous lisez `FAILED`, ne continuez pas : retéléchargez le fichier.
 Décompressez :
 
 ```bash
-tar -xzf votesystem-1.0.0-rc.10-linux-x86_64.tar.gz && cd votesystem-1.0.0-rc.10-linux-x86_64
+tar -xzf votesystem-xxx-linux-x86_64.tar.gz && cd votesystem-xxx-linux-x86_64
 ```
 
 ### Étape 2. Regarder avant d'installer (ne change rien)
@@ -176,17 +181,21 @@ Les données sont conservées. Pour tout effacer, ajoutez `--purge-data`.
 
 ### Step 1. Download and check
 
-Open a terminal on the machine. Replace `1.0.0-rc.10` with the version you want (the latest is on the project's releases
-page).
+Open a terminal on the machine.
+
+> **Important: replace `xxx` with the number of the latest published release.** Open the
+> [releases page](https://github.com/jun101/VotingSystem/releases), take the most recent release in the list and write its
+> number (what follows the `v` in its name) in place of `xxx`, in every command. Do not install an older version: it may
+> contain security flaws that were fixed since. A number that does not exist makes the download fail.
 
 ```bash
-cd ~ && wget -q https://github.com/jun101/VotingSystem/releases/download/v1.0.0-rc.10/votesystem-1.0.0-rc.10-linux-x86_64.tar.gz{,.sha256}
+cd ~ && wget -q https://github.com/jun101/VotingSystem/releases/download/vxxx/votesystem-xxx-linux-x86_64.tar.gz{,.sha256}
 ```
 
 Check that the file is not damaged. You must read `OK`:
 
 ```bash
-sha256sum -c votesystem-1.0.0-rc.10-linux-x86_64.tar.gz.sha256
+sha256sum -c votesystem-xxx-linux-x86_64.tar.gz.sha256
 ```
 
 If you read `FAILED`, do not go on: download the file again.
@@ -194,7 +203,7 @@ If you read `FAILED`, do not go on: download the file again.
 Unpack:
 
 ```bash
-tar -xzf votesystem-1.0.0-rc.10-linux-x86_64.tar.gz && cd votesystem-1.0.0-rc.10-linux-x86_64
+tar -xzf votesystem-xxx-linux-x86_64.tar.gz && cd votesystem-xxx-linux-x86_64
 ```
 
 ### Step 2. Look before installing (changes nothing)

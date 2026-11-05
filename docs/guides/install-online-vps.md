@@ -52,14 +52,18 @@ Nginx Proxy Manager) occupe déjà ces ports : suivez la **variante B**. Sinon, 
 
 ### Étape 2. Télécharger et vérifier
 
-Remplacez `1.0.0-rc.10` par la version voulue.
+> **Important : remplacez `xxx` par le numéro de la dernière version publiée.** Ouvrez la
+> [page des versions](https://github.com/jun101/VotingSystem/releases), prenez la version la plus récente de la liste et
+> écrivez son numéro (ce qui suit le `v` dans son nom) à la place de `xxx`, dans chaque commande. N'installez pas une version
+> plus ancienne : elle peut contenir des failles de sécurité corrigées depuis. Un numéro qui n'existe pas fait échouer le
+> téléchargement.
 
 ```bash
-cd ~ && wget -q https://github.com/jun101/VotingSystem/releases/download/v1.0.0-rc.10/votesystem-online-1.0.0-rc.10.tar.gz{,.sha256}
+cd ~ && wget -q https://github.com/jun101/VotingSystem/releases/download/vxxx/votesystem-online-xxx.tar.gz{,.sha256}
 ```
 
 ```bash
-sha256sum -c votesystem-online-1.0.0-rc.10.tar.gz.sha256 && tar -xzf votesystem-online-1.0.0-rc.10.tar.gz && cd votesystem-online-1.0.0-rc.10
+sha256sum -c votesystem-online-xxx.tar.gz.sha256 && tar -xzf votesystem-online-xxx.tar.gz && cd votesystem-online-xxx
 ```
 
 Vous devez lire `...tar.gz: OK`. Sinon, retéléchargez.
@@ -227,14 +231,14 @@ Restauration : [docs/ops/backup-restore.md](../ops/backup-restore.md).
 
 ### Mettre à jour
 
-Téléchargez, vérifiez et décompressez la nouvelle version comme à l'étape 2, puis (la sauvegarde est faite d'abord, et le
+Téléchargez, vérifiez et décompressez la **dernière version publiée** comme à l'étape 2 (`xxx` = son numéro, comme à l'étape 2), puis (la sauvegarde est faite d'abord, et le
 retour à la version précédente est automatique en cas d'échec) :
 
 ```bash
-cd ~/votesystem-online-X.Y.Z && sudo ./install-online.sh update --archive ~/votesystem-online-X.Y.Z.tar.gz
+cd ~/votesystem-online-xxx && sudo ./install-online.sh update --archive ~/votesystem-online-xxx.tar.gz
 ```
 
-Variante : sans télécharger à la main, `sudo votectl update --version X.Y.Z`.
+Variante : sans télécharger à la main, `sudo votectl update --version xxx`.
 
 Après la mise à jour, vérifiez :
 
@@ -277,7 +281,7 @@ sudo sed -i 's/^MAIL_FROM_ADDRESS=.*/MAIL_FROM_ADDRESS=vote@example.org/' /opt/v
 | Le certificat n'est pas obtenu | Le DNS ne pointe pas encore sur le serveur, ou le port 80 est fermé | `getent hosts NOM`, pare-feu du fournisseur |
 | `ports 80 et 443 indisponibles` | Un autre proxy les utilise | Variante B (`--behind-proxy`) |
 | Un service n'est pas `healthy` | | `sudo votectl logs` puis le nom du service, par exemple `sudo votectl logs api` |
-| Page « Cette page ne peut pas se charger » sur `/platform` | Version trop ancienne | Mettre à jour vers 1.0.0-rc.5 ou plus récent |
+| Page « Cette page ne peut pas se charger » sur `/platform` | Version trop ancienne | Mettre à jour vers la dernière version publiée |
 
 ---
 
@@ -326,14 +330,17 @@ Manager) already holds these ports: follow **variant B**. Otherwise, **variant A
 
 ### Step 2. Download and check
 
-Replace `1.0.0-rc.10` with the version you want.
+> **Important: replace `xxx` with the number of the latest published release.** Open the
+> [releases page](https://github.com/jun101/VotingSystem/releases), take the most recent release in the list and write its
+> number (what follows the `v` in its name) in place of `xxx`, in every command. Do not install an older version: it may
+> contain security flaws that were fixed since. A number that does not exist makes the download fail.
 
 ```bash
-cd ~ && wget -q https://github.com/jun101/VotingSystem/releases/download/v1.0.0-rc.10/votesystem-online-1.0.0-rc.10.tar.gz{,.sha256}
+cd ~ && wget -q https://github.com/jun101/VotingSystem/releases/download/vxxx/votesystem-online-xxx.tar.gz{,.sha256}
 ```
 
 ```bash
-sha256sum -c votesystem-online-1.0.0-rc.10.tar.gz.sha256 && tar -xzf votesystem-online-1.0.0-rc.10.tar.gz && cd votesystem-online-1.0.0-rc.10
+sha256sum -c votesystem-online-xxx.tar.gz.sha256 && tar -xzf votesystem-online-xxx.tar.gz && cd votesystem-online-xxx
 ```
 
 You must read `...tar.gz: OK`. Otherwise, download again.
@@ -499,14 +506,14 @@ You must read `...tar: OK`. A backup that stays on the same disk does not protec
 
 ### Update
 
-Download, check and unpack the new version as in step 2, then (the backup is made first, and the return to the previous
+Download, check and unpack the **latest published release** as in step 2 (`xxx` = its number, as in step 2), then (the backup is made first, and the return to the previous
 version is automatic on failure):
 
 ```bash
-cd ~/votesystem-online-X.Y.Z && sudo ./install-online.sh update --archive ~/votesystem-online-X.Y.Z.tar.gz
+cd ~/votesystem-online-xxx && sudo ./install-online.sh update --archive ~/votesystem-online-xxx.tar.gz
 ```
 
-Alternative: without downloading by hand, `sudo votectl update --version X.Y.Z`.
+Alternative: without downloading by hand, `sudo votectl update --version xxx`.
 
 After the update, check:
 
@@ -549,4 +556,4 @@ sudo sed -i 's/^MAIL_FROM_ADDRESS=.*/MAIL_FROM_ADDRESS=vote@example.org/' /opt/v
 | The certificate is not obtained | DNS does not point to the server yet, or port 80 is closed | `getent hosts NAME`, the provider's firewall |
 | `ports 80 and 443 unavailable` | Another proxy uses them | Variant B (`--behind-proxy`) |
 | A service is not `healthy` | | `sudo votectl logs`, then the service name, for example `sudo votectl logs api` |
-| "This page couldn't load" on `/platform` | Version too old | Update to 1.0.0-rc.5 or later |
+| "This page couldn't load" on `/platform` | Version too old | Update to the latest published release |
