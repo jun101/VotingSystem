@@ -24,8 +24,8 @@ download, no Docker, no WSL, no email.
 ### Étape 1. Télécharger et vérifier
 
 1. Ouvrez la page des versions du projet : <https://github.com/jun101/VotingSystem/releases>.
-2. Dans la version voulue (par exemple `v1.0.0-rc.5`), téléchargez **les deux fichiers** :
-   `votesystem-1.0.0-rc.5-windows-x64.zip` et `votesystem-1.0.0-rc.5-windows-x64.zip.sha256`. Enregistrez-les dans le dossier
+2. Dans la version voulue (par exemple `v1.0.0-rc.10`), téléchargez **les deux fichiers** :
+   `votesystem-1.0.0-rc.10-windows-x64.zip` et `votesystem-1.0.0-rc.10-windows-x64.zip.sha256`. Enregistrez-les dans le dossier
    `Téléchargements`.
 3. Ouvrez **PowerShell en tant qu'administrateur** : clic droit sur le menu Démarrer, puis « Windows PowerShell (admin) » ou
    « Terminal (admin) ».
@@ -38,11 +38,11 @@ download, no Docker, no WSL, no email.
 5. Calculez l'empreinte du fichier et comparez-la avec le contenu du fichier `.sha256` (les deux doivent être identiques) :
 
    ```powershell
-   (Get-FileHash .\votesystem-1.0.0-rc.5-windows-x64.zip -Algorithm SHA256).Hash.ToLower()
+   (Get-FileHash .\votesystem-1.0.0-rc.10-windows-x64.zip -Algorithm SHA256).Hash.ToLower()
    ```
 
    ```powershell
-   Get-Content .\votesystem-1.0.0-rc.5-windows-x64.zip.sha256
+   Get-Content .\votesystem-1.0.0-rc.10-windows-x64.zip.sha256
    ```
 
    Si elles diffèrent, ne continuez pas : retéléchargez le fichier.
@@ -50,13 +50,13 @@ download, no Docker, no WSL, no email.
 6. Décompressez l'archive à la racine du disque (le chemin doit rester court) :
 
    ```powershell
-   Expand-Archive .\votesystem-1.0.0-rc.5-windows-x64.zip -DestinationPath C:\
+   Expand-Archive .\votesystem-1.0.0-rc.10-windows-x64.zip -DestinationPath C:\
    ```
 
 ### Étape 2. Regarder avant d'installer (ne change rien)
 
 ```powershell
-cd C:\votesystem-1.0.0-rc.5-windows-x64
+cd C:\votesystem-1.0.0-rc.10-windows-x64
 ```
 
 ```powershell
@@ -195,8 +195,8 @@ Les données sont conservées. Pour tout effacer, ajoutez `-PurgeData`.
 ### Step 1. Download and check
 
 1. Open the project's releases page: <https://github.com/jun101/VotingSystem/releases>.
-2. In the version you want (for example `v1.0.0-rc.5`), download **both files**:
-   `votesystem-1.0.0-rc.5-windows-x64.zip` and `votesystem-1.0.0-rc.5-windows-x64.zip.sha256`. Save them in the `Downloads`
+2. In the version you want (for example `v1.0.0-rc.10`), download **both files**:
+   `votesystem-1.0.0-rc.10-windows-x64.zip` and `votesystem-1.0.0-rc.10-windows-x64.zip.sha256`. Save them in the `Downloads`
    folder.
 3. Open **PowerShell as administrator**: right-click the Start menu, then "Windows PowerShell (admin)" or "Terminal (admin)".
 4. Go to the downloads folder:
@@ -208,11 +208,11 @@ Les données sont conservées. Pour tout effacer, ajoutez `-PurgeData`.
 5. Compute the file's fingerprint and compare it with the content of the `.sha256` file (they must be identical):
 
    ```powershell
-   (Get-FileHash .\votesystem-1.0.0-rc.5-windows-x64.zip -Algorithm SHA256).Hash.ToLower()
+   (Get-FileHash .\votesystem-1.0.0-rc.10-windows-x64.zip -Algorithm SHA256).Hash.ToLower()
    ```
 
    ```powershell
-   Get-Content .\votesystem-1.0.0-rc.5-windows-x64.zip.sha256
+   Get-Content .\votesystem-1.0.0-rc.10-windows-x64.zip.sha256
    ```
 
    If they differ, do not go on: download the file again.
@@ -220,13 +220,13 @@ Les données sont conservées. Pour tout effacer, ajoutez `-PurgeData`.
 6. Extract the archive at the root of the disk (the path must stay short):
 
    ```powershell
-   Expand-Archive .\votesystem-1.0.0-rc.5-windows-x64.zip -DestinationPath C:\
+   Expand-Archive .\votesystem-1.0.0-rc.10-windows-x64.zip -DestinationPath C:\
    ```
 
 ### Step 2. Look before installing (changes nothing)
 
 ```powershell
-cd C:\votesystem-1.0.0-rc.5-windows-x64
+cd C:\votesystem-1.0.0-rc.10-windows-x64
 ```
 
 ```powershell

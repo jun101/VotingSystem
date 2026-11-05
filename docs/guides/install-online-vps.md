@@ -52,14 +52,14 @@ Nginx Proxy Manager) occupe déjà ces ports : suivez la **variante B**. Sinon, 
 
 ### Étape 2. Télécharger et vérifier
 
-Remplacez `1.0.0-rc.5` par la version voulue.
+Remplacez `1.0.0-rc.10` par la version voulue.
 
 ```bash
-cd ~ && wget -q https://github.com/jun101/VotingSystem/releases/download/v1.0.0-rc.5/votesystem-online-1.0.0-rc.5.tar.gz{,.sha256}
+cd ~ && wget -q https://github.com/jun101/VotingSystem/releases/download/v1.0.0-rc.10/votesystem-online-1.0.0-rc.10.tar.gz{,.sha256}
 ```
 
 ```bash
-sha256sum -c votesystem-online-1.0.0-rc.5.tar.gz.sha256 && tar -xzf votesystem-online-1.0.0-rc.5.tar.gz && cd votesystem-online-1.0.0-rc.5
+sha256sum -c votesystem-online-1.0.0-rc.10.tar.gz.sha256 && tar -xzf votesystem-online-1.0.0-rc.10.tar.gz && cd votesystem-online-1.0.0-rc.10
 ```
 
 Vous devez lire `...tar.gz: OK`. Sinon, retéléchargez.
@@ -326,14 +326,14 @@ Manager) already holds these ports: follow **variant B**. Otherwise, **variant A
 
 ### Step 2. Download and check
 
-Replace `1.0.0-rc.5` with the version you want.
+Replace `1.0.0-rc.10` with the version you want.
 
 ```bash
-cd ~ && wget -q https://github.com/jun101/VotingSystem/releases/download/v1.0.0-rc.5/votesystem-online-1.0.0-rc.5.tar.gz{,.sha256}
+cd ~ && wget -q https://github.com/jun101/VotingSystem/releases/download/v1.0.0-rc.10/votesystem-online-1.0.0-rc.10.tar.gz{,.sha256}
 ```
 
 ```bash
-sha256sum -c votesystem-online-1.0.0-rc.5.tar.gz.sha256 && tar -xzf votesystem-online-1.0.0-rc.5.tar.gz && cd votesystem-online-1.0.0-rc.5
+sha256sum -c votesystem-online-1.0.0-rc.10.tar.gz.sha256 && tar -xzf votesystem-online-1.0.0-rc.10.tar.gz && cd votesystem-online-1.0.0-rc.10
 ```
 
 You must read `...tar.gz: OK`. Otherwise, download again.

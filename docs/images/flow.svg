@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1000 230" width="1000" height="230" role="img" aria-label="An election in five steps: set up, load voters, send codes, vote, publish results">
+  <style>
+    :root { --bg:#F4F5FC; --box:#FFFFFF; --line:#C9CCE6; --ink:#271A38; --muted:#5A5470; --a:#5468D4; --b:#A33BA8; --c:#F29A76; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#141020; --box:#1A1626; --line:#3A3260; --ink:#F4F1FC; --muted:#B7B0CE; --a:#8A9BF2; --b:#D26BD6; --c:#F29A76; } }
+    .t { font-family: Archivo, "Segoe UI", system-ui, -apple-system, Arial, sans-serif; fill: var(--ink); }
+    .h { font-size: 17px; font-weight: 700; } .s { font-size: 13px; fill: var(--muted); }
+    .n { font-size: 20px; font-weight: 800; fill: #fff; }
+    .rail { stroke: var(--line); stroke-width: 4; stroke-dasharray: 2 10; stroke-linecap: round; }
+  </style>
+  <rect width="1000" height="230" rx="18" fill="var(--bg)"/>
+  <path id="rail" class="rail" d="M110 90 H890"/>
+  <circle r="7" fill="var(--c)"><animateMotion dur="10s" repeatCount="indefinite"><mpath xlink:href="#rail"/></animateMotion></circle>
+
+  <g id="steps">
+    <!-- node i at x = 110 + i*195 -->
+    <g><circle cx="110" cy="90" r="30" fill="var(--a)"><animate attributeName="r" values="30;30;36;30;30" keyTimes="0;0;.04;.12;1" dur="10s" repeatCount="indefinite"/></circle><text class="t n" x="110" y="97" text-anchor="middle">1</text>
+      <text class="t h" x="110" y="150" text-anchor="middle">Set up</text><text class="t s" x="110" y="171" text-anchor="middle">election, ballots,</text><text class="t s" x="110" y="188" text-anchor="middle">candidates</text></g>
+    <g><circle cx="305" cy="90" r="30" fill="var(--a)"><animate attributeName="r" values="30;30;36;30;30" keyTimes="0;.2;.24;.32;1" dur="10s" repeatCount="indefinite"/></circle><text class="t n" x="305" y="97" text-anchor="middle">2</text>
+      <text class="t h" x="305" y="150" text-anchor="middle">Load voters</text><text class="t s" x="305" y="171" text-anchor="middle">CSV or Excel,</text><text class="t s" x="305" y="188" text-anchor="middle">with groups</text></g>
+    <g><circle cx="500" cy="90" r="30" fill="var(--b)"><animate attributeName="r" values="30;30;36;30;30" keyTimes="0;.4;.44;.52;1" dur="10s" repeatCount="indefinite"/></circle><text class="t n" x="500" y="97" text-anchor="middle">3</text>
+      <text class="t h" x="500" y="150" text-anchor="middle">Send codes</text><text class="t s" x="500" y="171" text-anchor="middle">paper slips with QR,</text><text class="t s" x="500" y="188" text-anchor="middle">email or a file</text></g>
+    <g><circle cx="695" cy="90" r="30" fill="var(--b)"><animate attributeName="r" values="30;30;36;30;30" keyTimes="0;.6;.64;.72;1" dur="10s" repeatCount="indefinite"/></circle><text class="t n" x="695" y="97" text-anchor="middle">4</text>
+      <text class="t h" x="695" y="150" text-anchor="middle">Vote</text><text class="t s" x="695" y="171" text-anchor="middle">secret, once,</text><text class="t s" x="695" y="188" text-anchor="middle">in under a minute</text></g>
+    <g><circle cx="890" cy="90" r="30" fill="var(--c)"><animate attributeName="r" values="30;30;36;30;30" keyTimes="0;.8;.84;.92;1" dur="10s" repeatCount="indefinite"/></circle><text class="t n" x="890" y="97" text-anchor="middle">5</text>
+      <text class="t h" x="890" y="150" text-anchor="middle">Results</text><text class="t s" x="890" y="171" text-anchor="middle">only after closing,</text><text class="t s" x="890" y="188" text-anchor="middle">public page + PDF</text></g>
+  </g>
+</svg>
