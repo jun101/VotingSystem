@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1000 360" width="1000" height="360" role="img" aria-label="Ballot secrecy: the voted flag and the vote are stored apart with no link; one encrypted audit record can only be read with a private key that is never on the server">
+  <style>
+    :root { --bg:#F4F5FC; --box:#FFFFFF; --line:#C9CCE6; --ink:#271A38; --muted:#5A5470; --a:#5468D4; --b:#A33BA8; --c:#F29A76; --ok:#2F9E6E; --bad:#C42A2A; --mint:#CDEFD9; --lav:#DDD5FB; --sun:#FFE7A8; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#141020; --box:#1A1626; --line:#3A3260; --ink:#F4F1FC; --muted:#B7B0CE; --a:#8A9BF2; --b:#D26BD6; --ok:#4ADE80; --bad:#F87171; --mint:#1A4A38; --lav:#3A2F6B; --sun:#5C4614; } }
+    .t { font-family: Archivo, "Segoe UI", system-ui, -apple-system, Arial, sans-serif; fill: var(--ink); }
+    .h { font-size: 17px; font-weight: 700; } .s { font-size: 13px; fill: var(--muted); } .m { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; fill: var(--ink); }
+    .box { fill: var(--box); stroke: var(--line); stroke-width: 2; }
+    .dash { fill: none; stroke: var(--line); stroke-width: 3; stroke-dasharray: 6 8; }
+    .cut { animation: cut 3s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+    @keyframes cut { 0%,100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+    @media (prefers-reduced-motion: reduce) { .cut { animation: none; } }
+  </style>
+  <rect width="1000" height="360" rx="18" fill="var(--bg)"/>
+
+  <!-- left: voters -->
+  <rect class="box" x="40" y="40" width="250" height="140" rx="14"/>
+  <rect x="40" y="40" width="250" height="9" rx="4" fill="var(--mint)"/>
+  <text class="t h" x="165" y="78" text-anchor="middle">Who has voted</text>
+  <text class="t m" x="62" y="108">voter  #a91f...  voted ✔</text>
+  <text class="t m" x="62" y="130">voter  #5c07...  voted ✔</text>
+  <text class="t s" x="165" y="160" text-anchor="middle">no choice stored here</text>
+
+  <!-- right: votes -->
+  <rect class="box" x="710" y="40" width="250" height="140" rx="14"/>
+  <rect x="710" y="40" width="250" height="9" rx="4" fill="var(--lav)"/>
+  <text class="t h" x="835" y="78" text-anchor="middle">What was voted</text>
+  <text class="t m" x="732" y="108">1 vote → Candidate B</text>
+  <text class="t m" x="732" y="130">1 vote → blank</text>
+  <text class="t s" x="835" y="160" text-anchor="middle">no voter, no time, no id</text>
+
+  <!-- middle: no link -->
+  <path class="dash" d="M290 110 H710"/>
+  <g class="cut"><circle cx="500" cy="110" r="30" fill="var(--box)" stroke="var(--bad)" stroke-width="3"/>
+    <path d="M488 98 L512 122 M512 98 L488 122" stroke="var(--bad)" stroke-width="5" stroke-linecap="round"/></g>
+  <text class="t h" x="500" y="168" text-anchor="middle">No readable link</text>
+
+  <!-- audit record -->
+  <path id="down1" class="dash" d="M165 180 C165 250 300 250 380 270"/>
+  <path id="down2" class="dash" d="M835 180 C835 250 700 250 620 270"/>
+  <circle r="6" fill="var(--a)"><animateMotion dur="3s" repeatCount="indefinite"><mpath xlink:href="#down1"/></animateMotion></circle>
+  <circle r="6" fill="var(--b)"><animateMotion dur="3s" begin="1s" repeatCount="indefinite"><mpath xlink:href="#down2"/></animateMotion></circle>
+
+  <rect class="box" x="380" y="232" width="240" height="96" rx="14"/>
+  <rect x="380" y="232" width="240" height="9" rx="4" fill="var(--sun)"/>
+  <text class="t h" x="500" y="266" text-anchor="middle">🔒 One encrypted audit record</text>
+  <text class="t m" x="500" y="290" text-anchor="middle">9f3a·c2e1·77bd·0a5e</text>
+  <text class="t s" x="500" y="312" text-anchor="middle">sealed with the public key</text>
+
+  <text class="t s" x="40" y="262">The server holds the public key only:</text>
+  <text class="t s" x="40" y="282">it can write audit records, never read them.</text>
+  <text class="t s" x="960" y="262" text-anchor="end">The private key stays with the operator,</text>
+  <text class="t s" x="960" y="282" text-anchor="end">never on the server, in the database or in a backup.</text>
+</svg>

@@ -23,17 +23,17 @@ Docker, no email.
 
 ### Étape 1. Télécharger et vérifier
 
-Ouvrez un terminal sur la machine. Remplacez `1.0.0-rc.5` par la version que vous voulez installer (la dernière est sur la
+Ouvrez un terminal sur la machine. Remplacez `1.0.0-rc.10` par la version que vous voulez installer (la dernière est sur la
 page des versions du projet).
 
 ```bash
-cd ~ && wget -q https://github.com/jun101/VotingSystem/releases/download/v1.0.0-rc.5/votesystem-1.0.0-rc.5-linux-x86_64.tar.gz{,.sha256}
+cd ~ && wget -q https://github.com/jun101/VotingSystem/releases/download/v1.0.0-rc.10/votesystem-1.0.0-rc.10-linux-x86_64.tar.gz{,.sha256}
 ```
 
 Vérifiez que le fichier n'est pas abîmé. Vous devez lire `OK` :
 
 ```bash
-sha256sum -c votesystem-1.0.0-rc.5-linux-x86_64.tar.gz.sha256
+sha256sum -c votesystem-1.0.0-rc.10-linux-x86_64.tar.gz.sha256
 ```
 
 Si vous lisez `FAILED`, ne continuez pas : retéléchargez le fichier.
@@ -41,7 +41,7 @@ Si vous lisez `FAILED`, ne continuez pas : retéléchargez le fichier.
 Décompressez :
 
 ```bash
-tar -xzf votesystem-1.0.0-rc.5-linux-x86_64.tar.gz && cd votesystem-1.0.0-rc.5-linux-x86_64
+tar -xzf votesystem-1.0.0-rc.10-linux-x86_64.tar.gz && cd votesystem-1.0.0-rc.10-linux-x86_64
 ```
 
 ### Étape 2. Regarder avant d'installer (ne change rien)
@@ -176,17 +176,17 @@ Les données sont conservées. Pour tout effacer, ajoutez `--purge-data`.
 
 ### Step 1. Download and check
 
-Open a terminal on the machine. Replace `1.0.0-rc.5` with the version you want (the latest is on the project's releases
+Open a terminal on the machine. Replace `1.0.0-rc.10` with the version you want (the latest is on the project's releases
 page).
 
 ```bash
-cd ~ && wget -q https://github.com/jun101/VotingSystem/releases/download/v1.0.0-rc.5/votesystem-1.0.0-rc.5-linux-x86_64.tar.gz{,.sha256}
+cd ~ && wget -q https://github.com/jun101/VotingSystem/releases/download/v1.0.0-rc.10/votesystem-1.0.0-rc.10-linux-x86_64.tar.gz{,.sha256}
 ```
 
 Check that the file is not damaged. You must read `OK`:
 
 ```bash
-sha256sum -c votesystem-1.0.0-rc.5-linux-x86_64.tar.gz.sha256
+sha256sum -c votesystem-1.0.0-rc.10-linux-x86_64.tar.gz.sha256
 ```
 
 If you read `FAILED`, do not go on: download the file again.
@@ -194,7 +194,7 @@ If you read `FAILED`, do not go on: download the file again.
 Unpack:
 
 ```bash
-tar -xzf votesystem-1.0.0-rc.5-linux-x86_64.tar.gz && cd votesystem-1.0.0-rc.5-linux-x86_64
+tar -xzf votesystem-1.0.0-rc.10-linux-x86_64.tar.gz && cd votesystem-1.0.0-rc.10-linux-x86_64
 ```
 
 ### Step 2. Look before installing (changes nothing)
