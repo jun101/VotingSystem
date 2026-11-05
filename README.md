@@ -169,7 +169,7 @@ Then open the site address, change each temporary password, and turn on two-fact
 - **Windows:** `install.ps1` from an administrator PowerShell, with `-DryRun` for the plan only, `-Lang`, `-School`, `-OwnerEmail` and `-AdminEmail` as above.
 - **Online edition:** `sudo ./install-online.sh --domain vote.example.org --admin-email admin@example.org` (also `--dry-run`), automatic HTTPS, and `--behind-proxy --proxy-network npm_network` to run behind an existing reverse proxy such as Nginx Proxy Manager. See [docs/ops/production-vps.md](docs/ops/production-vps.md).
 - `--yes` accepts the proposed values. The site uses port 80 by default, otherwise the next free one.
-- **Update:** unpack the new version and run `install.sh update` (`install.ps1 update`; online: `install-online.sh update --archive FILE`, or `votectl update --version X.Y.Z`). It makes a backup, runs the migrations, and goes back to the previous version by itself if anything fails.
+- **Update:** unpack the latest release (`xxx` is its number, as above) and run `install.sh update` (`install.ps1 update`; online: `install-online.sh update --archive FILE`, or `votectl update --version xxx`). It makes a backup, runs the migrations, and goes back to the previous version by itself if anything fails.
 - **Uninstall:** `install.sh uninstall` keeps the data unless you give `--purge-data`.
 
 The same guide is in the application for the signed-in owner and platform admin, under "Guide d'utilisation", "Installation".
