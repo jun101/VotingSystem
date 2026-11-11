@@ -62,7 +62,6 @@ export function LanguageToggle({ site = false }: { site?: boolean }) {
           lang={option.locale}
           data-testid={option.testId}
           aria-pressed={locale === option.locale}
-          aria-label={option.name}
           onClick={() => choose(option.locale)}
           className={cx(
             'ui-control min-h-9 min-w-11 rounded-full px-3 text-base font-bold',
@@ -76,7 +75,9 @@ export function LanguageToggle({ site = false }: { site?: boolean }) {
                 : 'text-surface hover:bg-glass-line',
           )}
         >
+          {/* The name starts with the visible text (WCAG 2.5.3, label in name): "FR Français". */}
           {option.short}
+          <span className="sr-only"> {option.name}</span>
         </button>
       ))}
     </div>

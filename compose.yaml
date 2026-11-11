@@ -51,7 +51,7 @@ x-api: &api
 
 services:
   proxy:
-    image: caddy:2.11.7-alpine
+    image: caddy:2.11.9-alpine
     # Only this port (and Mailpit's web page) is published, on this computer only.
     ports:
       - "127.0.0.1:${HTTP_PORT:-8080}:8080"
@@ -230,7 +230,7 @@ services:
     restart: unless-stopped
 
   redis:
-    image: redis:8.10.2
+    image: redis:8.10.3
     # The password is in a configuration file, not on the command line (where `ps` would
     # show it).
     command: ["redis-server", "/etc/redis-auth.conf", "--appendonly", "yes"]
@@ -265,7 +265,7 @@ services:
   # service of the machine.
   e2e:
     profiles: ["tools"]
-    image: mcr.microsoft.com/playwright:v1.64.1-noble
+    image: mcr.microsoft.com/playwright:v1.65.0-noble
     depends_on:
       proxy:
         condition: service_healthy

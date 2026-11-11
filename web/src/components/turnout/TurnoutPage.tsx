@@ -757,7 +757,8 @@ export function TurnoutPage({
                           type="button"
                           data-testid={`turnout-group-${index + 1}`}
                           aria-pressed={selected}
-                          aria-label={`${name} ${t('turnout.groups.line', { voted: line.voted, voters: line.voters })}. ${t('turnout.groups.filter', { name })}`}
+                          // Starts with the visible text, in its order (WCAG 2.5.3), then the action.
+                          aria-label={`${name} ${t('turnout.groups.percent', { percent })} ${t('turnout.groups.line', { voted: line.voted, voters: line.voters })}. ${t('turnout.groups.filter', { name })}`}
                           onClick={() => chooseGroup(selected ? '' : line.key)}
                           className={cx(
                             'ui-control lift-sm flex w-full min-w-0 flex-col gap-2 rounded-lg border p-3.5 text-left',
@@ -767,17 +768,19 @@ export function TurnoutPage({
                             focusRing,
                           )}
                         >
+                          {/* The {' '} are not drawn (flex items) but keep the words apart in the
+                              text a screen reader or axe reads, so it matches the aria-label. */}
                           <span className="flex min-w-0 items-baseline justify-between gap-3">
-                            <b className="min-w-0 truncate text-md font-bold text-ink">{name}</b>
+                            <b className="min-w-0 truncate text-md font-bold text-ink">{name}</b>{' '}
                             <span className="shrink-0 font-display text-xl font-extrabold text-ink">
                               {t('turnout.groups.percent', { percent })}
                             </span>
-                          </span>
+                          </span>{' '}
                           <GrowBar
                             value={line.share}
                             trackClassName="h-2.5"
                             className="bg-bar-open"
-                          />
+                          />{' '}
                           <span className="text-sm font-medium text-ink-soft">
                             {t('turnout.groups.line', { voted: line.voted, voters: line.voters })}
                           </span>
