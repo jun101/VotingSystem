@@ -81,11 +81,12 @@ export function UserMenu() {
         data-testid="user-menu"
         aria-expanded={open}
         aria-controls="user-menu-panel"
-        aria-label={t('admin.user.menu', { name: user.name })}
         onClick={() => setOpen((value) => !value)}
         className={`ui-control lift-sm bg-hero flex size-11 items-center justify-center rounded-full font-display text-sm font-extrabold text-surface shadow-1 ${focusRing}`}
       >
-        <span aria-hidden="true">{initials(user.name)}</span>
+        {/* The name starts with the visible initials (WCAG 2.5.3, label in name). */}
+        {initials(user.name)}
+        <span className="sr-only"> {t('admin.user.menu', { name: user.name })}</span>
       </button>
 
       {open ? (

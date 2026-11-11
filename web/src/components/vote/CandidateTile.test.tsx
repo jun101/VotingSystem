@@ -59,7 +59,8 @@ describe('CandidateTile', () => {
   it('staggers the entrance by position, never more than eight steps', () => {
     show({ index: 20 });
 
-    expect(screen.getByTestId('vote-candidate-20')).toHaveStyle({ animationDelay: '960ms' });
+    // The inline value the tile sets: jsdom 31, like a browser, computes it as 0.96s.
+    expect(screen.getByTestId('vote-candidate-20').style.animationDelay).toBe('960ms');
   });
 
   it('shows the chosen mark and the independent label without a party', () => {
