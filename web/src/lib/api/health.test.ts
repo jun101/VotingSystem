@@ -75,14 +75,10 @@ describe('fetchHealth', () => {
   });
 
   it('reports everything down when the API does not answer in time', async () => {
-    const slow = vi.fn(
-      (input: Request) =>
-        new Promise<Response>((_, reject) => {
-          input.signal.addEventListener('abort', () => reject(new DOMException('x', 'AbortError')));
-        }),
-    ) as unknown as typeof fetch;
+    // Never answers and never looks at its signal: the card must still say "down" in time.
+    const silent = vi.fn(() => new Promise<Response>(() => {})) as unknown as typeof fetch;
 
-    expect(await fetchHealth({ fetch: slow, timeoutMs: 20 })).toEqual(down);
+    expect(await fetchHealth({ fetch: silent, timeoutMs: 20 })).toEqual(down);
   });
 });
 

@@ -30,14 +30,29 @@ type Options = {
  * - anything else (503 because a service it needs is down, no answer, a timeout): down.
  */
 export async function fetchHealth(options: Options = {}): Promise<HealthReport> {
+  // The card answers in time whatever the fetch does: the timer aborts the request and, in
+  // case the abort never reaches it, settles the race on its own.
+  const controller = new AbortController();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timedOut = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      const reason = new DOMException('The API did not answer in time', 'TimeoutError');
+      controller.abort(reason);
+      reject(reason);
+    }, options.timeoutMs ?? 4000);
+  });
+
   try {
     const client = createApiClient(options.fetch ? { fetch: options.fetch } : {});
 
-    const { data, response } = await client.GET('/v1/health', {
-      headers: options.forwardedFor ? { 'X-Forwarded-For': options.forwardedFor } : {},
-      cache: 'no-store',
-      signal: AbortSignal.timeout(options.timeoutMs ?? 4000),
-    });
+    const { data, response } = await Promise.race([
+      client.GET('/v1/health', {
+        headers: options.forwardedFor ? { 'X-Forwarded-For': options.forwardedFor } : {},
+        cache: 'no-store',
+        signal: controller.signal,
+      }),
+      timedOut,
+    ]);
 
     if (response.status === 429) return BUSY;
     if (!data || data.data.status !== 'ok') return DOWN;
@@ -50,6 +65,8 @@ export async function fetchHealth(options: Options = {}): Promise<HealthReport> 
     };
   } catch {
     return DOWN;
+  } finally {
+    clearTimeout(timer);
   }
 }
 
