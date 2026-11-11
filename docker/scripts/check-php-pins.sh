@@ -5,7 +5,7 @@
 #   check-php-pins.sh [--image]
 set -u
 MIN_PHP="8.5.12"
-MIN_NODE="24.22.1"
+MIN_NODE="24.22.2"
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 fail=0
 
