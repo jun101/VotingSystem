@@ -1,7 +1,7 @@
 # The upstream files of the Linux bundle (slice 19c, step C), pinned.
 # PHP: the command line is `frankenphp php-cli` (bin/php is a wrapper), so server and CLI are always the same PHP.
 # name | version | file | url | publisher hash list (to check the file against, or "-") | sha256 (empty until pinned)
-frankenphp | 1.13.5 | frankenphp-linux-x86_64-mimalloc | https://github.com/php/frankenphp/releases/download/v1.13.5/frankenphp-linux-x86_64-mimalloc | github-digest:php/frankenphp:v1.13.5 | 51e17dddf940cdb09a90de031270d72ad052863ac759330b0ab249cc7dc746c6
+frankenphp | 1.13.6 | frankenphp-linux-x86_64-mimalloc | https://github.com/php/frankenphp/releases/download/v1.13.6/frankenphp-linux-x86_64-mimalloc | github-digest:php/frankenphp:v1.13.6 | a145724c80eb39515f1cc07e0dabfe756f009799da1eaf33aa04662891aae4d0
 node | 24.22.2 | node-v24.22.2-linux-x64.tar.xz | https://nodejs.org/dist/v24.22.2/node-v24.22.2-linux-x64.tar.xz | https://nodejs.org/dist/v24.22.2/SHASUMS256.txt | 48cc0e21e048790e54c0cf5749c2725005313d652651c40b7a21feb9697aaf75
 mariadb | 12.3.3 | mariadb-12.3.3-linux-systemd-x86_64.tar.gz | https://archive.mariadb.org/mariadb-12.3.3/bintar-linux-systemd-x86_64/mariadb-12.3.3-linux-systemd-x86_64.tar.gz | https://archive.mariadb.org/mariadb-12.3.3/bintar-linux-systemd-x86_64/sha256sums.txt | a12bf7bce08a896cdd01f174f04b4ce1d5da43ec250a5e7fceb9972119514329
 redis | 8.10.3 | redis-8.10.3.tar.gz | https://download.redis.io/releases/redis-8.10.3.tar.gz | github-redis-hashes:redis-8.10.3.tar.gz | edde778f6bdee7581e42fc139ca9e07e2822212092f7501f99989656e3629d02
