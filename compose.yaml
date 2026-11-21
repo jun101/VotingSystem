@@ -265,7 +265,7 @@ services:
   # service of the machine.
   e2e:
     profiles: ["tools"]
-    image: mcr.microsoft.com/playwright:v1.65.0-noble
+    image: mcr.microsoft.com/playwright:v1.65.1-noble
     depends_on:
       proxy:
         condition: service_healthy
