@@ -230,7 +230,7 @@ services:
     restart: unless-stopped
 
   redis:
-    image: redis:8.10.3
+    image: redis:8.12.0
     # The password is in a configuration file, not on the command line (where `ps` would
     # show it).
     command: ["redis-server", "/etc/redis-auth.conf", "--appendonly", "yes"]
