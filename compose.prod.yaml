@@ -179,7 +179,7 @@ services:
     restart: unless-stopped
 
   redis:
-    image: redis:8.10.3
+    image: redis:8.12.0
     command: ["redis-server", "/etc/redis-auth.conf", "--appendonly", "yes"]
     configs:
       - source: redis_auth
