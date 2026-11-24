@@ -4,7 +4,7 @@
 #   build.sh [--version X.Y.Z] [--out DIR] [--skip-web] [--skip-redis]
 #
 # One tar.gz with everything the installer needs and nothing it must fetch: the pinned upstream binaries of
-# sources.lock (FrankenPHP with PHP 8.5 (server and command line), Node, MariaDB, Redis compiled for glibc 2.36), the API without
+# sources.lock (FrankenPHP with its own PHP (8.6 since FrankenPHP 1.14.0; server and command line), Node, MariaDB, Redis compiled for glibc 2.36), the API without
 # its development packages, the web application's standalone build, and the installer files. A SHA256SUMS of every file
 # and one of the archive come with it. Needs Docker (Composer and `next build` run in the project's own images).
 set -eu
